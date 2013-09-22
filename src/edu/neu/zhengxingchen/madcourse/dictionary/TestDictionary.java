@@ -7,6 +7,8 @@ import java.util.TimerTask;
 import org.ardverk.collection.Trie;
 
 import edu.neu.madcourse.R;
+import android.media.AudioManager;
+import android.media.SoundPool;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.app.Activity;
@@ -24,6 +26,9 @@ import android.widget.TextView;
 public class TestDictionary extends Activity{
 
 	protected Trie<String, String> trie = null;
+	protected SoundPool sp = null;
+	protected int beepStreamId = 0;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -32,19 +37,22 @@ public class TestDictionary extends Activity{
 		
 		try {
 			new LoadDicTask(this).execute(getResources().getAssets().open("wordlist.txt"));
+			new LoadBeepTask(this).execute();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
 		initEditTextListener();
+		initTextViewList();
 	}
+
 
 	@Override
 	protected void onResume() {
 		super.onResume();
 		
 		EditText input = (EditText)findViewById(R.id.input);
-		Log.d("TD", input.isFocusableInTouchMode() + "");
+//		Log.d("TD", input.isFocusableInTouchMode() + "");
 //		if(input.isFocusableInTouchMode()){
 //			input.dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_DOWN , 0, 0, 0));
 //			input.dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_UP , 0, 0, 0));           
@@ -64,10 +72,19 @@ public class TestDictionary extends Activity{
 	                m.toggleSoftInput(0, InputMethodManager.SHOW_IMPLICIT);
 	              } 
 	         }
-	    }, 200);         
+	    }, 200);      
+	    
+	    if(sp!=null && beepStreamId!=0 )
+			sp.play(beepStreamId, 1, 1, 0, 0, 1);
+	    
+	}
+	
+	private void initTextViewList() {
+		
 	}
 	
 	private void initEditTextListener() {
+//		Log.d("TD", "initEdit");
 		EditText wordSearch = (EditText)findViewById(R.id.input);
 		
 		wordSearch.addTextChangedListener(new TextWatcher() {
@@ -80,13 +97,13 @@ public class TestDictionary extends Activity{
 			@Override
 			public void beforeTextChanged(CharSequence s, int start, int count,
 					int after) {
-				Log.d("TD","before:within "+ s + ", " + count + " characters beginning at " + start  + " are about to be replaced by " + count + " new text                         ");
+//				Log.d("TD","before:within "+ s + ", " + count + " characters beginning at " + start  + " are about to be replaced by " + count + " new text                         ");
 			}
 
 			@Override
 			public void onTextChanged(CharSequence s, int start, int before,
 					int count) {
-				Log.d("TD","on: within "+ s + ", " + count + " characters beginning at " + start + " have just replaced " + count + " old texts");
+//				Log.d("TD","on: within "+ s + ", " + count + " characters beginning at " + start + " have just replaced " + count + " old texts");
 			}
 			
 		});
@@ -102,7 +119,9 @@ public class TestDictionary extends Activity{
 	
 	public void onWordFound(String result) {
 		TextView resultTv = (TextView) findViewById(R.id.result);
-		resultTv.setText(result);		
+		resultTv.setText(result + "\n" + resultTv.getText());
+		if(sp!=null && beepStreamId!=0 )
+			sp.play(beepStreamId, 1, 1, 0, 0, 1);
 	}
 
 }

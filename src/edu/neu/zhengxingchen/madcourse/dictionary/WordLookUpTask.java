@@ -33,9 +33,8 @@ public class WordLookUpTask extends AsyncTask<String, Void, String>{
 
 	@Override
 	protected void onPostExecute(String result) {
-		if(result!=null)
+		if(result != null)
 			activity.onWordFound(result);
-			
 	}
 
 	

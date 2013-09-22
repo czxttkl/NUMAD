@@ -65,7 +65,7 @@ public class LoadDicTask extends AsyncTask<InputStream, Integer, Trie<String, St
 	@SuppressLint("Recycle")
 	@Override
 	protected void onPostExecute(Trie<String, String> result) {
-		Log.d("TD", "loaded");
+		Log.d("TD", "loaded wordlist");
 		activity.trie = result;
 		
 		TextView dicTitle = (TextView)activity.findViewById(R.id.dictionary_title);
