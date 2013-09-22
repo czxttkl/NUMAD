@@ -1,5 +1,7 @@
 package edu.neu.zhengxingchen.madcourse.dictionary;
 
+import java.io.IOException;
+
 import edu.neu.madcourse.R;
 import android.os.Bundle;
 import android.app.Activity;
@@ -16,7 +18,11 @@ public class TestDictionary extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_test_dictionary);
 		
-		new LoadDicTask().execute("wordlist.txt");
+		try {
+			new LoadDicTask(this).execute(getResources().getAssets().open("wordlist.txt"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		
 		initEditTextListener();
 	}

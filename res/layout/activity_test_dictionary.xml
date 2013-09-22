@@ -15,15 +15,16 @@
         android:id="@+id/dictionary_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/input_indication" />
+        android:text="@string/load_indication" />
 
     <EditText
         android:id="@+id/input"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:ems="10" 
-        android:hint="@string/search_hint">
-
+        android:hint="@string/search_hint"
+        android:focusable="false"
+        android:clickable="false">
         <requestFocus />
     </EditText>
 
