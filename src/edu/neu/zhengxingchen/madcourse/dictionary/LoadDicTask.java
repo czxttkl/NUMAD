@@ -38,7 +38,6 @@ public class LoadDicTask extends AsyncTask<InputStream, Integer, Trie<String, St
 		BufferedReader buff = null;
 		Trie<String, String> trie = new PatriciaTrie<String, String>(StringKeyAnalyzer.INSTANCE);
 
-		
 		long startTime = System.nanoTime();
 		
 		try {
@@ -57,7 +56,7 @@ public class LoadDicTask extends AsyncTask<InputStream, Integer, Trie<String, St
 		} 
 		
 		long endTime = System.nanoTime();
-		Log.d("TD", "time consumed:" + (endTime - startTime));
+		Log.d("TD", "load time consumed:" + (endTime - startTime));
 		
 		Log.d("TD", trie.selectValue("abate"));
 		return trie;
@@ -67,6 +66,8 @@ public class LoadDicTask extends AsyncTask<InputStream, Integer, Trie<String, St
 	@Override
 	protected void onPostExecute(Trie<String, String> result) {
 		Log.d("TD", "loaded");
+		activity.trie = result;
+		
 		TextView dicTitle = (TextView)activity.findViewById(R.id.dictionary_title);
 		dicTitle.setText("Input Below:");
 		EditText input = (EditText)activity.findViewById(R.id.input);

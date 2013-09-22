@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.ardverk.collection.Trie;
+
 import edu.neu.madcourse.R;
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -16,9 +18,11 @@ import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.TextView;
 
 public class TestDictionary extends Activity {
 
+	protected Trie<String, String> trie = null;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -54,13 +58,10 @@ public class TestDictionary extends Activity {
 	         @Override
 	         public void run() {
 	              InputMethodManager m = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-
 	              if(m != null){
-	                // m.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);
 	                m.toggleSoftInput(0, InputMethodManager.SHOW_IMPLICIT);
 	              } 
 	         }
-
 	    }, 200);         
 	}
 	
@@ -69,9 +70,20 @@ public class TestDictionary extends Activity {
 		
 		wordSearch.addTextChangedListener(new TextWatcher() {
 
+			String currentInput = "";
+			
 			@Override
 			public void afterTextChanged(Editable arg0) {
 				Log.d("TD","after:"+ arg0.toString());
+				if( trie != null) {
+					if(!currentInput.equals(arg0.toString())) {
+						currentInput = arg0.toString();
+						if(currentInput.equals(trie.selectValue(currentInput))){
+							TextView result = (TextView)findViewById(R.id.result);
+							result.setText(currentInput);
+						}
+					}
+				}
 			}
 
 			@Override
