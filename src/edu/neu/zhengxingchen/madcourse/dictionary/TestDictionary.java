@@ -20,7 +20,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
-public class TestDictionary extends Activity {
+public class TestDictionary extends Activity{
 
 	protected Trie<String, String> trie = null;
 	@Override
@@ -69,21 +69,10 @@ public class TestDictionary extends Activity {
 		EditText wordSearch = (EditText)findViewById(R.id.input);
 		
 		wordSearch.addTextChangedListener(new TextWatcher() {
-
-			String currentInput = "";
 			
 			@Override
 			public void afterTextChanged(Editable arg0) {
-				Log.d("TD","after:"+ arg0.toString());
-				if( trie != null) {
-					if(!currentInput.equals(arg0.toString())) {
-						currentInput = arg0.toString();
-						if(currentInput.equals(trie.selectValue(currentInput))){
-							TextView result = (TextView)findViewById(R.id.result);
-							result.setText(currentInput);
-						}
-					}
-				}
+				new WordLookUpTask(TestDictionary.this).execute(arg0.toString());
 			}
 
 			@Override
@@ -106,6 +95,12 @@ public class TestDictionary extends Activity {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.test_dictionary, menu);
 		return true;
+	}
+
+	
+	public void onWordFound(String result) {
+		TextView resultTv = (TextView) findViewById(R.id.result);
+		resultTv.setText(result);		
 	}
 
 }
