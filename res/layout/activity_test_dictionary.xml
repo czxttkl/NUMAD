@@ -18,7 +18,7 @@
         android:text="@string/input_indication" />
 
     <EditText
-        android:id="@+id/editText1"
+        android:id="@+id/input"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:ems="10" 
