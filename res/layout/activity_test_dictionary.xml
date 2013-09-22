@@ -24,7 +24,8 @@
         android:ems="10" 
         android:hint="@string/search_hint"
         android:focusable="false"
-        android:clickable="false">
+        android:clickable="false"
+        android:focusableInTouchMode="false">
         <requestFocus />
     </EditText>
 

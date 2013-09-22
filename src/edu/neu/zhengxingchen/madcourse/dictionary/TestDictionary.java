@@ -1,14 +1,20 @@
 package edu.neu.zhengxingchen.madcourse.dictionary;
 
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import edu.neu.madcourse.R;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.app.Activity;
+import android.content.Context;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MotionEvent;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
 public class TestDictionary extends Activity {
@@ -27,6 +33,37 @@ public class TestDictionary extends Activity {
 		initEditTextListener();
 	}
 
+	@Override
+	protected void onResume() {
+		super.onResume();
+		
+		EditText input = (EditText)findViewById(R.id.input);
+		Log.d("TD", input.isFocusableInTouchMode() + "");
+//		if(input.isFocusableInTouchMode()){
+//			input.dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_DOWN , 0, 0, 0));
+//			input.dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_UP , 0, 0, 0));           
+//		}
+//			input.requestFocus();
+		if(input.isFocusableInTouchMode())
+			showVirturalKeyboard();
+	}
+
+	private void showVirturalKeyboard(){
+	    Timer timer = new Timer();
+	    timer.schedule(new TimerTask() {
+	         @Override
+	         public void run() {
+	              InputMethodManager m = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+
+	              if(m != null){
+	                // m.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);
+	                m.toggleSoftInput(0, InputMethodManager.SHOW_IMPLICIT);
+	              } 
+	         }
+
+	    }, 200);         
+	}
+	
 	private void initEditTextListener() {
 		EditText wordSearch = (EditText)findViewById(R.id.input);
 		

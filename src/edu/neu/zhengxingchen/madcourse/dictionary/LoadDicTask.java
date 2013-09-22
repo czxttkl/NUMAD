@@ -33,13 +33,6 @@ public class LoadDicTask extends AsyncTask<InputStream, Integer, Trie<String, St
 	}
 	
 	@Override
-	protected void onPreExecute() {
-//		EditText input = (EditText)activity.findViewById(R.id.input);
-//		input.setFocusable(false);
-//		input.setClickable(false);
-	}
-	
-	@Override
 	protected Trie<String, String> doInBackground(InputStream... in) {
 		InputStream wordInputStream = in[0];
 		BufferedReader buff = null;
@@ -62,8 +55,6 @@ public class LoadDicTask extends AsyncTask<InputStream, Integer, Trie<String, St
 		} catch (IOException e) {
 			e.printStackTrace();
 		} 
-		
-		
 		
 		long endTime = System.nanoTime();
 		Log.d("TD", "time consumed:" + (endTime - startTime));
