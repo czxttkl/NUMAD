@@ -14,13 +14,20 @@ import android.os.SystemClock;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
+import android.graphics.Color;
+import android.support.v4.view.ViewPager.LayoutParams;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MotionEvent;
+import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 
 public class TestDictionary extends Activity{
@@ -28,6 +35,7 @@ public class TestDictionary extends Activity{
 	protected Trie<String, String> trie = null;
 	protected SoundPool sp = null;
 	protected int beepStreamId = 0;
+	private volatile boolean aboutPopedUp = false;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +51,46 @@ public class TestDictionary extends Activity{
 		}
 		
 		initEditTextListener();
-		initTextViewList();
+		initAcknowledgements();
+	}
+
+
+	private void initAcknowledgements() {
+		Button acknowledgements = (Button)findViewById(R.id.acknowledgements);
+		acknowledgements.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+
+				if (!aboutPopedUp) {
+					aboutPopedUp = true;
+					LayoutInflater layoutInflater = (LayoutInflater) getBaseContext()
+							.getSystemService(LAYOUT_INFLATER_SERVICE);
+
+					View aboutPopupView = layoutInflater.inflate(
+							R.layout.acknowledgements_popup, null);
+					
+					final PopupWindow aboutpopupWindow = new PopupWindow(
+							aboutPopupView, 600,
+							LayoutParams.WRAP_CONTENT);
+					
+					//aboutpopupWindow.setBackgroundDrawable(new BitmapDrawable());
+					aboutpopupWindow.showAtLocation(aboutPopupView, Gravity.CENTER, 0, 0);		
+					
+					Button dismissButton = (Button) aboutPopupView
+							.findViewById(R.id.dismiss_about);
+					dismissButton.setClickable(true);
+					dismissButton
+							.setOnClickListener(new View.OnClickListener() {
+								@Override
+								public void onClick(View v) {
+									aboutpopupWindow.dismiss();
+									aboutPopedUp = false;
+								}
+							});
+				}
+			}
+		});
+		
 	}
 
 
@@ -79,9 +126,6 @@ public class TestDictionary extends Activity{
 	    
 	}
 	
-	private void initTextViewList() {
-		
-	}
 	
 	private void initEditTextListener() {
 //		Log.d("TD", "initEdit");
@@ -123,5 +167,12 @@ public class TestDictionary extends Activity{
 		if(sp!=null && beepStreamId!=0 )
 			sp.play(beepStreamId, 1, 1, 0, 0, 1);
 	}
+	
+	public void onClear(View view) {
+		TextView resultTv = (TextView) findViewById(R.id.result);
+		resultTv.setText("");
+		EditText wordSearch = (EditText)findViewById(R.id.input);
+		wordSearch.setText("");
+	  }
 
 }

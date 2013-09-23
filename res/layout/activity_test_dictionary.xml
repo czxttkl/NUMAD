@@ -34,10 +34,29 @@
     <TextView
         android:id="@+id/result"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:text=""
         android:textAppearance="?android:attr/textAppearanceLarge" 
-        android:maxLines="5"/>
+        android:maxLines="8"
+        android:layout_weight="1"/>
 
+    <Button
+        android:id="@+id/clear"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/clear" 
+        android:onClick="onClear"/>
+    
+    <Button
+        android:id="@+id/return_menu"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/return_menu" />
+
+    <Button
+        android:id="@+id/acknowledgements"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/acknowledgements" />
 
 </LinearLayout>
