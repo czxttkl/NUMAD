@@ -1,5 +1,7 @@
 package edu.neu.zhengxingchen.madcourse.dictionary;
 
+import java.util.Arrays;
+
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -18,16 +20,20 @@ public class WordLookUpTask extends AsyncTask<String, Void, String>{
 		Log.d("TD","after:"+ params[0].toString());
 		
 //		if( activity.trie != null) {
-		if( activity.hb != null) {
-			if(!currentInput.equals(params[0].toString())) {
-				currentInput = params[0].toString();
-//				if(currentInput.equals(activity.trie.selectValue(currentInput))){
-				if(currentInput.equals(activity.hb.get(currentInput))){
-					return currentInput;
-				}
-			}
-		}
 		
+//		if(!currentInput.equals(params[0].toString())) {
+//				currentInput = params[0].toString();
+////				if(currentInput.equals(activity.trie.selectValue(currentInput))){
+//				if(currentInput.equals(activity.sa.get(currentInput))){
+//					return currentInput;
+//				}
+//		}
+		if(!currentInput.equals(params[0].toString())) {
+			currentInput = params[0].toString();
+			int i = Arrays.binarySearch(activity.sa, params[0]);
+			if ( i >= 0)
+				return activity.sa[i];
+		}
 		return null;
 	}
 

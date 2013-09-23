@@ -26,7 +26,7 @@ import android.widget.TextView;
 public class TestDictionary extends Activity{
 
 	//protected Trie<String, String> trie = null;
-	protected Hashtable<String, String> hb = null;
+	protected String[] sa = null;
 	protected SoundPool sp = null;
 	protected int beepStreamId = 0;
 	private volatile boolean aboutPopedUp = false;

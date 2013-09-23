@@ -25,7 +25,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 //public class LoadDicTask extends AsyncTask<InputStream, Integer, Trie<String, String>>{
-  public class LoadDicTask extends AsyncTask<InputStream, Integer, Hashtable<String, String>>{
+  public class LoadDicTask extends AsyncTask<InputStream, Integer, String[]>{
 
 	private final TestDictionary activity;		
 	
@@ -36,24 +36,25 @@ import android.widget.TextView;
 	
 	@Override
 //	protected Trie<String, String> doInBackground(InputStream... in) {
-	protected Hashtable<String, String> doInBackground(InputStream... in) {
+	protected String[] doInBackground(InputStream... in) {
 		InputStream wordInputStream = in[0];
 		BufferedReader buff = null;
 //		Trie<String, String> trie = new PatriciaTrie<String, String>(StringKeyAnalyzer.INSTANCE);
-		Hashtable<String, String> hb = new Hashtable<String, String>(440000);
-
+		String[] sa = new String[432334];
 		long startTime = System.nanoTime();
 		
 		try {
 //			buff = new BufferedReader(new FileReader(new File(fileName).getAbsoluteFile()));
 			buff = new BufferedReader(new InputStreamReader(wordInputStream));
-			String word;
+			
 
-			while((word = buff.readLine()) != null) {
-				//Log.d("TD", word);
-				//trie.put(word, word);
-				hb.put(word, word);
-			}
+//			while((word = buff.readLine()) != null) {
+//				//Log.d("TD", word);
+//				//trie.put(word, word);
+//				hb.put(word, word);
+//			}
+			for(int i = 0; i<432334; i++)
+				sa[i] = buff.readLine();
 			
 			buff.close();
 		} catch (IOException e) {
@@ -64,16 +65,16 @@ import android.widget.TextView;
 		Log.d("TD", "load time consumed:" + (endTime - startTime));
 		
 		//Log.d("TD", trie.selectValue("abate"));
-		return hb;
+		return sa;
 	}
 
 	@SuppressLint("Recycle")
 	@Override
 //	protected void onPostExecute(Trie<String, String> result) {
-	protected void onPostExecute(Hashtable<String, String> result) {
+	protected void onPostExecute(String[] result) {
 		Log.d("TD", "loaded wordlist");
 //		activity.trie = result;
-		activity.hb = result;
+		activity.sa = result;
 		TextView dicTitle = (TextView)activity.findViewById(R.id.dictionary_title);
 		dicTitle.setText("Input Below:");
 		EditText input = (EditText)activity.findViewById(R.id.input);
