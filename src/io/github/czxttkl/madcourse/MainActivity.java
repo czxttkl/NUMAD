@@ -29,6 +29,7 @@ public class MainActivity extends Activity {
 		PhoneCheckAPI.doAuthorization(this);
 		
 		setSudokuButton();
+		setDictionaryButton();
 		setAboutButton();
 		setGenerateErrorButton();
 		setQuitButton();
@@ -119,8 +120,19 @@ public class MainActivity extends Activity {
 				//ComponentName sudokuComponentName = new ComponentName("io.github.czxttkl.zhengxingchen.sudoku", Sudoku.class.getName());
 				//sudokuIntent.setComponent(sudokuComponentName);
 				sudokuIntent.setAction("edu.neu.zhengxingchen.madcourse.sudoku.launch");
-				
 				startActivity(sudokuIntent);
+			}
+		});
+	}
+	
+	private void setDictionaryButton() {
+		final TextView dictionaryTv = (TextView) findViewById(R.id.dictionary_tv);
+		dictionaryTv.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent dictionaryIntent = new Intent();
+				dictionaryIntent.setAction("edu.neu.zhengxingchen.madcourse.dictionary.launch");
+				startActivity(dictionaryIntent);
 			}
 		});
 	}
