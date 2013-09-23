@@ -34,14 +34,15 @@ public class LoadBeepTask extends AsyncTask<Void, Void, Integer>{
 	@Override
 	protected void onPostExecute(final Integer result) {
 		 activity.beepStreamId = result;
-		 Timer timer = new Timer();
-		    timer.schedule(new TimerTask() {
-		         @Override
-		         public void run() {
-		        	 Log.d("TD", "loaded audio");
-		     		activity.sp.play(result.intValue(), 1, 1, 0, 0, 1);
-		         }
-		    }, 200);     
+		 Log.d("TD", "loaded audio");
+//		 Timer timer = new Timer();
+//		    timer.schedule(new TimerTask() {
+//		         @Override
+//		         public void run() {
+//		        	 Log.d("TD", "loaded audio");
+//		     		activity.sp.play(result.intValue(), 1, 1, 0, 0, 1);
+//		         }
+//		    }, 200);     
 	}
 
 }

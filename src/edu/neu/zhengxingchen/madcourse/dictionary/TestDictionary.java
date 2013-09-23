@@ -6,15 +6,11 @@ import java.util.TimerTask;
 
 import org.ardverk.collection.Trie;
 
-import edu.neu.madcourse.R;
-import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
-import android.graphics.Color;
 import android.support.v4.view.ViewPager.LayoutParams;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -22,7 +18,6 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -105,7 +100,9 @@ public class TestDictionary extends Activity{
 //			input.dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_UP , 0, 0, 0));           
 //		}
 //			input.requestFocus();
-		if(input.isFocusableInTouchMode())
+//		Log.i("clickable", "" + input.isClickable());
+//		Log.i("focusable", "" + input.isFocusable());
+		if(input.isFocusableInTouchMode() && input.isClickable() && input.isFocusable())
 			showVirturalKeyboard();
 	}
 
@@ -173,6 +170,10 @@ public class TestDictionary extends Activity{
 		resultTv.setText("");
 		EditText wordSearch = (EditText)findViewById(R.id.input);
 		wordSearch.setText("");
-	  }
+	}
+	
+	public void onReturnMenu(View view) {
+		finish();
+	}
 
 }

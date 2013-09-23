@@ -6,12 +6,12 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.ardverk.collection.PatriciaTrie;
 import org.ardverk.collection.StringKeyAnalyzer;
 import org.ardverk.collection.Trie;
-
-import edu.neu.madcourse.R;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -78,6 +78,16 @@ public class LoadDicTask extends AsyncTask<InputStream, Integer, Trie<String, St
 		input.dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_DOWN , 0, 0, 0));
         input.dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_UP , 0, 0, 0));           
         
+//        Log.d("TD", activity.beepStreamId + "" + activity.sp);
+        if( activity.beepStreamId!=0 && activity.sp!=null ) {
+		 Timer timer = new Timer();
+		    timer.schedule(new TimerTask() {
+		         @Override
+		         public void run() {
+		     		activity.sp.play(activity.beepStreamId, 1, 1, 0, 0, 1);
+		         }
+		    }, 200);   
+        }
 	}
 
 	

@@ -51,7 +51,8 @@
         android:id="@+id/return_menu"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="@string/return_menu" />
+        android:text="@string/return_menu" 
+        android:onClick="onReturnMenu"/>
 
     <Button
         android:id="@+id/acknowledgements"
