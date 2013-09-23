@@ -1,10 +1,9 @@
 package edu.neu.zhengxingchen.madcourse.dictionary;
 
 import java.io.IOException;
+import java.util.Hashtable;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import org.ardverk.collection.Trie;
 
 import android.media.SoundPool;
 import android.os.Bundle;
@@ -14,7 +13,6 @@ import android.content.pm.ActivityInfo;
 import android.support.v4.view.ViewPager.LayoutParams;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -27,7 +25,8 @@ import android.widget.TextView;
 
 public class TestDictionary extends Activity{
 
-	protected Trie<String, String> trie = null;
+	//protected Trie<String, String> trie = null;
+	protected Hashtable<String, String> hb = null;
 	protected SoundPool sp = null;
 	protected int beepStreamId = 0;
 	private volatile boolean aboutPopedUp = false;

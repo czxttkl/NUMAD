@@ -9,14 +9,11 @@
 	<string name="return_menu">Return to menu</string>
 	<string name="acknowledgements">Acknowledgements</string>
 	<string name="acknowledgements_info">
-	Wordlist store structure: Tries Tree: http://code.google.com/p/patricia-trie/ \n
-	\n
+
 	Beep sound source: http://www.soundjay.com/button/button-9.mp3 \n
 
 	</string>
-<!-- 	<string name="acknowledgements_info">aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-	    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</string>
-	-->
+
 	<string name="dismiss">dismiss</string> 
     
     

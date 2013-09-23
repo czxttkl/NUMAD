@@ -17,12 +17,12 @@ public class WordLookUpTask extends AsyncTask<String, Void, String>{
 		// TODO Auto-generated method stub
 		Log.d("TD","after:"+ params[0].toString());
 		
-		if( activity.trie != null) {
+//		if( activity.trie != null) {
+		if( activity.hb != null) {
 			if(!currentInput.equals(params[0].toString())) {
 				currentInput = params[0].toString();
-				if(currentInput.equals(activity.trie.selectValue(currentInput))){
-//					TextView result = (TextView)activity.findViewById(R.id.result);
-//					result.setText(currentInput);
+//				if(currentInput.equals(activity.trie.selectValue(currentInput))){
+				if(currentInput.equals(activity.hb.get(currentInput))){
 					return currentInput;
 				}
 			}

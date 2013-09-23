@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Hashtable;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -23,7 +24,8 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
-public class LoadDicTask extends AsyncTask<InputStream, Integer, Trie<String, String>>{
+//public class LoadDicTask extends AsyncTask<InputStream, Integer, Trie<String, String>>{
+  public class LoadDicTask extends AsyncTask<InputStream, Integer, Hashtable<String, String>>{
 
 	private final TestDictionary activity;		
 	
@@ -33,10 +35,12 @@ public class LoadDicTask extends AsyncTask<InputStream, Integer, Trie<String, St
 	}
 	
 	@Override
-	protected Trie<String, String> doInBackground(InputStream... in) {
+//	protected Trie<String, String> doInBackground(InputStream... in) {
+	protected Hashtable<String, String> doInBackground(InputStream... in) {
 		InputStream wordInputStream = in[0];
 		BufferedReader buff = null;
-		Trie<String, String> trie = new PatriciaTrie<String, String>(StringKeyAnalyzer.INSTANCE);
+//		Trie<String, String> trie = new PatriciaTrie<String, String>(StringKeyAnalyzer.INSTANCE);
+		Hashtable<String, String> hb = new Hashtable<String, String>(440000);
 
 		long startTime = System.nanoTime();
 		
@@ -47,7 +51,8 @@ public class LoadDicTask extends AsyncTask<InputStream, Integer, Trie<String, St
 
 			while((word = buff.readLine()) != null) {
 				//Log.d("TD", word);
-				trie.put(word, word);
+				//trie.put(word, word);
+				hb.put(word, word);
 			}
 			
 			buff.close();
@@ -58,16 +63,17 @@ public class LoadDicTask extends AsyncTask<InputStream, Integer, Trie<String, St
 		long endTime = System.nanoTime();
 		Log.d("TD", "load time consumed:" + (endTime - startTime));
 		
-		Log.d("TD", trie.selectValue("abate"));
-		return trie;
+		//Log.d("TD", trie.selectValue("abate"));
+		return hb;
 	}
 
 	@SuppressLint("Recycle")
 	@Override
-	protected void onPostExecute(Trie<String, String> result) {
+//	protected void onPostExecute(Trie<String, String> result) {
+	protected void onPostExecute(Hashtable<String, String> result) {
 		Log.d("TD", "loaded wordlist");
-		activity.trie = result;
-		
+//		activity.trie = result;
+		activity.hb = result;
 		TextView dicTitle = (TextView)activity.findViewById(R.id.dictionary_title);
 		dicTitle.setText("Input Below:");
 		EditText input = (EditText)activity.findViewById(R.id.input);
