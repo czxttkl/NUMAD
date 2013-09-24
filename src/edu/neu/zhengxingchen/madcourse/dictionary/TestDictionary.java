@@ -1,6 +1,7 @@
 package edu.neu.zhengxingchen.madcourse.dictionary;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -30,6 +31,7 @@ public class TestDictionary extends Activity{
 	protected SoundPool sp = null;
 	protected int beepStreamId = 0;
 	private volatile boolean aboutPopedUp = false;
+	protected volatile ArrayList<String> record = new ArrayList<String>();
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -169,6 +171,7 @@ public class TestDictionary extends Activity{
 		resultTv.setText("");
 		EditText wordSearch = (EditText)findViewById(R.id.input);
 		wordSearch.setText("");
+		record.clear();
 	}
 	
 	public void onReturnMenu(View view) {

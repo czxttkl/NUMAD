@@ -1,5 +1,6 @@
 package edu.neu.zhengxingchen.madcourse.dictionary;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import android.os.AsyncTask;
@@ -9,6 +10,7 @@ public class WordLookUpTask extends AsyncTask<String, Void, String>{
 
 	private final TestDictionary activity;
 	static volatile String currentInput = "";
+	
 	
 	public WordLookUpTask(TestDictionary activity) {
 		this.activity = activity;
@@ -28,8 +30,10 @@ public class WordLookUpTask extends AsyncTask<String, Void, String>{
 //					return currentInput;
 //				}
 //		}
-		if(!currentInput.equals(params[0].toString())) {
-			currentInput = params[0].toString();
+		
+		if(!currentInput.equals(params[0]) && !activity.record.contains(params[0])) { 
+			currentInput = params[0];
+			activity.record.add(currentInput);
 			int i = Arrays.binarySearch(activity.sa, params[0]);
 			if ( i >= 0)
 				return activity.sa[i];
