@@ -37,7 +37,7 @@
         android:layout_height="0dp"
         android:text=""
         android:textAppearance="?android:attr/textAppearanceLarge" 
-        android:maxLines="8"
+        android:maxLines="9"
         android:layout_weight="1"/>
 
     <Button
