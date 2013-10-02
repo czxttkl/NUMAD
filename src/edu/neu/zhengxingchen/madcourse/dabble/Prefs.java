@@ -12,6 +12,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
+import android.view.MotionEvent;
 
 public class Prefs extends PreferenceActivity {
    // Option names and default values
@@ -22,6 +23,7 @@ public class Prefs extends PreferenceActivity {
 
    @Override
    protected void onCreate(Bundle savedInstanceState) {
+	  Music.start(this);
       super.onCreate(savedInstanceState);
       addPreferencesFromResource(R.xml.settings);
    }
@@ -39,4 +41,9 @@ public class Prefs extends PreferenceActivity {
             .getBoolean(OPT_HINTS, OPT_HINTS_DEF);
    }
    
+   @Override
+	public boolean onTouchEvent(MotionEvent event){
+		finish();
+		return true;
+	}
 }

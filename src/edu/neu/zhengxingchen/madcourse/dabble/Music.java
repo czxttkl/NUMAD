@@ -36,4 +36,18 @@ public class Music {
          mp = null;
       }
    }
+   
+   public static void pause(Context context) {
+	   if (mp != null) {
+		   mp.pause();
+	   }
+   }
+   
+   public static void start(Context context) {
+	   if (mp != null) {
+		   mp.start();
+	   }
+   }
+   
+   
 }
