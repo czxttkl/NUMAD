@@ -7,6 +7,7 @@ import android.support.v4.view.ViewPager.LayoutParams;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -17,8 +18,7 @@ import android.widget.PopupWindow;
 public class GameMenu extends Activity implements OnClickListener {
 
 	private volatile boolean acknowledgementPopedUp = false;
-	private volatile boolean settingsPopedUp = false;
-
+	PopupWindow acknowledgementPopupWindowMenu;
 
 	@Override
 	protected void onPause() {
@@ -64,12 +64,15 @@ public class GameMenu extends Activity implements OnClickListener {
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.game_menu, menu);
+	public boolean onTouchEvent(MotionEvent event){
+		if( acknowledgementPopedUp) {
+			acknowledgementPopupWindowMenu.dismiss();
+			acknowledgementPopedUp = false;
+		}
 		return true;
 	}
 
+	
 	public void onClick(View v) {
 		int id = v.getId();
 		if (id == R.id.continue_button) {
@@ -93,23 +96,25 @@ public class GameMenu extends Activity implements OnClickListener {
 			LayoutInflater layoutInflater = (LayoutInflater) getBaseContext()
 					.getSystemService(LAYOUT_INFLATER_SERVICE);
 
-			View aboutPopupView = layoutInflater.inflate(
+			View acknowledgementPopupView = layoutInflater.inflate(
 					R.layout.acknowledgements_popup, null);
 
-			final PopupWindow aboutpopupWindow = new PopupWindow(
-					aboutPopupView, 600, LayoutParams.WRAP_CONTENT);
-
+			final PopupWindow acknowledgementPopupWindow = new PopupWindow(
+					acknowledgementPopupView, 600, LayoutParams.WRAP_CONTENT);
+			
+			acknowledgementPopupWindowMenu = acknowledgementPopupWindow;
+			
 			// aboutpopupWindow.setBackgroundDrawable(new BitmapDrawable());
-			aboutpopupWindow.showAtLocation(aboutPopupView, Gravity.CENTER, 0,
+			acknowledgementPopupWindow.showAtLocation(acknowledgementPopupView, Gravity.CENTER, 0,
 					0);
 
-			Button dismissButton = (Button) aboutPopupView
+			Button dismissButton = (Button) acknowledgementPopupView
 					.findViewById(R.id.dismiss_button);
 			dismissButton.setClickable(true);
 			dismissButton.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					aboutpopupWindow.dismiss();
+					acknowledgementPopupWindow.dismiss();
 					acknowledgementPopedUp = false;
 				}
 			});
