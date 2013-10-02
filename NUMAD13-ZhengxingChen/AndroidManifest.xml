@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="io.github.czxttkl.madcourse"
-    android:versionCode="5"
-    android:versionName="2.02" >
+    android:versionCode="6"
+    android:versionName="2.03" >
 
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -37,6 +37,16 @@
                 <action android:name="edu.neu.zhengxingchen.madcourse.sudoku.launch" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
+        </activity>
+        
+        <activity android:name="edu.neu.zhengxingchen.madcourse.sudoku.Game"
+              android:label="@string/game_title"/>
+        <activity android:name="edu.neu.zhengxingchen.madcourse.sudoku.About"
+              android:label="@string/about_title"
+              android:theme="@android:style/Theme.Dialog">
+        </activity>
+        <activity android:name="edu.neu.zhengxingchen.madcourse.sudoku.Prefs"
+              android:label="@string/settings_title">
         </activity>
         
        <activity android:name="edu.neu.zhengxingchen.madcourse.dictionary.TestDictionary"
