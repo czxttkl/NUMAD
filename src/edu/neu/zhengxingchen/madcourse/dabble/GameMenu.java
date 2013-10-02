@@ -1,9 +1,13 @@
 package edu.neu.zhengxingchen.madcourse.dabble;
 
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.support.v4.view.ViewPager.LayoutParams;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -19,26 +23,26 @@ public class GameMenu extends Activity implements OnClickListener {
 
 	private volatile boolean acknowledgementPopedUp = false;
 	PopupWindow acknowledgementPopupWindowMenu;
+	SharedPreferences mSharedPreferences;
 
 	@Override
 	protected void onPause() {
-		// TODO Auto-generated method stub
 		super.onPause();
 		Music.pause(this);
+		mSharedPreferences.registerOnSharedPreferenceChangeListener(mListener);
 	}
 
 	@Override
 	protected void onDestroy() {
-		// TODO Auto-generated method stub
 		super.onDestroy();
 		Music.stop(this);
 	}
 
 	@Override
 	protected void onResume() {
-		// TODO Auto-generated method stub
 		super.onResume();
 		Music.start(this);
+		mSharedPreferences.registerOnSharedPreferenceChangeListener(mListener);
 	}
 
 	@Override
@@ -61,6 +65,7 @@ public class GameMenu extends Activity implements OnClickListener {
 
 		Music.play(this, R.raw.background);
 		
+		mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 	}
 
 	@Override
@@ -125,34 +130,24 @@ public class GameMenu extends Activity implements OnClickListener {
 		Intent i = new Intent();
 		i.setClass(GameMenu.this, Prefs.class);
 		startActivity(i);
-//		if (!settingsPopedUp) {
-//			settingsPopedUp = true;
-//			LayoutInflater layoutInflater = (LayoutInflater) getBaseContext()
-//					.getSystemService(LAYOUT_INFLATER_SERVICE);
-//
-//			View settingsPopupView = layoutInflater.inflate(
-//					R.xml.settings, null);
-//			
-//			st
-//			final PopupWindow settingsPopupWindow = new PopupWindow(
-//					settingsPopupView, 600, LayoutParams.WRAP_CONTENT);
-//
-//			// aboutpopupWindow.setBackgroundDrawable(new BitmapDrawable());
-//			settingsPopupWindow.showAtLocation(settingsPopupView, Gravity.CENTER, 0,
-//					0);
-
-//			Button dismissButton = (Button) settingsPopupView
-//					.findViewById(R.id.dismiss_button);
-//			dismissButton.setClickable(true);
-//			dismissButton.setOnClickListener(new View.OnClickListener() {
-//				@Override
-//				public void onClick(View v) {
-//					settingsPopupWindow.dismiss();
-//					settingsPopedUp = false;
-//				}
-//			});
-//		}
 	}
+	
+	// Listener defined by anonymous inner class.
+	public OnSharedPreferenceChangeListener mListener = new OnSharedPreferenceChangeListener() {
+		@Override
+		public void onSharedPreferenceChanged(
+				SharedPreferences sharedPreferences, String key) {
+			Log.d("dabble", "change preference");
+			if (key.equals("music")) {
+				boolean music = sharedPreferences.getBoolean(key, true);
+				if (!music) {
+					Music.stop(GameMenu.this);
+				} else {
+					Music.play(GameMenu.this, R.raw.background);
+				}
+			}
+		}
+	};
 
 	
 }

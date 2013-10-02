@@ -44,7 +44,7 @@ public class Music {
    }
    
    public static void start(Context context) {
-	   if (mp != null) {
+	   if (mp != null && Prefs.getMusic(context)) {
 		   mp.start();
 	   }
    }
