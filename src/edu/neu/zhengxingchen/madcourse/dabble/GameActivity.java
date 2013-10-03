@@ -19,6 +19,7 @@ public class GameActivity extends Activity {
 	public String dabbleString = null;
 	public char[] dabbleArray = new char[18];
 	public String[] wholeArray = null;
+	public Tile[] tileArray = new Tile[18];
 	protected SoundPool sp = null;
 	protected int beepStreamId = 0;
 
@@ -30,21 +31,31 @@ public class GameActivity extends Activity {
 
 		if (savedInstanceState != null) {
 			loadWhole(savedInstanceState);
-		} else {
-			LinearLayout gameLayout = (LinearLayout) findViewById(R.id.game_layout);
-			try {
-				if (wholeArray == null || dabbleString == null)
-					new LoadDicTask(this).execute(getResources().getAssets()
-							.open("short_wordlist.txt"), getResources()
-							.getAssets().open("wordlist.txt"));
-
-				if (beepStreamId == 0 || sp == null)
-					new LoadBeepTask(this).execute();
-
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
 		}
+		
+		Object[] myObjectData = (Object[]) getLastNonConfigurationInstance();
+		if (myObjectData != null) {
+			tileArray = (Tile[])myObjectData[0];
+			sp = (SoundPool)myObjectData[1];
+			Log.d("dabble", "restore:" + tileArray[3].getCharacter());
+		}
+		
+		 
+		LinearLayout gameLayout = (LinearLayout) findViewById(R.id.game_layout);
+		
+		try {
+			if (wholeArray == null || dabbleString == null)
+				new LoadDicTask(this).execute(
+						getResources().getAssets().open("short_wordlist.txt"),
+						getResources().getAssets().open("wordlist.txt"));
+
+			if (beepStreamId == 0 || sp == null)
+				new LoadBeepTask(this).execute();
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 		Log.d("dabble", "oncreate");
 		// Tile mTile = (Tile)findViewById(R.id.tile10);
 		// Log.d("dabble", (mTile == null ? "yes" : "no"));
@@ -57,6 +68,7 @@ public class GameActivity extends Activity {
 		dabbleArray = savedInstanceState.getCharArray("dabbleArray");
 		beepStreamId = savedInstanceState.getInt("beepStreamId");
 		dabbleString = savedInstanceState.getString("dabbleString");
+//		tileArray = (Tile[]) savedInstanceState.getSerializable("tileArray");
 	}
 
 	@Override
@@ -70,7 +82,17 @@ public class GameActivity extends Activity {
 		outState.putCharArray("dabbleArray", dabbleArray);
 		outState.putStringArray("wholeArray", wholeArray);
 		outState.putInt("beepStreamId", beepStreamId);
-		
+
+//		outState.putSerializable("tileArray", tileArray);
+
+	}
+
+	@Override
+	public Object onRetainNonConfigurationInstance() {
+		final Object[] myObjectData = new Object[2];
+		myObjectData[0] = tileArray;
+		myObjectData[1] = sp;
+		return myObjectData;
 	}
 
 	@Override
@@ -121,6 +143,7 @@ public class GameActivity extends Activity {
 						"tile" + Integer.toString(j), "id", getPackageName());
 				Tile mTile = (Tile) findViewById(resId);
 				mTile.setCharacter(String.valueOf(dabbleArray[j - 1]));
+				tileArray[j - 1] = mTile;
 			}
 			Log.d("dabble", String.valueOf(dabbleArray));
 		}
