@@ -22,13 +22,15 @@ import android.widget.PopupWindow;
 public class GameMenu extends Activity implements OnClickListener {
 
 	private volatile boolean acknowledgementPopedUp = false;
+	private boolean musicShouldPause = true;
 	PopupWindow acknowledgementPopupWindowMenu;
 	SharedPreferences mSharedPreferences;
-
+	
 	@Override
 	protected void onPause() {
 		super.onPause();
-		Music.pause(this);
+		if(musicShouldPause)
+			Music.pause(this);
 		mSharedPreferences.registerOnSharedPreferenceChangeListener(mListener);
 	}
 
@@ -41,7 +43,9 @@ public class GameMenu extends Activity implements OnClickListener {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		Music.start(this);
+		if(musicShouldPause)
+			Music.start(this);
+		musicShouldPause = true;
 		mSharedPreferences.registerOnSharedPreferenceChangeListener(mListener);
 	}
 
@@ -89,10 +93,17 @@ public class GameMenu extends Activity implements OnClickListener {
 		} else if (id == R.id.acknowledgement_button) {
 			initAcknowledgements();
 		} else if (id == R.id.new_button) {
-			// openNewGameDialog();
+			initNewGame();
 		} else if (id == R.id.exit_button) {
 			finish();
 		}
+	}
+
+	private void initNewGame() {
+		Intent i = new Intent();
+		i.setClass(this, GameActivity.class);
+		startActivity(i);
+		musicShouldPause = false;
 	}
 
 	private void initAcknowledgements() {
@@ -130,6 +141,7 @@ public class GameMenu extends Activity implements OnClickListener {
 		Intent i = new Intent();
 		i.setClass(GameMenu.this, Prefs.class);
 		startActivity(i);
+		musicShouldPause = false;
 	}
 	
 	// Listener defined by anonymous inner class.

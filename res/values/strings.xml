@@ -17,9 +17,8 @@
     <string name="continue_label">Continue Game</string>
     <string name="exit_label">Exit</string>
     <string name="dismiss">Dismiss</string>
-    <string name="acknowledgement_info">
-        Background music: http://www.melodyloops.com/mp3/preview-fast-and-danger.mp3 \n
-    </string>
-    
-        
+    <string name="acknowledgement_info">        Background music: http://www.melodyloops.com/mp3/preview-fast-and-danger.mp3 \n</string>
+    <string name="title_activity_game">GameActivity</string>
+    <string name="title_activity_tt">TT</string>
+
 </resources>

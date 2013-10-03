@@ -1,0 +1,17 @@
+<resources>
+
+    <declare-styleable name="Tile">
+        <attr name="character" format="string" />
+        <attr name="characterSize" format="dimension" />
+        <attr name="characterColor" format="color" />
+
+<!--         <attr name="exampleDimension" format="dimension" />
+ -->       
+
+ 	    <attr name="backgroundColor" format="color" />
+        <attr name="borderColor" format="color" />
+        <attr name="borderRadius" format="integer" />
+    </declare-styleable>
+	<declare-styleable name="TileGroup">
+	</declare-styleable>
+</resources>
