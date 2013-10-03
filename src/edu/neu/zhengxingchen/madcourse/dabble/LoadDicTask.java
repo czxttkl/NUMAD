@@ -45,7 +45,7 @@ import android.widget.TextView;
 			for(int i = 0; i<40; i++) {
 				word = buff.readLine();
 				sa[i/4][i%4] = word;
-				Log.d("dabble", word + " i/4" + i/4 + " i%4 :" + i%4);
+				//Log.d("dabble", word + " i/4" + i/4 + " i%4 :" + i%4);
 			}
 			buff.close();
 		} catch (IOException e) {
@@ -78,7 +78,7 @@ import android.widget.TextView;
 		String[][] tileWords = (String[][])result[0];
 		
 		activity.dabbleString = tileWords[n][0] + tileWords[n][1] + tileWords[n][2] + tileWords[n][3];
-		Log.d("dabble", activity.dabbleString);
+//		Log.d("dabble", activity.dabbleString);
 		
 		activity.wholeArray = (String[])result[1];
 		

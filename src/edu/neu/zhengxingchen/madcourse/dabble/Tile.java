@@ -10,6 +10,8 @@ import android.graphics.Paint.Style;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
+import android.os.Parcelable;
 import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -281,7 +283,35 @@ public class Tile extends View {
 		   mRect = new RectF(0, 0, parentWidth/8, parentHeight/5);
        }
 	   
-	   private class GestureListener extends GestureDetector.SimpleOnGestureListener {
+	   @Override
+	protected void onRestoreInstanceState(Parcelable state) {
+		Log.d("dabble", "tile.onrestoreinstancestate");
+
+		if (state instanceof Bundle) {
+			Bundle bundle = (Bundle)state;
+			super.onRestoreInstanceState(bundle.getParcelable("instanceState"));
+
+			String restoredCharacter = bundle.getString("mCharacter");
+			setCharacter(restoredCharacter);
+			
+			return;
+		}
+		
+		super.onRestoreInstanceState(state);
+	}
+
+	@Override
+	protected Parcelable onSaveInstanceState() {
+		Bundle savedState = new Bundle();
+		savedState.putParcelable("instanceState", super.onSaveInstanceState());
+		savedState.putString("mCharacter", mCharacter);
+		
+		Log.d("dabble", "tile.onsaveinstancestate");
+		
+		return savedState;
+	}
+
+	private class GestureListener extends GestureDetector.SimpleOnGestureListener {
 	        @Override
 	        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
 	            // Set the pie rotation directly.
