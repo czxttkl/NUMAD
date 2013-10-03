@@ -13,6 +13,8 @@ import android.graphics.drawable.Drawable;
 import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 
 /**
@@ -35,8 +37,7 @@ public class Tile extends View {
 	private int recHeight;
 	private RectF mRect;
 	private Paint mRectPaint;
-	
-	
+		
 	private TextPaint mTextPaint;
 	private float mTextWidth;
 	private float mTextHeight;
@@ -45,6 +46,11 @@ public class Tile extends View {
 	private static int parentHeight = 0;
 	
 	private boolean measureLock = false;
+	private boolean choosed = false;
+	
+	 private GestureDetector mDetector;
+	
+	
 	public Tile(Context context) {
 		super(context);
 		init(null, 0);
@@ -90,11 +96,16 @@ public class Tile extends View {
 		
 		a.recycle();
 		}
+		
 		// Set up a default TextPaint object
 		mTextPaint = new TextPaint();
 		mTextPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
 		mTextPaint.setTextAlign(Paint.Align.LEFT);
 
+		mRectPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+		
+		mDetector = new GestureDetector(this.getContext(), new GestureListener());
+		
 		// Update TextPaint and text measurements from attributes
 		invalidateTextPaintAndMeasurements();
 	}
@@ -106,13 +117,29 @@ public class Tile extends View {
 		Paint.FontMetrics fontMetrics = mTextPaint.getFontMetrics();
 		mTextHeight = fontMetrics.bottom;
 		
-		
-		mRectPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		mRectPaint.setStyle(Style.FILL);
 		mRectPaint.setColor(mBorderColor);
 		mRectPaint.setStrokeWidth(mBorderRadius);
 		invalidate();
-		Log.d("dabble", "finishinvalidate");
+//		Log.d("dabble", "finishinvalidate");
+	}
+
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+//		
+	if (event.getAction() == MotionEvent.ACTION_UP) {
+		       if(!choosed){
+		    	   setBorderColor(Color.YELLOW);
+		    	   choosed = true;
+		       }
+		       else {
+		    	   setBorderColor(Color.BLUE);
+		    	   choosed = false;
+		       }
+	}
+		   
+//		   
+		   return true;
 	}
 
 	@Override
@@ -126,7 +153,7 @@ public class Tile extends View {
 		recHeight = 100;
 		
 		
-		Log.d("dabble", "recWidth:" + parentWidth/8 + "  recHeight:" + parentHeight/5 + " borderRadius:" +  mBorderRadius);
+		//Log.d("dabble", "recWidth:" + parentWidth/8 + "  recHeight:" + parentHeight/5 + " borderRadius:" +  mBorderRadius);
 //
 		
 //		canvas.drawRoundRect(mRect, mBorderRadius, mBorderRadius, mRectPaint);
@@ -138,7 +165,7 @@ public class Tile extends View {
 		canvas.drawRoundRect(mRect, mBorderRadius, mBorderRadius, mRectPaint);
 		
 		canvas.drawText(mCharacter, 10, 10, mTextPaint);
-		Log.d("dabble", "mCharacter:" + mCharacter + "  mTextPaint:" + mTextPaint);
+//		Log.d("dabble", "mCharacter:" + mCharacter + "  mTextPaint:" + mTextPaint);
 	
 		Paint paint = new Paint();
 		paint.setColor(Color.RED);
@@ -174,7 +201,7 @@ public class Tile extends View {
 	 */
 	public void setCharacter(String exampleString) {
 		mCharacter = exampleString;
-		invalidateTextPaintAndMeasurements();
+		invalidate();
 	}
 
 	/**
@@ -198,6 +225,11 @@ public class Tile extends View {
 		invalidateTextPaintAndMeasurements();
 	}
 
+	public void setBorderColor (int borderColor) {
+		mBorderColor = borderColor;
+		invalidateTextPaintAndMeasurements();
+	}
+	
 	/**
 	 * Gets the example dimension attribute value.
 	 * 
@@ -228,19 +260,48 @@ public class Tile extends View {
 			parentHeight = MeasureSpec.getSize(heightMeasureSpec);
 			measureLock = true;
 		}	
-	     Log.d("dabble","parent:" + parentWidth + ":" + parentHeight);
+//	     Log.d("dabble","parent:" + parentWidth + ":" + parentHeight);
 	    this.setMeasuredDimension(
 	    		parentWidth/8, parentHeight/5);
 	    
 	}
 
 
-	@Override
-	protected void onLayout(boolean changed, int left, int top, int right,
-			int bottom) {
-		// TODO Auto-generated method stub
-		super.onLayout(changed, left, top, right, bottom);
-		if(mRect==null)
-			mRect = new RectF(0, 0, parentWidth/8, parentHeight/5);
-	}
+//	@Override
+//	protected void onLayout(boolean changed, int left, int top, int right,
+//			int bottom) {
+//		// TODO Auto-generated method stub
+//		super.onLayout(changed, left, top, right, bottom);
+//		if(mRect==null)
+//			mRect = new RectF(0, 0, parentWidth/8, parentHeight/5);
+//	}
+	
+	   @Override
+       protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+		   mRect = new RectF(0, 0, parentWidth/8, parentHeight/5);
+       }
+	   
+	   private class GestureListener extends GestureDetector.SimpleOnGestureListener {
+	        @Override
+	        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+	            // Set the pie rotation directly.
+	            
+	            return true;
+	        }
+
+	        @Override
+	        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+	           
+	            return true;
+	        }
+
+	        @Override
+	        public boolean onDown(MotionEvent e) {
+	            // The user is interacting with the pie, so we want to turn on acceleration
+	            // so that the interaction is smooth.
+	            Log.d("dabble", "ondown");
+	            return true;
+	        }
+	    }
+
 }
