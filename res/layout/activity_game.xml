@@ -11,17 +11,37 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".GameActivity" >
     
-	<LinearLayout
+	<RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal" >
+         >
+
+		<TextView
+		    android:id="@+id/timer_text"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:text="@string/timer_format"
+		    android:layout_alignParentLeft="true"
+		    android:textAppearance="?android:attr/textAppearanceLarge" />
+		
+		
 		<TextView
 		    android:id="@+id/game_title"
 		    android:layout_width="wrap_content"
 		    android:layout_height="wrap_content"
-		    android:text="@string/app_name"
+		    android:text="@string/loading"
+		    android:layout_centerInParent="true"
 		    android:textAppearance="?android:attr/textAppearanceLarge" />
-    </LinearLayout>
+		
+		<TextView
+		    android:id="@+id/score_text"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:text="@string/score_format"
+		    android:layout_alignParentRight="true"
+		    android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    </RelativeLayout>
     
     <LinearLayout
         android:layout_width="fill_parent"

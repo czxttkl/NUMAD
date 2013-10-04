@@ -58,7 +58,7 @@ public class Tile extends View {
 	private void init(AttributeSet attrs, int defStyle) {
 		// Load attributes
 		
-		Log.d("dabble", getIntegerId() + ":Tile init");
+//		Log.d("dabble", getIntegerId() + ":Tile init");
 		
 		final TypedArray a = getContext().obtainStyledAttributes(attrs,
 				R.styleable.Tile, defStyle, 0);
@@ -115,16 +115,16 @@ public class Tile extends View {
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
 		
-		mTextPaint = new Paint();
-		mTextPaint.setColor(Color.RED);
-		mTextPaint.setTextSize(48);
-		mRectPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-		mRectPaint.setStyle(Style.FILL);
-		mRectPaint.setColor(mBorderColor);
-		mRectPaint.setStrokeWidth(mBorderRadius);
+//		mTextPaint = new Paint();
+//		mTextPaint.setColor(Color.RED);
+//		mTextPaint.setTextSize(48);
+//		mRectPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+//		mRectPaint.setStyle(Style.FILL);
+//		mRectPaint.setColor(mBorderColor);
+//		mRectPaint.setStrokeWidth(mBorderRadius);
 		
 		
-		Log.d("dabble", getIntegerId() + ":tile.ondraw");
+//		Log.d("dabble", getIntegerId() + ":tile.ondraw");
 	
 		canvas.drawRoundRect(mRect, mBorderRadius, mBorderRadius, mRectPaint);
 		canvas.drawText(mCharacter, parentWidth / 20, parentHeight / 8, mTextPaint);
@@ -242,7 +242,7 @@ public class Tile extends View {
 
 	@Override
 	protected void onRestoreInstanceState(Parcelable state) {
-		Log.d("dabble", getIntegerId() + ":tile.onrestoreinstancestate");
+//		Log.d("dabble", getIntegerId() + ":tile.onrestoreinstancestate");
 
 		if (state instanceof Bundle) {
 			Bundle bundle = (Bundle) state;

@@ -78,7 +78,6 @@ import android.widget.TextView;
 		String[][] tileWords = (String[][])result[0];
 		
 		activity.dabbleString = tileWords[n][0] + tileWords[n][1] + tileWords[n][2] + tileWords[n][3];
-//		Log.d("dabble", activity.dabbleString);
 		
 		activity.wholeArray = (String[])result[1];
 		
