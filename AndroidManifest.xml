@@ -23,23 +23,23 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        
         <activity
             android:name="edu.neu.zhengxingchen.madcourse.dabble.Prefs"
             android:label="@string/app_name"
             android:theme="@style/MyDialogStyle" >
         </activity>
+        
         <activity
             android:name="edu.neu.zhengxingchen.madcourse.dabble.GameActivity"
             android:label="@string/title_activity_game"
             android:screenOrientation="landscape" >
         </activity>
-        <activity
-            android:name="edu.neu.zhengxingchen.madcourse.dabble.TT"
-            android:label="@string/title_activity_tt" >
-        </activity>
+        
         <activity
             android:name="edu.neu.zhengxingchen.madcourse.dabble.GameOver"
-            android:label="@string/title_activity_game_over" >
+            android:label="@string/title_activity_game_over" 
+            android:theme="@style/MyDialogStyle">
         </activity>
     </application>
 

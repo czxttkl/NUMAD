@@ -25,6 +25,8 @@ public class Prefs extends PreferenceActivity {
 	private static final boolean OPT_MUSIC_DEF = true;
 	private static final String OPT_HINTS = "hints";
 	private static final boolean OPT_HINTS_DEF = true;
+	private static final String OPT_HIGHSCORE = "highscore";
+	private static final int OPT_HIGHSCORE_DEF = 0;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +52,15 @@ public class Prefs extends PreferenceActivity {
 				.getBoolean(OPT_HINTS, OPT_HINTS_DEF);
 	}
 
+	public static int getHighScore(Context context) {
+		return PreferenceManager.getDefaultSharedPreferences(context).getInt(OPT_HIGHSCORE, OPT_HIGHSCORE_DEF);
+		
+	}
+	
+	public static void setHighScore(Context context, int highscore) {
+		PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(OPT_HIGHSCORE, highscore).commit();
+	}
+	
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		finish();

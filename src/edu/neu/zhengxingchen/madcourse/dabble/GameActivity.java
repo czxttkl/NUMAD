@@ -33,7 +33,7 @@ public class GameActivity extends Activity {
 	public int clickCount = 0;
 	public int[] clickTileId = new int[2];
 
-	public long startTime = 30 * 1000;
+	public long startTime = 10 * 1000;
 	public long interval = 37;
 	public int score = 0;
 //	private boolean musicShouldPause = true;
@@ -80,7 +80,7 @@ public class GameActivity extends Activity {
 		
 		mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 		
-		Log.d("dabble", "oncreate");
+//		Log.d("dabble", "oncreate");
 
 	}
 
@@ -136,7 +136,7 @@ public class GameActivity extends Activity {
 		super.onPause();
 		if (myCountDownTimer != null)
 			myCountDownTimer.cancel();
-		Log.d("dabble", "onpause:" + Music.musicShouldPause + ":" + Music.musicPaused);
+		//Log.d("dabble", "onpause:" + Music.musicShouldPause + ":" + Music.musicPaused);
 		if(Music.musicShouldPause) {
 			Music.pause(this);
 			Music.musicPaused = true;
@@ -148,13 +148,13 @@ public class GameActivity extends Activity {
 	@Override
 	protected void onRestart() {
 		super.onRestart();
-		Log.d("dabble", "onrestart");
+		//Log.d("dabble", "onrestart");
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-		Log.d("dabble", "onresume:"  + Music.musicShouldPause + ":" + Music.musicPaused);
+		//Log.d("dabble", "onresume:"  + Music.musicShouldPause + ":" + Music.musicPaused);
 		myCountDownTimer = new MyCountDownTimer(this, startTime, interval);
 		if (!initing)
 			myCountDownTimer.start();
@@ -209,7 +209,7 @@ public class GameActivity extends Activity {
 		Tile.setGameActivity(this);
 		new WordLookUpTask(GameActivity.this).execute(dabbleArray);
 		
-		Log.d("dabble", "initialTile");
+		Log.d("dabble", dabbleString);
 		myCountDownTimer.start();
 		initing = false;
 	}
@@ -218,7 +218,7 @@ public class GameActivity extends Activity {
 
 		Tile currentTile = (Tile) findViewById(R.id.tile1);
 
-		Log.d("dabble", "onclick" + (currentTile == tile ? "yes" : "no"));
+		//Log.d("dabble", "onclick" + (currentTile == tile ? "yes" : "no"));
 
 		if (clickCount == 1 | clickCount == 0) {
 
@@ -249,7 +249,7 @@ public class GameActivity extends Activity {
 					getPackageName());
 			Tile tmp0 = (Tile) findViewById(resId0);
 
-			Log.d("dabble", "before:dabblearray:" + String.valueOf(dabbleArray));
+			//Log.d("dabble", "before:dabblearray:" + String.valueOf(dabbleArray));
 
 			String c0 = tmp0.getCharacter();
 			tmp0.setCharacter(tmp1.getCharacter());
@@ -257,7 +257,7 @@ public class GameActivity extends Activity {
 			tmp1.setCharacter(c0);
 			dabbleArray[tmp1.getIntegerId()] = c0.charAt(0);
 
-			Log.d("dabble", "after:dabblearray:" + String.valueOf(dabbleArray));
+			//Log.d("dabble", "after:dabblearray:" + String.valueOf(dabbleArray));
 
 			clickCount = 0;
 			clickTileId = new int[2];
@@ -292,10 +292,12 @@ public class GameActivity extends Activity {
 	
 	public void initGameOver() {
 		myCountDownTimer.cancel();
-		Log.d("dabble", "initGameOver");
 		Intent i = new Intent();
 		i.setClass(this, GameOver.class);
+		i.putExtra("score", score);
 		startActivity(i);
+		
+		Prefs.setHighScore(getBaseContext(), score);
 		Music.musicShouldPause = false;
 		finish();
 	}
