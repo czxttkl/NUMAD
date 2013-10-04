@@ -23,6 +23,7 @@ import android.view.View;
  * TODO: document your custom view class.
  */
 public class Tile extends View {
+	
 	private String mCharacter = "a"; // TODO: use a default from R.string...
 	private int mCharacterColor = Color.RED;
 	private int mBackgroundColor = Color.WHITE; // TODO: use a default from
@@ -48,10 +49,12 @@ public class Tile extends View {
 	private static int parentHeight = 0;
 
 	private boolean measureLock = false;
-	private boolean choosed = false;
+	boolean choosed = false;
 
 	private GestureDetector mDetector;
 
+	private static GameActivity gameActivity = null; 
+	
 	public Tile(Context context) {
 		super(context);
 		init(null, 0);
@@ -135,13 +138,7 @@ public class Tile extends View {
 	public boolean onTouchEvent(MotionEvent event) {
 		//
 		if (event.getAction() == MotionEvent.ACTION_UP) {
-			if (!choosed) {
-				setBorderColor(Color.YELLOW);
-				choosed = true;
-			} else {
-				setBorderColor(Color.BLUE);
-				choosed = false;
-			}
+			gameActivity.onClickTiles(this);
 		}
 
 		return true;
@@ -164,23 +161,6 @@ public class Tile extends View {
 		paint.setTextSize(48);
 		canvas.drawText(mCharacter, parentWidth / 20, parentHeight / 8, paint);
 
-		// canvas.drawRect(0, 0, recWidth, recWidth, paint);
-
-		// // Draw the example drawable on top of the text.
-		// if (mExampleDrawable != null) {
-		// mExampleDrawable.setBounds(paddingLeft, paddingTop, paddingLeft
-		// + contentWidth, paddingTop + contentHeight);
-		// mExampleDrawable.draw(canvas);
-		// }
-	}
-
-	/**
-	 * Gets the example string attribute value.
-	 * 
-	 * @return The example string attribute value.
-	 */
-	public String getCharacter() {
-		return mCharacter;
 	}
 
 	/**
@@ -195,15 +175,9 @@ public class Tile extends View {
 		invalidate();
 	}
 
-	/**
-	 * Gets the example color attribute value.
-	 * 
-	 * @return The example color attribute value.
-	 */
-	public int getBackgroundColor() {
-		return mBackgroundColor;
+	public static void setGameActivity(GameActivity mGameActivity) {
+		gameActivity = mGameActivity;
 	}
-
 	/**
 	 * Sets the view's example color attribute value. In the example view, this
 	 * color is the font color.
@@ -222,15 +196,6 @@ public class Tile extends View {
 	}
 
 	/**
-	 * Gets the example dimension attribute value.
-	 * 
-	 * @return The example dimension attribute value.
-	 */
-	public float getCharacterSize() {
-		return mCharacterSize;
-	}
-
-	/**
 	 * Sets the view's example dimension attribute value. In the example view,
 	 * this dimension is the font size.
 	 * 
@@ -240,6 +205,37 @@ public class Tile extends View {
 	public void setCharacterSize(float exampleDimension) {
 		mCharacterSize = exampleDimension;
 		invalidateTextPaintAndMeasurements();
+	}
+
+	/**
+	 * Gets the example string attribute value.
+	 * 
+	 * @return The example string attribute value.
+	 */
+	public String getCharacter() {
+		return mCharacter;
+	}
+	
+	/**
+	 * Gets the example dimension attribute value.
+	 * 
+	 * @return The example dimension attribute value.
+	 */
+	public float getCharacterSize() {
+		return mCharacterSize;
+	}
+
+	/**
+	 * Gets the example color attribute value.
+	 * 
+	 * @return The example color attribute value.
+	 */
+	public int getBackgroundColor() {
+		return mBackgroundColor;
+	}
+	
+	public int getBorderColor() {
+		return mBorderColor;
 	}
 
 	@Override
@@ -323,6 +319,14 @@ public class Tile extends View {
 			Log.d("dabble", "ondown");
 			return true;
 		}
+	}
+
+	public int getIntegerId() {
+		String stringId = getResources().getResourceName(getId());
+		String[] tmp = stringId.split("/");
+		
+//		Log.d("dabble", "getinteger :" + tmp[1].substring(4));
+		return Integer.valueOf(tmp[1].substring(4))-1;
 	}
 
 }

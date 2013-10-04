@@ -3,6 +3,7 @@ package edu.neu.zhengxingchen.madcourse.dabble;
 import java.io.IOException;
 import java.util.Random;
 
+import android.graphics.Color;
 import android.media.SoundPool;
 import android.os.Bundle;
 import android.app.Activity;
@@ -23,6 +24,9 @@ public class GameActivity extends Activity {
 	protected SoundPool sp = null;
 	protected int beepStreamId = 0;
 
+	public int clickCount;
+	public int[] clickTileId = new int[2];
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -32,17 +36,16 @@ public class GameActivity extends Activity {
 		if (savedInstanceState != null) {
 			loadWhole(savedInstanceState);
 		}
-		
+
 		Object[] myObjectData = (Object[]) getLastNonConfigurationInstance();
 		if (myObjectData != null) {
-			tileArray = (Tile[])myObjectData[0];
-			sp = (SoundPool)myObjectData[1];
+			tileArray = (Tile[]) myObjectData[0];
+			sp = (SoundPool) myObjectData[1];
 			Log.d("dabble", "restore:" + tileArray[3].getCharacter());
 		}
-		
-		 
+
 		LinearLayout gameLayout = (LinearLayout) findViewById(R.id.game_layout);
-		
+
 		try {
 			if (wholeArray == null || dabbleString == null)
 				new LoadDicTask(this).execute(
@@ -68,7 +71,7 @@ public class GameActivity extends Activity {
 		dabbleArray = savedInstanceState.getCharArray("dabbleArray");
 		beepStreamId = savedInstanceState.getInt("beepStreamId");
 		dabbleString = savedInstanceState.getString("dabbleString");
-//		tileArray = (Tile[]) savedInstanceState.getSerializable("tileArray");
+		// tileArray = (Tile[]) savedInstanceState.getSerializable("tileArray");
 	}
 
 	@Override
@@ -83,7 +86,7 @@ public class GameActivity extends Activity {
 		outState.putStringArray("wholeArray", wholeArray);
 		outState.putInt("beepStreamId", beepStreamId);
 
-//		outState.putSerializable("tileArray", tileArray);
+		// outState.putSerializable("tileArray", tileArray);
 
 	}
 
@@ -97,21 +100,18 @@ public class GameActivity extends Activity {
 
 	@Override
 	protected void onPause() {
-		// TODO Auto-generated method stub
 		super.onPause();
 		Log.d("dabble", "onpause");
 	}
 
 	@Override
 	protected void onRestart() {
-		// TODO Auto-generated method stub
 		super.onRestart();
 		Log.d("dabble", "onrestart");
 	}
 
 	@Override
 	protected void onResume() {
-		// TODO Auto-generated method stub
 		super.onResume();
 		Log.d("dabble", "onresume");
 	}
@@ -147,6 +147,47 @@ public class GameActivity extends Activity {
 			}
 			Log.d("dabble", String.valueOf(dabbleArray));
 		}
+
+		Tile.setGameActivity(this);
+	}
+
+	public void onClickTiles(Tile tile) {
+
+		if (clickCount == 1 | clickCount == 0) {
+			Log.d("dabble", "game activity: tile id:" + tile.getIntegerId() + "clickCount:" + clickCount);
+			
+			if (!tile.choosed) {
+				tile.setBorderColor(Color.YELLOW);
+				tile.choosed = true;
+				clickTileId[clickCount] = tile.getIntegerId();
+				clickCount++;
+			} else {
+				tile.setBorderColor(Color.BLUE);
+				tile.choosed = false;
+				clickCount--;
+				clickTileId = new int[2];
+			}
+		} 
+		
+		if (clickCount == 2) {
+			
+			Tile tmp1 = tileArray[clickTileId[1]];
+			Tile tmp0 = tileArray[clickTileId[0]];
+			
+			String c0 = tmp0.getCharacter();
+			tmp0.setCharacter(tmp1.getCharacter());
+			tmp1.setCharacter(c0);
+				
+			clickCount = 0;
+			clickTileId = new int[2];
+			
+			tmp0.choosed = false;
+			tmp1.choosed = false;
+			tmp0.setBorderColor(Color.BLUE); 
+			tmp1.setBorderColor(Color.BLUE); 
+		}
+		
+
 	}
 
 }
