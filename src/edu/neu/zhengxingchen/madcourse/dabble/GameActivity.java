@@ -30,7 +30,9 @@ public class GameActivity extends Activity {
 	public int[] clickTileId = new int[2];
 
 	public long startTime = 30 * 1000;
-	public long interval = 347;
+	public long interval = 37;
+	public int score = 0;
+	
 	MyCountDownTimer myCountDownTimer;
 
 	public volatile boolean initing =false;
@@ -78,8 +80,12 @@ public class GameActivity extends Activity {
 		clickCount = savedInstanceState.getInt("clickCount");
 		startTime = savedInstanceState.getLong("startTime");
 		// tileArray = (Tile[]) savedInstanceState.getSerializable("tileArray");
+		
 		TextView gameTitle = (TextView) findViewById(R.id.game_title);
 		gameTitle.setText(savedInstanceState.getString("gameTitle"));
+		TextView scoreText = (TextView) findViewById(R.id.score_text);
+		scoreText.setText("Score:" + savedInstanceState.getInt("score"));
+		
 		Tile.setGameActivity(this);
 	}
 

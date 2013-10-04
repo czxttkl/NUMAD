@@ -18,8 +18,8 @@ public class MyCountDownTimer extends CountDownTimer{
 
 	@Override
 	public void onFinish() {
-		// TODO Auto-generated method stub
-		
+		TextView timer = (TextView)gameActivity.findViewById(R.id.timer_text);
+		timer.setText("0:00.000");
 	}
 
 	@Override
@@ -27,7 +27,21 @@ public class MyCountDownTimer extends CountDownTimer{
 		// TODO Auto-generated method stub
 		gameActivity.startTime = millisUntilFinished;
 		TextView timer = (TextView)gameActivity.findViewById(R.id.timer_text);
-		timer.setText("" + millisUntilFinished);
+		long min = millisUntilFinished/60000;
+		long sec = (millisUntilFinished % 60000 ) / 1000; 
+		long millisec = millisUntilFinished % 1000;
+	    
+		StringBuilder sb = new StringBuilder();
+		sb.append(min);
+		sb.append(":");
+		sb.append(sec/10);
+		sb.append(sec%10);
+		sb.append(":");
+		sb.append(millisec/100);
+		sb.append( (millisec%100)/10 );
+		sb.append(millisec%10);
+		
+		timer.setText(sb.toString());
 		//Log.d("countdown", "" + millisUntilFinished);
 	}
 
