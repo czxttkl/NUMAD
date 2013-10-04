@@ -1,22 +1,14 @@
 package edu.neu.zhengxingchen.madcourse.dabble;
 
-
-
-import com.google.gson.Gson;
-
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
-import android.graphics.Rect;
 import android.graphics.RectF;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -30,25 +22,13 @@ public class Tile extends View {
 	
 	private String mCharacter = "a"; // TODO: use a default from R.string...
 	private int mCharacterColor = Color.RED;
-//	private int mBackgroundColor = Color.WHITE; // TODO: use a default from
 	private int mBorderColor = Color.BLUE; // R.color...
 	private int mBorderRadius = 10;
 //	private float mCharacterSize = 1;
-//
-//	private int paddingTop;
-//	private int paddingBottom;
-//	private int paddingLeft;
-//	private int paddingRight;
 
-//	private int recWidth;
-//	private int recHeight;
 	private RectF mRect;
 	private Paint mRectPaint;
 	private Paint mTextPaint;
-	
-//	private TextPaint mTextPaint;
-//	private float mTextWidth;
-//	private float mTextHeight;
 
 	private static int parentWidth = 0;
 	private static int parentHeight = 0;
@@ -93,33 +73,13 @@ public class Tile extends View {
 					mBorderColor);
 			mBorderRadius = a.getInteger(R.styleable.Tile_borderRadius,
 					mBorderRadius);
-			// Use getDimensionPixelSize or getDimensionPixelOffset when dealing
-			// with
-			// values that should fall on pixel boundaries.
 //			mCharacterSize = a.getDimension(R.styleable.Tile_characterSize,
 //					mCharacterSize);
-
-			// if (a.hasValue(R.styleable.Tile_exampleDrawable)) {
-			// mExampleDrawable =
-			// a.getDrawable(R.styleable.Tile_exampleDrawable);
-			// mExampleDrawable.setCallback(this);
-			// }
-//			paddingLeft = getPaddingLeft();
-//			paddingTop = getPaddingTop();
-//			paddingRight = getPaddingRight();
-//			paddingBottom = getPaddingBottom();
 
 		} finally {
 
 			a.recycle();
 		}
-
-		// Set up a default TextPaint object
-//		mTextPaint = new TextPaint();
-//		mTextPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
-//		mTextPaint.setTextAlign(Paint.Align.LEFT);
-
-		
 
 		mDetector = new GestureDetector(this.getContext(),
 				new GestureListener());
@@ -134,17 +94,11 @@ public class Tile extends View {
 		mTextPaint.setTextSize(48);
 //		mTextPaint.setTextSize(mCharacterSize);
 //		mTextPaint.setColor(mCharacterColor);
-//		mTextWidth = mTextPaint.measureText(mCharacter);
-//		Paint.FontMetrics fontMetrics = mTextPaint.getFontMetrics();
-//		mTextHeight = fontMetrics.bottom;
-//		Log.d("dabble", "invalidatetext " + getIntegerId() + ":" + mCharacter);
 		mRectPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		mRectPaint.setStyle(Style.FILL);
 		mRectPaint.setColor(mBorderColor);
 		mRectPaint.setStrokeWidth(mBorderRadius);
-//		Log.d("dabble",  getIntegerId() + " color:" + mRectPaint.getColor() + ":" + Color.BLUE);
 		invalidate();
-		// Log.d("dabble", "finishinvalidate");
 	}
 
 	@Override
@@ -171,14 +125,8 @@ public class Tile extends View {
 		
 		
 		Log.d("dabble", getIntegerId() + ":tile.ondraw");
-//		Log.d("dabble", "ondraw:" + getIntegerId() + " mCharacter:" + mCharacter + ":" + mRect.height());
 	
 		canvas.drawRoundRect(mRect, mBorderRadius, mBorderRadius, mRectPaint);
-
-		//canvas.drawText(mCharacter, 10, 10, mTextPaint);
-
-		
-		
 		canvas.drawText(mCharacter, parentWidth / 20, parentHeight / 8, mTextPaint);
 
 	}
@@ -337,21 +285,10 @@ public class Tile extends View {
 		savedState.putInt("mBorderRadius", mBorderRadius);
 		//Log.d("dabble", "tile.onsaveinstancestate");
 		savedState.putInt("mCharacterColor", mCharacterColor);
-//		savedState.putInt("mBackgroundColor", mBackgroundColor);
 //		savedState.putFloat("mCharacterSize", mCharacterSize);
 		savedState.putBoolean("measureLock", measureLock);
 		savedState.putInt("parentWidth", parentWidth);
 		savedState.putInt("parentHeight", parentHeight);
-		
-//		Gson gson = new Gson();
-//		String mRect = gson.toJson(this.mRect);
-//		String mRectPaint = gson.toJson(this.mRectPaint);
-//		String mTextPaint = gson.toJson(this.mTextPaint);
-		
-//		savedState.putString("mRect", mRect);
-//		savedState.putString("mRectPaint", mRectPaint);
-//		savedState.putString("mTextPaint", mTextPaint);
-		 
 		
 		return savedState;
 	}
@@ -375,9 +312,6 @@ public class Tile extends View {
 
 		@Override
 		public boolean onDown(MotionEvent e) {
-			// The user is interacting with the pie, so we want to turn on
-			// acceleration
-			// so that the interaction is smooth.
 			//Log.d("dabble", "ondown");
 			return true;
 		}
@@ -387,7 +321,6 @@ public class Tile extends View {
 		String stringId = getResources().getResourceName(getId());
 		String[] tmp = stringId.split("/");
 		
-//		Log.d("dabble", "getinteger :" + tmp[1].substring(4));
 		return Integer.valueOf(tmp[1].substring(4))-1;
 	}
 
