@@ -6,7 +6,11 @@ import java.util.Random;
 import android.graphics.Color;
 import android.media.SoundPool;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.app.Activity;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -32,9 +36,11 @@ public class GameActivity extends Activity {
 	public long startTime = 30 * 1000;
 	public long interval = 37;
 	public int score = 0;
+//	private boolean musicShouldPause = true;
 
 	MyCountDownTimer myCountDownTimer;
-
+	SharedPreferences mSharedPreferences;
+	
 	public volatile boolean initing = false;
 
 	@Override
@@ -46,9 +52,12 @@ public class GameActivity extends Activity {
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		setContentView(R.layout.activity_game);
 
+//		Music.play(this, R.raw.background);
+		
 		Object[] myObjectData = (Object[]) getLastNonConfigurationInstance();
 		if (savedInstanceState != null && myObjectData != null) {
 			loadWhole(savedInstanceState);
+//			mSharedPreferences = (SharedPreferences)myObjectData[0];
 			sp = (SoundPool) myObjectData[1];
 		} else {
 			// LinearLayout gameLayout = (LinearLayout)
@@ -68,6 +77,9 @@ public class GameActivity extends Activity {
 				e.printStackTrace();
 			}
 		}
+		
+		mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+		
 		Log.d("dabble", "oncreate");
 
 	}
@@ -79,8 +91,8 @@ public class GameActivity extends Activity {
 		dabbleString = savedInstanceState.getString("dabbleString");
 		clickCount = savedInstanceState.getInt("clickCount");
 		startTime = savedInstanceState.getLong("startTime");
-		// tileArray = (Tile[]) savedInstanceState.getSerializable("tileArray");
-
+//		musicShouldPause = savedInstanceState.getBoolean("musicShouldPause");
+		
 		TextView gameTitle = (TextView) findViewById(R.id.game_title);
 		gameTitle.setText(savedInstanceState.getString("gameTitle"));
 		TextView scoreText = (TextView) findViewById(R.id.score_text);
@@ -103,7 +115,8 @@ public class GameActivity extends Activity {
 		outState.putInt("clickCount", clickCount);
 		outState.putLong("startTime", startTime);
 		outState.putInt("score", score);
-
+//		outState.putBoolean("musicShouldPause", musicShouldPause);
+		
 		TextView gameTitle = (TextView) findViewById(R.id.game_title);
 		outState.putString("gameTitle", gameTitle.getText().toString());
 
@@ -113,7 +126,7 @@ public class GameActivity extends Activity {
 	@Override
 	public Object onRetainNonConfigurationInstance() {
 		final Object[] myObjectData = new Object[2];
-		// myObjectData[0] = tileArray;
+//		myObjectData[0] = mSharedPreferences;
 		myObjectData[1] = sp;
 		return myObjectData;
 	}
@@ -123,7 +136,13 @@ public class GameActivity extends Activity {
 		super.onPause();
 		if (myCountDownTimer != null)
 			myCountDownTimer.cancel();
-		Log.d("dabble", "onpause:" + startTime);
+		Log.d("dabble", "onpause:" + Music.musicShouldPause + ":" + Music.musicPaused);
+		if(Music.musicShouldPause) {
+			Music.pause(this);
+			Music.musicPaused = true;
+		}
+		mSharedPreferences.registerOnSharedPreferenceChangeListener(mListener);
+		
 	}
 
 	@Override
@@ -135,10 +154,23 @@ public class GameActivity extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
+		Log.d("dabble", "onresume:"  + Music.musicShouldPause + ":" + Music.musicPaused);
 		myCountDownTimer = new MyCountDownTimer(this, startTime, interval);
 		if (!initing)
 			myCountDownTimer.start();
-		Log.d("dabble", "onresume:" + startTime);
+		if( Music.musicPaused) {
+			Music.start(this);
+			Music.musicPaused = false;
+		}
+		Music.musicShouldPause = true;
+		mSharedPreferences.registerOnSharedPreferenceChangeListener(mListener);
+	}
+
+	@Override
+	protected void onDestroy() {
+		// TODO Auto-generated method stub
+		super.onDestroy();
+//		Music.stop(this);
 	}
 
 	@Override
@@ -175,7 +207,8 @@ public class GameActivity extends Activity {
 		}
 
 		Tile.setGameActivity(this);
-
+		new WordLookUpTask(GameActivity.this).execute(dabbleArray);
+		
 		Log.d("dabble", "initialTile");
 		myCountDownTimer.start();
 		initing = false;
@@ -239,16 +272,48 @@ public class GameActivity extends Activity {
 
 	}
 
-	public void updateTileColor(int[] colorResult) {
+	public void updateUI(int[] colorResult) {
 		Log.d("dabble", "updateTileColor");
 		int j = 1;
+		score = 0;
 		for (int color : colorResult) {
 			int resId = getResources().getIdentifier("tile" + j, "id",
 					getPackageName());
 			Tile tmp = (Tile) findViewById(resId);
 			tmp.setCharacterColor(color);
+			if( color == Color.GREEN)
+				score++;
 			j++;
 		}
+		TextView scoreText = (TextView)findViewById(R.id.score_text);
+		scoreText.setText("Score:" + score);
 	}
 
+	
+	public void initGameOver() {
+		myCountDownTimer.cancel();
+		Log.d("dabble", "initGameOver");
+		Intent i = new Intent();
+		i.setClass(this, GameOver.class);
+		startActivity(i);
+		Music.musicShouldPause = false;
+		finish();
+	}
+	
+	
+	// Listener defined by anonymous inner class.
+		public OnSharedPreferenceChangeListener mListener = new OnSharedPreferenceChangeListener() {
+			@Override
+			public void onSharedPreferenceChanged(
+					SharedPreferences sharedPreferences, String key) {
+				if (key.equals("music")) {
+					boolean music = sharedPreferences.getBoolean(key, true);
+					if (!music) {
+						Music.stop(GameActivity.this);
+					} else {
+						Music.play(GameActivity.this, R.raw.background);
+					}
+				}
+			}
+		};
 }

@@ -166,7 +166,7 @@ public class Tile extends View {
 
 	public void setCharacterColor(int characterColor) {
 		mCharacterColor = characterColor;
-		Log.d("dabble", "setCharacterColor:" + getIntegerId() + " : " + characterColor);
+//		Log.d("dabble", "setCharacterColor:" + getIntegerId() + " : " + characterColor);
 		invalidateTextPaintAndMeasurements();
 	}
 	

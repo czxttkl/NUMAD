@@ -24,7 +24,7 @@ public class WordLookUpTask extends AsyncTask<char[], Void, int[]>{
 	@Override
 	protected void onPostExecute(int[] result) {
 		Log.d("dabble", "onpostExecute:" + String.valueOf(gameActivity.dabbleArray));
-		gameActivity.updateTileColor(result);
+		gameActivity.updateUI(result);
 	}
 
 //	private static String concatTile(int tileId) {

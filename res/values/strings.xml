@@ -23,5 +23,6 @@
     <string name="timer_format">01:30.000</string>
     <string name="score_format">Score: 0 </string>
     <string name="loading">Loading...</string>
+    <string name="title_activity_game_over">GameOver</string>
 
 </resources>

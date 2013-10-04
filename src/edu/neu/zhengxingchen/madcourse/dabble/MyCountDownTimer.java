@@ -20,6 +20,7 @@ public class MyCountDownTimer extends CountDownTimer{
 	public void onFinish() {
 		TextView timer = (TextView)gameActivity.findViewById(R.id.timer_text);
 		timer.setText("0:00.000");
+		gameActivity.initGameOver();
 	}
 
 	@Override

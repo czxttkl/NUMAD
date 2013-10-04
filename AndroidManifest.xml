@@ -37,6 +37,10 @@
             android:name="edu.neu.zhengxingchen.madcourse.dabble.TT"
             android:label="@string/title_activity_tt" >
         </activity>
+        <activity
+            android:name="edu.neu.zhengxingchen.madcourse.dabble.GameOver"
+            android:label="@string/title_activity_game_over" >
+        </activity>
     </application>
 
 </manifest>

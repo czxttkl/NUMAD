@@ -22,30 +22,35 @@ import android.widget.PopupWindow;
 public class GameMenu extends Activity implements OnClickListener {
 
 	private volatile boolean acknowledgementPopedUp = false;
-	private boolean musicShouldPause = true;
+//	private boolean musicShouldPause = true;
 	PopupWindow acknowledgementPopupWindowMenu;
 	SharedPreferences mSharedPreferences;
 	
 	@Override
 	protected void onPause() {
 		super.onPause();
-		if(musicShouldPause)
+		if(Music.musicShouldPause && !Music.musicPaused) {
 			Music.pause(this);
+			Music.musicPaused = true;
+		}
 		mSharedPreferences.registerOnSharedPreferenceChangeListener(mListener);
 	}
 
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		Music.stop(this);
+		Log.d("dabble", "ondestroy gamemenu");
+//		Music.stop(this);
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-		if(musicShouldPause)
+		if( Music.musicPaused) {
 			Music.start(this);
-		musicShouldPause = true;
+			Music.musicPaused = false;
+		}
+		Music.musicShouldPause = true;
 		mSharedPreferences.registerOnSharedPreferenceChangeListener(mListener);
 	}
 
@@ -55,7 +60,8 @@ public class GameMenu extends Activity implements OnClickListener {
 
 		setContentView(R.layout.activity_game_menu);
 //		initAcknowledgements();
-
+		Music.start(this, R.raw.background);
+		
 		View continueButton = findViewById(R.id.continue_button);
 		continueButton.setOnClickListener(this);
 		View newButton = findViewById(R.id.new_button);
@@ -67,9 +73,10 @@ public class GameMenu extends Activity implements OnClickListener {
 		View exitButton = findViewById(R.id.exit_button);
 		exitButton.setOnClickListener(this);
 
-		Music.play(this, R.raw.background);
+		
 		
 		mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+		Log.d("dabble", "gamemenu oncreate");
 	}
 
 	@Override
@@ -103,7 +110,7 @@ public class GameMenu extends Activity implements OnClickListener {
 		Intent i = new Intent();
 		i.setClass(this, GameActivity.class);
 		startActivity(i);
-		musicShouldPause = false;
+		Music.musicShouldPause = false;
 	}
 
 	private void initAcknowledgements() {
@@ -141,7 +148,7 @@ public class GameMenu extends Activity implements OnClickListener {
 		Intent i = new Intent();
 		i.setClass(GameMenu.this, Prefs.class);
 		startActivity(i);
-		musicShouldPause = false;
+		Music.musicShouldPause = false;
 	}
 	
 	// Listener defined by anonymous inner class.
