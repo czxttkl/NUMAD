@@ -80,6 +80,7 @@ import android.widget.TextView;
 		activity.dabbleString = tileWords[n][0] + tileWords[n][1] + tileWords[n][2] + tileWords[n][3];
 		
 		activity.wholeArray = (String[])result[1];
+		WordLookUp.wholeDict = activity.wholeArray;
 		
 		activity.initialTile();
 		

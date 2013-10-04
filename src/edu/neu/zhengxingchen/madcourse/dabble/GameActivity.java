@@ -32,18 +32,18 @@ public class GameActivity extends Activity {
 	public long startTime = 30 * 1000;
 	public long interval = 37;
 	public int score = 0;
-	
+
 	MyCountDownTimer myCountDownTimer;
 
-	public volatile boolean initing =false;
-	
+	public volatile boolean initing = false;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-		WindowManager.LayoutParams.FLAG_FULLSCREEN);
+				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		setContentView(R.layout.activity_game);
 
 		Object[] myObjectData = (Object[]) getLastNonConfigurationInstance();
@@ -80,12 +80,12 @@ public class GameActivity extends Activity {
 		clickCount = savedInstanceState.getInt("clickCount");
 		startTime = savedInstanceState.getLong("startTime");
 		// tileArray = (Tile[]) savedInstanceState.getSerializable("tileArray");
-		
+
 		TextView gameTitle = (TextView) findViewById(R.id.game_title);
 		gameTitle.setText(savedInstanceState.getString("gameTitle"));
 		TextView scoreText = (TextView) findViewById(R.id.score_text);
 		scoreText.setText("Score:" + savedInstanceState.getInt("score"));
-		
+
 		Tile.setGameActivity(this);
 	}
 
@@ -102,9 +102,11 @@ public class GameActivity extends Activity {
 		outState.putInt("beepStreamId", beepStreamId);
 		outState.putInt("clickCount", clickCount);
 		outState.putLong("startTime", startTime);
-		
+		outState.putInt("score", score);
+
 		TextView gameTitle = (TextView) findViewById(R.id.game_title);
 		outState.putString("gameTitle", gameTitle.getText().toString());
+
 		// outState.putSerializable("tileArray", tileArray);
 	}
 
@@ -119,7 +121,7 @@ public class GameActivity extends Activity {
 	@Override
 	protected void onPause() {
 		super.onPause();
-		if(myCountDownTimer!=null)
+		if (myCountDownTimer != null)
 			myCountDownTimer.cancel();
 		Log.d("dabble", "onpause:" + startTime);
 	}
@@ -134,7 +136,7 @@ public class GameActivity extends Activity {
 	protected void onResume() {
 		super.onResume();
 		myCountDownTimer = new MyCountDownTimer(this, startTime, interval);
-		if(!initing)
+		if (!initing)
 			myCountDownTimer.start();
 		Log.d("dabble", "onresume:" + startTime);
 	}
@@ -144,28 +146,6 @@ public class GameActivity extends Activity {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.game, menu);
 		return true;
-	}
-
-	public void restoreTile() {
-		Log.d("dabble", "restoretile");
-		// for (int j = 1; j < 19; j++) {
-		// int resId = getResources().getIdentifier(
-		// "tile" + Integer.toString(j), "id", getPackageName());
-		// Tile mTile = (Tile) findViewById(resId);
-		// mTile = tileArray[j-1];
-		// Log.d("dabble", "restoreTile1" + (tileArray[0] ==
-		// (Tile)findViewById(R.id.tile1)? "yes":"no"));
-		// mTile.invalidate();
-		// }
-		// int resId = getResources().getIdentifier(
-		// "tile1", "id", getPackageName());
-		// Tile mTile = (Tile) findViewById(resId);
-
-		
-		//myCountDownTimer = new MyCountDownTimer(this, startTime, interval);
-//		myCountDownTimer.start();
-		Log.d("dabble", "restoreTile");
-		// "yes":"no"));
 	}
 
 	public void initialTile() {
@@ -195,7 +175,7 @@ public class GameActivity extends Activity {
 		}
 
 		Tile.setGameActivity(this);
-		
+
 		Log.d("dabble", "initialTile");
 		myCountDownTimer.start();
 		initing = false;
@@ -236,18 +216,15 @@ public class GameActivity extends Activity {
 					getPackageName());
 			Tile tmp0 = (Tile) findViewById(resId0);
 
-			// Tile tmp1 = tileArray[clickTileId[1]];
-			// Tile tmp0 = tileArray[clickTileId[0]];
-
-			Log.d("dabble", "before:tilearray:" + tmp1.getIntegerId() + " :"
-					+ tmp1.getCharacter());
+			Log.d("dabble", "before:dabblearray:" + String.valueOf(dabbleArray));
 
 			String c0 = tmp0.getCharacter();
 			tmp0.setCharacter(tmp1.getCharacter());
+			dabbleArray[tmp0.getIntegerId()] = tmp1.getCharacter().charAt(0);
 			tmp1.setCharacter(c0);
+			dabbleArray[tmp1.getIntegerId()] = c0.charAt(0);
 
-			Log.d("dabble", "after:tilearray:" + tmp1.getIntegerId() + " :"
-					+ tmp1.getCharacter());
+			Log.d("dabble", "after:dabblearray:" + String.valueOf(dabbleArray));
 
 			clickCount = 0;
 			clickTileId = new int[2];
@@ -257,8 +234,21 @@ public class GameActivity extends Activity {
 			tmp0.setBorderColor(Color.BLUE);
 			tmp1.setBorderColor(Color.BLUE);
 
+			new WordLookUpTask(GameActivity.this).execute(dabbleArray);
 		}
 
+	}
+
+	public void updateTileColor(int[] colorResult) {
+		Log.d("dabble", "updateTileColor");
+		int j = 1;
+		for (int color : colorResult) {
+			int resId = getResources().getIdentifier("tile" + j, "id",
+					getPackageName());
+			Tile tmp = (Tile) findViewById(resId);
+			tmp.setCharacterColor(color);
+			j++;
+		}
 	}
 
 }

@@ -90,7 +90,7 @@ public class Tile extends View {
 
 	private void invalidateTextPaintAndMeasurements() {
 		mTextPaint = new Paint();
-		mTextPaint.setColor(Color.RED);
+		mTextPaint.setColor(mCharacterColor);
 		mTextPaint.setTextSize(48);
 //		mTextPaint.setTextSize(mCharacterSize);
 //		mTextPaint.setColor(mCharacterColor);
@@ -160,10 +160,16 @@ public class Tile extends View {
 
 	public void setBorderColor(int borderColor) {
 		mBorderColor = borderColor;
-		Log.d("dabble", "setbordercolor" + getIntegerId() + " : " + mCharacter);
+		
 		invalidateTextPaintAndMeasurements();
 	}
 
+	public void setCharacterColor(int characterColor) {
+		mCharacterColor = characterColor;
+		Log.d("dabble", "setCharacterColor:" + getIntegerId() + " : " + characterColor);
+		invalidateTextPaintAndMeasurements();
+	}
+	
 	public void setBorderRadius(int borderRadius) {
 		mBorderRadius = borderRadius;
 		invalidateTextPaintAndMeasurements();
@@ -195,9 +201,9 @@ public class Tile extends View {
 	 * 
 	 * @return The example dimension attribute value.
 	 */
-//	public float getCharacterSize() {
-//		return mCharacterSize;
-//	}
+	public float getCharacterColor() {
+		return mCharacterColor;
+	}
 
 	/**
 	 * Gets the example color attribute value.
