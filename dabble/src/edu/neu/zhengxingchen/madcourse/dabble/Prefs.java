@@ -40,7 +40,17 @@ public class Prefs extends PreferenceActivity {
 	private static final boolean OPT_HINTS_DEF = true;
 	private static final String OPT_HIGHSCORE = "highscore";
 	private static final int OPT_HIGHSCORE_DEF = 0;
-
+	private static final String OPT_DABBLESTRING = "dabblestring";
+	private static final String OPT_DABBLESTRING_DEF = "";
+	private static final String OPT_DABBLEARRAY = "dabblearray";
+	private static final String OPT_DABBLEARRAY_DEF = "";
+	private static final String OPT_GAMESAVE = "gamesave";
+	private static final boolean OPT_GAMESAVE_DEF = false;
+	private static final String OPT_STARTTIME = "starttime";
+	private static final long OPT_STARTTIME_DEF = 0;
+	
+	
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		Music.start(this);
@@ -68,8 +78,8 @@ public class Prefs extends PreferenceActivity {
 	public static int getHighScore(Context context) {
 		return PreferenceManager.getDefaultSharedPreferences(context).getInt(
 				OPT_HIGHSCORE, OPT_HIGHSCORE_DEF);
-
 	}
+	
 
 	public static void setHighScore(Context context, int highscore) {
 		if (getHighScore(context) < highscore)
@@ -77,10 +87,55 @@ public class Prefs extends PreferenceActivity {
 					.putInt(OPT_HIGHSCORE, highscore).commit();
 	}
 
+	
+	public static void setSavedDabbleString(Context context, String dabbleString) {
+		Log.d("dabble", "set saved dabble string:" + dabbleString);
+		PreferenceManager.getDefaultSharedPreferences(context).edit().putString(OPT_DABBLESTRING,dabbleString).commit();
+	}
+	
+	public static void setSavedDabbleArray(Context context, String dabbleArray) {
+		PreferenceManager.getDefaultSharedPreferences(context).edit().putString(OPT_DABBLEARRAY,dabbleArray).commit();
+	
+	}
+	
+	public static void setSavedDabbleStartTime(Context context, long starttime) {
+		PreferenceManager.getDefaultSharedPreferences(context).edit()
+		.putLong(OPT_STARTTIME, starttime).commit();
+	}
+	
+	public static void setSaved(Context context, boolean saved) {
+		PreferenceManager.getDefaultSharedPreferences(context).edit()
+		.putBoolean(OPT_GAMESAVE, saved).commit();
+	}
+	
+	public static boolean getSaved(Context context) {
+		return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(
+				OPT_GAMESAVE, OPT_GAMESAVE_DEF);
+	}
+	
+	public static String getSavedDabbleString(Context context) {
+		String dabbleString = PreferenceManager.getDefaultSharedPreferences(context).getString(
+				OPT_DABBLESTRING, OPT_DABBLESTRING_DEF);
+		Log.d("dabble", "set saved dabble string:" + dabbleString);
+		return dabbleString;
+	}
+	
+	public static String getSavedDabbleArray(Context context) {
+		return PreferenceManager.getDefaultSharedPreferences(context).getString(
+				OPT_DABBLEARRAY, OPT_DABBLEARRAY_DEF);
+	}
+	
+	public static long getSavedDabbleStartTime(Context context) {
+		return PreferenceManager.getDefaultSharedPreferences(context).getLong(
+				OPT_STARTTIME, OPT_STARTTIME_DEF);
+	}
+	
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		finish();
 		return true;
 	}
+	
+	
 
 }

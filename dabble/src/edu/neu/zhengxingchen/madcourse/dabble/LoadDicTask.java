@@ -75,9 +75,10 @@ import android.widget.TextView;
 		Random rand = new Random();
 		int  n = rand.nextInt(9);
 		
-		String[][] tileWords = (String[][])result[0];
-		
-		activity.dabbleString = tileWords[n][0] + tileWords[n][1] + tileWords[n][2] + tileWords[n][3];
+		if(activity.dabbleString == null) {
+			String[][] tileWords = (String[][])result[0];
+			activity.dabbleString = tileWords[n][0] + tileWords[n][1] + tileWords[n][2] + tileWords[n][3];
+		}
 		
 		activity.wholeArray = (String[])result[1];
 		WordLookUp.wholeDict = activity.wholeArray;

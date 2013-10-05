@@ -18,6 +18,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.PopupWindow;
+import android.widget.TextView;
 
 public class GameMenu extends Activity implements OnClickListener {
 
@@ -92,7 +93,7 @@ public class GameMenu extends Activity implements OnClickListener {
 	public void onClick(View v) {
 		int id = v.getId();
 		if (id == R.id.continue_button) {
-			// startGame(Game.DIFFICULTY_CONTINUE);
+			 initContinueGame();
 		} else if (id == R.id.settings_button) {
 //			Intent i = new Intent(this, Prefs.class);
 //			startActivity(i);
@@ -104,6 +105,14 @@ public class GameMenu extends Activity implements OnClickListener {
 		} else if (id == R.id.exit_button) {
 			finish();
 		}
+	}
+
+	private void initContinueGame() {
+		Intent i = new Intent();
+		i.setClass(this, GameActivity.class);
+		i.putExtra("continue", true);
+		startActivity(i);
+		Music.musicShouldPause = false;
 	}
 
 	private void initNewGame() {
@@ -120,7 +129,7 @@ public class GameMenu extends Activity implements OnClickListener {
 					.getSystemService(LAYOUT_INFLATER_SERVICE);
 
 			View acknowledgementPopupView = layoutInflater.inflate(
-					R.layout.acknowledgements_popup, null);
+					R.layout.acknowledgements_popup2, null);
 
 			final PopupWindow acknowledgementPopupWindow = new PopupWindow(
 					acknowledgementPopupView, 600, LayoutParams.WRAP_CONTENT);
@@ -130,9 +139,8 @@ public class GameMenu extends Activity implements OnClickListener {
 			// aboutpopupWindow.setBackgroundDrawable(new BitmapDrawable());
 			acknowledgementPopupWindow.showAtLocation(acknowledgementPopupView, Gravity.CENTER, 0,
 					0);
-
 			Button dismissButton = (Button) acknowledgementPopupView
-					.findViewById(R.id.dismiss_button);
+					.findViewById(R.id.dabble_dismiss_button);
 			dismissButton.setClickable(true);
 			dismissButton.setOnClickListener(new View.OnClickListener() {
 				@Override

@@ -29,6 +29,22 @@ import android.widget.TextView;
 
 public class GameActivity extends Activity {
 
+	@Override
+	protected void onStop() {
+		super.onStop();
+		
+		if(startTime>0 && !dabbleString.equals(String.valueOf(dabbleArray))) {
+			Log.d("dabble","gameactivity onstop save" + " dabbleString:"+ dabbleString + " dabbleArray:" + String.valueOf(dabbleArray));
+			Prefs.setSaved(getBaseContext(), true);
+			Prefs.setSavedDabbleArray(getBaseContext(), String.valueOf(dabbleArray));
+			Prefs.setSavedDabbleString(getBaseContext(), dabbleString);
+			Prefs.setSavedDabbleStartTime(getBaseContext(), startTime);
+		}
+	}
+
+
+
+
 	public String dabbleString = null;
 	public char[] dabbleArray = new char[18];
 	public String[] wholeArray = null;
@@ -70,6 +86,14 @@ public class GameActivity extends Activity {
 		} else {
 			// LinearLayout gameLayout = (LinearLayout)
 			// findViewById(R.id.game_layout);
+			if(getIntent().getBooleanExtra("continue", false) && Prefs.getSaved(getBaseContext())) {
+				dabbleString = Prefs.getSavedDabbleString(getBaseContext());
+				dabbleArray = Prefs.getSavedDabbleArray(getBaseContext()).toCharArray();
+				startTime = Prefs.getSavedDabbleStartTime(getBaseContext());
+				Log.d("dabble","gameactivity continue game" + " dabbleString:"+ dabbleString + " dabbleArray:" + String.valueOf(dabbleArray) + " continue:" + getIntent().getBooleanExtra("continue", false));
+				Prefs.setSaved(getBaseContext(), false);				
+			}
+			
 			try {
 				if (wholeArray == null || dabbleString == null) {
 					new LoadDicTask(this).execute(getResources().getAssets()
@@ -116,7 +140,7 @@ public class GameActivity extends Activity {
 	}
 
 	private void saveWhole(Bundle outState) {
-		outState.putString("dabbleString", "dabbleString");
+		outState.putString("dabbleString", dabbleString);
 		outState.putCharArray("dabbleArray", dabbleArray);
 		outState.putStringArray("wholeArray", wholeArray);
 		outState.putInt("beepStreamId", beepStreamId);
@@ -178,6 +202,9 @@ public class GameActivity extends Activity {
 	protected void onDestroy() {
 		// TODO Auto-generated method stub
 		super.onDestroy();
+		
+		
+		
 //		Music.stop(this);
 	}
 
@@ -194,17 +221,17 @@ public class GameActivity extends Activity {
 
 		if (dabbleString != null) {
 
-			dabbleArray = dabbleString.toCharArray();
-
-			Random rand = new Random();
-
-			for (int i = 1; i < 18; i++) {
-				int index = rand.nextInt(17);
-				char a = dabbleArray[index];
-				dabbleArray[index] = dabbleArray[i];
-				dabbleArray[i] = a;
+			if(!getIntent().getBooleanExtra("continue", false)) {
+				dabbleArray = dabbleString.toCharArray();
+				Random rand = new Random();
+				for (int i = 1; i < 18; i++) {
+					int index = rand.nextInt(17);
+					char a = dabbleArray[index];
+					dabbleArray[index] = dabbleArray[i];
+					dabbleArray[i] = a;
+				}
 			}
-
+			
 			for (int j = 1; j < 19; j++) {
 				int resId = getResources().getIdentifier(
 						"tile" + Integer.toString(j), "id", getPackageName());

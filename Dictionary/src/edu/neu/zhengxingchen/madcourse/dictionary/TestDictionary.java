@@ -63,7 +63,7 @@ public class TestDictionary extends Activity{
 							.getSystemService(LAYOUT_INFLATER_SERVICE);
 
 					View aboutPopupView = layoutInflater.inflate(
-							R.layout.acknowledgements_popup, null);
+							R.layout.acknowledgements_popup1, null);
 					
 					final PopupWindow aboutpopupWindow = new PopupWindow(
 							aboutPopupView, 600,

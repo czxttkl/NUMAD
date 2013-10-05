@@ -20,6 +20,7 @@ public class MyCountDownTimer extends CountDownTimer{
 	public MyCountDownTimer(GameActivity gameActivity, long millisInFuture, long countDownInterval) {
 		super(millisInFuture, countDownInterval);
 		this.gameActivity = gameActivity;
+		Log.d("dabble", "mycountdowntimer in future millis:" + millisInFuture);
 	}
 
 	@Override
