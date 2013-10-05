@@ -23,7 +23,7 @@ public class Tile extends View {
 	private String mCharacter = "a"; // TODO: use a default from R.string...
 	private int mCharacterColor = Color.RED;
 	private int mBorderColor = Color.BLUE; // R.color...
-	private int mBorderRadius = 10;
+	private int mBorderRadius = 30;
 //	private float mCharacterSize = 1;
 
 	private RectF mRect;

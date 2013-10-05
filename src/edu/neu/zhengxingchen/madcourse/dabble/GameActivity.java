@@ -328,7 +328,7 @@ public class GameActivity extends Activity {
 	
 	public void blinkHintTile(ArrayList<Tile> tiles) {
 		boolean blink = false;
-		new MyCountDownTimerHint(this, 2100, 300, tiles).start();
+		new MyCountDownTimerHint(this, 900, 150, tiles).start();
 	}
 	
 	
@@ -354,6 +354,13 @@ public class GameActivity extends Activity {
 		
 		
 	public void onClickSettingsButton(View v) {
+		Intent i = new Intent();
+		i.setClass(GameActivity.this, Prefs.class);
+		startActivity(i);
+		Music.musicShouldPause = false;
+	}
+	
+	public void onClickPauseButton(View v) {
 		Intent i = new Intent();
 		i.setClass(GameActivity.this, Prefs.class);
 		startActivity(i);

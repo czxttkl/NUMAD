@@ -71,7 +71,8 @@ public class MyCountDownTimer extends CountDownTimer{
 		}
 		
 		countHint++;
-		if(countHint == 100) {
+		
+		if(countHint == 50) {
 			if(Prefs.getHints(gameActivity.getBaseContext())){
 				Log.d("dabble", "show hint");
 				new ShowHintTask(gameActivity).execute();

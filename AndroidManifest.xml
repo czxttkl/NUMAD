@@ -8,7 +8,7 @@
         android:minSdkVersion="7"
         android:targetSdkVersion="7" />
 	<uses-permission android:name="android.permission.VIBRATE"/>
-	
+<!-- 	
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
@@ -44,6 +44,6 @@
             android:theme="@style/MyDialogStyle" 
             android:screenOrientation="landscape">
         </activity>
-    </application>
+    </application> -->
 
 </manifest>
