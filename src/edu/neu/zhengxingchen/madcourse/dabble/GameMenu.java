@@ -39,7 +39,7 @@ public class GameMenu extends Activity implements OnClickListener {
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		Log.d("dabble", "ondestroy gamemenu");
+//		Log.d("dabble", "ondestroy gamemenu");
 //		Music.stop(this);
 	}
 
@@ -76,7 +76,7 @@ public class GameMenu extends Activity implements OnClickListener {
 		
 		
 		mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-		Log.d("dabble", "gamemenu oncreate");
+//		Log.d("dabble", "gamemenu oncreate");
 	}
 
 	@Override

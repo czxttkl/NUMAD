@@ -127,7 +127,7 @@ public class Tile extends View {
 //		Log.d("dabble", getIntegerId() + ":tile.ondraw");
 	
 		canvas.drawRoundRect(mRect, mBorderRadius, mBorderRadius, mRectPaint);
-		canvas.drawText(mCharacter, parentWidth / 20, parentHeight / 8, mTextPaint);
+		canvas.drawText(mCharacter, parentWidth / 20, parentHeight / 9, mTextPaint);
 
 	}
 
@@ -160,7 +160,7 @@ public class Tile extends View {
 
 	public void setBorderColor(int borderColor) {
 		mBorderColor = borderColor;
-		
+		Log.d("dabbl1", "setbordercolor" + getIntegerId());
 		invalidateTextPaintAndMeasurements();
 	}
 
@@ -243,7 +243,7 @@ public class Tile extends View {
 
 	@Override
 	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-		mRect = new RectF(0, 0, parentWidth / 8, parentHeight / 5);
+		mRect = new RectF(0, 0, parentWidth / 8, parentHeight / 6);
 	}
 
 	@Override

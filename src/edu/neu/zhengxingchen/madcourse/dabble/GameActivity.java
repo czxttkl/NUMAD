@@ -1,19 +1,25 @@
 package edu.neu.zhengxingchen.madcourse.dabble;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import android.graphics.Color;
 import android.media.SoundPool;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
+import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
 import android.view.WindowManager;
@@ -29,12 +35,14 @@ public class GameActivity extends Activity {
 	// public Tile[] tileArray = null;
 	protected SoundPool sp = null;
 	protected int beepStreamId = 0;
-
+	public Vibrator vibrator;
+	
+	
 	public int clickCount = 0;
 	public int[] clickTileId = new int[2];
 
-	public long startTime = 10 * 1000;
-	public long interval = 37;
+	public long startTime = 90 * 1000;
+	public long interval = 70;
 	public int score = 0;
 //	private boolean musicShouldPause = true;
 
@@ -51,7 +59,7 @@ public class GameActivity extends Activity {
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		setContentView(R.layout.activity_game);
-
+		vibrator= (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 //		Music.play(this, R.raw.background);
 		
 		Object[] myObjectData = (Object[]) getLastNonConfigurationInstance();
@@ -194,7 +202,7 @@ public class GameActivity extends Activity {
 				int index = rand.nextInt(17);
 				char a = dabbleArray[index];
 				dabbleArray[index] = dabbleArray[i];
-				dabbleArray[i] = dabbleArray[index];
+				dabbleArray[i] = a;
 			}
 
 			for (int j = 1; j < 19; j++) {
@@ -203,13 +211,13 @@ public class GameActivity extends Activity {
 				Tile mTile = (Tile) findViewById(resId);
 				mTile.setCharacter(String.valueOf(dabbleArray[j - 1]));
 			}
-			Log.d("dabble", String.valueOf(dabbleArray));
+			//Log.d("dabble", String.valueOf(dabbleArray));
 		}
 
 		Tile.setGameActivity(this);
 		new WordLookUpTask(GameActivity.this).execute(dabbleArray);
 		
-		Log.d("dabble", dabbleString);
+		Log.d("dabble", "after init: dabbleString:" + dabbleString  + "  dabbleArray:" + String.valueOf(dabbleArray));
 		myCountDownTimer.start();
 		initing = false;
 	}
@@ -219,7 +227,11 @@ public class GameActivity extends Activity {
 		Tile currentTile = (Tile) findViewById(R.id.tile1);
 
 		//Log.d("dabble", "onclick" + (currentTile == tile ? "yes" : "no"));
+		
 
+		// Vibrate for 400 milliseconds
+		vibrator.vibrate(50);
+		
 		if (clickCount == 1 | clickCount == 0) {
 
 			if (!tile.choosed) {
@@ -273,7 +285,7 @@ public class GameActivity extends Activity {
 	}
 
 	public void updateUI(int[] colorResult) {
-		Log.d("dabble", "updateTileColor");
+//		Log.d("dabble", "updateTileColor");
 		int j = 1;
 		score = 0;
 		for (int color : colorResult) {
@@ -299,8 +311,15 @@ public class GameActivity extends Activity {
 		
 		Prefs.setHighScore(getBaseContext(), score);
 		Music.musicShouldPause = false;
-		finish();
+		//finish();
 	}
+	
+	public void blinkHintTile(ArrayList<Tile> tiles) {
+		boolean blink = false;
+		new MyCountDownTimerHint(this, 2100, 300, tiles).start();
+	}
+	
+	
 	
 	
 	// Listener defined by anonymous inner class.

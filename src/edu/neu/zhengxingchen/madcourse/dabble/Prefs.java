@@ -53,21 +53,21 @@ public class Prefs extends PreferenceActivity {
 	}
 
 	public static int getHighScore(Context context) {
-		return PreferenceManager.getDefaultSharedPreferences(context).getInt(OPT_HIGHSCORE, OPT_HIGHSCORE_DEF);
-		
+		return PreferenceManager.getDefaultSharedPreferences(context).getInt(
+				OPT_HIGHSCORE, OPT_HIGHSCORE_DEF);
+
 	}
-	
+
 	public static void setHighScore(Context context, int highscore) {
-		PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(OPT_HIGHSCORE, highscore).commit();
+		if (getHighScore(context) < highscore)
+			PreferenceManager.getDefaultSharedPreferences(context).edit()
+					.putInt(OPT_HIGHSCORE, highscore).commit();
 	}
-	
+
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		finish();
 		return true;
 	}
-
-
-
 
 }

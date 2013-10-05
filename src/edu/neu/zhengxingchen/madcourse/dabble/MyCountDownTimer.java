@@ -1,12 +1,17 @@
 package edu.neu.zhengxingchen.madcourse.dabble;
 
+import android.graphics.Color;
 import android.os.CountDownTimer;
 import android.util.Log;
+import android.view.View;
 import android.widget.TextView;
 
 public class MyCountDownTimer extends CountDownTimer{
 
 	GameActivity gameActivity;
+	public boolean blink = false;
+	public int countHint = 0;
+	public int tempScore = 0;
 	
 	public MyCountDownTimer(long millisInFuture, long countDownInterval) {
 		super(millisInFuture, countDownInterval);
@@ -43,7 +48,36 @@ public class MyCountDownTimer extends CountDownTimer{
 		sb.append(millisec%10);
 		
 		timer.setText(sb.toString());
-		//Log.d("countdown", "" + millisUntilFinished);
+		
+		if ( millisUntilFinished < 5000 ) {
+
+            if ( blink ) {
+            	timer.setVisibility(View.VISIBLE);
+            	timer.setTextColor(Color.RED);
+                // if blink is true, textview will be visible
+            } else {
+            	timer.setVisibility(View.INVISIBLE);
+            }
+
+            blink = !blink;         // toggle the value of blink
+        } 
+		
+		if(gameActivity.score > tempScore) {
+			tempScore = gameActivity.score;
+			countHint = 0;
+		}
+		
+		countHint++;
+		if(countHint == 100) {
+			if(Prefs.getHints(gameActivity.getBaseContext())){
+				Log.d("dabble", "show hint");
+				new ShowHintTask(gameActivity).execute();
+			}
+				countHint = 0;
+		}
+		
+		
+		
 	}
 
 }
