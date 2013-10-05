@@ -15,5 +15,6 @@
     <string name="title_activity_about">AboutActivity</string>
     <string name="imei">IMEI:</string>
     <string name="dictionary">Dictionary</string>
+    <string name="dabble">Dabble</string>
 
 </resources>

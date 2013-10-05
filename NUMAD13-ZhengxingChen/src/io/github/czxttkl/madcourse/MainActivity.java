@@ -1,6 +1,6 @@
 package io.github.czxttkl.madcourse;
 
-import io.github.czxttkl.madcourse.R;
+
 import edu.neu.mobileClass.PhoneCheckAPI;
 import android.os.Bundle;
 import android.app.Activity;
@@ -32,6 +32,7 @@ public class MainActivity extends Activity {
 		setDictionaryButton();
 		setAboutButton();
 		setGenerateErrorButton();
+		setDabbleButton();
 		setQuitButton();
 
 	}
@@ -48,6 +49,22 @@ public class MainActivity extends Activity {
 		});
 	}
 
+	private void setDabbleButton() {
+		final TextView quitTv = (TextView) findViewById(R.id.dabble_tv);
+		quitTv.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				Intent dabbleIntent = new Intent();
+				//ComponentName sudokuComponentName = new ComponentName("io.github.czxttkl.zhengxingchen.sudoku", Sudoku.class.getName());
+				//sudokuIntent.setComponent(sudokuComponentName);
+				dabbleIntent.setAction("edu.neu.zhengxingchen.madcourse.dabble.launch");
+				startActivity(dabbleIntent);
+			}
+			
+		});
+	}
+	
 	private void setGenerateErrorButton() {
 		final TextView generateErrorTv = (TextView) findViewById(R.id.generr_tv);
 		generateErrorTv.setOnClickListener(new View.OnClickListener() {

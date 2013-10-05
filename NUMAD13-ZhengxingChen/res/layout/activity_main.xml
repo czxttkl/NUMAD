@@ -14,7 +14,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="28dp"
-        android:layout_marginTop="39dp"
+        android:layout_marginTop="20dp"
         android:clickable="true"
         android:onClick="onClick"
         android:text="@string/sudoku"
@@ -26,9 +26,20 @@
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/sudoku_tv"
         android:layout_below="@+id/sudoku_tv"
-        android:layout_marginTop="54dp"
+        android:layout_marginTop="30dp"
         android:clickable="true"
         android:text="@string/dictionary"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+    
+    <TextView
+        android:id="@+id/dabble_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/sudoku_tv"
+        android:layout_below="@+id/dictionary_tv"
+        android:layout_marginTop="30dp"
+        android:clickable="true"
+        android:text="@string/dabble"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <TextView
@@ -36,8 +47,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/sudoku_tv"
-        android:layout_below="@+id/dictionary_tv"
-        android:layout_marginTop="54dp"
+        android:layout_below="@+id/dabble_tv"
+        android:layout_marginTop="30dp"
         android:clickable="true"
         android:text="@string/about"
         android:textAppearance="?android:attr/textAppearanceLarge" />
@@ -48,7 +59,7 @@
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/about_tv"
         android:layout_below="@+id/about_tv"
-        android:layout_marginTop="51dp"
+        android:layout_marginTop="30dp"
         android:text="@string/generr"
         android:textAppearance="?android:attr/textAppearanceLarge" 
         android:clickable="true"/>
@@ -59,7 +70,7 @@
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/generr_tv"
         android:layout_below="@+id/generr_tv"
-        android:layout_marginTop="57dp"
+        android:layout_marginTop="30dp"
         android:text="@string/quit"
         android:textAppearance="?android:attr/textAppearanceLarge" 
         android:clickable="true"

@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="io.github.czxttkl.madcourse"
-    android:versionCode="6"
-    android:versionName="2.03" >
+    android:versionCode="7"
+    android:versionName="3.01" >
 
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_PHONE_DATA" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.VIBRATE"/>
 
     <uses-sdk
         android:minSdkVersion="7"
@@ -57,6 +58,38 @@
             </intent-filter>
         </activity>
         
+       
+       
+       
+       
+        <activity
+            android:name="edu.neu.zhengxingchen.madcourse.dabble.GameMenu"
+            android:label="@string/app_name"
+            android:screenOrientation="landscape" >
+            <intent-filter>
+                <action android:name="edu.neu.zhengxingchen.madcourse.dabble.launch" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        
+        <activity
+            android:name="edu.neu.zhengxingchen.madcourse.dabble.Prefs"
+            android:label="@string/app_name"
+            android:theme="@style/MyDialogStyle" 
+            android:screenOrientation="landscape">
+        </activity>
+        
+        <activity
+            android:name="edu.neu.zhengxingchen.madcourse.dabble.GameActivity"
+            android:screenOrientation="landscape" >
+        </activity>
+        
+        <activity
+            android:name="edu.neu.zhengxingchen.madcourse.dabble.GameOver"
+            android:theme="@style/MyDialogStyle" 
+            android:screenOrientation="landscape">
+        </activity>
+       
     </application>
 
 </manifest>
