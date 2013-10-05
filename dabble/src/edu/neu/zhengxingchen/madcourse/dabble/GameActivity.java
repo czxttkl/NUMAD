@@ -51,15 +51,18 @@ public class GameActivity extends Activity {
 	// public Tile[] tileArray = null;
 	protected SoundPool sp = null;
 	protected int beepStreamId = 0;
+	protected int tickStreamId = 0;
+	
 	public Vibrator vibrator;
 	
 	
 	public int clickCount = 0;
 	public int[] clickTileId = new int[2];
 
-	public long startTime = 90 * 1000;
+	public long startTime = 15 * 1000;
 	public long interval = 70;
 	public int score = 0;
+	public boolean countDownPlayed = false;
 //	private boolean musicShouldPause = true;
 
 	MyCountDownTimer myCountDownTimer;
@@ -102,7 +105,7 @@ public class GameActivity extends Activity {
 					initing = true;
 				}
 
-				if (beepStreamId == 0 || sp == null)
+				if (beepStreamId == 0 || sp == null || tickStreamId == 0)
 					new LoadBeepTask(this).execute();
 
 			} catch (IOException e) {
@@ -120,6 +123,7 @@ public class GameActivity extends Activity {
 		wholeArray = savedInstanceState.getStringArray("wholeArray");
 		dabbleArray = savedInstanceState.getCharArray("dabbleArray");
 		beepStreamId = savedInstanceState.getInt("beepStreamId");
+		tickStreamId = savedInstanceState.getInt("tickStreamId");
 		dabbleString = savedInstanceState.getString("dabbleString");
 		clickCount = savedInstanceState.getInt("clickCount");
 		startTime = savedInstanceState.getLong("startTime");
@@ -144,6 +148,7 @@ public class GameActivity extends Activity {
 		outState.putCharArray("dabbleArray", dabbleArray);
 		outState.putStringArray("wholeArray", wholeArray);
 		outState.putInt("beepStreamId", beepStreamId);
+		outState.putInt("tickStreamId", tickStreamId);
 		outState.putInt("clickCount", clickCount);
 		outState.putLong("startTime", startTime);
 		outState.putInt("score", score);
@@ -173,6 +178,11 @@ public class GameActivity extends Activity {
 			Music.pause(this);
 			Music.musicPaused = true;
 		}
+		
+		if(sp!=null && beepStreamId!=0 && countDownPlayed) {
+			sp.pause(tickStreamId);
+		}
+		
 		mSharedPreferences.registerOnSharedPreferenceChangeListener(mListener);
 		
 	}
@@ -190,11 +200,17 @@ public class GameActivity extends Activity {
 		myCountDownTimer = new MyCountDownTimer(this, startTime, interval);
 		if (!initing)
 			myCountDownTimer.start();
+		
 		if( Music.musicPaused) {
 			Music.start(this);
 			Music.musicPaused = false;
 		}
 		Music.musicShouldPause = true;
+		
+		if(sp!=null && beepStreamId!=0 && countDownPlayed ) {
+			sp.resume(tickStreamId);
+		}
+		
 		mSharedPreferences.registerOnSharedPreferenceChangeListener(mListener);
 	}
 
@@ -312,7 +328,15 @@ public class GameActivity extends Activity {
 		}
 
 	}
-
+	
+	public void playCountDownSound() {
+		if(sp!=null && tickStreamId!=0 && !countDownPlayed) {
+			countDownPlayed = true;
+			sp.play(tickStreamId, 1, 1, 0, 0, 1);
+		}
+	}
+	
+	
 	public void playBonusSound() {
 		if(sp!=null && beepStreamId!=0 )
 			sp.play(beepStreamId, 1, 1, 0, 0, 1);
@@ -352,6 +376,10 @@ public class GameActivity extends Activity {
 	
 	public void initGameOver() {
 		myCountDownTimer.cancel();
+		if(sp!=null && beepStreamId!=0 && countDownPlayed) {
+			sp.stop(tickStreamId);
+		}
+		
 		Intent i = new Intent();
 		i.setClass(this, GameOver.class);
 		i.putExtra("score", score);

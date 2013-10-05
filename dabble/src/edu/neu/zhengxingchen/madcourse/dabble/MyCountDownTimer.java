@@ -35,6 +35,11 @@ public class MyCountDownTimer extends CountDownTimer{
 
 		timeRemaining = millisUntilFinished/1000;
 		
+		if(timeRemaining < 5) {
+			gameActivity.playCountDownSound();
+		}
+		
+		
 		gameActivity.startTime = millisUntilFinished;
 		TextView timer = (TextView)gameActivity.findViewById(R.id.timer_text);
 		long min = millisUntilFinished/60000;
