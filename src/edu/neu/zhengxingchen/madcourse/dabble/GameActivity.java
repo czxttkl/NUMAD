@@ -298,7 +298,15 @@ public class GameActivity extends Activity {
 			j++;
 		}
 		TextView scoreText = (TextView)findViewById(R.id.score_text);
+		if(score == 18) {
+			score = (int) (18 + myCountDownTimer.timeRemaining);
+		}
+		
 		scoreText.setText("Score:" + score);
+		
+		if(score >= 18)
+			initGameOver();
+		
 	}
 
 	

@@ -12,6 +12,7 @@ public class MyCountDownTimer extends CountDownTimer{
 	public boolean blink = false;
 	public int countHint = 0;
 	public int tempScore = 0;
+	public long timeRemaining = 0;
 	
 	public MyCountDownTimer(long millisInFuture, long countDownInterval) {
 		super(millisInFuture, countDownInterval);
@@ -30,7 +31,9 @@ public class MyCountDownTimer extends CountDownTimer{
 
 	@Override
 	public void onTick(long millisUntilFinished) {
-		// TODO Auto-generated method stub
+
+		timeRemaining = millisUntilFinished/1000;
+		
 		gameActivity.startTime = millisUntilFinished;
 		TextView timer = (TextView)gameActivity.findViewById(R.id.timer_text);
 		long min = millisUntilFinished/60000;

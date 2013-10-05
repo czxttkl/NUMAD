@@ -201,15 +201,9 @@ public class ShowHintTask extends AsyncTask<Void, Void, ArrayList<Tile>> {
 			tileBlink.add(mTile);
 		}
 		
-		for(int q : hintTiles) {
-			Log.d("dabble", "hinttask:" + q);
-		}
-		
-		
-		
-		
-		// TODO Auto-generated method stub
-//		 Log.d("dabble", "showhinttask:tileBlink size:" + tileBlink.size());
+//		for(int q : hintTiles) {
+//			Log.d("dabble", "hinttask:" + q);
+//		}
 		return tileBlink;
 	}
 
