@@ -43,7 +43,7 @@ public class MyCountDownTimerHint extends CountDownTimer {
 				mTile.setVisibility(View.VISIBLE);
 			}
 		}
-
+ 
 		blink = !blink;
 
 	}
