@@ -26,8 +26,9 @@ public class MyCountDownTimerHint extends CountDownTimer {
 
 	@Override
 	public void onFinish() {
-		// TODO Auto-generated method stub
-
+		for (Tile mTile : tileHints) {
+				mTile.setVisibility(View.VISIBLE);
+		}
 	}
 
 	@Override

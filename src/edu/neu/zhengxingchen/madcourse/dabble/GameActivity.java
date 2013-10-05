@@ -286,6 +286,9 @@ public class GameActivity extends Activity {
 
 	public void updateUI(int[] colorResult) {
 //		Log.d("dabble", "updateTileColor");
+		if(sp!=null && beepStreamId!=0 )
+			sp.play(beepStreamId, 1, 1, 0, 0, 1);
+		
 		int j = 1;
 		score = 0;
 		for (int color : colorResult) {
@@ -297,6 +300,7 @@ public class GameActivity extends Activity {
 				score++;
 			j++;
 		}
+		
 		TextView scoreText = (TextView)findViewById(R.id.score_text);
 		if(score == 18) {
 			score = (int) (18 + myCountDownTimer.timeRemaining);
@@ -345,4 +349,14 @@ public class GameActivity extends Activity {
 				}
 			}
 		};
+		
+		
+		
+		
+	public void onClickSettingsButton(View v) {
+		Intent i = new Intent();
+		i.setClass(GameActivity.this, Prefs.class);
+		startActivity(i);
+		Music.musicShouldPause = false;
+	}
 }

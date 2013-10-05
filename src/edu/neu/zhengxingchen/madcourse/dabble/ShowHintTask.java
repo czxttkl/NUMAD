@@ -19,6 +19,7 @@ public class ShowHintTask extends AsyncTask<Void, Void, ArrayList<Tile>> {
 
 	public int findIndex(char find, char[] tmp, int startIndex) {
 		int i = tmp.length;
+		Log.d("dabble", "findIndex:" + find + " dabbleArray:" + String.valueOf(tmp));
 		for(int j = startIndex; j < i; j++) {
 			if(tmp[j] == find)
 				return j;

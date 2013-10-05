@@ -27,11 +27,26 @@ public class GameOver extends Activity {
 		Intent i = getIntent();
 //		String yourScoreString = String.valueOf();
 		
+		if( Music.musicPaused) {
+			Music.start(this);
+			Music.musicPaused = false;
+		}
+		Music.musicShouldPause = true;
+		
 		TextView yourScore = (TextView)findViewById(R.id.your_score);
 		TextView highScore = (TextView)findViewById(R.id.high_score);
 	
 		yourScore.setText(String.valueOf(i.getIntExtra("score", 0)));
 		highScore.setText(String.valueOf(Prefs.getHighScore(getBaseContext())));
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		if(Music.musicShouldPause && !Music.musicPaused) {
+			Music.pause(this);
+			Music.musicPaused = true;
+		}
 	}
 
 	@Override
