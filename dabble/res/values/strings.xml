@@ -24,11 +24,10 @@
     <string name="score_format">Score: 0 </string>
     <string name="loading">Loading...</string>
     <string name="title_activity_game_over">GameOver</string>
-	<string name="your_score_title">---------------Your Score---------------</string>
-	<string name="high_score_title">---------------High Score---------------</string>
-	<string name="play_again">Play Again</string>
-	<string name="go_menu">Main Menu</string>
-    
-    
-    
+    <string name="your_score_title">---------------Your Score---------------</string>
+    <string name="high_score_title">---------------High Score---------------</string>
+    <string name="play_again">Play Again</string>
+    <string name="go_menu">Main Menu</string>
+    <string name="title_activity_pause">PauseActivity</string>
+
 </resources>

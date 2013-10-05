@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="io.github.czxttkl.madcourse"
-    android:versionCode="10"
-    android:versionName="3.04" >
+    android:versionCode="12"
+    android:versionName="3.06" >
 
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -90,6 +90,12 @@
             android:screenOrientation="landscape">
         </activity>
        
+        <activity android:name="edu.neu.zhengxingchen.madcourse.dabble.PauseActivity"
+            android:theme="@style/MyDialogStyle"
+           android:screenOrientation="landscape"
+            >
+        </activity>
+        
     </application>
 
 </manifest>

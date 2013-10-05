@@ -17,8 +17,8 @@ public class WordLookUpTask extends AsyncTask<char[], Void, int[]>{
 	
 	@Override
 	protected int[] doInBackground(char[]... params) {
-
-		return WordLookUp.lookUp(params[0]);
+//		Log.d("dabble", "doinbackground wordlook up:" + params);
+		return WordLookUp.lookUp(gameActivity.dabbleArray, params[0]);
 	}
 
 	@Override

@@ -91,7 +91,7 @@ public class ShowHintTask extends AsyncTask<Void, Void, ArrayList<Tile>> {
 		}
 		if (findIndex < 0)
 			hintTiles.clear();
-		Log.d("dabble", "findIndex:" + findIndex + " dabbleString:" + String.valueOf(cmpOriginal)  + " dabbleArray:" + String.valueOf(cmpRandom) + " :gameactivity dabblearray:" + String.valueOf(gameActivity.dabbleArray));
+//		Log.d("dabble", "findIndex:" + findIndex + " dabbleString:" + String.valueOf(cmpOriginal)  + " dabbleArray:" + String.valueOf(cmpRandom) + " :gameactivity dabblearray:" + String.valueOf(gameActivity.dabbleArray));
 			
 		ArrayList<Tile> tileBlink = new ArrayList<Tile>();
 

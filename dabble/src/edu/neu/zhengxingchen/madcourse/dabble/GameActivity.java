@@ -254,6 +254,7 @@ public class GameActivity extends Activity {
 		Tile currentTile = (Tile) findViewById(R.id.tile1);
 
 		//Log.d("dabble", "onclick" + (currentTile == tile ? "yes" : "no"));
+		char[] cpDabbleArray = dabbleArray.clone();
 		
 
 		// Vibrate for 400 milliseconds
@@ -306,27 +307,35 @@ public class GameActivity extends Activity {
 			tmp0.setBorderColor(Color.BLUE);
 			tmp1.setBorderColor(Color.BLUE);
 
-			new WordLookUpTask(GameActivity.this).execute(dabbleArray);
+			
+			new WordLookUpTask(GameActivity.this).execute(cpDabbleArray);
 		}
 
 	}
 
-	public void updateUI(int[] colorResult) {
-//		Log.d("dabble", "updateTileColor");
+	public void playBonusSound() {
 		if(sp!=null && beepStreamId!=0 )
 			sp.play(beepStreamId, 1, 1, 0, 0, 1);
+	}
+	
+	public void updateUI(int[] colorResult) {
+//		Log.d("dabble", "updateTileColor");
+	
 		
-		int j = 1;
 		score = 0;
-		for (int color : colorResult) {
+		int color;
+		for (int j = 1; j< 19 ;j++) {
+			color = colorResult[j-1];
 			int resId = getResources().getIdentifier("tile" + j, "id",
 					getPackageName());
 			Tile tmp = (Tile) findViewById(resId);
 			tmp.setCharacterColor(color);
 			if( color == Color.GREEN)
 				score++;
-			j++;
 		}
+		
+		if(colorResult[18] == 1)
+			playBonusSound();
 		
 		TextView scoreText = (TextView)findViewById(R.id.score_text);
 		if(score == 18) {
@@ -355,7 +364,7 @@ public class GameActivity extends Activity {
 	
 	public void blinkHintTile(ArrayList<Tile> tiles) {
 		boolean blink = false;
-		new MyCountDownTimerHint(this, 900, 150, tiles).start();
+		new MyCountDownTimerHint(this, 600, 120, tiles).start();
 	}
 	
 	
@@ -389,7 +398,7 @@ public class GameActivity extends Activity {
 	
 	public void onClickPauseButton(View v) {
 		Intent i = new Intent();
-		i.setClass(GameActivity.this, Prefs.class);
+		i.setClass(GameActivity.this, PauseActivity.class);
 		startActivity(i);
 		Music.musicShouldPause = false;
 	}

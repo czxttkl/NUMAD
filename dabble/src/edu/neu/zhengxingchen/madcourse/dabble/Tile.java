@@ -64,7 +64,8 @@ public class Tile extends View {
 				R.styleable.Tile, defStyle, 0);
 
 		try {
-			// mCharacter = a.getString(R.styleable.Tile_character);
+			
+			 mCharacter = a.getString(R.styleable.Tile_character);
 			mCharacterColor = a.getColor(R.styleable.Tile_characterColor,
 					mCharacterColor);
 //			mBackgroundColor = a.getColor(R.styleable.Tile_backgroundColor,
