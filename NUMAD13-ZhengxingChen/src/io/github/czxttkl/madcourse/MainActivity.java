@@ -59,6 +59,7 @@ public class MainActivity extends Activity {
 				//ComponentName sudokuComponentName = new ComponentName("io.github.czxttkl.zhengxingchen.sudoku", Sudoku.class.getName());
 				//sudokuIntent.setComponent(sudokuComponentName);
 				dabbleIntent.setAction("edu.neu.zhengxingchen.madcourse.dabble.launch");
+				dabbleIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 				startActivity(dabbleIntent);
 			}
 			
@@ -137,6 +138,7 @@ public class MainActivity extends Activity {
 				//ComponentName sudokuComponentName = new ComponentName("io.github.czxttkl.zhengxingchen.sudoku", Sudoku.class.getName());
 				//sudokuIntent.setComponent(sudokuComponentName);
 				sudokuIntent.setAction("edu.neu.zhengxingchen.madcourse.sudoku.launch");
+				sudokuIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 				startActivity(sudokuIntent);
 			}
 		});
@@ -149,6 +151,7 @@ public class MainActivity extends Activity {
 			public void onClick(View v) {
 				Intent dictionaryIntent = new Intent();
 				dictionaryIntent.setAction("edu.neu.zhengxingchen.madcourse.dictionary.launch");
+				dictionaryIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 				startActivity(dictionaryIntent);
 			}
 		});

@@ -1,79 +1,84 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:orientation="vertical"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".MainActivity" 
-    android:orientation="vertical">
+    tools:context=".MainActivity" >
 
-    <TextView
-        android:id="@+id/sudoku_tv"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="28dp"
-        android:layout_marginTop="20dp"
-        android:clickable="true"
-        android:onClick="onClick"
-        android:text="@string/sudoku"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
-    
-    <TextView
-        android:id="@+id/dictionary_tv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/sudoku_tv"
-        android:layout_below="@+id/sudoku_tv"
-        android:layout_marginTop="30dp"
-        android:clickable="true"
-        android:text="@string/dictionary"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
-    
-    <TextView
-        android:id="@+id/dabble_tv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/sudoku_tv"
-        android:layout_below="@+id/dictionary_tv"
-        android:layout_marginTop="30dp"
-        android:clickable="true"
-        android:text="@string/dabble"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:orientation="vertical" >
 
-    <TextView
-        android:id="@+id/about_tv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/sudoku_tv"
-        android:layout_below="@+id/dabble_tv"
-        android:layout_marginTop="30dp"
-        android:clickable="true"
-        android:text="@string/about"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        <TextView
+            android:id="@+id/sudoku_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:clickable="true"
+            android:onClick="onClick"
+            android:text="@string/sudoku"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
 
-    <TextView
-        android:id="@+id/generr_tv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/about_tv"
-        android:layout_below="@+id/about_tv"
-        android:layout_marginTop="30dp"
-        android:text="@string/generr"
-        android:textAppearance="?android:attr/textAppearanceLarge" 
-        android:clickable="true"/>
+        <TextView
+            android:id="@+id/dictionary_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/sudoku_tv"
+            android:layout_below="@+id/sudoku_tv"
+            android:layout_marginTop="30dp"
+            android:clickable="true"
+            android:text="@string/dictionary"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
 
-    <TextView
-        android:id="@+id/quit_tv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/generr_tv"
-        android:layout_below="@+id/generr_tv"
-        android:layout_marginTop="30dp"
-        android:text="@string/quit"
-        android:textAppearance="?android:attr/textAppearanceLarge" 
-        android:clickable="true"
-        android:onClick="onClick"/>
+        <TextView
+            android:id="@+id/dabble_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/sudoku_tv"
+            android:layout_below="@+id/dictionary_tv"
+            android:layout_marginTop="30dp"
+            android:clickable="true"
+            android:text="@string/dabble"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
 
-</RelativeLayout>
+        <TextView
+            android:id="@+id/about_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/sudoku_tv"
+            android:layout_below="@+id/dabble_tv"
+            android:layout_marginTop="30dp"
+            android:clickable="true"
+            android:text="@string/about"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <TextView
+            android:id="@+id/generr_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/about_tv"
+            android:layout_below="@+id/about_tv"
+            android:layout_marginTop="30dp"
+            android:clickable="true"
+            android:text="@string/generr"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <TextView
+            android:id="@+id/quit_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/generr_tv"
+            android:layout_below="@+id/generr_tv"
+            android:layout_marginTop="30dp"
+            android:clickable="true"
+            android:onClick="onClick"
+            android:text="@string/quit"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+    </LinearLayout>
+
+</ScrollView>

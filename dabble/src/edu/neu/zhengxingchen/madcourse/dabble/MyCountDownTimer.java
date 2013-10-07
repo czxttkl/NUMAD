@@ -28,6 +28,7 @@ public class MyCountDownTimer extends CountDownTimer{
 		TextView timer = (TextView)gameActivity.findViewById(R.id.timer_text);
 		timer.setText("0:00.000");
 		gameActivity.initGameOver();
+		gameActivity.startTime = 0;
 	}
 
 	@Override
@@ -80,7 +81,7 @@ public class MyCountDownTimer extends CountDownTimer{
 		
 		if(countHint == 50) {
 			if(Prefs.getHints(gameActivity.getBaseContext())){
-				Log.d("dabble", "show hint");
+//				Log.d("dabble", "show hint");
 				new ShowHintTask(gameActivity).execute();
 			}
 				countHint = 0;

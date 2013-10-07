@@ -64,6 +64,8 @@ public class GameOver extends Activity {
 	public void onClickMainMenu(View view) {
 		Intent i = new Intent();
 		i.setClass(this, GameMenu.class);
+//		i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);//
+		i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 		startActivity(i);
 		finish();
 	}
@@ -71,6 +73,8 @@ public class GameOver extends Activity {
 	public void onClickPlayAgain(View view) {
 		Intent i = new Intent();
 		i.setClass(this, GameActivity.class);
+//		i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 		startActivity(i);
 		Music.play(getBaseContext(), R.raw.background);
 		finish();

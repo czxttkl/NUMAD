@@ -103,12 +103,12 @@ public class Prefs extends PreferenceActivity {
 		.putLong(OPT_STARTTIME, starttime).commit();
 	}
 	
-	public static void setSaved(Context context, boolean saved) {
+	public synchronized static void setSaved(Context context, boolean saved) {
 		PreferenceManager.getDefaultSharedPreferences(context).edit()
 		.putBoolean(OPT_GAMESAVE, saved).commit();
 	}
 	
-	public static boolean getSaved(Context context) {
+	public synchronized static boolean getSaved(Context context) {
 		return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(
 				OPT_GAMESAVE, OPT_GAMESAVE_DEF);
 	}

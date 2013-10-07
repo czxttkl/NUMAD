@@ -26,6 +26,7 @@ public class GameMenu extends Activity implements OnClickListener {
 //	private boolean musicShouldPause = true;
 	PopupWindow acknowledgementPopupWindowMenu;
 	SharedPreferences mSharedPreferences;
+	public View continueButton;
 	
 	@Override
 	protected void onPause() {
@@ -53,6 +54,12 @@ public class GameMenu extends Activity implements OnClickListener {
 		}
 		Music.musicShouldPause = true;
 		mSharedPreferences.registerOnSharedPreferenceChangeListener(mListener);
+		Log.d("dabble", "gamemenu prefsaved:" + Prefs.getSaved(getBaseContext()));
+		
+		if(!Prefs.getSaved(getBaseContext()))
+			continueButton.setEnabled(false);
+		else
+			continueButton.setEnabled(true);
 	}
 
 	@Override
@@ -63,8 +70,9 @@ public class GameMenu extends Activity implements OnClickListener {
 //		initAcknowledgements();
 		Music.start(this, R.raw.background);
 		
-		View continueButton = findViewById(R.id.continue_button);
+		continueButton = findViewById(R.id.continue_button);
 		continueButton.setOnClickListener(this);
+		
 		View newButton = findViewById(R.id.new_button);
 		newButton.setOnClickListener(this);
 		View settingsButton = findViewById(R.id.settings_button);
@@ -73,7 +81,7 @@ public class GameMenu extends Activity implements OnClickListener {
 		acknowledgementButton.setOnClickListener(this);
 		View exitButton = findViewById(R.id.exit_button);
 		exitButton.setOnClickListener(this);
-
+		
 		
 		
 		mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -111,13 +119,16 @@ public class GameMenu extends Activity implements OnClickListener {
 		Intent i = new Intent();
 		i.setClass(this, GameActivity.class);
 		i.putExtra("continue", true);
+		i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		startActivity(i);
+		Log.d("dabble", "Gamemenu initcontinue game:" + Prefs.getSaved(getBaseContext()));
 		Music.musicShouldPause = false;
 	}
 
 	private void initNewGame() {
 		Intent i = new Intent();
 		i.setClass(this, GameActivity.class);
+		i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		startActivity(i);
 		Music.musicShouldPause = false;
 	}
@@ -155,6 +166,7 @@ public class GameMenu extends Activity implements OnClickListener {
 	private void initSettings() {
 		Intent i = new Intent();
 		i.setClass(GameMenu.this, Prefs.class);
+		i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		startActivity(i);
 		Music.musicShouldPause = false;
 	}
@@ -164,7 +176,7 @@ public class GameMenu extends Activity implements OnClickListener {
 		@Override
 		public void onSharedPreferenceChanged(
 				SharedPreferences sharedPreferences, String key) {
-			Log.d("dabble", "change preference");
+//			Log.d("dabble", "change preference");
 			if (key.equals("music")) {
 				boolean music = sharedPreferences.getBoolean(key, true);
 				if (!music) {

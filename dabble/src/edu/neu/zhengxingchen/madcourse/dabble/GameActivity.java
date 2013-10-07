@@ -33,13 +33,7 @@ public class GameActivity extends Activity {
 	protected void onStop() {
 		super.onStop();
 		
-		if(startTime>0 && !dabbleString.equals(String.valueOf(dabbleArray))) {
-			Log.d("dabble","gameactivity onstop save" + " dabbleString:"+ dabbleString + " dabbleArray:" + String.valueOf(dabbleArray));
-			Prefs.setSaved(getBaseContext(), true);
-			Prefs.setSavedDabbleArray(getBaseContext(), String.valueOf(dabbleArray));
-			Prefs.setSavedDabbleString(getBaseContext(), dabbleString);
-			Prefs.setSavedDabbleStartTime(getBaseContext(), startTime);
-		}
+		
 	}
 
 
@@ -59,7 +53,7 @@ public class GameActivity extends Activity {
 	public int clickCount = 0;
 	public int[] clickTileId = new int[2];
 
-	public long startTime = 15 * 1000;
+	public long startTime = 90 * 1000;
 	public long interval = 70;
 	public int score = 0;
 	public boolean countDownPlayed = false;
@@ -184,6 +178,14 @@ public class GameActivity extends Activity {
 		}
 		
 		mSharedPreferences.registerOnSharedPreferenceChangeListener(mListener);
+		
+		if(startTime>0 && !dabbleString.equals(String.valueOf(dabbleArray))) {
+			Log.d("dabble","gameactivity onpause save" + " dabbleString:"+ dabbleString + " dabbleArray:" + String.valueOf(dabbleArray) + " startTime:" + startTime);
+			Prefs.setSaved(getBaseContext(), true);
+			Prefs.setSavedDabbleArray(getBaseContext(), String.valueOf(dabbleArray));
+			Prefs.setSavedDabbleString(getBaseContext(), dabbleString);
+			Prefs.setSavedDabbleStartTime(getBaseContext(), startTime);
+		}
 		
 	}
 
@@ -383,11 +385,15 @@ public class GameActivity extends Activity {
 		Intent i = new Intent();
 		i.setClass(this, GameOver.class);
 		i.putExtra("score", score);
+		i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		startActivity(i);
 		
 		Prefs.setHighScore(getBaseContext(), score);
 		Music.musicShouldPause = false;
-		//finish();
+		
+		Prefs.setSaved(getBaseContext(), false);
+		
+		finish();
 	}
 	
 	public void blinkHintTile(ArrayList<Tile> tiles) {
@@ -420,6 +426,7 @@ public class GameActivity extends Activity {
 	public void onClickSettingsButton(View v) {
 		Intent i = new Intent();
 		i.setClass(GameActivity.this, Prefs.class);
+		i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		startActivity(i);
 		Music.musicShouldPause = false;
 	}
@@ -427,6 +434,7 @@ public class GameActivity extends Activity {
 	public void onClickPauseButton(View v) {
 		Intent i = new Intent();
 		i.setClass(GameActivity.this, PauseActivity.class);
+		i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		startActivity(i);
 		Music.musicShouldPause = false;
 	}
