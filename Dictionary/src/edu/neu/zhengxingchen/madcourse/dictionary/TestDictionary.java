@@ -39,12 +39,9 @@ public class TestDictionary extends Activity{
 		setContentView(R.layout.activity_test_dictionary);
 		setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		
-		try {
-			new LoadDicTask(this).execute(getResources().getAssets().open("wordlist.txt"));
-			new LoadBeepTask(this).execute();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+			
+		new LoadBeepTask(this).execute();
+	
 		
 		initEditTextListener();
 		initAcknowledgements();
@@ -133,7 +130,17 @@ public class TestDictionary extends Activity{
 			
 			@Override
 			public void afterTextChanged(Editable arg0) {
-				new WordLookUpTask(TestDictionary.this).execute(arg0.toString());
+				if(arg0.toString().length() == 1) {
+					try {
+						new LoadDicTask(TestDictionary.this).execute(getResources().getAssets().open(arg0.toString() + ".txt"));
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+				
+				if(arg0.toString().length() >= 3) {
+					new WordLookUpTask(TestDictionary.this).execute(arg0.toString());
+				}
 			}
 
 			@Override

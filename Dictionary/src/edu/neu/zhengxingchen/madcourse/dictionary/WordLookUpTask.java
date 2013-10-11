@@ -34,9 +34,21 @@ public class WordLookUpTask extends AsyncTask<String, Void, String>{
 		if(!currentInput.equals(params[0]) && !activity.record.contains(params[0])) { 
 			currentInput = params[0];
 			activity.record.add(currentInput);
-			int i = Arrays.binarySearch(activity.sa, params[0]);
-			if ( i >= 0)
-				return activity.sa[i];
+			
+			Log.e("dictionary", activity.sa.length + ":" + params[0].toString());
+			
+			do {
+				if( activity.sa != null) {
+					int i = Arrays.binarySearch(activity.sa, params[0]);
+					if ( i >= 0)
+						return activity.sa[i];
+				}
+				try {
+					Thread.sleep(300);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			} while (true);
 		}
 		return null;
 	}

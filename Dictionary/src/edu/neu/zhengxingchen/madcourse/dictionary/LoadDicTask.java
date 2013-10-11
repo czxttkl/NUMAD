@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -29,6 +30,8 @@ import android.widget.TextView;
 
 	private final TestDictionary activity;		
 	
+	
+	
 	public LoadDicTask(TestDictionary activity) {
 		this.activity = activity;
 		
@@ -40,7 +43,9 @@ import android.widget.TextView;
 		InputStream wordInputStream = in[0];
 		BufferedReader buff = null;
 //		Trie<String, String> trie = new PatriciaTrie<String, String>(StringKeyAnalyzer.INSTANCE);
-		String[] sa = new String[432334];
+//		String[] sa = new String[432334];
+		ArrayList<String> sa = new ArrayList<String>();
+		
 		long startTime = System.nanoTime();
 		
 		try {
@@ -53,8 +58,12 @@ import android.widget.TextView;
 //				//trie.put(word, word);
 //				hb.put(word, word);
 //			}
-			for(int i = 0; i<432334; i++)
-				sa[i] = buff.readLine();
+			String word;
+			int i = 0;
+			while((word = buff.readLine()) != null) {
+				sa.add(word);
+				i++;
+			}
 			
 			buff.close();
 		} catch (IOException e) {
@@ -64,8 +73,10 @@ import android.widget.TextView;
 		long endTime = System.nanoTime();
 		Log.d("TD", "load time consumed:" + (endTime - startTime));
 		
+		//String[] result = new String[sa.size()];
+		String[] result = sa.toArray(new String[sa.size()]);
 		//Log.d("TD", trie.selectValue("abate"));
-		return sa;
+		return result;
 	}
 
 	@SuppressLint("Recycle")
@@ -75,26 +86,6 @@ import android.widget.TextView;
 		Log.d("TD", "loaded wordlist");
 //		activity.trie = result;
 		activity.sa = result;
-		TextView dicTitle = (TextView)activity.findViewById(R.id.dictionary_title);
-		dicTitle.setText("Input Below:");
-		EditText input = (EditText)activity.findViewById(R.id.input);
-		input.setFocusable(true);
-		input.setClickable(true);
-		input.setFocusableInTouchMode(true);
-		
-		input.dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_DOWN , 0, 0, 0));
-        input.dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_UP , 0, 0, 0));           
-        
-//        Log.d("TD", activity.beepStreamId + "" + activity.sp);
-        if( activity.beepStreamId!=0 && activity.sp!=null ) {
-		 Timer timer = new Timer();
-		    timer.schedule(new TimerTask() {
-		         @Override
-		         public void run() {
-		     		activity.sp.play(activity.beepStreamId, 1, 1, 0, 0, 1);
-		         }
-		    }, 200);   
-        }
 	}
 
 	
