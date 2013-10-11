@@ -84,9 +84,6 @@ import android.widget.TextView;
 		WordLookUp.wholeDict = activity.wholeArray;
 		
 		activity.initialTile();
-		
-		TextView dicTitle = (TextView)activity.findViewById(R.id.game_title);
-		dicTitle.setText("Go!");
         
         if( activity.beepStreamId!=0 && activity.sp!=null ) {
 		 Timer timer = new Timer();

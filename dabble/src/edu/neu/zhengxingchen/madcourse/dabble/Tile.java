@@ -106,7 +106,9 @@ public class Tile extends View {
 	public boolean onTouchEvent(MotionEvent event) {
 		//
 		if (event.getAction() == MotionEvent.ACTION_UP) {
-			gameActivity.onClickTiles(this);
+			if(gameActivity!=null) {
+				gameActivity.onClickTiles(this);
+			}
 		}
 
 		return true;

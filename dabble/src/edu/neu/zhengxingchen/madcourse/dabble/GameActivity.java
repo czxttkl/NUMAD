@@ -235,8 +235,6 @@ public class GameActivity extends Activity {
 
 	public void initialTile() {
 
-		// tileArray = new Tile[18];
-
 		if (dabbleString != null) {
 
 			if(!getIntent().getBooleanExtra("continue", false)) {
@@ -263,6 +261,10 @@ public class GameActivity extends Activity {
 		new WordLookUpTask(GameActivity.this).execute(dabbleArray);
 		
 		Log.d("dabble", "after init: dabbleString:" + dabbleString  + "  dabbleArray:" + String.valueOf(dabbleArray));
+		
+		TextView dicTitle = (TextView)findViewById(R.id.game_title);
+		dicTitle.setText("Go!");
+		
 		myCountDownTimer.start();
 		initing = false;
 	}
