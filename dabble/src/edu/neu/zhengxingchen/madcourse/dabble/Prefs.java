@@ -18,6 +18,7 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.ViewGroup;
 
 public class Prefs extends PreferenceActivity {
 	@Override

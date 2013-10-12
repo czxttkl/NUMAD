@@ -32,13 +32,12 @@ public class GameActivity extends Activity {
 	@Override
 	protected void onStop() {
 		super.onStop();
-		
-		
 	}
 
 
 
-
+    public final String TAG = "dabble";
+    		
 	public String dabbleString = null;
 	public char[] dabbleArray = new char[18];
 	public String[] wholeArray = null;
@@ -56,7 +55,7 @@ public class GameActivity extends Activity {
 	public long startTime = 90 * 1000;
 	public long interval = 70;
 	public int score = 0;
-	public boolean countDownPlayed = false;
+	public boolean countDownShouldPlay = false;
 //	private boolean musicShouldPause = true;
 
 	MyCountDownTimer myCountDownTimer;
@@ -93,10 +92,10 @@ public class GameActivity extends Activity {
 			
 			try {
 				if (wholeArray == null || dabbleString == null) {
+					initing = true;
 					new LoadDicTask(this).execute(getResources().getAssets()
 							.open("short_wordlist.txt"), getResources()
-							.getAssets().open("wordlist.txt"));
-					initing = true;
+							.getAssets().open("medium_wordlist.txt"));
 				}
 
 				if (beepStreamId == 0 || sp == null || tickStreamId == 0)
@@ -173,7 +172,7 @@ public class GameActivity extends Activity {
 			Music.musicPaused = true;
 		}
 		
-		if(sp!=null && beepStreamId!=0 && countDownPlayed) {
+		if(sp!=null && beepStreamId!=0 && countDownShouldPlay) {
 			sp.pause(tickStreamId);
 		}
 		
@@ -209,7 +208,7 @@ public class GameActivity extends Activity {
 		}
 		Music.musicShouldPause = true;
 		
-		if(sp!=null && beepStreamId!=0 && countDownPlayed ) {
+		if(sp!=null && beepStreamId!=0 && countDownShouldPlay ) {
 			sp.resume(tickStreamId);
 		}
 		
@@ -334,9 +333,9 @@ public class GameActivity extends Activity {
 	}
 	
 	public void playCountDownSound() {
-		if(sp!=null && tickStreamId!=0 && !countDownPlayed) {
-			countDownPlayed = true;
+		if(sp!=null && tickStreamId!=0) {
 			sp.play(tickStreamId, 1, 1, 0, 0, 1);
+			countDownShouldPlay = true;
 		}
 	}
 	
@@ -380,8 +379,9 @@ public class GameActivity extends Activity {
 	
 	public void initGameOver() {
 		myCountDownTimer.cancel();
-		if(sp!=null && beepStreamId!=0 && countDownPlayed) {
+		if(sp!=null && beepStreamId!=0 && countDownShouldPlay) {
 			sp.stop(tickStreamId);
+			countDownShouldPlay = false;
 		}
 		
 		Intent i = new Intent();
@@ -426,6 +426,11 @@ public class GameActivity extends Activity {
 		
 		
 	public void onClickSettingsButton(View v) {
+		
+		if(sp!=null && beepStreamId!=0 && countDownShouldPlay) {
+			sp.pause(tickStreamId);
+		}
+		
 		Intent i = new Intent();
 		i.setClass(GameActivity.this, Prefs.class);
 		i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

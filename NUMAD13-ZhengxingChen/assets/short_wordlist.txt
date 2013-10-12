@@ -24,10 +24,10 @@ photo
 effect
 run
 boat
-eject
+react
 listen
 pig
-sick
+seed
 write
 pencil
 sad

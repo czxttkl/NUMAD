@@ -13,6 +13,7 @@ public class MyCountDownTimer extends CountDownTimer{
 	public int countHint = 0;
 	public int tempScore = 0;
 	public long timeRemaining = 0;
+	public boolean countDownPlayed = false;
 	
 	public MyCountDownTimer(long millisInFuture, long countDownInterval) {
 		super(millisInFuture, countDownInterval);
@@ -36,8 +37,9 @@ public class MyCountDownTimer extends CountDownTimer{
 
 		timeRemaining = millisUntilFinished/1000;
 		
-		if(timeRemaining < 5) {
+		if(timeRemaining < 5 && !countDownPlayed) {
 			gameActivity.playCountDownSound();
+			countDownPlayed = true;
 		}
 		
 		

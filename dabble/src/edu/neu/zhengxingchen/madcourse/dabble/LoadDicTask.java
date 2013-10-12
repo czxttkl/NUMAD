@@ -54,11 +54,11 @@ import android.widget.TextView;
 
 		InputStream wordInputStream1 = in[1];
 		BufferedReader buff1 = null;
-		String[] sa1 = new String[432334];	
+		String[] sa1 = new String[57300];	
 		
 		try {
 			buff1 = new BufferedReader(new InputStreamReader(wordInputStream1));
-			for(int i = 0; i<432334; i++)
+			for(int i = 0; i<57300; i++)
 				sa1[i] = buff1.readLine();
 			buff1.close();
 		} catch (IOException e) {
