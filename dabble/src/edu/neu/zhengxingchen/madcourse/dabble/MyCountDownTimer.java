@@ -13,7 +13,7 @@ public class MyCountDownTimer extends CountDownTimer{
 	public int countHint = 0;
 	public int tempScore = 0;
 	public long timeRemaining = 0;
-	public boolean countDownPlayed = false;
+	public static boolean countDownPlayed = false;
 	
 	public MyCountDownTimer(long millisInFuture, long countDownInterval) {
 		super(millisInFuture, countDownInterval);

@@ -96,6 +96,7 @@ public class GameActivity extends Activity {
 					new LoadDicTask(this).execute(getResources().getAssets()
 							.open("short_wordlist.txt"), getResources()
 							.getAssets().open("medium_wordlist.txt"));
+					MyCountDownTimer.countDownPlayed = false;
 				}
 
 				if (beepStreamId == 0 || sp == null || tickStreamId == 0)
@@ -382,6 +383,7 @@ public class GameActivity extends Activity {
 		if(sp!=null && beepStreamId!=0 && countDownShouldPlay) {
 			sp.stop(tickStreamId);
 			countDownShouldPlay = false;
+			MyCountDownTimer.countDownPlayed = false;
 		}
 		
 		Intent i = new Intent();
@@ -426,11 +428,6 @@ public class GameActivity extends Activity {
 		
 		
 	public void onClickSettingsButton(View v) {
-		
-		if(sp!=null && beepStreamId!=0 && countDownShouldPlay) {
-			sp.pause(tickStreamId);
-		}
-		
 		Intent i = new Intent();
 		i.setClass(GameActivity.this, Prefs.class);
 		i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
