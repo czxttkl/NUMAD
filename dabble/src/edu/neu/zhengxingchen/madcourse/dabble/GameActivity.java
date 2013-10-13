@@ -29,15 +29,11 @@ import android.widget.TextView;
 
 public class GameActivity extends Activity {
 
-	@Override
-	protected void onStop() {
-		super.onStop();
-	}
 
-
-
+  
     public final String TAG = "dabble";
-    		
+    public static GameActivity instance = null;
+    
 	public String dabbleString = null;
 	public char[] dabbleArray = new char[18];
 	public String[] wholeArray = null;
@@ -108,7 +104,7 @@ public class GameActivity extends Activity {
 		}
 		
 		mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-		
+		instance = this;
 //		Log.d("dabble", "oncreate");
 
 	}

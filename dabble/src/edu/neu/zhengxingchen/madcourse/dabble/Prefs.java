@@ -21,18 +21,6 @@ import android.view.MotionEvent;
 import android.view.ViewGroup;
 
 public class Prefs extends PreferenceActivity {
-	@Override
-	protected void onPause() {
-		// TODO Auto-generated method stub
-		super.onPause();
-	}
-
-	@Override
-	protected void onResume() {
-		// TODO Auto-generated method stub
-		super.onResume();
-		
-	}
 
 	// Option names and default values
 	private static final String OPT_MUSIC = "music";
@@ -49,8 +37,6 @@ public class Prefs extends PreferenceActivity {
 	private static final boolean OPT_GAMESAVE_DEF = false;
 	private static final String OPT_STARTTIME = "starttime";
 	private static final long OPT_STARTTIME_DEF = 0;
-	
-	
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

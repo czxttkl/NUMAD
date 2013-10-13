@@ -27,6 +27,8 @@ public class GameMenu extends Activity implements OnClickListener {
 	PopupWindow acknowledgementPopupWindowMenu;
 	SharedPreferences mSharedPreferences;
 	public View continueButton;
+	public static GameMenu instance;
+	
 	
 	@Override
 	protected void onPause() {
@@ -82,9 +84,9 @@ public class GameMenu extends Activity implements OnClickListener {
 		View exitButton = findViewById(R.id.exit_button);
 		exitButton.setOnClickListener(this);
 		
-		
-		
 		mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+		
+		instance = this;
 //		Log.d("dabble", "gamemenu oncreate");
 	}
 
@@ -111,8 +113,15 @@ public class GameMenu extends Activity implements OnClickListener {
 		} else if (id == R.id.new_button) {
 			initNewGame();
 		} else if (id == R.id.exit_button) {
-			finish();
+			initQuit();
 		}
+	}
+
+	private void initQuit() {
+		Intent i = new Intent();
+		i.setClass(this, Exit.class);
+		i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		startActivity(i);
 	}
 
 	private void initContinueGame() {
