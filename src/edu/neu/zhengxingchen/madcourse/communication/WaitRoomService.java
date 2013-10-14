@@ -103,7 +103,14 @@ public class WaitRoomService extends Service {
 	}
 	
 	
-
+	public void startRemoveGuyTask() {
+		new RemoveGuyTask(WaitRoomService.this).execute();
+	}
+	
+	public void afterRemoveGuyTask() {
+		mClient = null;
+		mClientSerial = null;
+	}
 	
 	public void startAddGuyTask() {
 		new AddGuyTask(WaitRoomService.this).execute(list, mClientSerial);
@@ -119,7 +126,7 @@ public class WaitRoomService extends Service {
 		}
 	}
 	
-	public void afterGetGuysTask() {
+	public void afterLookForGetGuys() {
 		Message resultMsg = Message.obtain(null, MSG_GET_GUYS_WAITING,
 				0, 0);
 		Bundle b1 = new Bundle();
@@ -132,6 +139,7 @@ public class WaitRoomService extends Service {
 		}
 	}
 
+	
 	/**
 	 * Show a notification while this service is running.
 	 */
@@ -155,7 +163,7 @@ public class WaitRoomService extends Service {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 			case MSG_REGISTER_CLIENT:
-				new GetGuysTask(WaitRoomService.this).execute();
+				new GetGuysTask(WaitRoomService.this).execute(GetGuysTask.REGISTER);
 				Bundle b = msg.getData();
 				mClientSerial = b.getString("serial");
 //				mClients.put(b.getString("serial"), msg.replyTo);
@@ -163,7 +171,7 @@ public class WaitRoomService extends Service {
 				break;
 			case MSG_UNREGISTER_CLIENT:
 //				mClients.remove(msg.replyTo);
-				mClient = null;
+				new GetGuysTask(WaitRoomService.this).execute(GetGuysTask.UNREGISTER);
 				break;
 //			case MSG_SET_VALUE:
 //				mValue = msg.arg1;
@@ -192,7 +200,7 @@ public class WaitRoomService extends Service {
 //				String result = null;
 //				if (sb.length() != 0)
 //					result = sb.toString().substring(1);
-				new GetGuysTask(WaitRoomService.this).execute();
+				new GetGuysTask(WaitRoomService.this).execute(GetGuysTask.LOOK_FOR_GUY);
 				
 //				Message resultMsg = Message.obtain(null, MSG_GET_GUYS_WAITING,
 //						0, 0);

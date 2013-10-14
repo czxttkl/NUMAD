@@ -73,7 +73,6 @@ public class WaitRoom extends Activity {
 						mGuysList.addView(r);
 					}
 				}
-				// mCallbackText.setText("Received from service: " + msg.arg1);
 				break;
 			case WaitRoomService.MSG_ENTER_ROOM:
 				Toast.makeText(WaitRoom.this, R.string.enter_room,
@@ -190,9 +189,9 @@ public class WaitRoom extends Activity {
 		Message msg;
 		msg = Message.obtain(null, WaitRoomService.MSG_LOOK_FOR_GUYS_WAITING,
 				0, 0);
-		Bundle b = new Bundle();
-		b.putString("serial", telMgr.getDeviceId());
-		msg.setData(b);
+//		Bundle b = new Bundle();
+//		b.putString("serial", telMgr.getDeviceId());
+//		msg.setData(b);
 		try {
 			mService.send(msg);
 		} catch (RemoteException e) {
