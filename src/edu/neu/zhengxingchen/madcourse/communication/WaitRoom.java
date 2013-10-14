@@ -63,27 +63,7 @@ public class WaitRoom extends Activity {
 	            	String[] guys = b.getString("list").split(":");
 	            	for(String guy : guys) {
 	            		mGuysList.append(guy);
-	            		mGuysList.append("\n");
-	            		mGuysList.append(guy);
-	            		mGuysList.append("\n");
-	            		mGuysList.append(guy);
-	            		mGuysList.append("\n");
-	            		mGuysList.append(guy);
-	            		mGuysList.append("\n");
-	            		mGuysList.append(guy);
-	            		mGuysList.append("\n");
-	            		mGuysList.append(guy);
-	            		mGuysList.append("\n");
-	            		mGuysList.append(guy);
-	            		mGuysList.append("\n");
-	            		mGuysList.append(guy);
-	            		mGuysList.append("\n");
-	            		mGuysList.append(guy);
-	            		mGuysList.append("\n");
-	            		mGuysList.append(guy);
-	            		mGuysList.append("\n");
-	            		
-	            		
+	            		mGuysList.append("\n");	
 	            	}
 	               // mCallbackText.setText("Received from service: " + msg.arg1);
 	                break;
@@ -189,11 +169,11 @@ public class WaitRoom extends Activity {
 	
 	
 	public void onClickConnect(View v) {
-		Log.d("comm","onclick");
-		Intent i = new Intent();
-		i.setClass(this, WaitRoomService.class);
-		startService(i);
+		new PutValueTask(this).execute("score");
 	}
 	
+	public void startConnect(String result) {
+		mGuysList.append("start conn" + result);
+	}
 	
 }

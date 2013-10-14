@@ -9,13 +9,13 @@
     tools:context=".WaitRoom" >
 
     <TextView
-        android:id="@+id/Wait Room"
+        android:id="@+id/waitroom"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="25dp"
-        android:text="Wait..."
+        android:text="Wait Room"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <Button
