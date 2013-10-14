@@ -1,13 +1,18 @@
 package io.github.czxttkl.madcourse;
 
 
+import edu.neu.mhealth.api.KeyValueAPI;
 import edu.neu.mobileClass.PhoneCheckAPI;
+import edu.neu.zhengxingchen.madcourse.dabble.Appstart;
+import edu.neu.zhengxingchen.madcourse.dabble.GameMenu;
 import android.os.Bundle;
+import android.os.Handler;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.support.v4.view.ViewPager.LayoutParams;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -32,9 +37,10 @@ public class MainActivity extends Activity {
 		setDictionaryButton();
 		setAboutButton();
 		setGenerateErrorButton();
+		setCommunicationButton();
 		setDabbleButton();
 		setQuitButton();
-
+		Log.d("onclickcomm", "hello");
 	}
 
 	private void setQuitButton() {
@@ -157,11 +163,40 @@ public class MainActivity extends Activity {
 		});
 	}
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
-		return true;
+	private void setCommunicationButton() {
+		final TextView quitTv = (TextView) findViewById(R.id.communication_tv);
+		quitTv.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Log.d("onclickcomm", "run1");
+
+				new Handler().post(new Runnable(){
+					@Override
+					public void run(){
+						Log.d("onclickcomm", "run");
+						Log.d("onclickcomm", "avaialbe:" + KeyValueAPI.isServerAvailable());
+						
+						if(KeyValueAPI.isServerAvailable()) {
+							KeyValueAPI.put("czxttkl", "cZxttkl,1", "HighScore", "79");
+						}
+					}
+				});
+					
+				new Handler().postDelayed(new Runnable(){
+					@Override
+					public void run(){
+						if(KeyValueAPI.isServerAvailable())
+							Log.d("onclickcomm", "get key:" + KeyValueAPI.get("czxttkl", "cZxttkl,1", "HighScore"));
+					}
+				}, 15000);
+				
+			}
+			
+		});
+	}
+	
+	public void onClickCommunication(View v) {
+	
 	}
 
 }
