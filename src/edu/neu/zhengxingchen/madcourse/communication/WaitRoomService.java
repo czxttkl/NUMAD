@@ -27,10 +27,13 @@ public class WaitRoomService extends Service {
 	/** For showing and hiding our notification. */
 	NotificationManager mNM;
 	/** Keeps track of all current registered clients. */
-	HashMap<String, Messenger> mClients = new HashMap<String, Messenger>();
+//	HashMap<String, Messenger> mClients = new HashMap<String, Messenger>();
+	Messenger mClient;
+	String mClientSerial;
+	
 	/** Holds last value set by a client. */
 	int mValue = 0;
-
+	String list = null;
 	/**
 	 * Command to the service to register a client, receiving callbacks from the
 	 * service. The Message's replyTo field must be a Messenger of the client
@@ -55,6 +58,8 @@ public class WaitRoomService extends Service {
 	static final int MSG_LOOK_FOR_GUYS_WAITING = 4;
 
 	static final int MSG_GET_GUYS_WAITING = 5;
+	
+	static final int MSG_ENTER_ROOM = 6;
 
 	public WaitRoomService() {
 	}
@@ -68,11 +73,10 @@ public class WaitRoomService extends Service {
 	public void onCreate() {
 		Log.d("comm", "oncreate");
 		mNM = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-
+		
 		// Display a notification about us starting.
 		// showNotification();
 	}
-
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 //		Log.i("comm", "onStartCommand");
@@ -80,12 +84,10 @@ public class WaitRoomService extends Service {
 //								// as needed
 		return START_REDELIVER_INTENT;
 	}
-
 	@Override
 	public void onDestroy() {
 		// Cancel the persistent notification.
 		mNM.cancel(R.string.remote_service_started);
-
 		// Tell the user we stopped.
 		Toast.makeText(this, R.string.remote_service_stopped,
 				Toast.LENGTH_SHORT).show();
@@ -99,37 +101,46 @@ public class WaitRoomService extends Service {
 	public IBinder onBind(Intent intent) {
 		return mMessenger.getBinder();
 	}
+	
+	
+
+	
+	public void startAddGuyTask() {
+		new AddGuyTask(WaitRoomService.this).execute(list, mClientSerial);
+	}
+	
+	public void afterAddGuyTask(String result) {
+		Message msg = Message.obtain(null, WaitRoomService.MSG_ENTER_ROOM, 0, 0);
+		try {
+			mClient.send(msg);
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void afterGetGuysTask() {
+		Message resultMsg = Message.obtain(null, MSG_GET_GUYS_WAITING,
+				0, 0);
+		Bundle b1 = new Bundle();
+		b1.putString("list", list);
+		resultMsg.setData(b1);
+		try {
+			mClient.send(resultMsg);
+		} catch (RemoteException e) {
+			mClient = null;
+		}
+	}
 
 	/**
 	 * Show a notification while this service is running.
 	 */
 	private void showNotification() {
-		// In this sample, we'll use the same text for the ticker and the
-		// expanded notification
-		// CharSequence text = getText(R.string.remote_service_started);
-		//
-		// // Set the icon, scrolling text and timestamp
-		// Notification notification = new Notification(R.drawable.logo, text,
-		// System.currentTimeMillis());
-		//
-		// // The PendingIntent to launch our activity if the user selects this
-		// notification
 		Intent i = new Intent();
 		i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 		i.setClass(this, WaitRoom.class);
 		//
 		PendingIntent contentIntent = PendingIntent.getActivity(this, 0, i, 0);
-		//
-		// // Set the info for the views that show in the notification panel.
-		// notification.setLatestEventInfo(this,
-		// getText(R.string.remote_service_label),
-		// text, contentIntent);
-		//
-		// // Send the notification.
-		// // We use a string id because it is a unique number. We use it later
-		// to cancel.
-		// mNM.notify(R.string.remote_service_started, notification);
-		//
 
 		NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(
 				this).setContentIntent(contentIntent).setContentTitle("Dabble")
@@ -144,50 +155,55 @@ public class WaitRoomService extends Service {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 			case MSG_REGISTER_CLIENT:
+				new GetGuysTask(WaitRoomService.this).execute();
 				Bundle b = msg.getData();
-				// b.get("serial");
-				mClients.put(b.getString("serial"), msg.replyTo);
+				mClientSerial = b.getString("serial");
+//				mClients.put(b.getString("serial"), msg.replyTo);
+				mClient = msg.replyTo;
 				break;
 			case MSG_UNREGISTER_CLIENT:
-				mClients.remove(msg.replyTo);
+//				mClients.remove(msg.replyTo);
+				mClient = null;
 				break;
-			case MSG_SET_VALUE:
-				mValue = msg.arg1;
-				for (int i = mClients.size() - 1; i >= 0; i--) {
-					try {
-						mClients.get(i).send(
-								Message.obtain(null, MSG_SET_VALUE, mValue, 0));
-					} catch (RemoteException e) {
-						// The client is dead. Remove it from the list;
-						// we are going through the list from back to front
-						// so this is safe to do inside the loop.
-						mClients.remove(i);
-					}
-				}
-				break;
+//			case MSG_SET_VALUE:
+//				mValue = msg.arg1;
+//				for (int i = mClients.size() - 1; i >= 0; i--) {
+//					try {
+//						mClients.get(i).send(
+//								Message.obtain(null, MSG_SET_VALUE, mValue, 0));
+//					} catch (RemoteException e) {
+//						// The client is dead. Remove it from the list;
+//						// we are going through the list from back to front
+//						// so this is safe to do inside the loop.
+//						mClients.remove(i);
+//					}
+//				}
+//				break;
 			case MSG_LOOK_FOR_GUYS_WAITING:
-				mClients.put("563333", null);
-				String serial = msg.getData().getString("serial");
-				StringBuilder sb = new StringBuilder();
-				for (Map.Entry<String, Messenger> entry : mClients.entrySet()) {
-					if (!entry.getKey().equals(serial)) {
-						sb.append(":");
-						sb.append(entry.getKey());
-					}
-				}
-				String result = null;
-				if (sb.length() != 0)
-					result = sb.toString().substring(1);
-				Message resultMsg = Message.obtain(null, MSG_GET_GUYS_WAITING,
-						0, 0);
-				Bundle b1 = new Bundle();
-				b1.putString("list", result);
-				resultMsg.setData(b1);
-				try {
-					mClients.get(serial).send(resultMsg);
-				} catch (RemoteException e) {
-					mClients.remove(serial);
-				}
+//				mClients.put("563333", null);
+//				String serial = msg.getData().getString("serial");
+//				StringBuilder sb = new StringBuilder();
+//				for (Map.Entry<String, Messenger> entry : mClients.entrySet()) {
+//					if (!entry.getKey().equals(serial)) {
+//						sb.append(":");
+//						sb.append(entry.getKey());
+//					}
+//				}
+//				String result = null;
+//				if (sb.length() != 0)
+//					result = sb.toString().substring(1);
+				new GetGuysTask(WaitRoomService.this).execute();
+				
+//				Message resultMsg = Message.obtain(null, MSG_GET_GUYS_WAITING,
+//						0, 0);
+//				Bundle b1 = new Bundle();
+//				b1.putString("list", result);
+//				resultMsg.setData(b1);
+//				try {
+//					mClient.get(serial).send(resultMsg);
+//				} catch (RemoteException e) {
+//					mClient.remove(serial);
+//				}
 				break;
 			default:
 				super.handleMessage(msg);

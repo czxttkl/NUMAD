@@ -10,4 +10,5 @@
     <string name="remote_service_connected">WaitRoom Service Connected</string>
     <string name="remote_service_disconnected">WaitRoom Service Disconnected</string>
 	<string name="new_guy_found">New Guy Found</string>
+	<string name="enter_room">Enter Room</string>
 </resources>
