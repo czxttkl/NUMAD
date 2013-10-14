@@ -23,21 +23,45 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="33dp"
-        android:onClick="onClickConnect"
-        android:text="Button" />
+        android:onClick="onClickPutValue"
+        android:text="putValue" />
 
     <ScrollView
+        android:id="@+id/scrollView1"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:layout_alignParentRight="true"
-        android:layout_below="@+id/waiting"
-        android:layout_marginTop="50dp" >
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/waitroom"
+        android:layout_alignParentRight="true">
 
-        <TextView
-            android:id="@+id/guys"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+        <RadioGroup
+            android:id="@+id/guys_radio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+        </RadioGroup>
     </ScrollView>
+    
+	 <ScrollView
+        android:id="@+id/scrollView2"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/scrollView1"
+         >
+    <TextView
+        android:id="@+id/status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+         />
+    </ScrollView>
+
+    <Button
+        android:id="@+id/button2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/button1"
+        android:layout_alignRight="@+id/waitroom"
+        android:onClick="onClickGetValue"
+        android:text="GetValue" />
 
 </RelativeLayout>

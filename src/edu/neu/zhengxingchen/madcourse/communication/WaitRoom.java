@@ -17,17 +17,21 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.ListView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
 public class WaitRoom extends Activity {
 	private TelephonyManager telMgr;
+	RadioGroup mGuysList;
+	TextView mStatus;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_wait_room);
-		//mCallbackText = (TextView) findViewById(R.id.callback);
-		mGuysList = (TextView) findViewById(R.id.guys);
+		mStatus = (TextView) findViewById(R.id.status);
+		mGuysList = (RadioGroup) findViewById(R.id.guys_radio);
 //		mListView = (ListView) findViewById(R.id.guys);
 		telMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
 	}
@@ -49,8 +53,7 @@ public class WaitRoom extends Activity {
 	/** Flag indicating whether we have called bind on the service. */
 	boolean mIsBound;
 	/** Some text view we are using to show state information. */
-	TextView mGuysList;
-	ListView mListView;
+	
 	/**
 	 * Handler of incoming messages from service.
 	 */
@@ -62,8 +65,9 @@ public class WaitRoom extends Activity {
 	            	Bundle b = msg.getData();
 	            	String[] guys = b.getString("list").split(":");
 	            	for(String guy : guys) {
-	            		mGuysList.append(guy);
-	            		mGuysList.append("\n");	
+	            		RadioButton r = new RadioButton(WaitRoom.this);
+	            		r.setText(guy);
+	            		mGuysList.addView(r);
 	            	}
 	               // mCallbackText.setText("Received from service: " + msg.arg1);
 	                break;
@@ -141,7 +145,7 @@ public class WaitRoom extends Activity {
 	    bindService(new Intent(WaitRoom.this, 
 	            WaitRoomService.class), mConnection, Context.BIND_AUTO_CREATE);
 	    mIsBound = true;
-	    //mCallbackText.setText("Binding.");
+	    mStatus.append("Binding." + "\n");
 	}
 
 	void doUnbindService() {
@@ -163,17 +167,26 @@ public class WaitRoom extends Activity {
 	        // Detach our existing connection.
 	        unbindService(mConnection);
 	        mIsBound = false;
-	        mGuysList.setText("Unbinding.");
+	        mStatus.append("Unbinding." + "\n");
 	    }
 	}
 	
 	
-	public void onClickConnect(View v) {
-		new PutValueTask(this).execute("score");
+	public void onClickPutValue(View v) {
+		new PutValueTask(this).execute("score", "79");
 	}
 	
-	public void startConnect(String result) {
-		mGuysList.append("start conn" + result);
+	public void onClickGetValue(View v) {
+		new GetValueTask(this).execute("score");
 	}
+	
+	public void afterPutValue(String result) {
+		mStatus.append(result + "\n");
+	}
+	
+	public void afterGetValue(String result) {
+		mStatus.append(result + "\n");
+	}
+	
 	
 }

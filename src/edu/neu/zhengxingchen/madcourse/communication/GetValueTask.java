@@ -1,33 +1,33 @@
 package edu.neu.zhengxingchen.madcourse.communication;
 
+
 import edu.neu.mhealth.api.KeyValueAPI;
 import android.os.AsyncTask;
 
-public class PutValueTask extends AsyncTask<String, Integer, String>{
+public class GetValueTask extends AsyncTask<String, Integer, String>{
 
 	public static String usr = "czxttkl";
 	public static String pwd = "cZxttkl,1";
 	public WaitRoom wr;
 	
-	public PutValueTask(WaitRoom wr) {
+	public GetValueTask(WaitRoom wr) {
 		this.wr = wr;
 	}
 	
 	@Override
 	protected String doInBackground(String... arg0) {
 		String key = arg0[0];
-		String value = arg0[1];
 		long time = System.currentTimeMillis();
-		String putResult = null;
+		String getResult = null;
 		if(KeyValueAPI.isServerAvailable()) {
-			putResult = KeyValueAPI.put(usr, pwd, key, value);
+			getResult = KeyValueAPI.get(usr, pwd, key);
 		}
 		time = System.currentTimeMillis() - time;
-		return "time:" + String.valueOf(time) + " result:" + putResult;
+		return "time:" + String.valueOf(time) + " result:" + getResult;
 	}
 	@Override
 	protected void onPostExecute(String result) {
-		wr.afterPutValue(result);
+		wr.afterGetValue(result);
 	}
 
 	

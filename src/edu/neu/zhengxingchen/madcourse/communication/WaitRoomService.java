@@ -22,6 +22,8 @@ import android.widget.Toast;
 
 public class WaitRoomService extends Service {
 
+	 
+
 	/** For showing and hiding our notification. */
 	NotificationManager mNM;
 	/** Keeps track of all current registered clients. */
@@ -73,9 +75,10 @@ public class WaitRoomService extends Service {
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		Log.i("comm", "onStartCommand");
-		return START_STICKY; // this service is explicitly started and stopped
-								// as needed
+//		Log.i("comm", "onStartCommand");
+//		return START_STICKY; // this service is explicitly started and stopped
+//								// as needed
+		return START_REDELIVER_INTENT;
 	}
 
 	@Override
