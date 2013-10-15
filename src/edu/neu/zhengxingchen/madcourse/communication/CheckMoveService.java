@@ -13,13 +13,17 @@ public class CheckMoveService extends WakefulIntentService{
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		// TODO Auto-generated method stub
-		Log.d("waitroom",intent.getStringExtra("player"));
-		return START_STICKY;
+		Log.d("waitroom","onstartcommand");
+		Log.d("waitroom", intent.getStringExtra("player")==null? "null" : "not null");
+		return super.onStartCommand(intent, flags, startId);
+//		return START_REDELIVER_INTENT;
 	}
 
 	@Override
 	protected void doWakefulWork(Intent intent) {
-		Log.d("waitroom", "doWakefulWork");
+		
+		Log.d("waitroom", "doWakefulWork" );
+		Log.d("waitroom", intent.getStringExtra("player")==null? "null" : "not null");
 		//updateGuysList(GetGuysTask.LOOK_FOR_GUY);
 	}
 

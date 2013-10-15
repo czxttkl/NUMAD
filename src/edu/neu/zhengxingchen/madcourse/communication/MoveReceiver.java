@@ -17,37 +17,41 @@ package edu.neu.zhengxingchen.madcourse.communication;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.SystemClock;
+import android.util.Log;
+
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 public class MoveReceiver extends BroadcastReceiver {
-  private static final int PERIOD=5000; // 15 minutes
-  private static final int INITIAL_DELAY=5000; // 5 seconds
+	private static final int PERIOD = 5000; // 15 minutes
+	private static final int INITIAL_DELAY = 5000; // 5 seconds
 
-  @Override
-  public void onReceive(Context ctxt, Intent i) {
-    if (i.getAction() == null) {
-    Intent a = new Intent();
-    a.setClassName(this, CheckMoveService.class);
-      WakefulIntentService.sendWakefulWork(ctxt, CheckMoveService.class);
-    }
-    else {
-      scheduleAlarms(ctxt);
-    }
-  }
+	@Override
+	public void onReceive(Context ctxt, Intent i) {
+		if (i.getAction() == null) {
+			Log.d("waitroom", "onreceive");
+			Intent a = new Intent(ctxt, CheckMoveService.class);
+//			a.setComponent(new ComponentName("edu.neu.zhengxingchen.madcourse.communication",
+//					"CheckMoveService"));
+			a.putExtra("player", "1111");
+			WakefulIntentService.sendWakefulWork(ctxt, a);
+		} else {
+			scheduleAlarms(ctxt);
+		}
+	}
 
-  static void scheduleAlarms(Context ctxt) {
-    AlarmManager mgr=
-        (AlarmManager)ctxt.getSystemService(Context.ALARM_SERVICE);
-    Intent i=new Intent(ctxt, MoveReceiver.class);
-    i.putExtra("player", "123123");
-    PendingIntent pi=PendingIntent.getBroadcast(ctxt, 0, i, 0);
+	static void scheduleAlarms(Context ctxt) {
+		AlarmManager mgr = (AlarmManager) ctxt
+				.getSystemService(Context.ALARM_SERVICE);
+		Intent i = new Intent(ctxt, MoveReceiver.class);
+		i.putExtra("player", "123123");
+		PendingIntent pi = PendingIntent.getBroadcast(ctxt, 0, i, 0);
 
-    mgr.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                     SystemClock.elapsedRealtime() + INITIAL_DELAY,
-                     PERIOD, pi);
+		mgr.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+				SystemClock.elapsedRealtime() + INITIAL_DELAY, PERIOD, pi);
 
-  }
+	}
 }
