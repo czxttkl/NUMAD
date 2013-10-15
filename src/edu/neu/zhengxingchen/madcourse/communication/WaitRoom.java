@@ -46,7 +46,7 @@ public class WaitRoom extends Activity {
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		doUnbindService();
+//		doUnbindService();
 	}
 
 	/** Messenger for communicating with service. */
@@ -64,6 +64,7 @@ public class WaitRoom extends Activity {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 			case WaitRoomService.MSG_GET_GUYS_WAITING:
+				mGuysList.removeAllViews();
 				Bundle b = msg.getData();
 				String[] guys = b.getString("list").split(":");
 				for (String guy : guys) {
@@ -77,7 +78,13 @@ public class WaitRoom extends Activity {
 			case WaitRoomService.MSG_ENTER_ROOM:
 				Toast.makeText(WaitRoom.this, R.string.enter_room,
 						Toast.LENGTH_SHORT).show();
+				mStatus.append("Enter Room" + "\n");
 				startLookingForGuys();
+				break;
+			case WaitRoomService.MSG_NETWORK_ERROR:
+				Toast.makeText(WaitRoom.this, R.string.network_error,
+						Toast.LENGTH_LONG).show();
+				break;
 			default:
 				super.handleMessage(msg);
 			}
@@ -99,25 +106,13 @@ public class WaitRoom extends Activity {
 			// interact with the service. We are communicating with our
 			// service through an IDL interface, so get a client-side
 			// representation of that from the raw service object.
+			mStatus.append("Binded." + "\n");
 			mService = new Messenger(service);
+			registerThisPhone();
 			// mCallbackText.setText("Establish WaitRoom Service");
 
 			// We want to monitor the service for as long as we are
 			// connected to it.
-			try {
-				Message msg = Message.obtain(null,
-						WaitRoomService.MSG_REGISTER_CLIENT);
-				msg.replyTo = mMessenger;
-				Bundle b = new Bundle();
-				b.putString("serial", telMgr.getDeviceId());
-				msg.setData(b);
-				mService.send(msg);
-			} catch (RemoteException e) {
-				// In this case the service has crashed before we could even
-				// do anything with it; we can count on soon being
-				// disconnected (and then reconnected if it can be restarted)
-				// so there is no need to do anything here.
-			}
 
 			// As part of the sample, tell the user what happened.
 			Toast.makeText(WaitRoom.this, R.string.remote_service_connected,
@@ -142,8 +137,10 @@ public class WaitRoom extends Activity {
 		// applications replace our component.
 		bindService(new Intent(WaitRoom.this, WaitRoomService.class),
 				mConnection, Context.BIND_AUTO_CREATE);
-		mIsBound = true;
 		mStatus.append("Binding." + "\n");
+		if(mIsBound)
+			mStatus.append("Binded." + "\n");
+		mIsBound = true;
 	}
 
 	void doUnbindService() {
@@ -177,6 +174,30 @@ public class WaitRoom extends Activity {
 		new GetValueTask(this).execute("score");
 	}
 
+	public void onClickRefresh(View v) {
+		registerThisPhone();
+	}
+	
+	public void onClickConnect(View v) {
+		MoveReceiver.scheduleAlarms(this);
+	}
+	
+	
+	public void registerThisPhone() {
+		Message msg = Message.obtain(null,
+				WaitRoomService.MSG_REGISTER_CLIENT);
+		msg.replyTo = mMessenger;
+		Bundle b = new Bundle();
+		b.putString("serial", telMgr.getDeviceId());
+		msg.setData(b);
+		try {
+			mService.send(msg);
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	public void afterPutValue(String result) {
 		mStatus.append(result + "\n");
 	}

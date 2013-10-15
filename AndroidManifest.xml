@@ -9,7 +9,9 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
-    
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+	
     <uses-sdk
         android:minSdkVersion="7"
         android:targetSdkVersion="7" />
@@ -28,7 +30,17 @@
             </intent-filter>
         </activity>
         <service
-            android:name="edu.neu.zhengxingchen.madcourse.communication.WaitRoomService"></service>
+            android:name="edu.neu.zhengxingchen.madcourse.communication.WaitRoomService">
+        </service>
+         <service
+            android:name="edu.neu.zhengxingchen.madcourse.communication.CheckMoveService">
+        </service>
+        
+		<receiver android:name="edu.neu.zhengxingchen.madcourse.communication.MoveReceiver">
+			<intent-filter>
+				<action android:name="android.intent.action.BOOT_COMPLETED"/>
+			</intent-filter>
+		</receiver>
 
     </application>
 
