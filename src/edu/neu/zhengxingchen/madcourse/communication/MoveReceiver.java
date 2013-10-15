@@ -47,11 +47,20 @@ public class MoveReceiver extends BroadcastReceiver {
 		AlarmManager mgr = (AlarmManager) ctxt
 				.getSystemService(Context.ALARM_SERVICE);
 		Intent i = new Intent(ctxt, MoveReceiver.class);
-		i.putExtra("player", "123123");
 		PendingIntent pi = PendingIntent.getBroadcast(ctxt, 0, i, 0);
 
 		mgr.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
 				SystemClock.elapsedRealtime() + INITIAL_DELAY, PERIOD, pi);
+
+	}
+	
+	static void cancelAlarms(Context ctxt) {
+		AlarmManager mgr = (AlarmManager) ctxt
+				.getSystemService(Context.ALARM_SERVICE);
+		Intent i = new Intent(ctxt, MoveReceiver.class);
+		i.putExtra("player", "123123");
+		PendingIntent pi = PendingIntent.getBroadcast(ctxt, 0, i, 0);
+		mgr.cancel(pi);
 
 	}
 }

@@ -35,18 +35,35 @@ public class WaitRoom extends Activity {
 		mGuysList = (RadioGroup) findViewById(R.id.guys_radio);
 		// mListView = (ListView) findViewById(R.id.guys);
 		telMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
+		/*
+		 * The service will be considered required by the system only for as
+		 * long as the calling context exists. For example, if this Context is
+		 * an Activity that is stopped, the service will not be required to
+		 * continue running until the Activity is resumed.
+		 */
+		Intent i = new Intent(this, WaitRoomService.class);
+		startService(i);
 	}
 
 	@Override
 	protected void onResume() {
+		Log.d("waitroom", "onresume");
 		doBindService();
+		MoveReceiver.cancelAlarms(this);
 		super.onResume();
+	}
+
+	@Override
+	protected void onPause() {
+		Log.d("waitroom", "onpause");
+		MoveReceiver.scheduleAlarms(this);
+		super.onPause();
 	}
 
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-//		doUnbindService();
+//		 doUnbindService();
 	}
 
 	/** Messenger for communicating with service. */
@@ -68,7 +85,7 @@ public class WaitRoom extends Activity {
 				Bundle b = msg.getData();
 				String[] guys = b.getString("list").split(":");
 				for (String guy : guys) {
-					if(!guy.equals(telMgr.getDeviceId())) {
+					if (!guy.equals(telMgr.getDeviceId())) {
 						RadioButton r = new RadioButton(WaitRoom.this);
 						r.setText(guy);
 						mGuysList.addView(r);
@@ -138,7 +155,7 @@ public class WaitRoom extends Activity {
 		bindService(new Intent(WaitRoom.this, WaitRoomService.class),
 				mConnection, Context.BIND_AUTO_CREATE);
 		mStatus.append("Binding." + "\n");
-		if(mIsBound)
+		if (mIsBound)
 			mStatus.append("Binded." + "\n");
 		mIsBound = true;
 	}
@@ -177,15 +194,18 @@ public class WaitRoom extends Activity {
 	public void onClickRefresh(View v) {
 		registerThisPhone();
 	}
-	
+
 	public void onClickConnect(View v) {
-		MoveReceiver.scheduleAlarms(this);
+		SntpClient sn = new SntpClient();
+		boolean result = sn.requestTime("pool.ntp.org", 5000);
+		
+			
+		Log.d("waitroom", "sntp: ntpTime:" + sn.getNtpTime() + " ntpTimeReference:" + sn.getNtpTimeReference() + " roundtriptime:" + sn.getRoundTripTime());
+		// MoveReceiver.cancelAlarms(this);
 	}
-	
-	
+
 	public void registerThisPhone() {
-		Message msg = Message.obtain(null,
-				WaitRoomService.MSG_REGISTER_CLIENT);
+		Message msg = Message.obtain(null, WaitRoomService.MSG_REGISTER_CLIENT);
 		msg.replyTo = mMessenger;
 		Bundle b = new Bundle();
 		b.putString("serial", telMgr.getDeviceId());
@@ -197,7 +217,7 @@ public class WaitRoom extends Activity {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void afterPutValue(String result) {
 		mStatus.append(result + "\n");
 	}
@@ -210,9 +230,9 @@ public class WaitRoom extends Activity {
 		Message msg;
 		msg = Message.obtain(null, WaitRoomService.MSG_LOOK_FOR_GUYS_WAITING,
 				0, 0);
-//		Bundle b = new Bundle();
-//		b.putString("serial", telMgr.getDeviceId());
-//		msg.setData(b);
+		// Bundle b = new Bundle();
+		// b.putString("serial", telMgr.getDeviceId());
+		// msg.setData(b);
 		try {
 			mService.send(msg);
 		} catch (RemoteException e) {
