@@ -1,6 +1,10 @@
 package edu.neu.zhengxingchen.madcourse.communication;
 
+import java.util.Date;
+
 import android.os.AsyncTask;
+import android.os.SystemClock;
+import android.util.Log;
 import edu.neu.mhealth.api.KeyValueAPI;
 
 public class AddGuyTask extends AsyncTask<String, Integer, String>{
@@ -30,14 +34,20 @@ public class AddGuyTask extends AsyncTask<String, Integer, String>{
 			value = list;
 		
 		
-		long time = System.currentTimeMillis();
 		String putResult = null;
 		if(KeyValueAPI.isServerAvailable()) {
 			putResult = KeyValueAPI.put(usr, pwd, "guyslist", value);
+			SntpClient sn = new SntpClient();
+			long now = 0;
+			if(sn.requestTime("pool.ntp.org", 5000))
+				now = sn.getNtpTime() + SystemClock.elapsedRealtime() - sn.getNtpTimeReference();
+			Date date=new Date(now);
+			KeyValueAPI.put(usr, pwd, wr.mClientSerial, date.toString()+":wait");
+			
+			Log.d("waitroom", "sntp: ntpTime:" + now + " :" + date.toString());
 		} else{
 			putResult = "Error";
 		}
-		time = System.currentTimeMillis() - time;
 		return putResult;
 	}
 	@Override

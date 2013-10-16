@@ -1,5 +1,7 @@
 package edu.neu.zhengxingchen.madcourse.communication;
 
+import java.util.Date;
+
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -7,6 +9,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.os.SystemClock;
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
@@ -196,11 +199,7 @@ public class WaitRoom extends Activity {
 	}
 
 	public void onClickConnect(View v) {
-		SntpClient sn = new SntpClient();
-		boolean result = sn.requestTime("pool.ntp.org", 5000);
-		
-			
-		Log.d("waitroom", "sntp: ntpTime:" + sn.getNtpTime() + " ntpTimeReference:" + sn.getNtpTimeReference() + " roundtriptime:" + sn.getRoundTripTime());
+
 		// MoveReceiver.cancelAlarms(this);
 	}
 
