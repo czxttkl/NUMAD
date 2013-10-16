@@ -4,11 +4,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
 
-public class EverythingResultReceiver extends ResultReceiver {
+public class OnlineResultReceiver extends ResultReceiver {
 	 
     private Receiver mReceiver;
  
-    public EverythingResultReceiver(Handler handler) {
+    public OnlineResultReceiver(Handler handler) {
         super(handler);
         // TODO Auto-generated constructor stub
     }

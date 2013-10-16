@@ -12,8 +12,8 @@ import edu.neu.mhealth.api.KeyValueAPI;
 import edu.neu.zhengxingchen.madcourse.communication.WaitRoomService.IncomingHandler;
 
 //final Messenger mMessenger = new Messenger(new IncomingHandler());
-public class CheckEverythingService extends WakefulIntentService{
-	public CheckEverythingService() {
+public class OnlineSyncService extends WakefulIntentService{
+	public OnlineSyncService() {
 		super("CheckEverythingService");
 	}
 	@Override

@@ -30,22 +30,28 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        
+        <activity
+            android:name="edu.neu.zhengxingchen.madcourse.communication.InvitePopup"
+            android:theme="@style/MyDialogStyle" >
+        </activity>
+        
         <service
             android:name="edu.neu.zhengxingchen.madcourse.communication.WaitRoomService">
         </service>
          <service
-            android:name="edu.neu.zhengxingchen.madcourse.communication.CheckMoveService">
+            android:name="edu.neu.zhengxingchen.madcourse.communication.OfflineSyncService">
         </service>
         <service
-            android:name="edu.neu.zhengxingchen.madcourse.communication.CheckEverythingService">
+            android:name="edu.neu.zhengxingchen.madcourse.communication.OnlineSyncService">
         </service>
         
-		<receiver android:name="edu.neu.zhengxingchen.madcourse.communication.MoveReceiver">
+		<receiver android:name="edu.neu.zhengxingchen.madcourse.communication.OfflineBroadcastReceiver">
 			<intent-filter>
 				<action android:name="android.intent.action.BOOT_COMPLETED"/>
 			</intent-filter>
 		</receiver>
-		<receiver android:name="edu.neu.zhengxingchen.madcourse.communication.EverythingBroadcastReceiver">
+		<receiver android:name="edu.neu.zhengxingchen.madcourse.communication.OnlineBroadcastReceiver">
 			<intent-filter>
 				<action android:name="android.intent.action.BOOT_COMPLETED"/>
 			</intent-filter>

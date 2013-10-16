@@ -11,11 +11,11 @@ import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
-public class CheckMoveService extends WakefulIntentService{
+public class OfflineSyncService extends WakefulIntentService{
 	public static NotificationManager mNotificationManager;
 	
 	
-	public CheckMoveService() {
+	public OfflineSyncService() {
 		super("CheckMoveService");
 	}
 

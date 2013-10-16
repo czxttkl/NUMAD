@@ -19,14 +19,12 @@ public class ConnectGuyTask extends AsyncTask<String, Integer, String>{
 	@Override
 	protected String doInBackground(String... arg0) {
 		String playerSerial = arg0[0];
-		String putResult = null;
+		String putResult = "Error";
 		if(KeyValueAPI.isServerAvailable()) {
 			long now = Global.NTP_REFERENCE + SystemClock.elapsedRealtime();
-			putResult = KeyValueAPI.put(usr, pwd, playerSerial, now +":invite:" + wr.mClientSerial);
-			Log.d("waitroom", "connectguy: key:" + playerSerial+ " value:" + now +":invite:" + wr.mClientSerial);
-		} else{
-			putResult = "Error";
-		}
+			putResult = KeyValueAPI.put(usr, pwd, playerSerial, now + ":" + Global.SERVER_STATUS_INVITED + ":"  + wr.mClientSerial);
+//			Log.d("waitroom", "connectguy: key:" + playerSerial+ " value:" + now +":" + Global.SERVER_STATUS_INVITED + ":" + wr.mClientSerial);
+		} 
 		return putResult;
 	}
 	

@@ -30,7 +30,6 @@ public class WaitRoomService extends Service {
 	Messenger mClient;
 	String mClientSerial;
 	final Messenger mMessenger = new Messenger(new IncomingHandler());
-	int mValue = 0;
 	String list = null;
 
 	static final int MSG_REGISTER_CLIENT = 1;
@@ -43,6 +42,7 @@ public class WaitRoomService extends Service {
 	static final int MSG_CONNECTED = 8;
 	static final int MSG_TO_CONNECT = 9;
 	static final int MSG_INVITATION_SENT = 10;
+	static final int MSG_INVITED_BY_OTHER = 11;
 
 	public WaitRoomService() {
 

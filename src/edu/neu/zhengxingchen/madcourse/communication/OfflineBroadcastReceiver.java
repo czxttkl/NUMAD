@@ -26,7 +26,7 @@ import android.util.Log;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
-public class MoveReceiver extends BroadcastReceiver {
+public class OfflineBroadcastReceiver extends BroadcastReceiver {
 	private static final int PERIOD = 5000; // 15 minutes
 	private static final int INITIAL_DELAY = 0; // 5 seconds
 	private static String SERIAL;
@@ -36,7 +36,7 @@ public class MoveReceiver extends BroadcastReceiver {
 	public void onReceive(Context ctxt, Intent i) {
 		if (i.getAction() == null) {
 //			Log.d("waitroom", "onreceive");
-			Intent a = new Intent(ctxt, CheckMoveService.class);
+			Intent a = new Intent(ctxt, OfflineSyncService.class);
 //			a.setComponent(new ComponentName("edu.neu.zhengxingchen.madcourse.communication",
 //					"CheckMoveService"));
 			a.putExtra("player", SERIAL);
@@ -50,7 +50,7 @@ public class MoveReceiver extends BroadcastReceiver {
 		SERIAL = serial;
 		AlarmManager mgr = (AlarmManager) ctxt
 				.getSystemService(Context.ALARM_SERVICE);
-		Intent i = new Intent(ctxt, MoveReceiver.class);
+		Intent i = new Intent(ctxt, OfflineBroadcastReceiver.class);
 		PendingIntent pi = PendingIntent.getBroadcast(ctxt, 0, i, 0);
 
 		mgr.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
@@ -61,10 +61,10 @@ public class MoveReceiver extends BroadcastReceiver {
 	static void cancelAlarms(Context ctxt) {
 		AlarmManager mgr = (AlarmManager) ctxt
 				.getSystemService(Context.ALARM_SERVICE);
-		Intent i = new Intent(ctxt, MoveReceiver.class);
+		Intent i = new Intent(ctxt, OfflineBroadcastReceiver.class);
 		PendingIntent pi = PendingIntent.getBroadcast(ctxt, 0, i, 0);
 		mgr.cancel(pi);
-		if(CheckMoveService.mNotificationManager!=null)
-			CheckMoveService.mNotificationManager.cancelAll();
+		if(OfflineSyncService.mNotificationManager!=null)
+			OfflineSyncService.mNotificationManager.cancelAll();
 	}
 }
