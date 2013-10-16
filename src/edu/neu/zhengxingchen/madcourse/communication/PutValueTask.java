@@ -9,6 +9,7 @@ public class PutValueTask extends AsyncTask<String, Integer, String> {
 	public static String usr = "czxttkl";
 	public static String pwd = "cZxttkl,1";
 	public static int PUT_VALUE = 0;
+	public static int SET_WAIT = 1;
 	public static int SET_CONNECTED = 2;
 
 	public WaitRoom wr;
@@ -25,11 +26,9 @@ public class PutValueTask extends AsyncTask<String, Integer, String> {
 		if (code == PUT_VALUE) {
 			String key = arg0[0];
 			String value = arg0[1];
-			long time = System.currentTimeMillis();
 			if (KeyValueAPI.isServerAvailable()) {
 				putResult = KeyValueAPI.put(usr, pwd, key, value);
 			}
-			time = System.currentTimeMillis() - time;
 		}
 		
 		if (code == SET_CONNECTED) {
@@ -37,6 +36,14 @@ public class PutValueTask extends AsyncTask<String, Integer, String> {
 			if (KeyValueAPI.isServerAvailable()) {
 				long now = Global.NTP_REFERENCE + SystemClock.elapsedRealtime();
 				putResult = KeyValueAPI.put(usr, pwd, rival, now+":" + Global.SERVER_STATUS_INGAME + ":" + Global.SERIAL);
+			}
+		}
+		
+		if (code == SET_WAIT) {
+			if (KeyValueAPI.isServerAvailable()) {
+				long now = Global.NTP_REFERENCE + SystemClock.elapsedRealtime();
+				putResult = KeyValueAPI.put(usr, pwd, Global.SERIAL, now
+						+ ":" + Global.SERVER_STATUS_WAIT);
 			}
 		}
 		
@@ -49,9 +56,9 @@ public class PutValueTask extends AsyncTask<String, Integer, String> {
 			if (code == PUT_VALUE) {
 				wr.afterPutValue(result);
 			}
-//			if (code == PURGE_INVITED) {
+			if (code == SET_WAIT) {
 //				wr.startInvitePopup();
-//			}
+			}
 		} else {
 			
 		}

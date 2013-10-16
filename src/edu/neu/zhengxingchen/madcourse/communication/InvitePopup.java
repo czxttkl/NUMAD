@@ -39,12 +39,16 @@ public class InvitePopup extends Activity {
 	
 	public void yesButton(View v) {  
 		 Intent returnIntent = new Intent();
-		 returnIntent.putExtra(Global.SERVER_KEY_INVITATATION_ACCEPTED,true);
+		 returnIntent.putExtra(Global.SERVER_KEY_INVITATATION_ACCEPTED, true);
 		// Log.d("waitroom","invitepopup yes");
 		 setResult(RESULT_OK,returnIntent);   
     	this.finish();    	
       }  
-	public void noButton(View v) {  
+	public void noButton(View v) {
+		Intent returnIntent = new Intent();
+		 returnIntent.putExtra(Global.SERVER_KEY_INVITATATION_ACCEPTED, false);
+		setResult(RESULT_OK, returnIntent);        
+		finish();
     	this.finish();
       }  
 	

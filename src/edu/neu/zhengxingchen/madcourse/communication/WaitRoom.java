@@ -271,25 +271,28 @@ public class WaitRoom extends Activity implements Receiver{
 		}
 	}
 	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		//Log.d("waitroom", "onactivityresult:" + data.getBooleanExtra("accept", false));
+		if(requestCode == 1) {
+			if (data.getBooleanExtra(Global.SERVER_KEY_INVITATATION_ACCEPTED, false)) {
+				new PutValueTask(this, PutValueTask.SET_CONNECTED).execute(rival);
+				connect_button.setText("connected");
+				connect_button.setEnabled(false);
+			}
+			
+			if(!data.getBooleanExtra(Global.SERVER_KEY_INVITATATION_ACCEPTED, false)) {
+				new PutValueTask(this, PutValueTask.SET_WAIT).execute();
+			}
+		}
+	}
+
 	public void startInvitePopup() {
 		Intent i = new Intent();
 		i.setClass(this, InvitePopup.class);
 		startActivityForResult(i, 1);
 	}
 	
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		//Log.d("waitroom", "onactivityresult:" + data.getBooleanExtra("accept", false));
-		if(requestCode == 1) {
-			if (data.getBooleanExtra(Global.SERVER_KEY_INVITATATION_ACCEPTED, false)) {
-				mGuysList.setEnabled(false);
-				new PutValueTask(this, PutValueTask.SET_CONNECTED).execute(rival);
-				connect_button.setText("connected");
-				connect_button.setEnabled(false);
-			}
-		}
-	}
-
 	
 	public void afterPutValue(String result) {
 		mStatus.append(result + "\n");
