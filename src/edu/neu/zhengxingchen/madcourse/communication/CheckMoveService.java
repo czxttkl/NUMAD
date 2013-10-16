@@ -12,6 +12,9 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 public class CheckMoveService extends WakefulIntentService{
+	public static NotificationManager mNotificationManager;
+	
+	
 	public CheckMoveService() {
 		super("CheckMoveService");
 	}
@@ -50,7 +53,7 @@ public class CheckMoveService extends WakefulIntentService{
 		NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(
 				this).setContentIntent(contentIntent).setContentTitle("Dabble")
 				.setContentText("New guy found").setSmallIcon(R.drawable.noti);
-		NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 		mNotificationManager.notify(R.string.new_guy_found, mBuilder.build());
 	}
 }

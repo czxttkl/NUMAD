@@ -15,6 +15,7 @@
 package edu.neu.zhengxingchen.madcourse.communication;
 
 import android.app.AlarmManager;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -63,5 +64,7 @@ public class MoveReceiver extends BroadcastReceiver {
 		Intent i = new Intent(ctxt, MoveReceiver.class);
 		PendingIntent pi = PendingIntent.getBroadcast(ctxt, 0, i, 0);
 		mgr.cancel(pi);
+		if(CheckMoveService.mNotificationManager!=null)
+			CheckMoveService.mNotificationManager.cancelAll();
 	}
 }
