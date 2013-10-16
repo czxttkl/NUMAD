@@ -39,12 +39,14 @@ public class AddGuyTask extends AsyncTask<String, Integer, String>{
 			putResult = KeyValueAPI.put(usr, pwd, "guyslist", value);
 			SntpClient sn = new SntpClient();
 			long now = 0;
-			if(sn.requestTime("pool.ntp.org", 5000))
+			if(sn.requestTime("pool.ntp.org", 5000)){
 				now = sn.getNtpTime() + SystemClock.elapsedRealtime() - sn.getNtpTimeReference();
-			Date date=new Date(now);
-			KeyValueAPI.put(usr, pwd, wr.mClientSerial, date.toString()+":wait");
-			
-			Log.d("waitroom", "sntp: ntpTime:" + now + " :" + date.toString());
+			putResult = KeyValueAPI.put(usr, pwd, wr.mClientSerial, now+":wait");
+//			Date date=new Date(now);
+//			Log.d("waitroom", "sntp: ntpTime:" + now + " :" + date.toString());
+			} else {
+				putResult = "Error";
+			}
 		} else{
 			putResult = "Error";
 		}

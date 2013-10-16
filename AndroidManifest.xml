@@ -23,7 +23,8 @@
         android:theme="@style/AppTheme" >
         <activity
             android:name="edu.neu.zhengxingchen.madcourse.communication.WaitRoom" 
-            android:launchMode="singleTask">
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -35,8 +36,16 @@
          <service
             android:name="edu.neu.zhengxingchen.madcourse.communication.CheckMoveService">
         </service>
+        <service
+            android:name="edu.neu.zhengxingchen.madcourse.communication.CheckEverythingService">
+        </service>
         
 		<receiver android:name="edu.neu.zhengxingchen.madcourse.communication.MoveReceiver">
+			<intent-filter>
+				<action android:name="android.intent.action.BOOT_COMPLETED"/>
+			</intent-filter>
+		</receiver>
+		<receiver android:name="edu.neu.zhengxingchen.madcourse.communication.EverythingBroadcastReceiver">
 			<intent-filter>
 				<action android:name="android.intent.action.BOOT_COMPLETED"/>
 			</intent-filter>

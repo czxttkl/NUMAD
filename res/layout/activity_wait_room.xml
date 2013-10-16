@@ -75,13 +75,14 @@
         android:text="Refresh" />
 
     <Button
-        android:id="@+id/button4"
+        android:id="@+id/connect_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/button1"
         android:layout_alignLeft="@+id/button1"
         android:layout_marginBottom="15dp"
         android:text="Connect" 
-        android:onClick="onClickConnect"/>
+        android:onClick="onClickConnect"
+        android:enabled="false"/>
 
 </RelativeLayout>

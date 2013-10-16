@@ -104,6 +104,7 @@ public class SntpClient
             mNtpTime = responseTime + clockOffset;
             mNtpTimeReference = responseTicks;
             mRoundTripTime = roundTripTime;
+            Global.NTP_REFERENCE = mNtpTime - mNtpTimeReference;
         } catch (Exception e) {
             if (Config.LOGD) Log.d(TAG, "request time failed: " + e);
             return false;

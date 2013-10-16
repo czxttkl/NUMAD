@@ -28,22 +28,25 @@ import com.commonsware.cwac.wakeful.WakefulIntentService;
 public class MoveReceiver extends BroadcastReceiver {
 	private static final int PERIOD = 5000; // 15 minutes
 	private static final int INITIAL_DELAY = 5000; // 5 seconds
-
+	private static String SERIAL;
+	
+	
 	@Override
 	public void onReceive(Context ctxt, Intent i) {
 		if (i.getAction() == null) {
-			Log.d("waitroom", "onreceive");
+//			Log.d("waitroom", "onreceive");
 			Intent a = new Intent(ctxt, CheckMoveService.class);
 //			a.setComponent(new ComponentName("edu.neu.zhengxingchen.madcourse.communication",
 //					"CheckMoveService"));
-			a.putExtra("player", "1111");
+			a.putExtra("player", SERIAL);
 			WakefulIntentService.sendWakefulWork(ctxt, a);
 		} else {
-			scheduleAlarms(ctxt);
+			scheduleAlarms(ctxt, SERIAL);
 		}
 	}
-
-	static void scheduleAlarms(Context ctxt) {
+	
+	static void scheduleAlarms(Context ctxt, String serial) {
+		SERIAL = serial;
 		AlarmManager mgr = (AlarmManager) ctxt
 				.getSystemService(Context.ALARM_SERVICE);
 		Intent i = new Intent(ctxt, MoveReceiver.class);
@@ -58,9 +61,7 @@ public class MoveReceiver extends BroadcastReceiver {
 		AlarmManager mgr = (AlarmManager) ctxt
 				.getSystemService(Context.ALARM_SERVICE);
 		Intent i = new Intent(ctxt, MoveReceiver.class);
-		i.putExtra("player", "123123");
 		PendingIntent pi = PendingIntent.getBroadcast(ctxt, 0, i, 0);
 		mgr.cancel(pi);
-
 	}
 }

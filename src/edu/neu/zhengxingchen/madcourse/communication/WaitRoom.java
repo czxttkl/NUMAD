@@ -19,6 +19,7 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -29,15 +30,16 @@ public class WaitRoom extends Activity {
 	private TelephonyManager telMgr;
 	RadioGroup mGuysList;
 	TextView mStatus;
-
+	Button connect_button;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		Log.d("waitroom", "oncreate:" + getIntent().getBooleanExtra("continue", false));
 		setContentView(R.layout.activity_wait_room);
 		mStatus = (TextView) findViewById(R.id.status);
 		mGuysList = (RadioGroup) findViewById(R.id.guys_radio);
-		// mListView = (ListView) findViewById(R.id.guys);
 		telMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
+		Global.SERIAL = telMgr.getDeviceId();
 		/*
 		 * The service will be considered required by the system only for as
 		 * long as the calling context exists. For example, if this Context is
@@ -46,6 +48,17 @@ public class WaitRoom extends Activity {
 		 */
 		Intent i = new Intent(this, WaitRoomService.class);
 		startService(i);
+
+		mGuysList
+				.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+					@Override
+					public void onCheckedChanged(RadioGroup radioGroup,
+							int radioButtonID) {
+						connect_button = (Button) findViewById(R.id.connect_button);
+						connect_button.setEnabled(true);
+					}
+				});
+		EverythingBroadcastReceiver.scheduleAlarms(this);
 	}
 
 	@Override
@@ -59,26 +72,19 @@ public class WaitRoom extends Activity {
 	@Override
 	protected void onPause() {
 		Log.d("waitroom", "onpause");
-		MoveReceiver.scheduleAlarms(this);
+		MoveReceiver.scheduleAlarms(this, telMgr.getDeviceId() );
 		super.onPause();
 	}
 
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-//		 doUnbindService();
+		// doUnbindService();
 	}
 
-	/** Messenger for communicating with service. */
 	Messenger mService = null;
-	/** Flag indicating whether we have called bind on the service. */
 	boolean mIsBound;
 
-	/** Some text view we are using to show state information. */
-
-	/**
-	 * Handler of incoming messages from service.
-	 */
 	class IncomingHandler extends Handler {
 		@Override
 		public void handleMessage(Message msg) {
@@ -105,6 +111,15 @@ public class WaitRoom extends Activity {
 				Toast.makeText(WaitRoom.this, R.string.network_error,
 						Toast.LENGTH_LONG).show();
 				break;
+			case WaitRoomService.MSG_CONNECTED:
+				Toast.makeText(WaitRoom.this, R.string.connected,
+						Toast.LENGTH_LONG).show();
+				break;
+			case WaitRoomService.MSG_INVITATION_SENT:
+//				connect_button.setEnabled(false);
+				Toast.makeText(WaitRoom.this, R.string.invitation_sent,
+						Toast.LENGTH_LONG).show();
+				break;
 			default:
 				super.handleMessage(msg);
 			}
@@ -121,31 +136,16 @@ public class WaitRoom extends Activity {
 	 */
 	private ServiceConnection mConnection = new ServiceConnection() {
 		public void onServiceConnected(ComponentName className, IBinder service) {
-			// This is called when the connection with the service has been
-			// established, giving us the service object we can use to
-			// interact with the service. We are communicating with our
-			// service through an IDL interface, so get a client-side
-			// representation of that from the raw service object.
+
 			mStatus.append("Binded." + "\n");
 			mService = new Messenger(service);
 			registerThisPhone();
-			// mCallbackText.setText("Establish WaitRoom Service");
-
-			// We want to monitor the service for as long as we are
-			// connected to it.
-
-			// As part of the sample, tell the user what happened.
 			Toast.makeText(WaitRoom.this, R.string.remote_service_connected,
 					Toast.LENGTH_SHORT).show();
 		}
 
 		public void onServiceDisconnected(ComponentName className) {
-			// This is called when the connection with the service has been
-			// unexpectedly disconnected -- that is, its process crashed.
 			mService = null;
-			// mCallbackText.setText("Disconnected.");
-
-			// As part of the sample, tell the user what happened.
 			Toast.makeText(WaitRoom.this, R.string.remote_service_disconnected,
 					Toast.LENGTH_SHORT).show();
 		}
@@ -158,8 +158,10 @@ public class WaitRoom extends Activity {
 		bindService(new Intent(WaitRoom.this, WaitRoomService.class),
 				mConnection, Context.BIND_AUTO_CREATE);
 		mStatus.append("Binding." + "\n");
-		if (mIsBound)
+		if (mIsBound) {
 			mStatus.append("Binded." + "\n");
+//			RadioButton r = findViewById(mGuysList.getCheckedRadioButtonId());
+		}
 		mIsBound = true;
 	}
 
@@ -171,7 +173,6 @@ public class WaitRoom extends Activity {
 				try {
 					Message msg = Message.obtain(null,
 							WaitRoomService.MSG_UNREGISTER_CLIENT);
-					msg.replyTo = mMessenger;
 					mService.send(msg);
 				} catch (RemoteException e) {
 					// There is nothing special we need to do if the service
@@ -201,6 +202,20 @@ public class WaitRoom extends Activity {
 	public void onClickConnect(View v) {
 
 		// MoveReceiver.cancelAlarms(this);
+		RadioButton r = (RadioButton) findViewById(mGuysList
+				.getCheckedRadioButtonId());
+		if (r != null)
+			Log.d("waitroom", "click connect:" + r.getText());
+			Message msg = Message.obtain(null,
+				WaitRoomService.MSG_TO_CONNECT);
+			Bundle b = new Bundle();
+			b.putString("player", r.getText().toString());
+			msg.setData(b);
+		try {
+			mService.send(msg);
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void registerThisPhone() {
