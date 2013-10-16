@@ -28,10 +28,9 @@ public class GetGuysTask extends AsyncTask<Integer, Integer, String> {
 		code = arg0[0];
 		long time = System.currentTimeMillis();
 		String getResult = null;
-		Log.d("getgy", KeyValueAPI.isServerAvailable() + "");
 		
 		if (KeyValueAPI.isServerAvailable()) {
-			getResult = KeyValueAPI.get(usr, pwd, "guyslist");
+			getResult = KeyValueAPI.get(usr, pwd, Global.SERVER_KEY_GUY_LIST);
 		} else {
 			getResult = "Error";
 		}

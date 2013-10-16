@@ -11,4 +11,9 @@ public class Global {
 	public static String SERVER_STATUS_INVITED = "invited";
 	public static String SERVER_STATUS_SENT_INVITE = "sentinvited";
 	public static String SERVER_STATUS_WAIT = "wait";
+	public static String SERVER_STATUS_INGAME = "in_game";
+	
+	public static String SERVER_KEY_RIVAL_IMEI = "rival_imei";
+	public static String SERVER_KEY_INVITATATION_ACCEPTED = "invite_accept";
+	public static String SERVER_KEY_GUY_LIST = "guyslist";
 }

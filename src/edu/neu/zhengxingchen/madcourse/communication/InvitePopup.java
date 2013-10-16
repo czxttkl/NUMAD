@@ -4,6 +4,7 @@
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -36,10 +37,14 @@ public class InvitePopup extends Activity {
 		return true;
 	}
 	
-	public void exitbutton1(View v) {  
+	public void yesButton(View v) {  
+		 Intent returnIntent = new Intent();
+		 returnIntent.putExtra(Global.SERVER_KEY_INVITATATION_ACCEPTED,true);
+		// Log.d("waitroom","invitepopup yes");
+		 setResult(RESULT_OK,returnIntent);   
     	this.finish();    	
       }  
-	public void exitbutton0(View v) {  
+	public void noButton(View v) {  
     	this.finish();
       }  
 	

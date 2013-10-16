@@ -23,25 +23,25 @@ public class AddGuyTask extends AsyncTask<String, Integer, String>{
 		String[] guys = list.split(":");
 		boolean needed = true;
 		for(String guy : guys){
-			if(guy.equals(wr.mClientSerial))
+			if(guy.equals(Global.SERIAL))
 				needed = false;
 		}
 		
 		String value;
 		if( needed )
-			value = list + ":" + arg0[1];
+			value = list + ":" + Global.SERIAL;
 		else
 			value = list;
 		
 		
 		String putResult = "Error";
 		if(KeyValueAPI.isServerAvailable()) {
-			putResult = KeyValueAPI.put(usr, pwd, "guyslist", value);
+			putResult = KeyValueAPI.put(usr, pwd, Global.SERVER_KEY_GUY_LIST, value);
 			SntpClient sn = new SntpClient();
 			long now = 0;
 			if(sn.requestTime("pool.ntp.org", 5000)){
 				now = sn.getNtpTime() + SystemClock.elapsedRealtime() - sn.getNtpTimeReference();
-			putResult = KeyValueAPI.put(usr, pwd, wr.mClientSerial, now+":" + Global.SERVER_STATUS_WAIT);
+			putResult = KeyValueAPI.put(usr, pwd, Global.SERIAL, now+":" + Global.SERVER_STATUS_WAIT);
 //			Date date=new Date(now);
 //			Log.d("waitroom", "sntp: ntpTime:" + now + " :" + date.toString());
 			} 

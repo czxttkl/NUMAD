@@ -34,6 +34,7 @@ public class WaitRoom extends Activity implements Receiver{
 	TextView mStatus;
 	Button connect_button;
 	OnlineResultReceiver mResultReceiver;
+	String rival;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +43,7 @@ public class WaitRoom extends Activity implements Receiver{
 		setContentView(R.layout.activity_wait_room);
 		mStatus = (TextView) findViewById(R.id.status);
 		mGuysList = (RadioGroup) findViewById(R.id.guys_radio);
+		connect_button = (Button) findViewById(R.id.connect_button);
 		telMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
 		Global.SERIAL = telMgr.getDeviceId();
 		/*
@@ -58,7 +60,6 @@ public class WaitRoom extends Activity implements Receiver{
 					@Override
 					public void onCheckedChanged(RadioGroup radioGroup,
 							int radioButtonID) {
-						connect_button = (Button) findViewById(R.id.connect_button);
 						connect_button.setEnabled(true);
 					}
 				});
@@ -75,18 +76,20 @@ public class WaitRoom extends Activity implements Receiver{
 		Log.d("waitroom", "receiverresult" + resultData.getString("status"));
 		String[] tmp = resultData.getString("status").split(":");
 		String status = tmp[1];
+		
 		if(status.equals(Global.SERVER_STATUS_INVITED)){
-			m.what = WaitRoomService.MSG_INVITED_BY_OTHER;
+			rival = tmp[2];
+			startInvitePopup();
 		}
 		
-		
-		
-		try {
-			mMessenger.send(m);
-		} catch (RemoteException e) {
-			e.printStackTrace();
+		if(status.equals(Global.SERVER_STATUS_INGAME)) {
+			String rivalIMEI = tmp[2];
+			new PutValueTask(this, PutValueTask.SET_CONNECTED).execute(rivalIMEI);
+			if(connect_button!=null) {
+				connect_button.setText("Connected");
+				connect_button.setEnabled(false);
+			}
 		}
-		
 	}
 	
 	
@@ -102,7 +105,7 @@ public class WaitRoom extends Activity implements Receiver{
 	@Override
 	protected void onPause() {
 		Log.d("waitroom", "onpause");
-		OfflineBroadcastReceiver.scheduleAlarms(this, Global.SERIAL );
+		OfflineBroadcastReceiver.scheduleAlarms(this);
 		OnlineBroadcastReceiver.cancelAlarms(this);
 		super.onPause();
 	}
@@ -158,7 +161,7 @@ public class WaitRoom extends Activity implements Receiver{
 						Toast.LENGTH_LONG).show();
 				break;
 			case WaitRoomService.MSG_INVITED_BY_OTHER:
-				invitedByOthers();
+				
 				break;
 			default:
 				super.handleMessage(msg);
@@ -260,9 +263,6 @@ public class WaitRoom extends Activity implements Receiver{
 	public void registerThisPhone() {
 		Message msg = Message.obtain(null, WaitRoomService.MSG_REGISTER_CLIENT);
 		msg.replyTo = mMessenger;
-		Bundle b = new Bundle();
-		b.putString("serial", Global.SERIAL);
-		msg.setData(b);
 		try {
 			mService.send(msg);
 		} catch (RemoteException e) {
@@ -271,15 +271,25 @@ public class WaitRoom extends Activity implements Receiver{
 		}
 	}
 	
-	public void invitedByOthers() {
-		new PutValueTask(this, PutValueTask.PURGE_INVITED).execute();
-	}
-	
 	public void startInvitePopup() {
 		Intent i = new Intent();
 		i.setClass(this, InvitePopup.class);
-		startActivity(i);
+		startActivityForResult(i, 1);
 	}
+	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		//Log.d("waitroom", "onactivityresult:" + data.getBooleanExtra("accept", false));
+		if(requestCode == 1) {
+			if (data.getBooleanExtra(Global.SERVER_KEY_INVITATATION_ACCEPTED, false)) {
+				mGuysList.setEnabled(false);
+				new PutValueTask(this, PutValueTask.SET_CONNECTED).execute(rival);
+				connect_button.setText("connected");
+				connect_button.setEnabled(false);
+			}
+		}
+	}
+
 	
 	public void afterPutValue(String result) {
 		mStatus.append(result + "\n");

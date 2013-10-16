@@ -20,18 +20,17 @@ public class RemoveGuyTask extends AsyncTask<String, Integer, String>{
 		String[] guys = wr.list.split(":");
 		String newResult = "";
 		for (String guy : guys) {
-			if(guy.equals(wr.mClientSerial))
+			if(guy.equals(Global.SERIAL))
 				continue;
 			else {
 				newResult = newResult + ":" + guy;
 			}
-				
 		}
 		
 		Log.d("removeguy", newResult);
 		String putResult = null;
 		if(KeyValueAPI.isServerAvailable()) {
-			putResult = KeyValueAPI.put(usr, pwd, "guyslist", newResult.substring(1));
+			putResult = KeyValueAPI.put(usr, pwd, Global.SERVER_KEY_GUY_LIST, newResult.substring(1));
 		}
 		return putResult;
 	}

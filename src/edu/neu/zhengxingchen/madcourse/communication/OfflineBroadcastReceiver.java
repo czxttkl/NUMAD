@@ -29,7 +29,6 @@ import com.commonsware.cwac.wakeful.WakefulIntentService;
 public class OfflineBroadcastReceiver extends BroadcastReceiver {
 	private static final int PERIOD = 5000; // 15 minutes
 	private static final int INITIAL_DELAY = 0; // 5 seconds
-	private static String SERIAL;
 	
 	
 	@Override
@@ -39,15 +38,14 @@ public class OfflineBroadcastReceiver extends BroadcastReceiver {
 			Intent a = new Intent(ctxt, OfflineSyncService.class);
 //			a.setComponent(new ComponentName("edu.neu.zhengxingchen.madcourse.communication",
 //					"CheckMoveService"));
-			a.putExtra("player", SERIAL);
 			WakefulIntentService.sendWakefulWork(ctxt, a);
 		} else {
-			scheduleAlarms(ctxt, SERIAL);
+			scheduleAlarms(ctxt);
 		}
 	}
 	
-	static void scheduleAlarms(Context ctxt, String serial) {
-		SERIAL = serial;
+	static void scheduleAlarms(Context ctxt) {
+
 		AlarmManager mgr = (AlarmManager) ctxt
 				.getSystemService(Context.ALARM_SERVICE);
 		Intent i = new Intent(ctxt, OfflineBroadcastReceiver.class);

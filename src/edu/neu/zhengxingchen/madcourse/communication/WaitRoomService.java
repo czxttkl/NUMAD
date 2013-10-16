@@ -28,7 +28,6 @@ public class WaitRoomService extends Service {
 	NotificationManager mNM;
 
 	Messenger mClient;
-	String mClientSerial;
 	final Messenger mMessenger = new Messenger(new IncomingHandler());
 	String list = null;
 
@@ -54,7 +53,6 @@ public class WaitRoomService extends Service {
 			switch (msg.what) {
 			case MSG_REGISTER_CLIENT:
 				Bundle b = msg.getData();
-				mClientSerial = b.getString("serial");
 				mClient = msg.replyTo;
 				updateGuysList(GetGuysTask.REGISTER);
 				break;
@@ -114,11 +112,10 @@ public class WaitRoomService extends Service {
 
 	public void afterRemoveGuyTask() {
 		mClient = null;
-		mClientSerial = null;
 	}
 
 	public void startAddGuyTask() {
-		new AddGuyTask(WaitRoomService.this).execute(list, mClientSerial);
+		new AddGuyTask(WaitRoomService.this).execute(list);
 	}
 
 	public void afterAddGuyTask(String result) {

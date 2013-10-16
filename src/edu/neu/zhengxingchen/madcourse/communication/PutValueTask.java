@@ -9,7 +9,7 @@ public class PutValueTask extends AsyncTask<String, Integer, String> {
 	public static String usr = "czxttkl";
 	public static String pwd = "cZxttkl,1";
 	public static int PUT_VALUE = 0;
-	public static int PURGE_INVITED = 1;
+	public static int SET_CONNECTED = 2;
 
 	public WaitRoom wr;
 	public int code;
@@ -22,7 +22,7 @@ public class PutValueTask extends AsyncTask<String, Integer, String> {
 	@Override
 	protected String doInBackground(String... arg0) {
 		String putResult = "Error";
-		if (code == 0) {
+		if (code == PUT_VALUE) {
 			String key = arg0[0];
 			String value = arg0[1];
 			long time = System.currentTimeMillis();
@@ -30,14 +30,14 @@ public class PutValueTask extends AsyncTask<String, Integer, String> {
 				putResult = KeyValueAPI.put(usr, pwd, key, value);
 			}
 			time = System.currentTimeMillis() - time;
-			return "time:" + String.valueOf(time) + " result:" + putResult;
 		}
-		if (code == 1) {
+		
+		if (code == SET_CONNECTED) {
+			String rival = arg0[0];
 			if (KeyValueAPI.isServerAvailable()) {
 				long now = Global.NTP_REFERENCE + SystemClock.elapsedRealtime();
-				putResult = KeyValueAPI.put(usr, pwd, Global.SERIAL, now+":" + Global.SERVER_STATUS_WAIT);
+				putResult = KeyValueAPI.put(usr, pwd, rival, now+":" + Global.SERVER_STATUS_INGAME + ":" + Global.SERIAL);
 			}
-			return putResult;
 		}
 		
 		return putResult;
@@ -46,12 +46,12 @@ public class PutValueTask extends AsyncTask<String, Integer, String> {
 	@Override
 	protected void onPostExecute(String result) {
 		if (result.equals("true")) {
-			if (code == 0) {
+			if (code == PUT_VALUE) {
 				wr.afterPutValue(result);
 			}
-			if (code == 1) {
-				wr.startInvitePopup();
-			}
+//			if (code == PURGE_INVITED) {
+//				wr.startInvitePopup();
+//			}
 		} else {
 			
 		}
