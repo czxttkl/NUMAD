@@ -11,22 +11,24 @@ import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 public class EverythingBroadcastReceiver extends BroadcastReceiver {
 	private static final int PERIOD = 5000; // 15 minutes
-	private static final int INITIAL_DELAY = 0; // 5 seconds
+	private static final int INITIAL_DELAY = 5000; // 5 seconds
 //	private static WaitRoom wr= null;
+	private static EverythingResultReceiver mReceiver;
 	
 	
 	@Override
 	public void onReceive(Context ctxt, Intent i) {
 		if (i.getAction() == null) {
 			Intent a = new Intent(ctxt, CheckEverythingService.class);
+			a.putExtra("receiver", mReceiver);
 			WakefulIntentService.sendWakefulWork(ctxt, a);
 		} else {
-			scheduleAlarms(ctxt);
+			scheduleAlarms(ctxt, mReceiver);
 		}
 	}
 	
-	static void scheduleAlarms(Context ctxt) {
-
+	static void scheduleAlarms(Context ctxt, EverythingResultReceiver receiver) {
+		mReceiver = receiver;
 		AlarmManager mgr = (AlarmManager) ctxt
 				.getSystemService(Context.ALARM_SERVICE);
 		Intent i = new Intent(ctxt, EverythingBroadcastReceiver.class);

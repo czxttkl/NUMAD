@@ -2,6 +2,8 @@ package edu.neu.zhengxingchen.madcourse.communication;
 
 import java.util.Date;
 
+import edu.neu.zhengxingchen.madcourse.communication.EverythingResultReceiver.Receiver;
+
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -26,11 +28,13 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class WaitRoom extends Activity {
+public class WaitRoom extends Activity implements Receiver{
 	private TelephonyManager telMgr;
 	RadioGroup mGuysList;
 	TextView mStatus;
 	Button connect_button;
+	EverythingResultReceiver mResultReceiver;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -58,13 +62,24 @@ public class WaitRoom extends Activity {
 						connect_button.setEnabled(true);
 					}
 				});
-		EverythingBroadcastReceiver.scheduleAlarms(this);
+		
+		mResultReceiver = new EverythingResultReceiver(new Handler());
+		mResultReceiver.setReceiver(WaitRoom.this);
+		
+		
 	}
-
+	
+	@Override
+	public void onReceiveResult(int resultCode, Bundle resultData) {
+		Log.d("waitroom", "receiverresult" + resultData.getString("status"));
+	}
+	
+	
 	@Override
 	protected void onResume() {
 		Log.d("waitroom", "onresume");
 		doBindService();
+		EverythingBroadcastReceiver.scheduleAlarms(this, mResultReceiver);
 		MoveReceiver.cancelAlarms(this);
 		super.onResume();
 	}
@@ -73,6 +88,7 @@ public class WaitRoom extends Activity {
 	protected void onPause() {
 		Log.d("waitroom", "onpause");
 		MoveReceiver.scheduleAlarms(this, telMgr.getDeviceId() );
+		EverythingBroadcastReceiver.cancelAlarms(this);
 		super.onPause();
 	}
 
@@ -254,5 +270,7 @@ public class WaitRoom extends Activity {
 			e.printStackTrace();
 		}
 	}
+
+
 
 }

@@ -1,7 +1,9 @@
 package edu.neu.zhengxingchen.madcourse.communication;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.Messenger;
+import android.os.ResultReceiver;
 import android.util.Log;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
@@ -16,10 +18,14 @@ public class CheckEverythingService extends WakefulIntentService{
 	}
 	@Override
 	protected void doWakefulWork(Intent intent) {
+		
+	    ResultReceiver rec = intent.getParcelableExtra("receiver");
 		String getResult = null;
 		if(KeyValueAPI.isServerAvailable()) {
 			getResult = KeyValueAPI.get(Global.USER_NAME, Global.PASSWORD, Global.SERIAL);
-			Log.d("waitroom", getResult );
+			Bundle b = new Bundle();
+			b.putString("status", getResult);
+			rec.send(0, b);			
 		}
 		
 		

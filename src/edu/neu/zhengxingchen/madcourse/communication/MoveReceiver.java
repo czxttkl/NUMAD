@@ -27,7 +27,7 @@ import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 public class MoveReceiver extends BroadcastReceiver {
 	private static final int PERIOD = 5000; // 15 minutes
-	private static final int INITIAL_DELAY = 5000; // 5 seconds
+	private static final int INITIAL_DELAY = 0; // 5 seconds
 	private static String SERIAL;
 	
 	
