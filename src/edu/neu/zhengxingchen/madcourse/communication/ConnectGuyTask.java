@@ -10,9 +10,9 @@ import android.util.Log;
 public class ConnectGuyTask extends AsyncTask<String, Integer, String>{
 	public static String usr = "czxttkl";
 	public static String pwd = "cZxttkl,1";
-	public WaitRoomService wr;
+	public WaitRoom wr;
 	
-	public ConnectGuyTask(WaitRoomService wr) {
+	public ConnectGuyTask(WaitRoom wr) {
 		this.wr = wr;
 	}
 
@@ -31,7 +31,7 @@ public class ConnectGuyTask extends AsyncTask<String, Integer, String>{
 	@Override
 	protected void onPostExecute(String result) {
 		if(result.equals("true"))
-			wr.afterConnectGuyTask(result);
+			wr.afterConnectGuyTask();
 		else
 			wr.returnError();
 	}

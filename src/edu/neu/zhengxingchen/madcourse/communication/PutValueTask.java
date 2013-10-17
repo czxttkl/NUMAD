@@ -56,12 +56,20 @@ public class PutValueTask extends AsyncTask<String, Integer, String> {
 			if (code == PUT_VALUE) {
 				wr.afterPutValue(result);
 			}
+			
 			if (code == SET_WAIT) {
+				wr.invitepopuped = false;
 //				wr.startInvitePopup();
 			}
+			
+			if (code == SET_CONNECTED) {
+				
+			}
+			
 		} else {
 			
 		}
+//		wr.invitepopuped = false;
 	}
 
 }

@@ -9,7 +9,6 @@ import android.util.Log;
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
 import edu.neu.mhealth.api.KeyValueAPI;
-import edu.neu.zhengxingchen.madcourse.communication.WaitRoomService.IncomingHandler;
 
 //final Messenger mMessenger = new Messenger(new IncomingHandler());
 public class OnlineSyncService extends WakefulIntentService{
@@ -21,7 +20,7 @@ public class OnlineSyncService extends WakefulIntentService{
 		
 	    ResultReceiver rec = intent.getParcelableExtra("receiver");
 		String getResult = null;
-		if(KeyValueAPI.isServerAvailable()) {
+		if(KeyValueAPI.isServerAvailable() && Global.SERIAL!=null) {
 			getResult = KeyValueAPI.get(Global.USER_NAME, Global.PASSWORD, Global.SERIAL);
 			Bundle b = new Bundle();
 			b.putString("status", getResult);

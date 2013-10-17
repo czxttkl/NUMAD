@@ -28,18 +28,20 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class WaitRoom extends Activity implements Receiver{
+public class WaitRoom extends Activity implements Receiver {
 	private TelephonyManager telMgr;
 	RadioGroup mGuysList;
 	TextView mStatus;
 	Button connect_button;
 	OnlineResultReceiver mResultReceiver;
 	String rival;
-	
+	String list = "";
+	public boolean invitepopuped = false;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Log.d("waitroom", "oncreate:" + getIntent().getBooleanExtra("continue", false));
+		Log.d("waitroom",
+				"oncreate:" + getIntent().getBooleanExtra("continue", false));
 		setContentView(R.layout.activity_wait_room);
 		mStatus = (TextView) findViewById(R.id.status);
 		mGuysList = (RadioGroup) findViewById(R.id.guys_radio);
@@ -63,40 +65,79 @@ public class WaitRoom extends Activity implements Receiver{
 						connect_button.setEnabled(true);
 					}
 				});
-		
+
 		mResultReceiver = new OnlineResultReceiver(new Handler());
 		mResultReceiver.setReceiver(WaitRoom.this);
-		
-		
+
 	}
-	
+
 	@Override
 	public void onReceiveResult(int resultCode, Bundle resultData) {
 		Message m = new Message();
 		Log.d("waitroom", "receiverresult" + resultData.getString("status"));
 		String[] tmp = resultData.getString("status").split(":");
-		String status = tmp[1];
-		
-		if(status.equals(Global.SERVER_STATUS_INVITED)){
-			rival = tmp[2];
-			startInvitePopup();
-		}
-		
-		if(status.equals(Global.SERVER_STATUS_INGAME)) {
-			String rivalIMEI = tmp[2];
-			new PutValueTask(this, PutValueTask.SET_CONNECTED).execute(rivalIMEI);
-			if(connect_button!=null) {
-				connect_button.setText("Connected");
-				connect_button.setEnabled(false);
+		if (!tmp[0].startsWith("Error")) {
+			String status = tmp[1];
+			if (status.equals(Global.SERVER_STATUS_WAIT)
+					|| status.equals(Global.SERVER_STATUS_INVITED)) {
+				new GetGuysTask(this, GetGuysTask.LOOK_FOR_GUY).execute();
+			}
+
+			if (status.equals(Global.SERVER_STATUS_INVITED)) {
+				rival = tmp[2];
+				startInvitePopup();
+			}
+
+			if (status.equals(Global.SERVER_STATUS_INGAME)) {
+				String rivalIMEI = tmp[2];
+				new PutValueTask(this, PutValueTask.SET_CONNECTED)
+						.execute(rivalIMEI);
+				if (connect_button != null) {
+					connect_button.setText("Connected");
+					connect_button.setEnabled(false);
+				}
+			}
+		} else {
+			String subresult = tmp[1].trim();
+			if (subresult.startsWith("IOException")) {
+				returnError();
+			}
+			if (subresult.startsWith("No")) {
+				new GetGuysTask(this, GetGuysTask.REGISTER).execute();
 			}
 		}
 	}
-	
-	
+
+	/*
+	 * Receive results from InvitePopup activity
+	 * 
+	 * @see android.app.Activity#onActivityResult(int, int,
+	 * android.content.Intent)
+	 */
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		// Log.d("waitroom", "onactivityresult:" +
+		// data.getBooleanExtra("accept", false));
+		if (requestCode == 1 && data != null) {
+			if (data.getBooleanExtra(Global.SERVER_KEY_INVITATATION_ACCEPTED,
+					false) ) {
+				new PutValueTask(this, PutValueTask.SET_CONNECTED)
+						.execute(rival);
+				// connect_button.setText("connected");
+				// connect_button.setEnabled(false);
+			}
+
+			if (!data.getBooleanExtra(Global.SERVER_KEY_INVITATATION_ACCEPTED,
+					false)) {
+				new PutValueTask(this, PutValueTask.SET_WAIT).execute();
+			}
+		}
+	}
+
 	@Override
 	protected void onResume() {
 		Log.d("waitroom", "onresume");
-		doBindService();
+		// doBindService();
 		OnlineBroadcastReceiver.scheduleAlarms(this, mResultReceiver);
 		OfflineBroadcastReceiver.cancelAlarms(this);
 		super.onResume();
@@ -115,120 +156,112 @@ public class WaitRoom extends Activity implements Receiver{
 		super.onDestroy();
 		// doUnbindService();
 	}
-	
+
 	@Override
 	protected void onStop() {
 		Log.d("waitroom", "onstop");
 		super.onStop();
 	}
 
-	Messenger mService = null;
-	boolean mIsBound;
+	// Messenger mService = null;
+	// boolean mIsBound;
 
-	class IncomingHandler extends Handler {
-		@Override
-		public void handleMessage(Message msg) {
-			switch (msg.what) {
-			case WaitRoomService.MSG_GET_GUYS_WAITING:
-				mGuysList.removeAllViews();
-				Bundle b = msg.getData();
-				String[] guys = b.getString("list").split(":");
-				for (String guy : guys) {
-					if (!guy.equals(Global.SERIAL)) {
-						RadioButton r = new RadioButton(WaitRoom.this);
-						r.setText(guy);
-						mGuysList.addView(r);
-					}
-				}
-				break;
-			case WaitRoomService.MSG_ENTER_ROOM:
-				Toast.makeText(WaitRoom.this, R.string.enter_room,
-						Toast.LENGTH_SHORT).show();
-				mStatus.append("Enter Room" + "\n");
-				startLookingForGuys();
-				break;
-			case WaitRoomService.MSG_NETWORK_ERROR:
-				Toast.makeText(WaitRoom.this, R.string.network_error,
-						Toast.LENGTH_LONG).show();
-				break;
-			case WaitRoomService.MSG_CONNECTED:
-				Toast.makeText(WaitRoom.this, R.string.connected,
-						Toast.LENGTH_LONG).show();
-				break;
-			case WaitRoomService.MSG_INVITATION_SENT:
-//				connect_button.setEnabled(false);
-				Toast.makeText(WaitRoom.this, R.string.invitation_sent,
-						Toast.LENGTH_LONG).show();
-				break;
-			case WaitRoomService.MSG_INVITED_BY_OTHER:
-				
-				break;
-			default:
-				super.handleMessage(msg);
-			}
-		}
-	}
+	// class IncomingHandler extends Handler {
+	// @Override
+	// public void handleMessage(Message msg) {
+	// switch (msg.what) {
+	// case WaitRoomService.MSG_GET_GUYS_WAITING:
+	// Bundle b = msg.getData();
+	// String[] guys = b.getString("list").split(":");
+	//
+	// break;
+	// case WaitRoomService.MSG_ENTER_ROOM:
+	//
+	// // startLookingForGuys();
+	// break;
+	// case WaitRoomService.MSG_NETWORK_ERROR:
+	//
+	// break;
+	// case WaitRoomService.MSG_CONNECTED:
+	// Toast.makeText(WaitRoom.this, R.string.connected,
+	// Toast.LENGTH_LONG).show();
+	// break;
+	// case WaitRoomService.MSG_INVITATION_SENT:
+	// // connect_button.setEnabled(false);
+	// Toast.makeText(WaitRoom.this, R.string.invitation_sent,
+	// Toast.LENGTH_LONG).show();
+	// break;
+	// case WaitRoomService.MSG_INVITED_BY_OTHER:
+	//
+	// break;
+	// default:
+	// super.handleMessage(msg);
+	// }
+	// }
+	// }
 
-	/**
-	 * Target we publish for clients to send messages to IncomingHandler.
-	 */
-	final Messenger mMessenger = new Messenger(new IncomingHandler());
-
-	/**
-	 * Class for interacting with the main interface of the service.
-	 */
-	private ServiceConnection mConnection = new ServiceConnection() {
-		public void onServiceConnected(ComponentName className, IBinder service) {
-
-			mStatus.append("Binded." + "\n");
-			mService = new Messenger(service);
-			registerThisPhone();
-			Toast.makeText(WaitRoom.this, R.string.remote_service_connected,
-					Toast.LENGTH_SHORT).show();
-		}
-
-		public void onServiceDisconnected(ComponentName className) {
-			mService = null;
-			Toast.makeText(WaitRoom.this, R.string.remote_service_disconnected,
-					Toast.LENGTH_SHORT).show();
-		}
-	};
-
-	void doBindService() {
-		// Establish a connection with the service. We use an explicit
-		// class name because there is no reason to be able to let other
-		// applications replace our component.
-		bindService(new Intent(WaitRoom.this, WaitRoomService.class),
-				mConnection, Context.BIND_AUTO_CREATE);
-		mStatus.append("Binding." + "\n");
-		if (mIsBound) {
-			mStatus.append("Binded." + "\n");
-//			RadioButton r = findViewById(mGuysList.getCheckedRadioButtonId());
-		}
-		mIsBound = true;
-	}
-
-	void doUnbindService() {
-		if (mIsBound) {
-			// If we have received the service, and hence registered with
-			// it, then now is the time to unregister.
-			if (mService != null) {
-				try {
-					Message msg = Message.obtain(null,
-							WaitRoomService.MSG_UNREGISTER_CLIENT);
-					mService.send(msg);
-				} catch (RemoteException e) {
-					// There is nothing special we need to do if the service
-					// has crashed.
-				}
-			}
-
-			// Detach our existing connection.
-			unbindService(mConnection);
-			mIsBound = false;
-			mStatus.append("Unbinding." + "\n");
-		}
-	}
+	// /**
+	// * Target we publish for clients to send messages to IncomingHandler.
+	// */
+	// final Messenger mMessenger = new Messenger(new IncomingHandler());
+	//
+	// /**
+	// * Class for interacting with the main interface of the service.
+	// */
+	// private ServiceConnection mConnection = new ServiceConnection() {
+	// public void onServiceConnected(ComponentName className, IBinder service)
+	// {
+	//
+	// mStatus.append("Binded." + "\n");
+	// mService = new Messenger(service);
+	// //registerThisPhone();
+	// Toast.makeText(WaitRoom.this, R.string.remote_service_connected,
+	// Toast.LENGTH_SHORT).show();
+	// }
+	//
+	// public void onServiceDisconnected(ComponentName className) {
+	// mService = null;
+	// Toast.makeText(WaitRoom.this, R.string.remote_service_disconnected,
+	// Toast.LENGTH_SHORT).show();
+	// }
+	// };
+	//
+	// void doBindService() {
+	// // Establish a connection with the service. We use an explicit
+	// // class name because there is no reason to be able to let other
+	// // applications replace our component.
+	// bindService(new Intent(WaitRoom.this, WaitRoomService.class),
+	// mConnection, Context.BIND_AUTO_CREATE);
+	// mStatus.append("Binding." + "\n");
+	// if (mIsBound) {
+	// mStatus.append("Binded." + "\n");
+	// // RadioButton r =
+	// // findViewById(mGuysList.getCheckedRadioButtonId());
+	// }
+	// mIsBound = true;
+	// }
+	//
+	// void doUnbindService() {
+	// if (mIsBound) {
+	// // If we have received the service, and hence registered with
+	// // it, then now is the time to unregister.
+	// if (mService != null) {
+	// try {
+	// Message msg = Message.obtain(null,
+	// WaitRoomService.MSG_UNREGISTER_CLIENT);
+	// mService.send(msg);
+	// } catch (RemoteException e) {
+	// // There is nothing special we need to do if the service
+	// // has crashed.
+	// }
+	// }
+	//
+	// // Detach our existing connection.
+	// unbindService(mConnection);
+	// mIsBound = false;
+	// mStatus.append("Unbinding." + "\n");
+	// }
+	// }
 
 	public void onClickPutValue(View v) {
 		new PutValueTask(this, PutValueTask.PUT_VALUE).execute("score", "79");
@@ -239,61 +272,50 @@ public class WaitRoom extends Activity implements Receiver{
 	}
 
 	public void onClickRefresh(View v) {
-		registerThisPhone();
+		new AddGuyTask(this).execute();
 	}
 
 	public void onClickConnect(View v) {
 		// MoveReceiver.cancelAlarms(this);
 		RadioButton r = (RadioButton) findViewById(mGuysList
 				.getCheckedRadioButtonId());
-		if (r != null)
+		if (r != null) {
 			Log.d("waitroom", "click connect:" + r.getText());
-			Message msg = Message.obtain(null,
-				WaitRoomService.MSG_TO_CONNECT);
-			Bundle b = new Bundle();
-			b.putString("player", r.getText().toString());
-			msg.setData(b);
-		try {
-			mService.send(msg);
-		} catch (RemoteException e) {
-			e.printStackTrace();
+			// Message msg = Message.obtain(null,
+			// WaitRoomService.MSG_TO_CONNECT);
+			// Bundle b = new Bundle();
+			// b.putString("player", );
+			// msg.setData(b);
+
+			new ConnectGuyTask(this).execute(r.getText().toString());
 		}
+		// try {
+		// // mService.send(msg);
+		// } catch (RemoteException e) {
+		// e.printStackTrace();
+		// }
 	}
 
-	public void registerThisPhone() {
-		Message msg = Message.obtain(null, WaitRoomService.MSG_REGISTER_CLIENT);
-		msg.replyTo = mMessenger;
-		try {
-			mService.send(msg);
-		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		//Log.d("waitroom", "onactivityresult:" + data.getBooleanExtra("accept", false));
-		if(requestCode == 1) {
-			if (data.getBooleanExtra(Global.SERVER_KEY_INVITATATION_ACCEPTED, false)) {
-				new PutValueTask(this, PutValueTask.SET_CONNECTED).execute(rival);
-				connect_button.setText("connected");
-				connect_button.setEnabled(false);
-			}
-			
-			if(!data.getBooleanExtra(Global.SERVER_KEY_INVITATATION_ACCEPTED, false)) {
-				new PutValueTask(this, PutValueTask.SET_WAIT).execute();
-			}
-		}
-	}
+	// public void registerThisPhone() {
+	// Message msg = Message.obtain(null, WaitRoomService.MSG_REGISTER_CLIENT);
+	// msg.replyTo = mMessenger;
+	// try {
+	// mService.send(msg);
+	// } catch (RemoteException e) {
+	// // TODO Auto-generated catch block
+	// e.printStackTrace();
+	// }
+	// }
 
 	public void startInvitePopup() {
-		Intent i = new Intent();
-		i.setClass(this, InvitePopup.class);
-		startActivityForResult(i, 1);
+		if(!invitepopuped) {
+			invitepopuped = true;
+			Intent i = new Intent();
+			i.setClass(this, InvitePopup.class);
+			startActivityForResult(i, 1);
+		}
 	}
-	
-	
+
 	public void afterPutValue(String result) {
 		mStatus.append(result + "\n");
 	}
@@ -302,21 +324,59 @@ public class WaitRoom extends Activity implements Receiver{
 		mStatus.append(result + "\n");
 	}
 
-	public void startLookingForGuys() {
-		Message msg;
-		msg = Message.obtain(null, WaitRoomService.MSG_LOOK_FOR_GUYS_WAITING,
-				0, 0);
-		// Bundle b = new Bundle();
-		// b.putString("serial", telMgr.getDeviceId());
-		// msg.setData(b);
-		try {
-			mService.send(msg);
-		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+	public void afterGetGuysList() {
+		mGuysList.removeAllViews();
+		String[] guys = list.split(":");
+		for (String guy : guys) {
+			if (!guy.equals(Global.SERIAL)) {
+				RadioButton r = new RadioButton(WaitRoom.this);
+				r.setText(guy);
+				mGuysList.addView(r);
+			}
 		}
 	}
 
+	public void afterGetGuysListRegister() {
+		mGuysList.removeAllViews();
+		String[] guys = list.split(":");
+		for (String guy : guys) {
+			if (!guy.equals(Global.SERIAL)) {
+				RadioButton r = new RadioButton(WaitRoom.this);
+				r.setText(guy);
+				mGuysList.addView(r);
+			}
+		}
+		new AddGuyTask(this).execute();
+	}
 
+	public void afterAddGuyTask() {
+		Toast.makeText(WaitRoom.this, R.string.enter_room, Toast.LENGTH_SHORT)
+				.show();
+		mStatus.append("Enter Room" + "\n");
+	}
+
+	public void afterConnectGuyTask() {
+		Toast.makeText(WaitRoom.this, R.string.invitation_sent,
+				Toast.LENGTH_LONG).show();
+	}
+
+	public void returnError() {
+		Toast.makeText(WaitRoom.this, R.string.network_error, Toast.LENGTH_LONG)
+				.show();
+	}
+	// public void startLookingForGuys() {
+	// Message msg;
+	// msg = Message.obtain(null, WaitRoomService.MSG_LOOK_FOR_GUYS_WAITING,
+	// 0, 0);
+	// // Bundle b = new Bundle();
+	// // b.putString("serial", telMgr.getDeviceId());
+	// // msg.setData(b);
+	// try {
+	// mService.send(msg);
+	// } catch (RemoteException e) {
+	// // TODO Auto-generated catch block
+	// e.printStackTrace();
+	// }
+	// }
 
 }

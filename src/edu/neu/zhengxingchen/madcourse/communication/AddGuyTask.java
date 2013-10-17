@@ -11,16 +11,16 @@ public class AddGuyTask extends AsyncTask<String, Integer, String> {
 
 	public static String usr = "czxttkl";
 	public static String pwd = "cZxttkl,1";
-	public WaitRoomService wr;
+	public WaitRoom wr;
 	public boolean needed = true;
 
-	public AddGuyTask(WaitRoomService wr) {
+	public AddGuyTask(WaitRoom wr) {
 		this.wr = wr;
 	}
 
 	@Override
 	protected String doInBackground(String... arg0) {
-		String list = arg0[0];
+		String list = wr.list;
 		String[] guys = list.split(":");
 		for (String guy : guys) {
 			if (guy.equals(Global.SERIAL))
@@ -58,11 +58,13 @@ public class AddGuyTask extends AsyncTask<String, Integer, String> {
 	@Override
 	protected void onPostExecute(String result) {
 		if (result.equals("true"))
-			wr.afterAddGuyTask(result);
+			wr.afterAddGuyTask();
 		else if (result.equals("noneed")) {
 			
-		} else
-			wr.returnError();
+		} else {
+			//exception
+		}
+			
 	}
 
 }

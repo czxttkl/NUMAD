@@ -28,7 +28,7 @@ public class WaitRoomService extends Service {
 	NotificationManager mNM;
 
 	Messenger mClient;
-	final Messenger mMessenger = new Messenger(new IncomingHandler());
+//	final Messenger mMessenger = new Messenger(new IncomingHandler());
 	String list = null;
 
 	static final int MSG_REGISTER_CLIENT = 1;
@@ -46,33 +46,33 @@ public class WaitRoomService extends Service {
 	public WaitRoomService() {
 
 	}
-	
-	class IncomingHandler extends Handler {
-		@Override
-		public void handleMessage(Message msg) {
-			switch (msg.what) {
-			case MSG_REGISTER_CLIENT:
-				Bundle b = msg.getData();
-				mClient = msg.replyTo;
-				updateGuysList(GetGuysTask.REGISTER);
-				break;
-			case MSG_UNREGISTER_CLIENT:
-				updateGuysList(GetGuysTask.UNREGISTER);
-				break;
-			case MSG_LOOK_FOR_GUYS_WAITING:
-				updateGuysList(GetGuysTask.LOOK_FOR_GUY);
-				break;
-			case MSG_TO_CONNECT:
-				Bundle b1 = msg.getData();
-				String playerSerial = b1.getString("player");
-				new ConnectGuyTask(WaitRoomService.this).execute(playerSerial);
-				break;
-			default:
-				super.handleMessage(msg);
-			}
-		}
-	}
-	
+//	
+//	class IncomingHandler extends Handler {
+//		@Override
+//		public void handleMessage(Message msg) {
+//			switch (msg.what) {
+//			case MSG_REGISTER_CLIENT:
+//				Bundle b = msg.getData();
+//				mClient = msg.replyTo;
+//				updateGuysList(GetGuysTask.REGISTER);
+//				break;
+//			case MSG_UNREGISTER_CLIENT:
+//				updateGuysList(GetGuysTask.UNREGISTER);
+//				break;
+//			case MSG_LOOK_FOR_GUYS_WAITING:
+//				updateGuysList(GetGuysTask.LOOK_FOR_GUY);
+//				break;
+//			case MSG_TO_CONNECT:
+//				Bundle b1 = msg.getData();
+//				String playerSerial = b1.getString("player");
+//				new ConnectGuyTask(WaitRoomService.this).execute(playerSerial);
+//				break;
+//			default:
+//				super.handleMessage(msg);
+//			}
+//		}
+//	}
+//	
 	@Override
 	public void onCreate() {
 		Log.d("waitroom", "oncreate");
@@ -101,10 +101,7 @@ public class WaitRoomService extends Service {
 	 * When binding to the service, we return an interface to our messenger for
 	 * sending messages to the service.
 	 */
-	@Override
-	public IBinder onBind(Intent intent) {
-		return mMessenger.getBinder();
-	}
+
 
 	public void startRemoveGuyTask() {
 		new RemoveGuyTask(WaitRoomService.this).execute();
@@ -114,9 +111,9 @@ public class WaitRoomService extends Service {
 		mClient = null;
 	}
 
-	public void startAddGuyTask() {
-		new AddGuyTask(WaitRoomService.this).execute(list);
-	}
+//	public void startAddGuyTask() {
+//		new AddGuyTask(WaitRoomService.this).execute(list);
+//	}
 
 	public void afterAddGuyTask(String result) {
 		Message msg = Message
@@ -169,9 +166,7 @@ public class WaitRoomService extends Service {
 
 	}
 
-	public void updateGuysList(int code) {
-		new GetGuysTask(WaitRoomService.this).execute(code);
-	}
+
 
 	public void returnError() {
 		Message msg = Message.obtain(null, WaitRoomService.MSG_NETWORK_ERROR,
@@ -183,6 +178,11 @@ public class WaitRoomService extends Service {
 			e.printStackTrace();
 		}
 
+	}
+	@Override
+	public IBinder onBind(Intent arg0) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

@@ -48,7 +48,6 @@ public class InvitePopup extends Activity {
 		Intent returnIntent = new Intent();
 		 returnIntent.putExtra(Global.SERVER_KEY_INVITATATION_ACCEPTED, false);
 		setResult(RESULT_OK, returnIntent);        
-		finish();
     	this.finish();
       }  
 	
