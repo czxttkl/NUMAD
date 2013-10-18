@@ -32,11 +32,14 @@ public class WaitRoom extends Activity implements Receiver {
 	private TelephonyManager telMgr;
 	RadioGroup mGuysList;
 	TextView mStatus;
-	Button connect_button;
+	Button connectButton;
+	Button unshakeButton;
+	Button moveButton;
 	OnlineResultReceiver mResultReceiver;
 	String rival;
 	String list = "";
-	public boolean invitepopuped = false;
+	String formerMove = "";
+	public volatile boolean invitepopuped = false;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -45,7 +48,9 @@ public class WaitRoom extends Activity implements Receiver {
 		setContentView(R.layout.activity_wait_room);
 		mStatus = (TextView) findViewById(R.id.status);
 		mGuysList = (RadioGroup) findViewById(R.id.guys_radio);
-		connect_button = (Button) findViewById(R.id.connect_button);
+		connectButton = (Button) findViewById(R.id.connect_button);
+		unshakeButton = (Button) findViewById(R.id.unshake_button);
+		moveButton = (Button) findViewById(R.id.move_button);
 		telMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
 		Global.SERIAL = telMgr.getDeviceId();
 		/*
@@ -54,15 +59,15 @@ public class WaitRoom extends Activity implements Receiver {
 		 * an Activity that is stopped, the service will not be required to
 		 * continue running until the Activity is resumed.
 		 */
-		Intent i = new Intent(this, WaitRoomService.class);
-		startService(i);
+//		Intent i = new Intent(this, WaitRoomService.class);
+//		startService(i);
 
 		mGuysList
 				.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
 					@Override
 					public void onCheckedChanged(RadioGroup radioGroup,
 							int radioButtonID) {
-						connect_button.setEnabled(true);
+//						connect_button.setEnabled(true);
 					}
 				});
 
@@ -81,29 +86,53 @@ public class WaitRoom extends Activity implements Receiver {
 			if (status.equals(Global.SERVER_STATUS_WAIT)
 					|| status.equals(Global.SERVER_STATUS_INVITED)) {
 				new GetGuysTask(this, GetGuysTask.LOOK_FOR_GUY).execute();
+				connectButton.setText("Connect");
+				connectButton.setEnabled(true);
+				unshakeButton.setEnabled(false);
+				moveButton.setEnabled(false);
 			}
 
 			if (status.equals(Global.SERVER_STATUS_INVITED)) {
 				rival = tmp[2];
-				startInvitePopup();
+				if(!invitepopuped)
+					startInvitePopup();
 			}
 
 			if (status.equals(Global.SERVER_STATUS_INGAME)) {
-				String rivalIMEI = tmp[2];
-				new PutValueTask(this, PutValueTask.SET_CONNECTED)
-						.execute(rivalIMEI);
-				if (connect_button != null) {
-					connect_button.setText("Connected");
-					connect_button.setEnabled(false);
+				rival = tmp[2];
+				new PutValueTask(this, PutValueTask.SET_UPDATE_CONNECTED)
+						.execute(rival);
+				
+				if(tmp.length == 4) {
+					String move = tmp[3];
+//					if(!formerMove.equals(move)) {
+//						formerMove = move;
+						Toast.makeText(WaitRoom.this, "Your rival has a move", Toast.LENGTH_LONG)
+					.show();
+//					}
+				}
+				
+				
+				if (connectButton != null) {
+					connectButton.setText("Connected");
+					connectButton.setEnabled(false);
+					unshakeButton.setEnabled(true);
+					moveButton.setEnabled(true);
 				}
 			}
 		} else {
 			String subresult = tmp[1].trim();
+			
 			if (subresult.startsWith("IOException")) {
 				returnError();
 			}
+			
 			if (subresult.startsWith("No")) {
 				new GetGuysTask(this, GetGuysTask.REGISTER).execute();
+			}
+			
+			if (subresult.startsWith("Network")) {
+				returnError();
 			}
 		}
 	}
@@ -123,13 +152,15 @@ public class WaitRoom extends Activity implements Receiver {
 					false) ) {
 				new PutValueTask(this, PutValueTask.SET_CONNECTED)
 						.execute(rival);
+				Toast.makeText(WaitRoom.this, "Trying to establish connect", Toast.LENGTH_LONG)
+				.show();
 				// connect_button.setText("connected");
 				// connect_button.setEnabled(false);
 			}
 
 			if (!data.getBooleanExtra(Global.SERVER_KEY_INVITATATION_ACCEPTED,
 					false)) {
-				new PutValueTask(this, PutValueTask.SET_WAIT).execute();
+				new PutValueTask(this, PutValueTask.SET_REWAIT).execute();
 			}
 		}
 	}
@@ -281,19 +312,16 @@ public class WaitRoom extends Activity implements Receiver {
 				.getCheckedRadioButtonId());
 		if (r != null) {
 			Log.d("waitroom", "click connect:" + r.getText());
-			// Message msg = Message.obtain(null,
-			// WaitRoomService.MSG_TO_CONNECT);
-			// Bundle b = new Bundle();
-			// b.putString("player", );
-			// msg.setData(b);
-
-			new ConnectGuyTask(this).execute(r.getText().toString());
+			new InviteGuyTask(this).execute(r.getText().toString());
 		}
-		// try {
-		// // mService.send(msg);
-		// } catch (RemoteException e) {
-		// e.printStackTrace();
-		// }
+	}
+	
+	public void onClickUnshake(View v) {
+		new PutValueTask(this, PutValueTask.SET_UNSHAKE).execute(rival);
+	}
+	
+	public void onClickMove(View v) {
+		new PutValueTask(this, PutValueTask.SET_MOVE).execute(rival);
 	}
 
 	// public void registerThisPhone() {
@@ -308,12 +336,10 @@ public class WaitRoom extends Activity implements Receiver {
 	// }
 
 	public void startInvitePopup() {
-		if(!invitepopuped) {
-			invitepopuped = true;
-			Intent i = new Intent();
-			i.setClass(this, InvitePopup.class);
-			startActivityForResult(i, 1);
-		}
+		invitepopuped = true;
+		Intent i = new Intent();
+		i.setClass(this, InvitePopup.class);
+		startActivityForResult(i, 1);
 	}
 
 	public void afterPutValue(String result) {
@@ -355,11 +381,32 @@ public class WaitRoom extends Activity implements Receiver {
 		mStatus.append("Enter Room" + "\n");
 	}
 
-	public void afterConnectGuyTask() {
+	public void afterInviteGuyTask() {
 		Toast.makeText(WaitRoom.this, R.string.invitation_sent,
 				Toast.LENGTH_LONG).show();
 	}
-
+	
+	public void afterUnshakeTask() {
+		connectButton.setText("Connect");
+		connectButton.setEnabled(true);
+		unshakeButton.setEnabled(false);
+		moveButton.setEnabled(false);
+		invitepopuped = false;
+		Toast.makeText(WaitRoom.this, "You have unshaked with your rival", Toast.LENGTH_LONG)
+		.show();
+	}
+	
+	public void afterSetConnected() {
+		Toast.makeText(WaitRoom.this, "You have connected with your rival", Toast.LENGTH_LONG)
+		.show();
+	}
+	
+	public void afterSetRewait() {
+		Toast.makeText(WaitRoom.this, "You have denied connecting with your rival", Toast.LENGTH_LONG)
+		.show();
+		invitepopuped = false;
+	}
+	
 	public void returnError() {
 		Toast.makeText(WaitRoom.this, R.string.network_error, Toast.LENGTH_LONG)
 				.show();
@@ -378,5 +425,7 @@ public class WaitRoom extends Activity implements Receiver {
 	// e.printStackTrace();
 	// }
 	// }
+
+	
 
 }

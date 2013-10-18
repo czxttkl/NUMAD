@@ -82,7 +82,30 @@
         android:layout_alignLeft="@+id/button1"
         android:layout_marginBottom="15dp"
         android:text="Connect" 
-        android:onClick="onClickConnect"
-        android:enabled="false"/>
+        android:onClick="onClickConnect"/>
+
+    <Button
+        android:id="@+id/move_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/button4"
+        android:layout_alignBottom="@+id/button4"
+        android:layout_alignLeft="@+id/button3"
+        android:text="Move"
+        android:enabled="false" 
+        android:onClick="onClickMove"/>
+
+    <Button
+        android:id="@+id/unshake_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/connect_button"
+        android:layout_alignBottom="@+id/connect_button"
+        android:layout_alignLeft="@+id/button2"
+        android:text="Unshake"
+        android:onClick="onClickUnshake"
+        android:enabled="false" />
+    
+    
 
 </RelativeLayout>

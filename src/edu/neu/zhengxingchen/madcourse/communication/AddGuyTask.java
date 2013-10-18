@@ -63,6 +63,7 @@ public class AddGuyTask extends AsyncTask<String, Integer, String> {
 			
 		} else {
 			//exception
+			wr.returnError();
 		}
 			
 	}
