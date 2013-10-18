@@ -36,9 +36,6 @@
             android:theme="@style/MyDialogStyle" >
         </activity>
         
-        <service
-            android:name="edu.neu.zhengxingchen.madcourse.communication.WaitRoomService">
-        </service>
          <service
             android:name="edu.neu.zhengxingchen.madcourse.communication.OfflineSyncService">
         </service>

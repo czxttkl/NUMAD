@@ -54,7 +54,7 @@
         android:onClick="onClickGetValue"
         android:text="GetValue" />
 
-
+  
 
     <Button
         android:id="@+id/connect_button"
@@ -77,17 +77,6 @@
         android:onClick="onClickUnshake"
         android:enabled="false" />
 
-    <Button
-        android:id="@+id/move_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/unshake_button"
-        android:layout_alignBottom="@+id/unshake_button"
-        android:layout_alignRight="@+id/button3"
-        android:enabled="false"
-        android:onClick="onClickMove"
-        android:text="Move" />
-
     <TextView
         android:id="@+id/textView1"
         android:layout_width="wrap_content"
@@ -103,5 +92,16 @@
         android:layout_toRightOf="@+id/connect_button"
         android:text="Wait Room"
         android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <Button
+        android:id="@+id/move_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/unshake_button"
+        android:layout_alignBottom="@+id/unshake_button"
+        android:layout_alignRight="@+id/scrollView2"
+        android:enabled="false"
+        android:onClick="onClickMove"
+        android:text="Move" />
 
 </RelativeLayout>
