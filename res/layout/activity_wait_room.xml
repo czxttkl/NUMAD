@@ -8,16 +8,6 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".WaitRoom" >
 
-    <TextView
-        android:id="@+id/waitroom"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="25dp"
-        android:text="Wait Room"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
-
     <Button
         android:id="@+id/button1"
         android:layout_width="wrap_content"
@@ -64,15 +54,7 @@
         android:onClick="onClickGetValue"
         android:text="GetValue" />
 
-    <Button
-        android:id="@+id/button3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/button2"
-        android:layout_alignBottom="@+id/button2"
-        android:layout_alignRight="@+id/scrollView2"
-        android:onClick="onClickRefresh"
-        android:text="Refresh" />
+
 
     <Button
         android:id="@+id/connect_button"
@@ -85,17 +67,6 @@
         android:onClick="onClickConnect"/>
 
     <Button
-        android:id="@+id/move_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/button4"
-        android:layout_alignBottom="@+id/button4"
-        android:layout_alignLeft="@+id/button3"
-        android:text="Move"
-        android:enabled="false" 
-        android:onClick="onClickMove"/>
-
-    <Button
         android:id="@+id/unshake_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -105,7 +76,32 @@
         android:text="Unshake"
         android:onClick="onClickUnshake"
         android:enabled="false" />
-    
-    
+
+    <Button
+        android:id="@+id/move_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/unshake_button"
+        android:layout_alignBottom="@+id/unshake_button"
+        android:layout_alignRight="@+id/button3"
+        android:enabled="false"
+        android:onClick="onClickMove"
+        android:text="Move" />
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:text="Please use two phones to test" />
+
+    <TextView
+        android:id="@+id/waitroom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textView1"
+        android:layout_toRightOf="@+id/connect_button"
+        android:text="Wait Room"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
 </RelativeLayout>

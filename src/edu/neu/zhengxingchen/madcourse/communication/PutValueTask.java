@@ -17,10 +17,12 @@ public class PutValueTask extends AsyncTask<String, Integer, String> {
 	public static int SET_MOVE = 6;
 	public static int SET_UPDATE_CONNECTED = 7;
 	public static int SET_REWAIT = 8;
+	public static int REMOVE_MOVE = 9;
 
 	public WaitRoom wr;
 	public int code;
-
+	
+	
 	public PutValueTask(WaitRoom wr, int code) {
 		this.wr = wr;
 		this.code = code;
@@ -38,14 +40,19 @@ public class PutValueTask extends AsyncTask<String, Integer, String> {
 			}
 		}
 
-		if (code == SET_CONNECTED || code == SET_UPDATE_CONNECTED) {
+		if (code == SET_CONNECTED) {
 			String rival = arg0[0];
 			if (KeyValueAPI.isServerAvailable()) {
 				long now = Global.NTP_REFERENCE + SystemClock.elapsedRealtime();
 				putResult = KeyValueAPI.put(usr, pwd, rival, now + ":"
 						+ Global.SERVER_STATUS_INGAME + ":" + Global.SERIAL);
+				if (!putResult.startsWith("Error")) {
+					putResult = KeyValueAPI.put(usr, pwd, Global.SERIAL, now
+							+ ":" + Global.SERVER_STATUS_INGAME + ":" + rival);
+				}
 			}
 		}
+		
 
 		if (code == SET_UNSHAKE) {
 			String rival = arg0[0];
@@ -73,7 +80,16 @@ public class PutValueTask extends AsyncTask<String, Integer, String> {
 			if (KeyValueAPI.isServerAvailable()) {
 				long now = Global.NTP_REFERENCE + SystemClock.elapsedRealtime();
 				putResult = KeyValueAPI.put(usr, pwd, rival, now + ":"
-						+ Global.SERVER_STATUS_INGAME + ":" + Global.SERIAL + ":" + "Move");
+						+ Global.SERVER_STATUS_INGAME + ":" + Global.SERIAL + ":" + Global.SERVER_SUBSTATUS_MOVE);
+			}
+		}
+		
+		if (code == REMOVE_MOVE) {
+			String rival = arg0[0];
+			if (KeyValueAPI.isServerAvailable()) {
+				long now = Global.NTP_REFERENCE + SystemClock.elapsedRealtime();
+				putResult = KeyValueAPI.put(usr, pwd, Global.SERIAL, now + ":"
+						+ Global.SERVER_STATUS_INGAME + ":" + rival);
 			}
 		}
 		
