@@ -29,5 +29,6 @@
     <string name="play_again">Play Again</string>
     <string name="go_menu">Main Menu</string>
     <string name="title_activity_pause">PauseActivity</string>
+    <string name="title_activity_dabble_wait_room">DabbleWaitRoom</string>
 
 </resources>

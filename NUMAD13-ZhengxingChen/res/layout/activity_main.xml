@@ -41,6 +41,16 @@
             android:clickable="true"
             android:text="@string/dabble"
             android:textAppearance="?android:attr/textAppearanceLarge" />
+        
+        <TextView
+            android:id="@+id/two_player_dabble_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:clickable="true"
+            android:text="@string/two_player_dabble"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+        
 
         <TextView
             android:id="@+id/communication_tv"

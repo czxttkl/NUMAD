@@ -36,6 +36,12 @@
                 android:text="@string/new_game_label" />
 
             <Button
+              android:id="@+id/two_player_button"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="Two Player Game"  />
+            
+            <Button
                 android:id="@+id/settings_button"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"

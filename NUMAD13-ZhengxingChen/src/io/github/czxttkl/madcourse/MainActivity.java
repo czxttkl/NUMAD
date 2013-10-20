@@ -3,8 +3,6 @@ package io.github.czxttkl.madcourse;
 
 import edu.neu.mhealth.api.KeyValueAPI;
 import edu.neu.mobileClass.PhoneCheckAPI;
-import edu.neu.zhengxingchen.madcourse.dabble.Appstart;
-import edu.neu.zhengxingchen.madcourse.dabble.GameMenu;
 import android.os.Bundle;
 import android.os.Handler;
 import android.app.Activity;
@@ -39,6 +37,7 @@ public class MainActivity extends Activity {
 		setGenerateErrorButton();
 		setCommunicationButton();
 		setDabbleButton();
+		setTwoPlayerDabbleButton();
 		setQuitButton();
 	}
 
@@ -53,6 +52,25 @@ public class MainActivity extends Activity {
 			
 		});
 	}
+	
+	private void setTwoPlayerDabbleButton() {
+		final TextView quitTv = (TextView) findViewById(R.id.two_player_dabble_tv);
+		quitTv.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				Intent dabbleIntent = new Intent();
+				//ComponentName sudokuComponentName = new ComponentName("io.github.czxttkl.zhengxingchen.sudoku", Sudoku.class.getName());
+				//sudokuIntent.setComponent(sudokuComponentName);
+				dabbleIntent.setAction("edu.neu.zhengxingchen.madcourse.dabble.launch");
+				dabbleIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				startActivity(dabbleIntent);
+			}
+			
+		});
+	}
+	
+	
 
 	private void setDabbleButton() {
 		final TextView quitTv = (TextView) findViewById(R.id.dabble_tv);

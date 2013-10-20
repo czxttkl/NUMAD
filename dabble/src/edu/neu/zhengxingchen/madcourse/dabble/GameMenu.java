@@ -37,14 +37,7 @@ public class GameMenu extends Activity implements OnClickListener {
 			Music.pause(this);
 			Music.musicPaused = true;
 		}
-		mSharedPreferences.registerOnSharedPreferenceChangeListener(mListener);
-	}
-
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-//		Log.d("dabble", "ondestroy gamemenu");
-//		Music.stop(this);
+		mSharedPreferences.unregisterOnSharedPreferenceChangeListener(mListener);
 	}
 
 	@Override
@@ -56,7 +49,7 @@ public class GameMenu extends Activity implements OnClickListener {
 		}
 		Music.musicShouldPause = true;
 		mSharedPreferences.registerOnSharedPreferenceChangeListener(mListener);
-		Log.d("dabble", "gamemenu prefsaved:" + Prefs.getSaved(getBaseContext()));
+//		Log.d("dabble", "gamemenu prefsaved:" + Prefs.getSaved(getBaseContext()));
 		
 		if(!Prefs.getSaved(getBaseContext()))
 			continueButton.setEnabled(false);
@@ -83,6 +76,8 @@ public class GameMenu extends Activity implements OnClickListener {
 		acknowledgementButton.setOnClickListener(this);
 		View exitButton = findViewById(R.id.exit_button);
 		exitButton.setOnClickListener(this);
+		View twoPlayerButton = findViewById(R.id.two_player_button);
+		twoPlayerButton.setOnClickListener(this);
 		
 		mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 		
@@ -114,7 +109,25 @@ public class GameMenu extends Activity implements OnClickListener {
 			initNewGame();
 		} else if (id == R.id.exit_button) {
 			initQuit();
+		} else if (id == R.id.two_player_button) {
+			initDabbleWaitRoom();
 		}
+	}
+
+	private void initDabbleWaitRoom() {
+		
+		Intent i = new Intent();
+		
+		if(Prefs.getFirstEnterTwoPlayer(this)) {
+			i.setClass(this, Viewpager.class);
+		} else {
+			i.setClass(this, DabbleWaitRoom.class);
+		}
+		
+		i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		startActivity(i);
+		Music.musicShouldPause = false;
+		Prefs.setFirstEnterTwoPlayer(this, false);
 	}
 
 	private void initQuit() {

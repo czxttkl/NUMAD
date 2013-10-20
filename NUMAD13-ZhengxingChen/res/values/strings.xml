@@ -16,6 +16,7 @@
     <string name="imei">IMEI:</string>
     <string name="dictionary">Dictionary</string>
     <string name="dabble">Dabble</string>
+    <string name="two_player_dabble">Two Player Dabble</string>
     
 
 </resources>
