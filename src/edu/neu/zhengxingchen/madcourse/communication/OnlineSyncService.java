@@ -28,6 +28,7 @@ public class OnlineSyncService extends WakefulIntentService{
 		}
 		else {
 			b.putString("status", "Error:Network");
+			if(rec!=null)
 			rec.send(0, b);
 		}
 		
