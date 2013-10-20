@@ -45,17 +45,22 @@ public class GetGuysTask extends AsyncTask<Integer, Integer, String> {
 
 	@Override
 	protected void onPostExecute(String result) {
-		Log.d("waitroom", "getguytask:list" + result);
+		
 		
 		if (result.startsWith("Error") && code!=UNREGISTER) {
 //			wr.returnError();
 		} else {
-			wr.list = result;
+			
 			if (code == REGISTER) {
+				wr.list = result;
 				wr.afterGetGuysListRegister();
 			}
 			if (code == LOOK_FOR_GUY) {
-				wr.afterGetGuysList();
+				Log.d("waitroom", "getguytask:list" + result + ":" + wr.list.equals(result));
+				if(!wr.list.equals(result)) {
+					wr.list = result;
+					wr.afterGetGuysList();
+				}
 //				wr.afterLookForGetGuys();
 			}
 		}

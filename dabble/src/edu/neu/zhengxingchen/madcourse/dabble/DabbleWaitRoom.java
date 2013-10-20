@@ -241,6 +241,7 @@ public class DabbleWaitRoom extends Activity implements Receiver {
 				mGuysList.addView(r);
 			}
 		}
+		
 	}
 
 	public void afterGetGuysListRegister() {
