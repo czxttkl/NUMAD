@@ -1,23 +1,26 @@
-package edu.neu.zhengxingchen.madcourse.dabble;
+package edu.neu.zhengxingchen.madcourse.dabble.helper;
 
 import java.util.ArrayList;
+
+import edu.neu.zhengxingchen.madcourse.dabble.game.GameActivity;
+import edu.neu.zhengxingchen.madcourse.dabble.game.Tile;
 
 import android.os.CountDownTimer;
 import android.view.View;
 import android.widget.TextView;
 
-public class MyCountDownTimerHint extends CountDownTimer {
+public class MyHintCountDownTimer extends CountDownTimer {
 
 	GameActivity gameActivity;
 	public boolean blink = false;
 	ArrayList<Tile> tileHints = null;
 
-	public MyCountDownTimerHint(long millisInFuture, long countDownInterval) {
+	public MyHintCountDownTimer(long millisInFuture, long countDownInterval) {
 		super(millisInFuture, countDownInterval);
 		// TODO Auto-generated constructor stub
 	}
 
-	public MyCountDownTimerHint(GameActivity gameActivity, long millisInFuture,
+	public MyHintCountDownTimer(GameActivity gameActivity, long millisInFuture,
 			long countDownInterval, ArrayList<Tile> tileHints) {
 		super(millisInFuture, countDownInterval);
 		this.gameActivity = gameActivity;

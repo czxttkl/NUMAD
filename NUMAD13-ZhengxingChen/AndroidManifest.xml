@@ -90,16 +90,16 @@
             android:theme="@style/MyDialogStyle" >
         </activity>
         <activity
-            android:name="edu.neu.zhengxingchen.madcourse.dabble.GameActivity"
+            android:name="edu.neu.zhengxingchen.madcourse.dabble.game.GameActivity"
             android:screenOrientation="landscape" >
         </activity>
         <activity
-            android:name="edu.neu.zhengxingchen.madcourse.dabble.GameOver"
+            android:name="edu.neu.zhengxingchen.madcourse.dabble.game.GameOver"
             android:screenOrientation="landscape"
             android:theme="@style/MyDialogStyle" >
         </activity>
         <activity
-            android:name="edu.neu.zhengxingchen.madcourse.dabble.PauseActivity"
+            android:name="edu.neu.zhengxingchen.madcourse.dabble.game.PauseActivity"
             android:screenOrientation="landscape"
             android:theme="@style/MyDialogStyle" >
         </activity>
@@ -115,7 +115,29 @@
         </activity>
         
         
+        <service
+            android:name="edu.neu.zhengxingchen.madcourse.dabble.twoplayer.OfflineSyncService">
+        </service>
+        <service
+            android:name="edu.neu.zhengxingchen.madcourse.dabble.twoplayer.OnlineSyncService">
+        </service>
         
+		<receiver android:name="edu.neu.zhengxingchen.madcourse.dabble.twoplayer.OfflineBroadcastReceiver">
+			<intent-filter>
+				<action android:name="android.intent.action.BOOT_COMPLETED"/>
+			</intent-filter>
+		</receiver>
+		<receiver android:name="edu.neu.zhengxingchen.madcourse.dabble.twoplayer.OnlineBroadcastReceiver">
+			<intent-filter>
+				<action android:name="android.intent.action.BOOT_COMPLETED"/>
+			</intent-filter>
+		</receiver>
+        
+        
+		
+		
+		
+		
         <activity
             android:name="edu.neu.zhengxingchen.madcourse.communication.WaitRoom" 
             android:launchMode="singleTask"

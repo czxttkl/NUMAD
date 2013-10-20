@@ -82,7 +82,7 @@
               android:layout_height="32dp"
               android:layout_marginTop="8dp"
               android:layout_marginLeft="8dp"
-              android:text="Start playing dabble now!"
+              android:text="Skip tutorial"
               android:textSize="10sp"
               android:textColor="#fff"
               android:background="@drawable/button_bg"              

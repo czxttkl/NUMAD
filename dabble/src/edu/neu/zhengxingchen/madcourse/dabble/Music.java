@@ -13,8 +13,8 @@ import android.media.MediaPlayer;
 
 public class Music {
 	private static MediaPlayer mp = null;
-	static boolean musicShouldPause = true;
-	static boolean musicPaused = false;
+	public static boolean musicShouldPause = true;
+	public static boolean musicPaused = false;
 
 	/** Stop old song and start new one */
 

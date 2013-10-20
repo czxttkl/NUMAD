@@ -1,5 +1,7 @@
-package edu.neu.zhengxingchen.madcourse.dabble;
+package edu.neu.zhengxingchen.madcourse.dabble.game;
 
+import edu.neu.zhengxingchen.madcourse.dabble.R;
+import edu.neu.zhengxingchen.madcourse.dabble.R.styleable;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;

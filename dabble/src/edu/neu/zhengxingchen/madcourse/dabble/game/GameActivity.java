@@ -1,10 +1,23 @@
-package edu.neu.zhengxingchen.madcourse.dabble;
+package edu.neu.zhengxingchen.madcourse.dabble.game;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import edu.neu.zhengxingchen.madcourse.dabble.Music;
+import edu.neu.zhengxingchen.madcourse.dabble.Prefs;
+import edu.neu.zhengxingchen.madcourse.dabble.R;
+import edu.neu.zhengxingchen.madcourse.dabble.R.id;
+import edu.neu.zhengxingchen.madcourse.dabble.R.layout;
+import edu.neu.zhengxingchen.madcourse.dabble.R.menu;
+import edu.neu.zhengxingchen.madcourse.dabble.R.raw;
+import edu.neu.zhengxingchen.madcourse.dabble.helper.LoadBeepTask;
+import edu.neu.zhengxingchen.madcourse.dabble.helper.LoadDicTask;
+import edu.neu.zhengxingchen.madcourse.dabble.helper.MyGameCountDownTimer;
+import edu.neu.zhengxingchen.madcourse.dabble.helper.MyHintCountDownTimer;
+import edu.neu.zhengxingchen.madcourse.dabble.helper.WordLookUpTask;
 
 import android.graphics.Color;
 import android.media.SoundPool;
@@ -36,9 +49,9 @@ public class GameActivity extends Activity {
 	public char[] dabbleArray = new char[18];
 	public String[] wholeArray = null;
 	// public Tile[] tileArray = null;
-	protected SoundPool sp = null;
-	protected int beepStreamId = 0;
-	protected int tickStreamId = 0;
+	public SoundPool sp = null;
+	public int beepStreamId = 0;
+	public int tickStreamId = 0;
 	
 	public Vibrator vibrator;
 	
@@ -52,7 +65,7 @@ public class GameActivity extends Activity {
 	public boolean countDownShouldPlay = false;
 //	private boolean musicShouldPause = true;
 
-	MyCountDownTimer myCountDownTimer;
+	MyGameCountDownTimer myCountDownTimer;
 	SharedPreferences mSharedPreferences;
 	
 	public volatile boolean initing = false;
@@ -90,7 +103,7 @@ public class GameActivity extends Activity {
 					new LoadDicTask(this).execute(getResources().getAssets()
 							.open("short_wordlist.txt"), getResources()
 							.getAssets().open("medium_wordlist.txt"));
-					MyCountDownTimer.countDownPlayed = false;
+					MyGameCountDownTimer.countDownPlayed = false;
 				}
 
 				if (beepStreamId == 0 || sp == null || tickStreamId == 0)
@@ -193,7 +206,7 @@ public class GameActivity extends Activity {
 	protected void onResume() {
 		super.onResume();
 		//Log.d("dabble", "onresume:"  + Music.musicShouldPause + ":" + Music.musicPaused);
-		myCountDownTimer = new MyCountDownTimer(this, startTime, interval);
+		myCountDownTimer = new MyGameCountDownTimer(this, startTime, interval);
 		if (!initing)
 			myCountDownTimer.start();
 		
@@ -377,7 +390,7 @@ public class GameActivity extends Activity {
 		if(sp!=null && beepStreamId!=0 && countDownShouldPlay) {
 			sp.stop(tickStreamId);
 			countDownShouldPlay = false;
-			MyCountDownTimer.countDownPlayed = false;
+			MyGameCountDownTimer.countDownPlayed = false;
 		}
 		
 		Intent i = new Intent();
@@ -396,7 +409,7 @@ public class GameActivity extends Activity {
 	
 	public void blinkHintTile(ArrayList<Tile> tiles) {
 		boolean blink = false;
-		new MyCountDownTimerHint(this, 600, 120, tiles).start();
+		new MyHintCountDownTimer(this, 600, 120, tiles).start();
 	}
 	
 	

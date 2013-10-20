@@ -1,5 +1,6 @@
 package edu.neu.zhengxingchen.madcourse.dabble;
 
+import edu.neu.zhengxingchen.madcourse.dabble.game.GameActivity;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.app.Activity;

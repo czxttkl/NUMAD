@@ -24,6 +24,6 @@ public class Appstart extends Activity{
 			startActivity(intent);			
 			Appstart.this.finish();
 		}
-	}, 5000);
+	}, 1);
    }
 }

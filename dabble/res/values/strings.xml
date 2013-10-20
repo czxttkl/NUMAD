@@ -30,5 +30,6 @@
     <string name="go_menu">Main Menu</string>
     <string name="title_activity_pause">PauseActivity</string>
     <string name="title_activity_dabble_wait_room">DabbleWaitRoom</string>
+    <string name="new_guy_found">New Guy Found</string>
 
 </resources>

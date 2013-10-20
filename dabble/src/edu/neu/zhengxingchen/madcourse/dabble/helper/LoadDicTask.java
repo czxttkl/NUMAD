@@ -1,4 +1,4 @@
-package edu.neu.zhengxingchen.madcourse.dabble;
+package edu.neu.zhengxingchen.madcourse.dabble.helper;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -10,6 +10,8 @@ import java.util.Hashtable;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import edu.neu.zhengxingchen.madcourse.dabble.game.GameActivity;
 
 import android.annotation.SuppressLint;
 import android.content.Context;

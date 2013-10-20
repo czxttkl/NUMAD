@@ -1,12 +1,16 @@
-package edu.neu.zhengxingchen.madcourse.dabble;
+package edu.neu.zhengxingchen.madcourse.dabble.helper;
 
+import edu.neu.zhengxingchen.madcourse.dabble.Prefs;
+import edu.neu.zhengxingchen.madcourse.dabble.R;
+import edu.neu.zhengxingchen.madcourse.dabble.R.id;
+import edu.neu.zhengxingchen.madcourse.dabble.game.GameActivity;
 import android.graphics.Color;
 import android.os.CountDownTimer;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
-public class MyCountDownTimer extends CountDownTimer{
+public class MyGameCountDownTimer extends CountDownTimer{
 
 	GameActivity gameActivity;
 	public boolean blink = false;
@@ -15,10 +19,10 @@ public class MyCountDownTimer extends CountDownTimer{
 	public long timeRemaining = 0;
 	public static boolean countDownPlayed = false;
 	
-	public MyCountDownTimer(long millisInFuture, long countDownInterval) {
+	public MyGameCountDownTimer(long millisInFuture, long countDownInterval) {
 		super(millisInFuture, countDownInterval);
 	}
-	public MyCountDownTimer(GameActivity gameActivity, long millisInFuture, long countDownInterval) {
+	public MyGameCountDownTimer(GameActivity gameActivity, long millisInFuture, long countDownInterval) {
 		super(millisInFuture, countDownInterval);
 		this.gameActivity = gameActivity;
 		Log.d("dabble", "mycountdowntimer in future millis:" + millisInFuture);

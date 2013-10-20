@@ -1,7 +1,9 @@
-package edu.neu.zhengxingchen.madcourse.dabble;
+package edu.neu.zhengxingchen.madcourse.dabble.helper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+
+import edu.neu.zhengxingchen.madcourse.dabble.game.GameActivity;
 
 import android.graphics.Color;
 import android.os.AsyncTask;

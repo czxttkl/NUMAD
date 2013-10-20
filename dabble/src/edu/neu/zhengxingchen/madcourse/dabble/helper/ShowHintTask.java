@@ -1,8 +1,11 @@
-package edu.neu.zhengxingchen.madcourse.dabble;
+package edu.neu.zhengxingchen.madcourse.dabble.helper;
 
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import edu.neu.zhengxingchen.madcourse.dabble.game.GameActivity;
+import edu.neu.zhengxingchen.madcourse.dabble.game.Tile;
 
 import android.graphics.Color;
 import android.os.AsyncTask;

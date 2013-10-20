@@ -1,5 +1,13 @@
-package edu.neu.zhengxingchen.madcourse.dabble;
+package edu.neu.zhengxingchen.madcourse.dabble.game;
 
+import edu.neu.zhengxingchen.madcourse.dabble.GameMenu;
+import edu.neu.zhengxingchen.madcourse.dabble.Music;
+import edu.neu.zhengxingchen.madcourse.dabble.Prefs;
+import edu.neu.zhengxingchen.madcourse.dabble.R;
+import edu.neu.zhengxingchen.madcourse.dabble.R.id;
+import edu.neu.zhengxingchen.madcourse.dabble.R.layout;
+import edu.neu.zhengxingchen.madcourse.dabble.R.menu;
+import edu.neu.zhengxingchen.madcourse.dabble.R.raw;
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
