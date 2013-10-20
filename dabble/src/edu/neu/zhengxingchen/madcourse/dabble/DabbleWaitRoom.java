@@ -32,6 +32,7 @@ public class DabbleWaitRoom extends Activity implements Receiver {
 	OnlineResultReceiver mResultReceiver;
 	RadioGroup mGuysList;
 	Button connectButton;
+	Button unconnectButton;
 //	Button unshakeButton;
 //	Button moveButton;
 	String rival;
@@ -45,6 +46,7 @@ public class DabbleWaitRoom extends Activity implements Receiver {
 		setContentView(R.layout.activity_dabble_wait_room);
 		mGuysList = (RadioGroup) findViewById(R.id.guys_radio);
 		connectButton = (Button) findViewById(R.id.connect_button);
+		unconnectButton = (Button) findViewById(R.id.unconnect_button);
 //		unshakeButton = (Button) findViewById(R.id.unshake_button);
 //		moveButton = (Button) findViewById(R.id.move_button);
 		telMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
@@ -84,6 +86,7 @@ public class DabbleWaitRoom extends Activity implements Receiver {
 				new GetGuysTask(this, GetGuysTask.LOOK_FOR_GUY).execute();
 				connectButton.setText("Connect");
 				connectButton.setEnabled(true);
+				unconnectButton.setEnabled(true);
 //				unshakeButton.setEnabled(false);
 //				moveButton.setEnabled(false);
 			}
@@ -187,17 +190,6 @@ public class DabbleWaitRoom extends Activity implements Receiver {
 		super.onPause();
 	}
 
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-	}
-
-	@Override
-	protected void onStop() {
-		Log.d(TAG, "onstop");
-		super.onStop();
-	}
-
 //	public void onClickPutValue(View v) {
 //		new PutValueTask(this, PutValueTask.PUT_VALUE).execute("score", "79");
 //	}
@@ -214,6 +206,10 @@ public class DabbleWaitRoom extends Activity implements Receiver {
 			Log.d(TAG, "click connect:" + r.getText());
 			new InviteGuyTask(this).execute(r.getText().toString());
 		}
+	}
+	
+	public void onClickUnconnect(View v) {
+		
 	}
 	
 //	public void onClickUnshake(View v) {
@@ -248,7 +244,7 @@ public class DabbleWaitRoom extends Activity implements Receiver {
 		mGuysList.removeAllViews();
 		String[] guys = list.split(":");
 		for (String guy : guys) {
-			if (!guy.equals(Global.SERIAL)) {
+			if (!guy.equals(Global.SERIAL) && !guy.equals("")) {
 				RadioButton r = new RadioButton(DabbleWaitRoom.this);
 				r.setText(guy);
 				mGuysList.addView(r);
@@ -260,6 +256,8 @@ public class DabbleWaitRoom extends Activity implements Receiver {
 	public void afterAddGuyTask() {
 		Toast.makeText(DabbleWaitRoom.this, "Enter Room", Toast.LENGTH_SHORT)
 				.show();
+		connectButton.setEnabled(true);
+		unconnectButton.setEnabled(true);
 //		mStatus.append("Enter Room" + "\n");
 	}
 

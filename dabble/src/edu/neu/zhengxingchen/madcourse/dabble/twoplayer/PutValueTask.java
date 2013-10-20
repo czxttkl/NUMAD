@@ -8,8 +8,7 @@ import android.os.SystemClock;
 
 public class PutValueTask extends AsyncTask<String, Integer, String> {
 
-	public static String usr = "czxttkl";
-	public static String pwd = "cZxttkl,1";
+
 	public static int PUT_VALUE = 0;
 	public static int SET_WAIT = 1;
 	public static int SET_CONNECTED = 2;
@@ -38,7 +37,7 @@ public class PutValueTask extends AsyncTask<String, Integer, String> {
 			String key = arg0[0];
 			String value = arg0[1];
 			if (KeyValueAPI.isServerAvailable()) {
-				putResult = KeyValueAPI.put(usr, pwd, key, value);
+				putResult = KeyValueAPI.put(Global.USER_NAME, Global.PASSWORD, key, value);
 			}
 		}
 
@@ -46,10 +45,10 @@ public class PutValueTask extends AsyncTask<String, Integer, String> {
 			String rival = arg0[0];
 			if (KeyValueAPI.isServerAvailable()) {
 				long now = Global.NTP_REFERENCE + SystemClock.elapsedRealtime();
-				putResult = KeyValueAPI.put(usr, pwd, rival, now + ":"
+				putResult = KeyValueAPI.put(Global.USER_NAME, Global.PASSWORD, rival, now + ":"
 						+ Global.SERVER_STATUS_INGAME + ":" + Global.SERIAL);
 				if (!putResult.startsWith("Error")) {
-					putResult = KeyValueAPI.put(usr, pwd, Global.SERIAL, now
+					putResult = KeyValueAPI.put(Global.USER_NAME, Global.PASSWORD, Global.SERIAL, now
 							+ ":" + Global.SERVER_STATUS_INGAME + ":" + rival);
 				}
 			}
@@ -60,10 +59,10 @@ public class PutValueTask extends AsyncTask<String, Integer, String> {
 			String rival = arg0[0];
 			if (KeyValueAPI.isServerAvailable()) {
 				long now = Global.NTP_REFERENCE + SystemClock.elapsedRealtime();
-				putResult = KeyValueAPI.put(usr, pwd, rival, now + ":"
+				putResult = KeyValueAPI.put(Global.USER_NAME, Global.PASSWORD, rival, now + ":"
 						+ Global.SERVER_STATUS_WAIT);
 				if (!putResult.startsWith("Error")) {
-					putResult = KeyValueAPI.put(usr, pwd, Global.SERIAL, now
+					putResult = KeyValueAPI.put(Global.USER_NAME, Global.PASSWORD, Global.SERIAL, now
 							+ ":" + Global.SERVER_STATUS_WAIT);
 				}
 			}
@@ -72,7 +71,7 @@ public class PutValueTask extends AsyncTask<String, Integer, String> {
 		if (code == SET_WAIT || code == SET_REWAIT) {
 			if (KeyValueAPI.isServerAvailable()) {
 				long now = Global.NTP_REFERENCE + SystemClock.elapsedRealtime();
-				putResult = KeyValueAPI.put(usr, pwd, Global.SERIAL, now + ":"
+				putResult = KeyValueAPI.put(Global.USER_NAME, Global.PASSWORD, Global.SERIAL, now + ":"
 						+ Global.SERVER_STATUS_WAIT);
 			}
 		}
@@ -81,7 +80,7 @@ public class PutValueTask extends AsyncTask<String, Integer, String> {
 			String rival = arg0[0];
 			if (KeyValueAPI.isServerAvailable()) {
 				long now = Global.NTP_REFERENCE + SystemClock.elapsedRealtime();
-				putResult = KeyValueAPI.put(usr, pwd, rival, now + ":"
+				putResult = KeyValueAPI.put(Global.USER_NAME, Global.PASSWORD, rival, now + ":"
 						+ Global.SERVER_STATUS_INGAME + ":" + Global.SERIAL + ":" + Global.SERVER_SUBSTATUS_MOVE);
 			}
 		}
@@ -90,7 +89,7 @@ public class PutValueTask extends AsyncTask<String, Integer, String> {
 			String rival = arg0[0];
 			if (KeyValueAPI.isServerAvailable()) {
 				long now = Global.NTP_REFERENCE + SystemClock.elapsedRealtime();
-				putResult = KeyValueAPI.put(usr, pwd, Global.SERIAL, now + ":"
+				putResult = KeyValueAPI.put(Global.USER_NAME, Global.PASSWORD, Global.SERIAL, now + ":"
 						+ Global.SERVER_STATUS_INGAME + ":" + rival);
 			}
 		}
@@ -109,13 +108,13 @@ public class PutValueTask extends AsyncTask<String, Integer, String> {
 			if (needed) {
 				String value = wr.list + ":" + Global.SERIAL;
 				if (KeyValueAPI.isServerAvailable()) {
-					putResult = KeyValueAPI.put(usr, pwd, Global.SERVER_KEY_GUY_LIST, value);
+					putResult = KeyValueAPI.put(Global.USER_NAME, Global.PASSWORD, Global.SERVER_KEY_GUY_LIST, value);
 					SntpClient sn = new SntpClient();
 					long now = 0;
 					if (sn.requestTime("pool.ntp.org", 5000)) {
 						now = sn.getNtpTime() + SystemClock.elapsedRealtime() - sn.getNtpTimeReference();
 						if (!putResult.startsWith("Error")) {
-							putResult = KeyValueAPI.put(usr, pwd, Global.SERIAL, now + ":" + Global.SERVER_STATUS_WAIT);
+							putResult = KeyValueAPI.put(Global.USER_NAME, Global.PASSWORD, Global.SERIAL, now + ":" + Global.SERVER_STATUS_WAIT);
 						}
 					}
 				}

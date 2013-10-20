@@ -41,10 +41,26 @@
             android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"
             android:layout_marginBottom="10dp"
-            android:layout_marginLeft="32dp"
+            android:layout_marginLeft="20dp"
             android:background="@drawable/button_bg"
             android:onClick="onClickConnect"
             android:text="Connect"
+            android:textColor="#fff"
+            android:enabled="false"
+            android:textSize="18sp" />
+        
+        <Button
+            android:id="@+id/unconnect_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginBottom="10dp"
+            android:layout_marginRight="20dp"
+            android:background="@drawable/button_bg"
+            android:onClick="onClickUnconnect"
+            android:enabled="false"
+            android:text="Quit 2Player"
             android:textColor="#fff"
             android:textSize="18sp" />
 
