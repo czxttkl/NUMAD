@@ -31,11 +31,6 @@ public class InvitePopup extends Activity {
 //		});
 	}
 
-	@Override
-	public boolean onTouchEvent(MotionEvent event){
-		finish();
-		return true;
-	}
 	
 	public void yesButton(View v) {  
 		 Intent returnIntent = new Intent();

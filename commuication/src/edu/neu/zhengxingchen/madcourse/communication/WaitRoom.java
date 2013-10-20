@@ -39,7 +39,7 @@ public class WaitRoom extends Activity implements Receiver {
 	String rival;
 	String list = "";
 	String formerMove = "";
-	public volatile boolean invitepopuped = false;
+	public static volatile boolean invitepopuped = false;
 	public volatile boolean connected = false;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
