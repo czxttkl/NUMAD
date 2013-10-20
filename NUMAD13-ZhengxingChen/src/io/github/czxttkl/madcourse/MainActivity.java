@@ -40,7 +40,6 @@ public class MainActivity extends Activity {
 		setCommunicationButton();
 		setDabbleButton();
 		setQuitButton();
-		Log.d("onclickcomm", "hello");
 	}
 
 	private void setQuitButton() {
@@ -168,27 +167,33 @@ public class MainActivity extends Activity {
 		quitTv.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Log.d("onclickcomm", "run1");
-
-				new Handler().post(new Runnable(){
-					@Override
-					public void run(){
-						Log.d("onclickcomm", "run");
-						Log.d("onclickcomm", "avaialbe:" + KeyValueAPI.isServerAvailable());
-						
-						if(KeyValueAPI.isServerAvailable()) {
-							KeyValueAPI.put("czxttkl", "cZxttkl,1", "HighScore", "79");
-						}
-					}
-				});
-					
-				new Handler().postDelayed(new Runnable(){
-					@Override
-					public void run(){
-						if(KeyValueAPI.isServerAvailable())
-							Log.d("onclickcomm", "get key:" + KeyValueAPI.get("czxttkl", "cZxttkl,1", "HighScore"));
-					}
-				}, 15000);
+				Intent commIntent = new Intent();
+				commIntent.setAction("edu.neu.zhengxingchen.madcourse.communication.launch");
+				commIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				startActivity(commIntent);
+				
+//				new Handler().post(new Runnable(){
+//					@Override
+//					public void run(){
+//						Log.d("onclickcomm", "avaialbe:" + KeyValueAPI.isServerAvailable());
+//						if(KeyValueAPI.isServerAvailable())
+//							Log.d("onclickcomm", "get key:" + KeyValueAPI.get("czxttkl", "cZxttkl,1", "guyslist"));
+//							Log.d("onclickcomm", "get key:" + KeyValueAPI.get("czxttkl", "cZxttkl,1", "356489052133381"));
+//							Log.d("onclickcomm", "get key:" + KeyValueAPI.get("czxttkl", "cZxttkl,1", "000000000000000"));
+//
+//					}
+//				});
+//					
+//				new Handler().postDelayed(new Runnable(){
+//					@Override
+//					public void run(){
+//						if(KeyValueAPI.isServerAvailable()) {
+//							Log.d("onclickcomm", "run:" + KeyValueAPI.put("czxttkl", "cZxttkl,1", "guyslist", ""));
+//							Log.d("onclickcomm", "run:" + KeyValueAPI.clearKey("czxttkl", "cZxttkl,1", "356489052133381"));
+//							Log.d("onclickcomm", "run:" + KeyValueAPI.clearKey("czxttkl", "cZxttkl,1", "1382050953285"));
+//						}
+//					}
+//				}, 5000);
 				
 			}
 			

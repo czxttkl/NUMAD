@@ -28,8 +28,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class GameActivity extends Activity {
-
-
   
     public final String TAG = "dabble";
     public static GameActivity instance = null;

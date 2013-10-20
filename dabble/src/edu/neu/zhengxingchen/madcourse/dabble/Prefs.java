@@ -76,7 +76,7 @@ public class Prefs extends PreferenceActivity {
 
 	
 	public static void setSavedDabbleString(Context context, String dabbleString) {
-		Log.d("dabble", "set saved dabble string:" + dabbleString);
+//		Log.d("dabble", "set saved dabble string:" + dabbleString);
 		PreferenceManager.getDefaultSharedPreferences(context).edit().putString(OPT_DABBLESTRING,dabbleString).commit();
 	}
 	
