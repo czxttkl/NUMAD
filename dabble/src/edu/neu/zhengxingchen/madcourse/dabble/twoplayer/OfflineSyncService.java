@@ -25,15 +25,12 @@ public class OfflineSyncService extends WakefulIntentService{
 	@Override
 	protected void doWakefulWork(Intent intent) {
 		
-		Log.d("dabblewaitroom", "doWakefulWork" );
-		//Log.d("waitroom", intent.getStringExtra("player")==null? "null" : intent.getStringExtra("player"));
-		//updateGuysList(GetGuysTask.LOOK_FOR_GUY);
-	//	String serial = intent.getStringExtra("player");
 		
 		String getResult = null;
 		if(KeyValueAPI.isServerAvailable()) {
 			getResult = KeyValueAPI.get(Global.USER_NAME, Global.PASSWORD, Global.SERIAL);
-			showNotification();
+			Log.d("dabblewaitroom", "offline service:" + getResult + " guyslist:" + KeyValueAPI.get(Global.USER_NAME, Global.PASSWORD, Global.SERVER_KEY_GUY_LIST));
+			//showNotification();
 		}
 	}
 

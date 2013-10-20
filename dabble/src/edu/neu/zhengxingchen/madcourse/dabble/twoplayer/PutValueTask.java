@@ -19,6 +19,7 @@ public class PutValueTask extends AsyncTask<String, Integer, String> {
 	public static int SET_UPDATE_CONNECTED = 7;
 	public static int SET_REWAIT = 8;
 	public static int REMOVE_MOVE = 9;
+	public static int SET_UNCONNECTED = 10;
 
 	public DabbleWaitRoom wr;
 	public int code;
@@ -41,6 +42,23 @@ public class PutValueTask extends AsyncTask<String, Integer, String> {
 			}
 		}
 
+		if (code == SET_UNCONNECTED) {
+			if (KeyValueAPI.isServerAvailable()) {
+				putResult = KeyValueAPI.clearKey(Global.USER_NAME, Global.PASSWORD, Global.SERIAL);
+				if(!putResult.startsWith("Error")) {
+					String[] guys = wr.list.split(":");
+					String newList = "";
+					for (String guy : guys) {
+						if(!guy.equals(Global.SERIAL)) {
+							newList = newList + ":" + guy;
+						}
+					}
+					newList = newList.substring(1);
+					putResult = KeyValueAPI.put(Global.USER_NAME, Global.PASSWORD, Global.SERVER_KEY_GUY_LIST, newList);
+				}
+			}	
+		}
+		
 		if (code == SET_CONNECTED) {
 			String rival = arg0[0];
 			if (KeyValueAPI.isServerAvailable()) {
@@ -160,6 +178,10 @@ public class PutValueTask extends AsyncTask<String, Integer, String> {
 			
 			if (code == SET_UPDATE_CONNECTED) {
 				
+			}
+			
+			if (code == SET_UNCONNECTED) {
+				wr.afterSetUnconnected();
 			}
 			
 		} else {

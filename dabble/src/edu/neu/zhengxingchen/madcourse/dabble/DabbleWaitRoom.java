@@ -209,7 +209,7 @@ public class DabbleWaitRoom extends Activity implements Receiver {
 	}
 	
 	public void onClickUnconnect(View v) {
-		
+		new PutValueTask(this, PutValueTask.SET_UNCONNECTED).execute();
 	}
 	
 //	public void onClickUnshake(View v) {
@@ -250,6 +250,7 @@ public class DabbleWaitRoom extends Activity implements Receiver {
 				mGuysList.addView(r);
 			}
 		}
+		Log.d(TAG, "afterGetGuysListRegister");
 		new AddGuyTask(this).execute();
 	}
 
@@ -287,6 +288,12 @@ public class DabbleWaitRoom extends Activity implements Receiver {
 //			moveButton.setEnabled(true);
 		}
 		Log.d(TAG, "aftersetconnected");
+	}
+	
+	public void afterSetUnconnected() {
+		Toast.makeText(DabbleWaitRoom.this, "You have quitted the room", Toast.LENGTH_LONG)
+		.show();
+		finish();
 	}
 	
 	public void afterSetRewait() {
