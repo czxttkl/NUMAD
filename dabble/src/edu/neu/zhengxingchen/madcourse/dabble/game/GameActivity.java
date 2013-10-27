@@ -23,6 +23,7 @@ import edu.neu.zhengxingchen.madcourse.dabble.helper.WordLookUpTask;
 import edu.neu.zhengxingchen.madcourse.dabble.twoplayer.OnlineBroadcastReceiver;
 import edu.neu.zhengxingchen.madcourse.dabble.twoplayer.OnlineResultReceiver;
 import edu.neu.zhengxingchen.madcourse.dabble.twoplayer.OnlineResultReceiver.Receiver;
+import edu.neu.zhengxingchen.madcourse.dabble.twoplayer.PutValueTaskGameActivity;
 
 import android.graphics.Color;
 import android.media.SoundPool;
@@ -399,6 +400,11 @@ public class GameActivity extends Activity implements Receiver{
 		
 		scoreText.setText("Score:" + score);
 		
+		if( mode!=null && mode.equals("sync")) {
+			new PutValueTaskGameActivity(this, PutValueTaskGameActivity.SET_DABBLES_STRING_AND_SCORE).execute();
+		}
+		
+		
 		if(score >= 18)
 			initGameOver();
 		
@@ -416,6 +422,11 @@ public class GameActivity extends Activity implements Receiver{
 		Intent i = new Intent();
 		i.setClass(this, GameOver.class);
 		i.putExtra("score", score);
+		if( mode!=null && mode.equals("sync")) {
+			i.putExtra("rivalScore", rivalScore);
+		}
+		
+		
 		i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		startActivity(i);
 		
@@ -485,6 +496,9 @@ public class GameActivity extends Activity implements Receiver{
 					Log.d(TAG, "there is a move:" + newRivalDabbleArray + ":" + newRivalScore);
 					rivalDabbleArray = newRivalDabbleArray;
 					rivalScore = newRivalScore;
+					if(rivalScore >=18) {
+						initGameOver();
+					}
 				}
 			}
 			

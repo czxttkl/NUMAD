@@ -43,9 +43,18 @@ public class GameOver extends Activity {
 		
 		TextView yourScore = (TextView)findViewById(R.id.your_score);
 		TextView highScore = (TextView)findViewById(R.id.high_score);
-	
+		
 		yourScore.setText(String.valueOf(i.getIntExtra("score", 0)));
-		highScore.setText(String.valueOf(Prefs.getHighScore(getBaseContext())));
+		int rivalScore = i.getIntExtra("rivalScore", -1);
+		if(  rivalScore  < 0 ) {
+			//Single mode
+			highScore.setText(String.valueOf(Prefs.getHighScore(getBaseContext())));
+		} else {
+			//Two player mode
+			TextView highScoreTitle = (TextView)findViewById(R.id.high_score_title);
+			highScoreTitle.setText("Rival's Score");
+			highScore.setText(String.valueOf(rivalScore));
+		}
 	}
 
 	@Override
