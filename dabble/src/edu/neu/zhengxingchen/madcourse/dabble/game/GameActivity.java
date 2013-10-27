@@ -498,6 +498,7 @@ public class GameActivity extends Activity implements Receiver{
 					rivalScore = newRivalScore;
 					if(rivalScore >=18) {
 						initGameOver();
+						new PutValueTaskGameActivity(this, PutValueTaskGameActivity.GAME_OVER_CLEAR_KEY).execute();
 					}
 				}
 			}

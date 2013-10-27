@@ -10,6 +10,7 @@ public class PutValueTaskGameActivity extends AsyncTask<String, Integer, String>
 	public GameActivity wr;
 	public static int code;
 	public static int SET_DABBLES_STRING_AND_SCORE = 1;
+	public static int GAME_OVER_CLEAR_KEY = 2;
 	
 	public PutValueTaskGameActivity(GameActivity gameActivity, int code) {
 		this.wr = gameActivity;
@@ -21,12 +22,24 @@ public class PutValueTaskGameActivity extends AsyncTask<String, Integer, String>
 		// TODO Auto-generated method stub
 		
 		String putResult = "Error";
-		if(KeyValueAPI.isServerAvailable()) {
-			long now = Global.NTP_REFERENCE + SystemClock.elapsedRealtime();
-			putResult = KeyValueAPI.put(Global.USER_NAME, Global.PASSWORD, Global.SERIAL, 
-					now + ":" + Global.SERVER_STATUS_INGAME + ":" + Global.RIVAL + ":" +
-					Global.SERVER_SUBSTATUS_START_GAME + ":" + String.valueOf(wr.dabbleArray) + ":" + wr.score);
+		if( code == SET_DABBLES_STRING_AND_SCORE) {
+			if(KeyValueAPI.isServerAvailable()) {
+				long now = Global.NTP_REFERENCE + SystemClock.elapsedRealtime();
+				putResult = KeyValueAPI.put(Global.USER_NAME, Global.PASSWORD, Global.SERIAL, 
+						now + ":" + Global.SERVER_STATUS_INGAME + ":" + Global.RIVAL + ":" +
+							Global.SERVER_SUBSTATUS_START_GAME + ":" + String.valueOf(wr.dabbleArray) + ":" + wr.score);
+			}
 		}
+		
+		if( code == GAME_OVER_CLEAR_KEY ) {
+			if(KeyValueAPI.isServerAvailable()) {
+				KeyValueAPI.clearKey(Global.USER_NAME, Global.PASSWORD, Global.SERIAL);
+				KeyValueAPI.clearKey(Global.USER_NAME, Global.PASSWORD, Global.RIVAL);
+				KeyValueAPI.put(Global.USER_NAME, Global.PASSWORD, Global.SERVER_KEY_GUY_LIST, "");
+			}
+		}
+		
+		
 		return putResult;
 	}
 

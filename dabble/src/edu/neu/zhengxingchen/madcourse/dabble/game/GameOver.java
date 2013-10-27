@@ -1,5 +1,6 @@
 package edu.neu.zhengxingchen.madcourse.dabble.game;
 
+import edu.neu.zhengxingchen.madcourse.dabble.DabbleWaitRoom;
 import edu.neu.zhengxingchen.madcourse.dabble.GameMenu;
 import edu.neu.zhengxingchen.madcourse.dabble.Music;
 import edu.neu.zhengxingchen.madcourse.dabble.Prefs;
@@ -32,7 +33,6 @@ public class GameOver extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		Intent i = getIntent();
 //		String yourScoreString = String.valueOf();
 		
 		if( Music.musicPaused) {
@@ -44,6 +44,7 @@ public class GameOver extends Activity {
 		TextView yourScore = (TextView)findViewById(R.id.your_score);
 		TextView highScore = (TextView)findViewById(R.id.high_score);
 		
+		Intent i = getIntent();
 		yourScore.setText(String.valueOf(i.getIntExtra("score", 0)));
 		int rivalScore = i.getIntExtra("rivalScore", -1);
 		if(  rivalScore  < 0 ) {
@@ -89,11 +90,17 @@ public class GameOver extends Activity {
 	
 	public void onClickPlayAgain(View view) {
 		Intent i = new Intent();
-		i.setClass(this, GameActivity.class);
+		
+		int rivalScore = getIntent().getIntExtra("rivalScore", -1);
+		if( rivalScore  < 0 ) {
+			i.setClass(this, GameActivity.class);
+		} else {
+			i.setClass(this, DabbleWaitRoom.class);
+		}
 //		i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 		startActivity(i);
-		Music.play(getBaseContext(), R.raw.background);
+		//Music.play(getBaseContext(), R.raw.background);
 		finish();
 	}
 
