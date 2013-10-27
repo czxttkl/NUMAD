@@ -12,7 +12,7 @@ import edu.neu.zhengxingchen.madcourse.dabble.twoplayer.OfflineBroadcastReceiver
 import edu.neu.zhengxingchen.madcourse.dabble.twoplayer.OnlineBroadcastReceiver;
 import edu.neu.zhengxingchen.madcourse.dabble.twoplayer.OnlineResultReceiver;
 import edu.neu.zhengxingchen.madcourse.dabble.twoplayer.GetGuysTask;
-import edu.neu.zhengxingchen.madcourse.dabble.twoplayer.PutValueTask;
+import edu.neu.zhengxingchen.madcourse.dabble.twoplayer.PutValueTaskWaitRoom;
 import edu.neu.zhengxingchen.madcourse.dabble.twoplayer.OnlineResultReceiver.Receiver;
 import android.os.Bundle;
 import android.os.Handler;
@@ -63,14 +63,14 @@ public class DabbleWaitRoom extends Activity implements Receiver {
 //		Intent i = new Intent(this, WaitRoomService.class);
 //		startService(i);
 
-		mGuysList
-				.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-					@Override
-					public void onCheckedChanged(RadioGroup radioGroup,
-							int radioButtonID) {
-//						connect_button.setEnabled(true);
-					}
-				});
+//		mGuysList
+//				.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+//					@Override
+//					public void onCheckedChanged(RadioGroup radioGroup,
+//							int radioButtonID) {
+////						connect_button.setEnabled(true);
+//					}
+//				});
 
 		mResultReceiver = new OnlineResultReceiver(new Handler());
 		mResultReceiver.setReceiver(DabbleWaitRoom.this);
@@ -79,8 +79,8 @@ public class DabbleWaitRoom extends Activity implements Receiver {
 
 	@Override
 	public void onReceiveResult(int resultCode, Bundle resultData) {
-		Message m = new Message();
-		Log.d(TAG, "receiverresult" + resultData.getString("status"));
+//		Message m = new Message();
+		Log.d(TAG, "waitroom : onlinereceiver:" + resultData.getString("status"));
 		String[] tmp = resultData.getString("status").split(":");
 		if (!tmp[0].startsWith("Error")) {
 			String status = tmp[1];
@@ -116,7 +116,7 @@ public class DabbleWaitRoom extends Activity implements Receiver {
 				//Set by the person you invite
 				if(tmp.length == 3) {
 					Global.RIVAL = rival;
-					new PutValueTask(this, PutValueTask.ENTER_SHUFFLE_BOARD)
+					new PutValueTaskWaitRoom(this, PutValueTaskWaitRoom.ENTER_SHUFFLE_BOARD)
 					.execute(rival);				
 					Toast.makeText(DabbleWaitRoom.this, "The rival has accepted your invite", Toast.LENGTH_LONG)
 					.show();
@@ -177,7 +177,7 @@ public class DabbleWaitRoom extends Activity implements Receiver {
 			if (data.getBooleanExtra(Global.SERVER_KEY_INVITATATION_ACCEPTED,
 					false) ) {
 				Global.RIVAL = rival;
-				new PutValueTask(this, PutValueTask.SET_CONNECTED)
+				new PutValueTaskWaitRoom(this, PutValueTaskWaitRoom.SET_CONNECTED)
 						.execute(rival);
 				Toast.makeText(DabbleWaitRoom.this, "Trying to establish connect", Toast.LENGTH_LONG)
 				.show();
@@ -187,7 +187,7 @@ public class DabbleWaitRoom extends Activity implements Receiver {
 
 			if (!data.getBooleanExtra(Global.SERVER_KEY_INVITATATION_ACCEPTED,
 					false)) {
-				new PutValueTask(this, PutValueTask.SET_REWAIT).execute();
+				new PutValueTaskWaitRoom(this, PutValueTaskWaitRoom.SET_REWAIT).execute();
 			}
 		}
 	}
@@ -196,7 +196,7 @@ public class DabbleWaitRoom extends Activity implements Receiver {
 	protected void onResume() {
 		Log.d(TAG, "onresume");
 		// doBindService();
-		OnlineBroadcastReceiver.scheduleAlarms(this, mResultReceiver);
+		OnlineBroadcastReceiver.scheduleAlarms(this, mResultReceiver, Global.SERIAL);
 		OfflineBroadcastReceiver.cancelAlarms(this);
 		super.onResume();
 	}
@@ -228,7 +228,7 @@ public class DabbleWaitRoom extends Activity implements Receiver {
 	}
 	
 	public void onClickUnconnect(View v) {
-		new PutValueTask(this, PutValueTask.SET_UNCONNECTED).execute();
+		new PutValueTaskWaitRoom(this, PutValueTaskWaitRoom.SET_UNCONNECTED).execute();
 	}
 	
 //	public void onClickUnshake(View v) {

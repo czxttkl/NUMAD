@@ -10,26 +10,31 @@ import android.util.Log;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
+import edu.neu.zhengxingchen.madcourse.dabble.helper.Global;
+
 public class OnlineBroadcastReceiver extends BroadcastReceiver {
 	private static final int PERIOD = 5000; // 15 minutes
 	private static final int INITIAL_DELAY = 0; // 5 seconds
 //	private static WaitRoom wr= null;
 	private static OnlineResultReceiver mReceiver;
-	
+	public static String keyToWatch;
 	
 	@Override
 	public void onReceive(Context ctxt, Intent i) {
 		if (i.getAction() == null) {
-//			Log.d("dabblewaitroom", "onlinebroadcastreceiver" + i.getBooleanExtra("great", false));
+		
 			Intent a = new Intent(ctxt, OnlineSyncService.class);
 			a.putExtra("receiver", mReceiver);
+			a.putExtra("key", keyToWatch);
 			WakefulIntentService.sendWakefulWork(ctxt, a);
-		} else {
-			scheduleAlarms(ctxt, mReceiver);
 		}
+//		} else {
+//			scheduleAlarms(ctxt, mReceiver, keyToWatch);
+//		}
 	}
 	
-	public static void scheduleAlarms(Context ctxt, OnlineResultReceiver receiver) {
+	public static void scheduleAlarms(Context ctxt, OnlineResultReceiver receiver, String keyToWatchLocal) {
+		keyToWatch = keyToWatchLocal;
 		mReceiver = receiver;
 		AlarmManager mgr = (AlarmManager) ctxt
 				.getSystemService(Context.ALARM_SERVICE);

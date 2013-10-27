@@ -62,7 +62,8 @@ public class PutValueTaskShuffleBoard extends AsyncTask<String, Integer, String>
 						if( results.length == 5 ) {
 							long now = Global.NTP_REFERENCE + SystemClock.elapsedRealtime();
 							KeyValueAPI.put(Global.USER_NAME, Global.PASSWORD, Global.SERIAL, 
-									now + ":" + Global.SERVER_STATUS_INGAME + ":" + Global.RIVAL + ":" + results[4] + ":" + 0);
+									now + ":" + Global.SERVER_STATUS_INGAME + ":" + Global.RIVAL 
+									+ ":" + Global.SERVER_SUBSTATUS_START_GAME + ":" + results[4] + ":" + 0);
 							return results[4];
 						}
 					}

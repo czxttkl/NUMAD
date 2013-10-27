@@ -17,6 +17,7 @@ public class Global {
 	public static String SERVER_SUBSTATUS_INVITEACCEPT = "invite_accepted";
 	public static String SERVER_SUBSTATUS_MOVE = "Move";
 	public static String SERVER_SUBSTATUS_SHUFFLE = "shuffle";
+	public static String SERVER_SUBSTATUS_START_GAME = "start_game";
 	
 	public static String SERVER_KEY_RIVAL_IMEI = "rival_imei";
 	public static String SERVER_KEY_INVITATATION_ACCEPTED = "invite_accept";

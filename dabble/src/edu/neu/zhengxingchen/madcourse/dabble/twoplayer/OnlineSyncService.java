@@ -20,17 +20,19 @@ public class OnlineSyncService extends WakefulIntentService{
 	protected void doWakefulWork(Intent intent) {
 //		Log.d("waitroom", "wakefulwork");
 	    ResultReceiver rec = intent.getParcelableExtra("receiver");
+	    String key = intent.getStringExtra("key");
 		String getResult = null;
 		Bundle b = new Bundle();
 		if(KeyValueAPI.isServerAvailable() && Global.SERIAL!=null) {
-			getResult = KeyValueAPI.get(Global.USER_NAME, Global.PASSWORD, Global.SERIAL);
+			getResult = KeyValueAPI.get(Global.USER_NAME, Global.PASSWORD, key);
 			b.putString("status", getResult);
-			rec.send(0, b);			
+			if(rec!=null)
+				rec.send(0, b);			
 		}
 		else {
 			b.putString("status", "Error:Network");
 			if(rec!=null)
-			rec.send(0, b);
+				rec.send(0, b);
 		}
 		
 		

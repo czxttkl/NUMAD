@@ -6,6 +6,7 @@ import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import edu.neu.zhengxingchen.madcourse.dabble.DabbleWaitRoom;
 import edu.neu.zhengxingchen.madcourse.dabble.Music;
 import edu.neu.zhengxingchen.madcourse.dabble.Prefs;
 import edu.neu.zhengxingchen.madcourse.dabble.R;
@@ -13,15 +14,20 @@ import edu.neu.zhengxingchen.madcourse.dabble.R.id;
 import edu.neu.zhengxingchen.madcourse.dabble.R.layout;
 import edu.neu.zhengxingchen.madcourse.dabble.R.menu;
 import edu.neu.zhengxingchen.madcourse.dabble.R.raw;
+import edu.neu.zhengxingchen.madcourse.dabble.helper.Global;
 import edu.neu.zhengxingchen.madcourse.dabble.helper.LoadBeepTask;
 import edu.neu.zhengxingchen.madcourse.dabble.helper.LoadDicTask;
 import edu.neu.zhengxingchen.madcourse.dabble.helper.MyGameCountDownTimer;
 import edu.neu.zhengxingchen.madcourse.dabble.helper.MyHintCountDownTimer;
 import edu.neu.zhengxingchen.madcourse.dabble.helper.WordLookUpTask;
+import edu.neu.zhengxingchen.madcourse.dabble.twoplayer.OnlineBroadcastReceiver;
+import edu.neu.zhengxingchen.madcourse.dabble.twoplayer.OnlineResultReceiver;
+import edu.neu.zhengxingchen.madcourse.dabble.twoplayer.OnlineResultReceiver.Receiver;
 
 import android.graphics.Color;
 import android.media.SoundPool;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.app.Activity;
@@ -40,9 +46,9 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-public class GameActivity extends Activity {
+public class GameActivity extends Activity implements Receiver{
   
-    public final String TAG = "dabble";
+    public final String TAG = "dabblegameactivity";
     public GameActivity instance = null;
     public String mode = null;
     
@@ -68,9 +74,13 @@ public class GameActivity extends Activity {
 
 	MyGameCountDownTimer myCountDownTimer;
 	SharedPreferences mSharedPreferences;
-	
 	public volatile boolean initing = false;
 
+	//Two player
+	public OnlineResultReceiver mResultReceiver;
+	public String rivalDabbleArray = "";
+	public int rivalScore = 0;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -134,7 +144,9 @@ public class GameActivity extends Activity {
 		
 		mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 		instance = this;
-//		Log.d("dabble", "oncreate");
+		
+		mResultReceiver = new OnlineResultReceiver(new Handler());
+		mResultReceiver.setReceiver(GameActivity.this);
 
 	}
 
@@ -190,6 +202,10 @@ public class GameActivity extends Activity {
 	@Override
 	protected void onPause() {
 		super.onPause();
+		if (mode!=null && mode.equals("sync")) {
+			OnlineBroadcastReceiver.cancelAlarms(this);
+		}
+		
 		if ( mode == null && myCountDownTimer != null)
 			myCountDownTimer.cancel();
 		//Log.d("dabble", "onpause:" + Music.musicShouldPause + ":" + Music.musicPaused);
@@ -223,6 +239,9 @@ public class GameActivity extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
+		if (mode!=null && mode.equals("sync")) {
+			OnlineBroadcastReceiver.scheduleAlarms(this, mResultReceiver, Global.RIVAL);
+		}
 		//Log.d("dabble", "onresume:"  + Music.musicShouldPause + ":" + Music.musicPaused);
 		if( mode == null)
 			myCountDownTimer = new MyGameCountDownTimer(this, startTime, interval);
@@ -449,5 +468,28 @@ public class GameActivity extends Activity {
 		i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		startActivity(i);
 		Music.musicShouldPause = false;
+	}
+
+	@Override
+	public void onReceiveResult(int resultCode, Bundle resultData) {
+		Log.d(TAG, "gameactivity: onlinereceiver:" + resultData.getString("status"));
+		String[] tmp = resultData.getString("status").split(":");
+		if (!tmp[0].startsWith("Error")) {
+			//substatus is always the 4th element
+			String substatus = tmp[3];
+			if(substatus.equals(Global.SERVER_SUBSTATUS_START_GAME)) {
+				String newRivalDabbleArray = tmp[4];
+				int newRivalScore = Integer.valueOf(tmp[5]);
+				
+				if(!rivalDabbleArray.equals(newRivalDabbleArray)) {
+					Log.d(TAG, "there is a move:" + newRivalDabbleArray + ":" + newRivalScore);
+					rivalDabbleArray = newRivalDabbleArray;
+					rivalScore = newRivalScore;
+				}
+			}
+			
+		} else {
+			//return error
+		}
 	}
 }
