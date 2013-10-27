@@ -101,7 +101,8 @@ public class GameActivity extends Activity {
 			mode = getIntent().getStringExtra("syncMode");
 			if( mode!=null ) {
 				if(mode.equals("sync")) {
-					dabbleString = getIntent().getStringExtra("dabbleString");
+					//dabbleArray and dabbleString are the same in sync mode
+					dabbleString = getIntent().getStringExtra("dabbleArray");
 					dabbleArray = dabbleString.toCharArray();
 					myCountDownTimer = new MyGameCountDownTimer(this, startTime, interval);
 				}

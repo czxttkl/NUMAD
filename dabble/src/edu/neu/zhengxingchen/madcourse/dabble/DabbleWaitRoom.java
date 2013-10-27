@@ -115,6 +115,7 @@ public class DabbleWaitRoom extends Activity implements Receiver {
 				
 				//Set by the person you invite
 				if(tmp.length == 3) {
+					Global.RIVAL = rival;
 					new PutValueTask(this, PutValueTask.ENTER_SHUFFLE_BOARD)
 					.execute(rival);				
 					Toast.makeText(DabbleWaitRoom.this, "The rival has accepted your invite", Toast.LENGTH_LONG)
@@ -175,6 +176,7 @@ public class DabbleWaitRoom extends Activity implements Receiver {
 		if (requestCode == 1 && data != null) {
 			if (data.getBooleanExtra(Global.SERVER_KEY_INVITATATION_ACCEPTED,
 					false) ) {
+				Global.RIVAL = rival;
 				new PutValueTask(this, PutValueTask.SET_CONNECTED)
 						.execute(rival);
 				Toast.makeText(DabbleWaitRoom.this, "Trying to establish connect", Toast.LENGTH_LONG)
