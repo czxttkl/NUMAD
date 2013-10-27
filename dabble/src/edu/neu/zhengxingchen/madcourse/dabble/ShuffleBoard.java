@@ -11,6 +11,7 @@ import edu.neu.zhengxingchen.madcourse.dabble.helper.WordLookUpTask;
 import android.media.SoundPool;
 import android.os.Bundle;
 import android.app.Activity;
+import android.content.Intent;
 import android.util.Log;
 import android.view.Menu;
 import android.view.Window;
@@ -59,7 +60,7 @@ public class ShuffleBoard extends Activity {
 	}
 
 	public void initialTile() {
-		dabbleString = "youcoldmousereally";
+		dabbleString = "youcoldmouserealyl";
 		dabbleArray = dabbleString.toCharArray();
 
 		for (int j = 1; j < 19; j++) {
@@ -76,7 +77,11 @@ public class ShuffleBoard extends Activity {
 	}
 
 	public void initGameStart() {
-
+		Intent i = new Intent();
+		i.setClass(this, GameActivity.class);
+		i.putExtra("syncMode", "sync");
+		i.putExtra("dabbleString", dabbleString);
+		startActivity(i);
 	}
 
 }

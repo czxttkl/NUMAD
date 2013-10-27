@@ -43,7 +43,8 @@ import android.widget.TextView;
 public class GameActivity extends Activity {
   
     public final String TAG = "dabble";
-    public static GameActivity instance = null;
+    public GameActivity instance = null;
+    public String mode = null;
     
 	public String dabbleString = null;
 	public char[] dabbleArray = new char[18];
@@ -97,15 +98,31 @@ public class GameActivity extends Activity {
 				Prefs.setSaved(getBaseContext(), false);				
 			}
 			
+			mode = getIntent().getStringExtra("syncMode");
+			if( mode!=null ) {
+				if(mode.equals("sync")) {
+					dabbleString = getIntent().getStringExtra("dabbleString");
+					dabbleArray = dabbleString.toCharArray();
+					myCountDownTimer = new MyGameCountDownTimer(this, startTime, interval);
+				}
+			}
+			
+
 			try {
-				if (wholeDict == null || dabbleString == null) {
+				
+				if ( wholeDict == null || dabbleString == null)  {
 					initing = true;
-					new LoadDicTask(this).execute(getResources().getAssets()
-							.open("short_wordlist.txt"), getResources()
+					new LoadDicTask(this, "medium_wordlist").execute(getResources()
 							.getAssets().open("medium_wordlist.txt"));
-					MyGameCountDownTimer.countDownPlayed = false;
 				}
 
+//				if ( dabbleString == null ){
+//					new LoadDicTask(this, "short_wordlist").execute(getResources().getAssets()
+//							.open("short_wordlist.txt"));
+//					MyGameCountDownTimer.countDownPlayed = false;
+//				}
+
+				
 				if (beepStreamId == 0 || sp == null || tickStreamId == 0)
 					new LoadBeepTask(this).execute();
 
@@ -172,7 +189,7 @@ public class GameActivity extends Activity {
 	@Override
 	protected void onPause() {
 		super.onPause();
-		if (myCountDownTimer != null)
+		if ( mode == null && myCountDownTimer != null)
 			myCountDownTimer.cancel();
 		//Log.d("dabble", "onpause:" + Music.musicShouldPause + ":" + Music.musicPaused);
 		if(Music.musicShouldPause) {
@@ -184,9 +201,8 @@ public class GameActivity extends Activity {
 			sp.pause(tickStreamId);
 		}
 		
-		mSharedPreferences.unregisterOnSharedPreferenceChangeListener(mListener);
-		
-		if(startTime>0 && !dabbleString.equals(String.valueOf(dabbleArray))) {
+		//mode==null represents that it is a single mode game.
+		if( mode == null && startTime>0 && !dabbleString.equals(String.valueOf(dabbleArray))) {
 			Log.d("dabble","gameactivity onpause save" + " dabbleString:"+ dabbleString + " dabbleArray:" + String.valueOf(dabbleArray) + " startTime:" + startTime);
 			Prefs.setSaved(getBaseContext(), true);
 			Prefs.setSavedDabbleArray(getBaseContext(), String.valueOf(dabbleArray));
@@ -194,6 +210,7 @@ public class GameActivity extends Activity {
 			Prefs.setSavedDabbleStartTime(getBaseContext(), startTime);
 		}
 		
+		mSharedPreferences.unregisterOnSharedPreferenceChangeListener(mListener);
 	}
 
 	@Override
@@ -206,7 +223,9 @@ public class GameActivity extends Activity {
 	protected void onResume() {
 		super.onResume();
 		//Log.d("dabble", "onresume:"  + Music.musicShouldPause + ":" + Music.musicPaused);
-		myCountDownTimer = new MyGameCountDownTimer(this, startTime, interval);
+		if( mode == null)
+			myCountDownTimer = new MyGameCountDownTimer(this, startTime, interval);
+		
 		if (!initing)
 			myCountDownTimer.start();
 		
@@ -223,28 +242,11 @@ public class GameActivity extends Activity {
 		mSharedPreferences.registerOnSharedPreferenceChangeListener(mListener);
 	}
 
-	@Override
-	protected void onDestroy() {
-		// TODO Auto-generated method stub
-		super.onDestroy();
-		
-		
-		
-//		Music.stop(this);
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.game, menu);
-		return true;
-	}
-
 	public void initialTile() {
 
 		if (dabbleString != null) {
 
-			if(!getIntent().getBooleanExtra("continue", false)) {
+			if(!getIntent().getBooleanExtra("continue", false) && mode == null) {
 				dabbleArray = dabbleString.toCharArray();
 				Random rand = new Random();
 				for (int i = 1; i < 18; i++) {
