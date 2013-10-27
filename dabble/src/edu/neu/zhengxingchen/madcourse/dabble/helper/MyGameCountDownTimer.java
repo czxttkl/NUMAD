@@ -14,6 +14,7 @@ public class MyGameCountDownTimer extends CountDownTimer{
 
 	GameActivity gameActivity;
 	public boolean blink = false;
+	//Use to count if it is time to show hints
 	public int countHint = 0;
 	public int tempScore = 0;
 	public long timeRemaining = 0;

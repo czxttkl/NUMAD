@@ -47,7 +47,7 @@ public class GameActivity extends Activity {
     
 	public String dabbleString = null;
 	public char[] dabbleArray = new char[18];
-	public String[] wholeArray = null;
+	public String[] wholeDict = null;
 	// public Tile[] tileArray = null;
 	public SoundPool sp = null;
 	public int beepStreamId = 0;
@@ -55,7 +55,7 @@ public class GameActivity extends Activity {
 	
 	public Vibrator vibrator;
 	
-	
+	//Used to calculate if two tiles have been clicked. 
 	public int clickCount = 0;
 	public int[] clickTileId = new int[2];
 
@@ -98,7 +98,7 @@ public class GameActivity extends Activity {
 			}
 			
 			try {
-				if (wholeArray == null || dabbleString == null) {
+				if (wholeDict == null || dabbleString == null) {
 					initing = true;
 					new LoadDicTask(this).execute(getResources().getAssets()
 							.open("short_wordlist.txt"), getResources()
@@ -121,7 +121,7 @@ public class GameActivity extends Activity {
 	}
 
 	private void loadWhole(Bundle savedInstanceState) {
-		wholeArray = savedInstanceState.getStringArray("wholeArray");
+		wholeDict = savedInstanceState.getStringArray("wholeArray");
 		dabbleArray = savedInstanceState.getCharArray("dabbleArray");
 		beepStreamId = savedInstanceState.getInt("beepStreamId");
 		tickStreamId = savedInstanceState.getInt("tickStreamId");
@@ -147,7 +147,7 @@ public class GameActivity extends Activity {
 	private void saveWhole(Bundle outState) {
 		outState.putString("dabbleString", dabbleString);
 		outState.putCharArray("dabbleArray", dabbleArray);
-		outState.putStringArray("wholeArray", wholeArray);
+		outState.putStringArray("wholeArray", wholeDict);
 		outState.putInt("beepStreamId", beepStreamId);
 		outState.putInt("tickStreamId", tickStreamId);
 		outState.putInt("clickCount", clickCount);
@@ -184,7 +184,7 @@ public class GameActivity extends Activity {
 			sp.pause(tickStreamId);
 		}
 		
-		mSharedPreferences.registerOnSharedPreferenceChangeListener(mListener);
+		mSharedPreferences.unregisterOnSharedPreferenceChangeListener(mListener);
 		
 		if(startTime>0 && !dabbleString.equals(String.valueOf(dabbleArray))) {
 			Log.d("dabble","gameactivity onpause save" + " dabbleString:"+ dabbleString + " dabbleArray:" + String.valueOf(dabbleArray) + " startTime:" + startTime);

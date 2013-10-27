@@ -13,8 +13,10 @@ public class PutValueTask extends AsyncTask<String, Integer, String> {
 	public static int SET_CONNECTED = 2;
 	public static int SET_UNSHAKE = 3;
 	public static int SET_INVITE = 4;
+	//useless
 	public static int SET_ADD_MYSELF = 5;
 	public static int SET_MOVE = 6;
+	//useless
 	public static int SET_UPDATE_CONNECTED = 7;
 	public static int SET_REWAIT = 8;
 	public static int REMOVE_MOVE = 9;
