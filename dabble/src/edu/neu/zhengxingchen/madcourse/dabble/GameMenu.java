@@ -1,6 +1,8 @@
 package edu.neu.zhengxingchen.madcourse.dabble;
 
+import edu.neu.mhealth.api.KeyValueAPI;
 import edu.neu.zhengxingchen.madcourse.dabble.game.GameActivity;
+import edu.neu.zhengxingchen.madcourse.dabble.helper.Global;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.app.Activity;
@@ -8,6 +10,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.support.v4.view.ViewPager.LayoutParams;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -79,6 +82,10 @@ public class GameMenu extends Activity implements OnClickListener {
 		exitButton.setOnClickListener(this);
 		View twoPlayerButton = findViewById(R.id.two_player_button);
 		twoPlayerButton.setOnClickListener(this);
+		View dummyButton = findViewById(R.id.dummy_button);
+		dummyButton.setOnClickListener(this);
+		
+		
 		
 		mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 		
@@ -112,7 +119,18 @@ public class GameMenu extends Activity implements OnClickListener {
 			initQuit();
 		} else if (id == R.id.two_player_button) {
 			initDabbleWaitRoom();
+		} else if (id == R.id.dummy_button) {
+			initDummy();
 		}
+	}
+
+	private void initDummy() {
+		Log.d("initdummy", "initDummy");
+		TelephonyManager telMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
+		KeyValueAPI.put(Global.USER_NAME, Global.PASSWORD, Global.SERVER_KEY_GUY_LIST, "");
+		KeyValueAPI.clearKey(Global.USER_NAME, Global.PASSWORD, "356489052133381");
+		KeyValueAPI.clearKey(Global.USER_NAME, Global.PASSWORD, "000000000000000");
+		KeyValueAPI.clearKey(Global.USER_NAME, Global.PASSWORD, telMgr.getDeviceId());
 	}
 
 	private void initDabbleWaitRoom() {

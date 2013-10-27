@@ -57,10 +57,10 @@ public class GetGuysTask extends AsyncTask<Integer, Integer, String> {
 			}
 			if (code == LOOK_FOR_GUY) {
 				Log.d("waitroom", "getguytask:list" + result + ":" + wr.list.equals(result));
-				if(!wr.list.equals(result)) {
-					wr.list = result;
-					wr.afterGetGuysList();
-				}
+//				if(!wr.list.equals(result)) {
+//					wr.list = result;
+					wr.afterGetGuysList(result);
+//				}
 //				wr.afterLookForGetGuys();
 			}
 		}

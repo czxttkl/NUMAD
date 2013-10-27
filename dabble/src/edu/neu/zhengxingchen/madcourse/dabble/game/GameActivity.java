@@ -355,8 +355,6 @@ public class GameActivity extends Activity {
 	
 	public void updateUI(int[] colorResult) {
 //		Log.d("dabble", "updateTileColor");
-	
-		
 		score = 0;
 		int color;
 		for (int j = 1; j< 19 ;j++) {

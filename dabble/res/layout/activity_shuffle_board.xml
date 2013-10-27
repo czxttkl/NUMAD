@@ -1,0 +1,211 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tile="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/game_layout"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context=".GameActivity" >
+    
+	<RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+         >
+
+		<TextView
+		    android:id="@+id/sb_timer_text"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:text="@string/timer_format"
+		    android:layout_alignParentLeft="true"
+		    android:textAppearance="?android:attr/textAppearanceLarge" />
+		
+		<TextView
+		    android:id="@+id/sb_game_title"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:text="@string/loading"
+		    android:layout_centerInParent="true"
+		    android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    </RelativeLayout>
+    	
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center_horizontal" >
+
+        <edu.neu.zhengxingchen.madcourse.dabble.game.Tile
+            android:id="@+id/sb_tile1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" 
+            android:layout_margin="5dp"
+            tile:borderRadius="30"
+            tile:character="t"/>
+
+        <edu.neu.zhengxingchen.madcourse.dabble.game.Tile
+            android:id="@+id/sb_tile2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" 
+            android:layout_margin="5dp"
+            tile:borderRadius="30"
+            tile:character="a"/>
+
+        <edu.neu.zhengxingchen.madcourse.dabble.game.Tile
+            android:id="@+id/sb_tile3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" 
+            android:layout_margin="5dp"
+            tile:borderRadius="30"
+            tile:character="p"/>
+    </LinearLayout>
+
+   
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center_horizontal" >
+
+        <edu.neu.zhengxingchen.madcourse.dabble.game.Tile
+            android:id="@+id/sb_tile4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" 
+            android:layout_margin="5dp"
+            tile:borderRadius="30"
+            tile:character=" "/>
+
+       <edu.neu.zhengxingchen.madcourse.dabble.game.Tile
+           android:id="@+id/sb_tile5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" 
+            android:layout_margin="5dp"
+            tile:borderRadius="30"
+            tile:character="t"/>
+
+        <edu.neu.zhengxingchen.madcourse.dabble.game.Tile
+            android:id="@+id/sb_tile6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" 
+            android:layout_margin="5dp"
+            tile:borderRadius="30"
+            tile:character="o"/>
+        
+        <edu.neu.zhengxingchen.madcourse.dabble.game.Tile
+            android:id="@+id/sb_tile7"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" 
+            android:layout_margin="5dp"
+            tile:borderRadius="30"
+            tile:character=" "/>
+    </LinearLayout>
+    
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center_horizontal" >
+
+        <edu.neu.zhengxingchen.madcourse.dabble.game.Tile
+            android:id="@+id/sb_tile8"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" 
+            android:layout_margin="5dp"
+            tile:borderRadius="30"
+            tile:character="s"/>
+
+        <edu.neu.zhengxingchen.madcourse.dabble.game.Tile
+            android:id="@+id/sb_tile9"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" 
+            android:layout_margin="5dp"
+            tile:borderRadius="30"
+            tile:character="w"/>
+        
+        <edu.neu.zhengxingchen.madcourse.dabble.game.Tile
+            android:id="@+id/sb_tile10"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" 
+            android:layout_margin="5dp"
+            tile:borderRadius="30"
+            tile:character="a"/>
+        
+        <edu.neu.zhengxingchen.madcourse.dabble.game.Tile
+            android:id="@+id/sb_tile11"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" 
+            android:layout_margin="5dp"
+            tile:borderRadius="30"
+            tile:character="p"/>
+        
+        <edu.neu.zhengxingchen.madcourse.dabble.game.Tile
+            android:id="@+id/sb_tile12"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" 
+            android:layout_margin="5dp"
+            tile:borderRadius="30"
+            tile:character=" "/>
+    </LinearLayout>
+    
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center_horizontal" >
+
+        <edu.neu.zhengxingchen.madcourse.dabble.game.Tile
+            android:id="@+id/sb_tile13"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" 
+            android:layout_margin="5dp"
+            tile:borderRadius="30"
+            tile:character=" "/>
+
+      <edu.neu.zhengxingchen.madcourse.dabble.game.Tile
+         	 android:id="@+id/sb_tile14"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" 
+            android:layout_margin="5dp"
+            tile:borderRadius="30"
+            tile:character="t"/>
+
+        <edu.neu.zhengxingchen.madcourse.dabble.game.Tile
+            android:id="@+id/sb_tile15"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" 
+            android:layout_margin="5dp"
+            tile:borderRadius="30"
+            tile:character="i"/>
+        
+        <edu.neu.zhengxingchen.madcourse.dabble.game.Tile
+            android:id="@+id/sb_tile16"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" 
+            android:layout_margin="5dp"
+            tile:borderRadius="30"
+            tile:character="l"/>
+        
+        <edu.neu.zhengxingchen.madcourse.dabble.game.Tile
+            android:id="@+id/sb_tile17"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" 
+            android:layout_margin="5dp"
+            tile:borderRadius="30"
+            tile:character="e"/>
+        
+        <edu.neu.zhengxingchen.madcourse.dabble.game.Tile
+            android:id="@+id/sb_tile18"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" 
+            android:layout_margin="5dp"
+            tile:borderRadius="30"
+            tile:character="s"/>
+    </LinearLayout>
+  
+</LinearLayout>

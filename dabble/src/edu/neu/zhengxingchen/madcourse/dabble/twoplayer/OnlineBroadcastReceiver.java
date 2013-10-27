@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.SystemClock;
+import android.util.Log;
 
 import com.commonsware.cwac.wakeful.WakefulIntentService;
 
@@ -19,6 +20,7 @@ public class OnlineBroadcastReceiver extends BroadcastReceiver {
 	@Override
 	public void onReceive(Context ctxt, Intent i) {
 		if (i.getAction() == null) {
+//			Log.d("dabblewaitroom", "onlinebroadcastreceiver" + i.getBooleanExtra("great", false));
 			Intent a = new Intent(ctxt, OnlineSyncService.class);
 			a.putExtra("receiver", mReceiver);
 			WakefulIntentService.sendWakefulWork(ctxt, a);
@@ -32,8 +34,10 @@ public class OnlineBroadcastReceiver extends BroadcastReceiver {
 		AlarmManager mgr = (AlarmManager) ctxt
 				.getSystemService(Context.ALARM_SERVICE);
 		Intent i = new Intent(ctxt, OnlineBroadcastReceiver.class);
+//		i.putExtra("great", true);
 		PendingIntent pi = PendingIntent.getBroadcast(ctxt, 0, i, 0);
-
+		
+		
 		mgr.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
 				SystemClock.elapsedRealtime() + INITIAL_DELAY, PERIOD, pi);
 

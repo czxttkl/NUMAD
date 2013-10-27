@@ -8,7 +8,6 @@ import android.os.SystemClock;
 
 public class PutValueTask extends AsyncTask<String, Integer, String> {
 
-
 	public static int PUT_VALUE = 0;
 	public static int SET_WAIT = 1;
 	public static int SET_CONNECTED = 2;
@@ -20,6 +19,7 @@ public class PutValueTask extends AsyncTask<String, Integer, String> {
 	public static int SET_REWAIT = 8;
 	public static int REMOVE_MOVE = 9;
 	public static int SET_UNCONNECTED = 10;
+	public static int ENTER_SHUFFLE_BOARD = 11;
 
 	public DabbleWaitRoom wr;
 	public int code;
@@ -67,7 +67,7 @@ public class PutValueTask extends AsyncTask<String, Integer, String> {
 						+ Global.SERVER_STATUS_INGAME + ":" + Global.SERIAL);
 				if (!putResult.startsWith("Error")) {
 					putResult = KeyValueAPI.put(Global.USER_NAME, Global.PASSWORD, Global.SERIAL, now
-							+ ":" + Global.SERVER_STATUS_INGAME + ":" + rival);
+							+ ":" + Global.SERVER_STATUS_INGAME + ":" + rival + ":" + Global.SERVER_SUBSTATUS_SHUFFLE);
 				}
 			}
 		}
@@ -109,6 +109,15 @@ public class PutValueTask extends AsyncTask<String, Integer, String> {
 				long now = Global.NTP_REFERENCE + SystemClock.elapsedRealtime();
 				putResult = KeyValueAPI.put(Global.USER_NAME, Global.PASSWORD, Global.SERIAL, now + ":"
 						+ Global.SERVER_STATUS_INGAME + ":" + rival);
+			}
+		}
+		
+		if (code == ENTER_SHUFFLE_BOARD) {
+			String rival = arg0[0];
+			if (KeyValueAPI.isServerAvailable()) {
+				long now = Global.NTP_REFERENCE + SystemClock.elapsedRealtime();
+				putResult = KeyValueAPI.put(Global.USER_NAME, Global.PASSWORD, Global.SERIAL, now + ":"
+						+ Global.SERVER_STATUS_INGAME + ":" + rival + ":" + Global.SERVER_SUBSTATUS_SHUFFLE);
 			}
 		}
 		
@@ -182,6 +191,10 @@ public class PutValueTask extends AsyncTask<String, Integer, String> {
 			
 			if (code == SET_UNCONNECTED) {
 				wr.afterSetUnconnected();
+			}
+			
+			if (code == ENTER_SHUFFLE_BOARD) {
+				wr.afterEnterShuffleBoard();
 			}
 			
 		} else {

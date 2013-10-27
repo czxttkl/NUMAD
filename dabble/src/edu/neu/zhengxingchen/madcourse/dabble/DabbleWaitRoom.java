@@ -1,5 +1,8 @@
 package edu.neu.zhengxingchen.madcourse.dabble;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import edu.neu.zhengxingchen.madcourse.dabble.helper.Global;
 import edu.neu.zhengxingchen.madcourse.dabble.twoplayer.AddGuyTask;
 import edu.neu.zhengxingchen.madcourse.dabble.twoplayer.GetValueTask;
@@ -99,9 +102,9 @@ public class DabbleWaitRoom extends Activity implements Receiver {
 
 			if (status.equals(Global.SERVER_STATUS_INGAME)) {
 				rival = tmp[2];
-				if(!connected)
-					new PutValueTask(this, PutValueTask.SET_CONNECTED)
-						.execute(rival);
+//				if(!connected)
+//					new PutValueTask(this, PutValueTask.SET_CONNECTED)
+//						.execute(rival);
 				
 				if (connectButton != null) {
 					connectButton.setText("Connected");
@@ -110,7 +113,19 @@ public class DabbleWaitRoom extends Activity implements Receiver {
 //					moveButton.setEnabled(true);
 				}
 				
-				if(tmp.length > 3) {
+				//Set by the person you invite
+				if(tmp.length == 3) {
+					new PutValueTask(this, PutValueTask.ENTER_SHUFFLE_BOARD)
+					.execute(rival);				
+					Toast.makeText(DabbleWaitRoom.this, "The rival has accepted your invite", Toast.LENGTH_LONG)
+					.show();
+					Intent i = new Intent();
+					i.setClass(this, ShuffleBoard.class);
+					i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+					startActivity(i);
+				}
+				
+				else if(tmp.length > 3) {
 					String substatus = tmp[3];
 //					if(!formerMove.equals(move)) {
 //						formerMove = move;
@@ -121,9 +136,13 @@ public class DabbleWaitRoom extends Activity implements Receiver {
 							.execute(rival);
 					}
 					
-					if(substatus.equals(Global.SERVER_SUBSTATUS_INVITEACCEPT)) {
-						Toast.makeText(DabbleWaitRoom.this, "The rival has accepted your invite", Toast.LENGTH_LONG)
-						.show();
+//					if(substatus.equals(Global.SERVER_SUBSTATUS_INVITEACCEPT)) {
+//						Toast.makeText(DabbleWaitRoom.this, "The rival has accepted your invite", Toast.LENGTH_LONG)
+//						.show();
+//					}
+					
+					if(substatus.equals(Global.SERVER_SUBSTATUS_SHUFFLE)) {
+						
 					}
 				}
 				
@@ -153,8 +172,6 @@ public class DabbleWaitRoom extends Activity implements Receiver {
 	 */
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		// Log.d(TAG, "onactivityresult:" +
-		// data.getBooleanExtra("accept", false));
 		if (requestCode == 1 && data != null) {
 			if (data.getBooleanExtra(Global.SERVER_KEY_INVITATATION_ACCEPTED,
 					false) ) {
@@ -227,15 +244,47 @@ public class DabbleWaitRoom extends Activity implements Receiver {
 		startActivityForResult(i, 1);
 	}
 
-	public void afterGetGuysList() {
-		mGuysList.removeAllViews();
-		String[] guys = list.split(":");
-		for (String guy : guys) {
-			if (!guy.equals(Global.SERIAL) && !guy.equals("")) {
-				RadioButton r = new RadioButton(DabbleWaitRoom.this);
-				r.setText(guy);
-				mGuysList.addView(r);
+	public void afterGetGuysList(String result) {
+		if(list.equals(result)) {
+		
+		} else {
+			ArrayList<String> newGuys = new ArrayList<String>(Arrays.asList(result.split(":")));
+			ArrayList<String> oldGuys = new ArrayList<String>(Arrays.asList(list.split(":")));
+			
+			int l = mGuysList.getChildCount();
+			if(l == 0) {
+				for(String guy : newGuys) {
+					if (!guy.equals(Global.SERIAL) && !guy.equals("")) {
+						RadioButton r = new RadioButton(DabbleWaitRoom.this);
+						r.setText(guy);
+						mGuysList.addView(r);
+					}
+				}
+			} else {
+				RadioButton r = null ;
+				int i;
+				for( i = 0; i< l; i++) {
+					r = (RadioButton)mGuysList.getChildAt(i);
+					if( r!= null) {
+						String removeItem = r.getText().toString();
+						if( !newGuys.contains(removeItem) ) {
+							mGuysList.removeView(r);
+							l = l-1;
+							i = i-1;
+							oldGuys.remove(removeItem);
+						}
+					}
+				}
+				
+				for(String guy : newGuys) {
+					if(!oldGuys.contains(guy) && !guy.equals(Global.SERIAL) && !guy.equals("")) {
+						RadioButton r1 = new RadioButton(DabbleWaitRoom.this);
+						r1.setText(guy);
+						mGuysList.addView(r1);
+					}
+				}
 			}
+			list = result;
 		}
 		
 	}
@@ -288,7 +337,19 @@ public class DabbleWaitRoom extends Activity implements Receiver {
 //			moveButton.setEnabled(true);
 		}
 		Log.d(TAG, "aftersetconnected");
+		
+		Intent i = new Intent();
+		i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+		i.setClass(this, ShuffleBoard.class);
+		startActivity(i);
+		finish();
+
 	}
+	
+	public void afterEnterShuffleBoard() {
+		finish();
+	}
+	
 	
 	public void afterSetUnconnected() {
 		Toast.makeText(DabbleWaitRoom.this, "You have quitted the room", Toast.LENGTH_LONG)

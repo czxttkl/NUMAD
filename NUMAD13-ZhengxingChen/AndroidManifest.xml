@@ -113,7 +113,14 @@
         <activity android:name="edu.neu.zhengxingchen.madcourse.dabble.Viewpager"
             android:screenOrientation="landscape">
         </activity>
-        
+         <activity android:name="edu.neu.zhengxingchen.madcourse.dabble.ShuffleBoard"
+            android:screenOrientation="landscape"
+            >
+        </activity>
+        <activity
+            android:name="edu.neu.zhengxingchen.madcourse.dabble.twoplayer.InvitePopup"
+            android:theme="@style/MyDialogStyle" >
+        </activity>
         
         <service
             android:name="edu.neu.zhengxingchen.madcourse.dabble.twoplayer.OfflineSyncService">

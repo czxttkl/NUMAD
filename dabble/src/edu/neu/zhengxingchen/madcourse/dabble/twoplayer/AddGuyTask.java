@@ -24,6 +24,8 @@ public class AddGuyTask extends AsyncTask<String, Integer, String> {
 	protected String doInBackground(String... arg0) {
 		String list = wr.list;
 		String[] guys = list.split(":");
+		
+		
 		for (String guy : guys) {
 			if (guy.equals(Global.SERIAL))
 				needed = false;
@@ -49,6 +51,8 @@ public class AddGuyTask extends AsyncTask<String, Integer, String> {
 					putResult = KeyValueAPI.put(usr, pwd, Global.SERIAL, now
 							+ ":" + Global.SERVER_STATUS_WAIT);
 				}
+				
+				Log.d("addguytask", KeyValueAPI.get(usr, pwd, Global.SERVER_KEY_GUY_LIST)); 
 			}
 		} else {
 
