@@ -5,7 +5,7 @@ import java.util.Arrays;
 
 import edu.neu.zhengxingchen.madcourse.dabble.helper.Global;
 import edu.neu.zhengxingchen.madcourse.dabble.twoplayer.AddGuyTask;
-import edu.neu.zhengxingchen.madcourse.dabble.twoplayer.GetValueTask;
+import edu.neu.zhengxingchen.madcourse.dabble.twoplayer.PutValueTaskShuffleBoard;
 import edu.neu.zhengxingchen.madcourse.dabble.twoplayer.InviteGuyTask;
 import edu.neu.zhengxingchen.madcourse.dabble.twoplayer.InvitePopup;
 import edu.neu.zhengxingchen.madcourse.dabble.twoplayer.OfflineBroadcastReceiver;
@@ -130,12 +130,12 @@ public class DabbleWaitRoom extends Activity implements Receiver {
 					String substatus = tmp[3];
 //					if(!formerMove.equals(move)) {
 //						formerMove = move;
-					if(substatus.equals(Global.SERVER_SUBSTATUS_MOVE)) {
-							Toast.makeText(DabbleWaitRoom.this, "Your rival has a move", Toast.LENGTH_LONG)
-							.show();
-							new PutValueTask(this, PutValueTask.REMOVE_MOVE)
-							.execute(rival);
-					}
+//					if(substatus.equals(Global.SERVER_SUBSTATUS_MOVE)) {
+//							Toast.makeText(DabbleWaitRoom.this, "Your rival has a move", Toast.LENGTH_LONG)
+//							.show();
+//							new PutValueTask(this, PutValueTask.REMOVE_MOVE)
+//							.execute(rival);
+//					}
 					
 //					if(substatus.equals(Global.SERVER_SUBSTATUS_INVITEACCEPT)) {
 //						Toast.makeText(DabbleWaitRoom.this, "The rival has accepted your invite", Toast.LENGTH_LONG)

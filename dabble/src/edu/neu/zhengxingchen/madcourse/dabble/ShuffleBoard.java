@@ -9,7 +9,7 @@ import edu.neu.zhengxingchen.madcourse.dabble.helper.LoadBeepTask;
 import edu.neu.zhengxingchen.madcourse.dabble.helper.MyGameCountDownTimer;
 import edu.neu.zhengxingchen.madcourse.dabble.helper.MyShuffleCountDownTimer;
 import edu.neu.zhengxingchen.madcourse.dabble.helper.WordLookUpTask;
-import edu.neu.zhengxingchen.madcourse.dabble.twoplayer.GetValueTask;
+import edu.neu.zhengxingchen.madcourse.dabble.twoplayer.PutValueTaskShuffleBoard;
 import android.media.SoundPool;
 import android.os.Bundle;
 import android.app.Activity;
@@ -83,7 +83,7 @@ public class ShuffleBoard extends Activity {
 	}
 
 	public void initGameStart() {
-		new GetValueTask(this, GetValueTask.GET_SHUFFLED_STRING).execute();
+		new PutValueTaskShuffleBoard(this, PutValueTaskShuffleBoard.GET_SHUFFLED_STRING).execute();
 	}
 	
 	public void afterInitGameStart(String dabbleArray) {

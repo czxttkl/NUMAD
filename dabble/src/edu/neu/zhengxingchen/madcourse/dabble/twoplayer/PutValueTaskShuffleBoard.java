@@ -9,7 +9,7 @@ import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.SystemClock;
 
-public class GetValueTask extends AsyncTask<String, Integer, String>{
+public class PutValueTaskShuffleBoard extends AsyncTask<String, Integer, String>{
 
 	public static String usr = "czxttkl";
 	public static String pwd = "cZxttkl,1";
@@ -18,7 +18,7 @@ public class GetValueTask extends AsyncTask<String, Integer, String>{
 	public static int GET_SHUFFLED_STRING = 1;
 	
 	
-	public GetValueTask(ShuffleBoard wr, int code) {
+	public PutValueTaskShuffleBoard(ShuffleBoard wr, int code) {
 		this.wr = wr;
 		this.code = code;
 	}
@@ -45,7 +45,7 @@ public class GetValueTask extends AsyncTask<String, Integer, String>{
 			}
 			
 			
-			while(true) {
+			while(true && !getResult.startsWith("Error")) {
 				if(KeyValueAPI.isServerAvailable()) {
 					getResult = KeyValueAPI.get(usr, pwd, Global.SERIAL);
 					String[] results = getResult.split(":");
@@ -60,16 +60,15 @@ public class GetValueTask extends AsyncTask<String, Integer, String>{
 						}
 						
 						if( results.length == 5 ) {
+							long now = Global.NTP_REFERENCE + SystemClock.elapsedRealtime();
+							KeyValueAPI.put(Global.USER_NAME, Global.PASSWORD, Global.SERIAL, 
+									now + ":" + Global.SERVER_STATUS_INGAME + ":" + Global.RIVAL + ":" + results[4] + ":" + 0);
 							return results[4];
 						}
 					}
 				} else
 					return "Error";
 			}
-			
-			
-			
-			
 		}
 		
 		
@@ -86,6 +85,7 @@ public class GetValueTask extends AsyncTask<String, Integer, String>{
 		} else {
 			if( code == GET_SHUFFLED_STRING ) {
 				wr.afterInitGameStart(result);
+				
 			}
 		}
 		
