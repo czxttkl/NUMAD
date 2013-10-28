@@ -9,8 +9,10 @@ import android.os.SystemClock;
 public class PutValueTaskGameActivity extends AsyncTask<String, Integer, String>{
 	public GameActivity wr;
 	public static int code;
+	public boolean finishGameActivity = false;
 	public static int SET_DABBLES_STRING_AND_SCORE = 1;
 	public static int GAME_OVER_CLEAR_KEY = 2;
+	
 	
 	public PutValueTaskGameActivity(GameActivity gameActivity, int code) {
 		this.wr = gameActivity;
@@ -27,13 +29,14 @@ public class PutValueTaskGameActivity extends AsyncTask<String, Integer, String>
 				long now = Global.NTP_REFERENCE + SystemClock.elapsedRealtime();
 				putResult = KeyValueAPI.put(Global.USER_NAME, Global.PASSWORD, Global.SERIAL, 
 						now + ":" + Global.SERVER_STATUS_INGAME + ":" + Global.RIVAL + ":" +
-							Global.SERVER_SUBSTATUS_START_GAME + ":" + String.valueOf(wr.dabbleArray) + ":" + wr.score);
+							Global.SERVER_SUBSTATUS_START_GAME + ":" + arg0[0] + ":" + arg0[1]);
+				
 			}
 		}
 		
 		if( code == GAME_OVER_CLEAR_KEY ) {
 			if(KeyValueAPI.isServerAvailable()) {
-				KeyValueAPI.clearKey(Global.USER_NAME, Global.PASSWORD, Global.SERIAL);
+//				KeyValueAPI.clearKey(Global.USER_NAME, Global.PASSWORD, Global.SERIAL);
 				KeyValueAPI.clearKey(Global.USER_NAME, Global.PASSWORD, Global.RIVAL);
 				KeyValueAPI.put(Global.USER_NAME, Global.PASSWORD, Global.SERVER_KEY_GUY_LIST, "");
 			}
@@ -49,7 +52,9 @@ public class PutValueTaskGameActivity extends AsyncTask<String, Integer, String>
 		if(result.equals("Error")) {
 			
 		} else {
-			
+//			if (code == SET_DABBLES_STRING_AND_SCORE && finishGameActivity) {
+//				wr.finish();
+//			}
 		}
 	}
 }

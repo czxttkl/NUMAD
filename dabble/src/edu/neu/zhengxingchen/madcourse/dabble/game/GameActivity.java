@@ -20,6 +20,7 @@ import edu.neu.zhengxingchen.madcourse.dabble.helper.LoadDicTask;
 import edu.neu.zhengxingchen.madcourse.dabble.helper.MyGameCountDownTimer;
 import edu.neu.zhengxingchen.madcourse.dabble.helper.MyHintCountDownTimer;
 import edu.neu.zhengxingchen.madcourse.dabble.helper.WordLookUpTask;
+import edu.neu.zhengxingchen.madcourse.dabble.twoplayer.OfflineBroadcastReceiver;
 import edu.neu.zhengxingchen.madcourse.dabble.twoplayer.OnlineBroadcastReceiver;
 import edu.neu.zhengxingchen.madcourse.dabble.twoplayer.OnlineResultReceiver;
 import edu.neu.zhengxingchen.madcourse.dabble.twoplayer.OnlineResultReceiver.Receiver;
@@ -204,6 +205,7 @@ public class GameActivity extends Activity implements Receiver{
 	protected void onPause() {
 		super.onPause();
 		if (mode!=null && mode.equals("sync")) {
+			OfflineBroadcastReceiver.scheduleAlarms(this);
 			OnlineBroadcastReceiver.cancelAlarms(this);
 		}
 		
@@ -242,13 +244,14 @@ public class GameActivity extends Activity implements Receiver{
 		super.onResume();
 		if (mode!=null && mode.equals("sync")) {
 			OnlineBroadcastReceiver.scheduleAlarms(this, mResultReceiver, Global.RIVAL);
+			OfflineBroadcastReceiver.cancelAlarms(this);
 		}
 		//Log.d("dabble", "onresume:"  + Music.musicShouldPause + ":" + Music.musicPaused);
-		if( mode == null)
+		if( mode == null) {
 			myCountDownTimer = new MyGameCountDownTimer(this, startTime, interval);
-		
-		if (!initing)
-			myCountDownTimer.start();
+			if (!initing)
+				myCountDownTimer.start();
+		}
 		
 		if( Music.musicPaused) {
 			Music.start(this);
@@ -401,7 +404,9 @@ public class GameActivity extends Activity implements Receiver{
 		scoreText.setText("Score:" + score);
 		
 		if( mode!=null && mode.equals("sync")) {
-			new PutValueTaskGameActivity(this, PutValueTaskGameActivity.SET_DABBLES_STRING_AND_SCORE).execute();
+			String tmpScore = String.valueOf(score);
+			String tmpDabbleArray = String.valueOf(dabbleArray);
+			new PutValueTaskGameActivity(this, PutValueTaskGameActivity.SET_DABBLES_STRING_AND_SCORE).execute(tmpDabbleArray, tmpScore);
 		}
 		
 		
@@ -424,6 +429,7 @@ public class GameActivity extends Activity implements Receiver{
 		i.putExtra("score", score);
 		if( mode!=null && mode.equals("sync")) {
 			i.putExtra("rivalScore", rivalScore);
+			new PutValueTaskGameActivity(this, PutValueTaskGameActivity.GAME_OVER_CLEAR_KEY).execute();
 		}
 		
 		
@@ -435,7 +441,8 @@ public class GameActivity extends Activity implements Receiver{
 		
 		Prefs.setSaved(getBaseContext(), false);
 		
-		finish();
+//		if (mode==null)
+			finish();
 	}
 	
 	public void blinkHintTile(ArrayList<Tile> tiles) {
@@ -494,13 +501,13 @@ public class GameActivity extends Activity implements Receiver{
 				
 				if(!rivalDabbleArray.equals(newRivalDabbleArray)) {
 					Log.d(TAG, "there is a move:" + newRivalDabbleArray + ":" + newRivalScore);
+				}
 					rivalDabbleArray = newRivalDabbleArray;
 					rivalScore = newRivalScore;
 					if(rivalScore >=18) {
 						initGameOver();
-						new PutValueTaskGameActivity(this, PutValueTaskGameActivity.GAME_OVER_CLEAR_KEY).execute();
 					}
-				}
+				
 			}
 			
 		} else {

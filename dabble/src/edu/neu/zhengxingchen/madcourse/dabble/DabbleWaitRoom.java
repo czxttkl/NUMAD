@@ -23,6 +23,8 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -46,6 +48,9 @@ public class DabbleWaitRoom extends Activity implements Receiver {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		setContentView(R.layout.activity_dabble_wait_room);
 		mGuysList = (RadioGroup) findViewById(R.id.guys_radio);
 		connectButton = (Button) findViewById(R.id.connect_button);
@@ -179,7 +184,7 @@ public class DabbleWaitRoom extends Activity implements Receiver {
 				Global.RIVAL = rival;
 				new PutValueTaskWaitRoom(this, PutValueTaskWaitRoom.SET_CONNECTED)
 						.execute(rival);
-				Toast.makeText(DabbleWaitRoom.this, "Trying to establish connect", Toast.LENGTH_LONG)
+				Toast.makeText(DabbleWaitRoom.this, "Trying to establish connect", Toast.LENGTH_SHORT)
 				.show();
 				// connect_button.setText("connected");
 				// connect_button.setEnabled(false);
@@ -197,16 +202,25 @@ public class DabbleWaitRoom extends Activity implements Receiver {
 		Log.d(TAG, "onresume");
 		// doBindService();
 		OnlineBroadcastReceiver.scheduleAlarms(this, mResultReceiver, Global.SERIAL);
-		OfflineBroadcastReceiver.cancelAlarms(this);
+		
 		super.onResume();
+		if( Music.musicPaused) {
+			Music.start(this);
+			Music.musicPaused = false;
+		}
+		Music.musicShouldPause = true;
 	}
 
 	@Override
 	protected void onPause() {
 		Log.d(TAG, "onpause");
-		OfflineBroadcastReceiver.scheduleAlarms(this);
+		
 		OnlineBroadcastReceiver.cancelAlarms(this);
 		super.onPause();
+		if(Music.musicShouldPause) {
+			Music.pause(this);
+			Music.musicPaused = true;
+		}
 	}
 
 //	public void onClickPutValue(View v) {
@@ -243,6 +257,7 @@ public class DabbleWaitRoom extends Activity implements Receiver {
 		invitepopuped = true;
 		Intent i = new Intent();
 		i.setClass(this, InvitePopup.class);
+		Music.musicShouldPause = false;
 		startActivityForResult(i, 1);
 	}
 
@@ -345,6 +360,7 @@ public class DabbleWaitRoom extends Activity implements Receiver {
 		i.setClass(this, ShuffleBoard.class);
 		startActivity(i);
 		finish();
+		invitepopuped = false;
 
 	}
 	

@@ -67,12 +67,12 @@ public class GameOver extends Activity {
 		}
 	}
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.game_over, menu);
-		return true;
-	}
+//	@Override
+//	public boolean onCreateOptionsMenu(Menu menu) {
+//		// Inflate the menu; this adds items to the action bar if it is present.
+//		getMenuInflater().inflate(R.menu.game_over, menu);
+//		return true;
+//	}
 	
 //	@Override
 //	public boolean onTouchEvent(MotionEvent event) {
@@ -85,6 +85,8 @@ public class GameOver extends Activity {
 //		i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);//
 		i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 		startActivity(i);
+
+		Music.musicShouldPause = false;
 		finish();
 	}
 	
@@ -101,6 +103,7 @@ public class GameOver extends Activity {
 		i.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 		startActivity(i);
 		//Music.play(getBaseContext(), R.raw.background);
+		Music.musicShouldPause = false;
 		finish();
 	}
 
