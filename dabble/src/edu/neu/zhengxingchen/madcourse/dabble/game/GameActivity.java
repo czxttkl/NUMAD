@@ -205,7 +205,7 @@ public class GameActivity extends Activity implements Receiver{
 	protected void onPause() {
 		super.onPause();
 		if (mode!=null && mode.equals("sync")) {
-			OfflineBroadcastReceiver.scheduleAlarms(this);
+//			OfflineBroadcastReceiver.scheduleAlarms(this);
 			OnlineBroadcastReceiver.cancelAlarms(this);
 		}
 		
@@ -244,7 +244,7 @@ public class GameActivity extends Activity implements Receiver{
 		super.onResume();
 		if (mode!=null && mode.equals("sync")) {
 			OnlineBroadcastReceiver.scheduleAlarms(this, mResultReceiver, Global.RIVAL);
-			OfflineBroadcastReceiver.cancelAlarms(this);
+//			OfflineBroadcastReceiver.cancelAlarms(this);
 		}
 		//Log.d("dabble", "onresume:"  + Music.musicShouldPause + ":" + Music.musicPaused);
 		if( mode == null) {

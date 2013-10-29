@@ -10,9 +10,15 @@ import edu.neu.zhengxingchen.madcourse.dabble.helper.MyGameCountDownTimer;
 import edu.neu.zhengxingchen.madcourse.dabble.helper.MyShuffleCountDownTimer;
 import edu.neu.zhengxingchen.madcourse.dabble.helper.WordLookUpTask;
 import edu.neu.zhengxingchen.madcourse.dabble.twoplayer.PutValueTaskShuffleBoard;
+
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.media.SoundPool;
 import android.os.Bundle;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 import android.view.Menu;
@@ -20,18 +26,26 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
 
-public class ShuffleBoard extends Activity {
+public class ShuffleBoard extends Activity implements SensorEventListener {
 	public String dabbleString = null;
 	public char[] dabbleArray = new char[18];
 
-	public long startTime = 20 * 1000;
+	public long startTime = 30 * 1000;
 	public long interval = 70;
 	public int score = 0;
 	MyShuffleCountDownTimer myCountDownTimer;
 
+	private SensorManager mSensorManager;
+	private Sensor mAccelerometer;
+	private long lastUpdateTime = -1;
+	private float lastX=-1.0f, lastY=-1.0f, lastZ=-1.0f;
+	private Random rand;
+	
 	@Override
 	protected void onPause() {
 		super.onPause();
+			mSensorManager.unregisterListener(this);
+		
 		if (Music.musicShouldPause) {
 			Music.pause(this);
 			Music.musicPaused = true;
@@ -41,6 +55,8 @@ public class ShuffleBoard extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
+		mSensorManager.registerListener( this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+		
 		if (Music.musicPaused) {
 			Music.start(this);
 			Music.musicPaused = false;
@@ -59,15 +75,38 @@ public class ShuffleBoard extends Activity {
 		setContentView(R.layout.activity_shuffle_board);
 		myCountDownTimer = new MyShuffleCountDownTimer(this, startTime, interval);
 		initialTile();
+		mSensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
+		mAccelerometer = mSensorManager.getDefaultSensor(SensorManager.SENSOR_ACCELEROMETER);
+		rand = new Random();
 	}
 
+	public void changeTiles() {
+		
+			int index1 = rand.nextInt(17);
+			int index2 = rand.nextInt(17);
+ 			char a = dabbleArray[index1];
+ 			char b = dabbleArray[index2];
+			dabbleArray[index1] = b;
+			dabbleArray[index2] = a;
+			
+			int resId1 = getResources().getIdentifier(
+					"sb_tile" + Integer.toString(index1+1), "id", getPackageName());
+			int resId2 = getResources().getIdentifier(
+					"sb_tile" + Integer.toString(index2+1), "id", getPackageName());
+			
+			Tile mTile1 = (Tile) findViewById(resId1);
+			Tile mTile2 = (Tile) findViewById(resId2);
+			mTile1.setCharacter(String.valueOf(b));
+			mTile2.setCharacter(String.valueOf(a));
+	}
+	
 	public void initialTile() {
-		dabbleString = "oyucoldmousereally";
+		dabbleString = "youcoldmousereally";
 		dabbleArray = dabbleString.toCharArray();
-		if(!Global.SERIAL.equals("000000000000000")) {
-			dabbleArray[17] = 'l';
-			dabbleArray[16] = 'y';
-		}
+//		if(!Global.SERIAL.equals("000000000000000")) {
+//			dabbleArray[17] = 'l';
+//			dabbleArray[16] = 'y';
+//		}
 		
 		
 		for (int j = 1; j < 19; j++) {
@@ -83,7 +122,7 @@ public class ShuffleBoard extends Activity {
 	}
 
 	public void initGameStart() {
-		new PutValueTaskShuffleBoard(this, PutValueTaskShuffleBoard.GET_SHUFFLED_STRING).execute();
+//		new PutValueTaskShuffleBoard(this, PutValueTaskShuffleBoard.GET_SHUFFLED_STRING).execute();
 	}
 	
 	public void afterInitGameStart(String dabbleArray) {
@@ -94,5 +133,52 @@ public class ShuffleBoard extends Activity {
 		startActivity(i);
 		finish();
 	}
+
+	
+
+	@Override
+	public void onAccuracyChanged(Sensor arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onSensorChanged(SensorEvent arg0) {
+//		if(arg0.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+			if(lastUpdateTime == -1) {
+				lastUpdateTime = System.currentTimeMillis();
+				float[] xyz = arg0.values;
+				float x = xyz[0];
+				float y = xyz[1];
+				float z = xyz[2];
+				lastX = x;
+				lastY = y;
+				lastZ = z;
+				return;
+			}
+			else {
+				long currentTime = System.currentTimeMillis();
+				if(currentTime - lastUpdateTime > 300) {
+					long diffTime = currentTime - lastUpdateTime;
+					float[] xyz = arg0.values;
+					float x = xyz[0];
+					float y = xyz[1];
+					float z = xyz[2];
+					float speed = Math.abs(x + y + z - lastX - lastY - lastZ) / diffTime * 10000;
+					Log.d("shuffleboard", "shaked:" + speed + " x:" + x + " y:" + y + " z:" + z + " diffTime:" + diffTime);
+					if (speed > 100) {
+						Log.d("shuffleboard", "one shake");
+						changeTiles();
+					}
+					lastX = x;
+					lastY = y;
+					lastZ = z;
+					lastUpdateTime = currentTime;
+				}
+			}
+		}
+//	}
+
+
 
 }
