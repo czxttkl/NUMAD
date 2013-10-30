@@ -2,18 +2,7 @@
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:background="@drawable/w03">
-        
-        <TextView
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:layout_alignParentTop="true"
-              android:layout_centerHorizontal="true"
-              android:layout_marginTop="96dp"
-              android:text="第二次，你可以和一个MM玩猜拳游戏，谁告诉我这个功能可以作弊"
-              android:textColor="#fff" 
-              android:gravity="center_horizontal"             
-              android:textSize="18sp" />
+        android:background="@drawable/guide3">
          <Button
               android:id="@+id/startBtn"
               android:layout_width="wrap_content"
@@ -28,4 +17,16 @@
 			  android:layout_gravity="center_vertical"
 			  android:onClick="startbutton"
               />
+
+         <TextView
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_alignParentTop="true"
+             android:layout_centerHorizontal="true"
+             android:layout_marginTop="28dp"
+             android:gravity="center_horizontal"
+             android:text="Whoever spells four words out first wins!"
+             android:textColor="#000"
+             android:textSize="18sp" />
+
     </RelativeLayout>
