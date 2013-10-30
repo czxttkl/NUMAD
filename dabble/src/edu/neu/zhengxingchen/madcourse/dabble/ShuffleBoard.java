@@ -6,6 +6,7 @@ import edu.neu.zhengxingchen.madcourse.dabble.game.GameActivity;
 import edu.neu.zhengxingchen.madcourse.dabble.game.Tile;
 import edu.neu.zhengxingchen.madcourse.dabble.helper.Global;
 import edu.neu.zhengxingchen.madcourse.dabble.helper.LoadBeepTask;
+import edu.neu.zhengxingchen.madcourse.dabble.helper.LoadShakeBeepTask;
 import edu.neu.zhengxingchen.madcourse.dabble.helper.MyGameCountDownTimer;
 import edu.neu.zhengxingchen.madcourse.dabble.helper.MyShuffleCountDownTimer;
 import edu.neu.zhengxingchen.madcourse.dabble.helper.WordLookUpTask;
@@ -40,6 +41,9 @@ public class ShuffleBoard extends Activity implements SensorEventListener{
 	private long lastUpdateTime = -1;
 	private float lastX=-1.0f, lastY=-1.0f, lastZ=-1.0f;
 	private Random rand;
+	
+	public SoundPool sp = null;
+	public int beepStreamId = 0;
 	
 	@Override
 	protected void onPause() {
@@ -78,6 +82,9 @@ public class ShuffleBoard extends Activity implements SensorEventListener{
 		mSensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
 		mAccelerometer = mSensorManager.getDefaultSensor(SensorManager.SENSOR_ACCELEROMETER);
 		rand = new Random();
+		
+		if (beepStreamId == 0 || sp == null )
+			new LoadShakeBeepTask(this).execute();
 	}
 
 	public void changeTiles() {
@@ -98,6 +105,11 @@ public class ShuffleBoard extends Activity implements SensorEventListener{
 			Tile mTile2 = (Tile) findViewById(resId2);
 			mTile1.setCharacter(String.valueOf(b));
 			mTile2.setCharacter(String.valueOf(a));
+			
+			Log.d("shuffleboard", "changetile");
+			
+			if(sp!=null && beepStreamId!=0 )
+				sp.play(beepStreamId, 1, 1, 0, 0, 1);
 	}
 	
 	public void initialTile() {
@@ -148,7 +160,7 @@ public class ShuffleBoard extends Activity implements SensorEventListener{
 			}
 			else {
 				long currentTime = System.currentTimeMillis();
-				if(currentTime - lastUpdateTime > 300) {
+				if(currentTime - lastUpdateTime > 500) {
 					long diffTime = currentTime - lastUpdateTime;
 					float[] xyz = arg0.values;
 					float x = xyz[0];
