@@ -135,7 +135,7 @@ public class GameMenu extends Activity implements OnClickListener {
 
 	private void initDabbleWaitRoom() {
 		
-/*		Intent i = new Intent();
+		Intent i = new Intent();
 		
 		if(Prefs.getFirstEnterTwoPlayer(this)) {
 			i.setClass(this, Viewpager.class);
@@ -146,13 +146,13 @@ public class GameMenu extends Activity implements OnClickListener {
 		i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 		startActivity(i);
 		Music.musicShouldPause = false;
-		Prefs.setFirstEnterTwoPlayer(this, false);*/
+		Prefs.setFirstEnterTwoPlayer(this, false);
 		
-		Intent i = new Intent();
+/*		Intent i = new Intent();
 		i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 		i.setClass(this, ShuffleBoard.class);
 		startActivity(i);
-		finish();
+		finish();*/
 	}
 
 	private void initQuit() {

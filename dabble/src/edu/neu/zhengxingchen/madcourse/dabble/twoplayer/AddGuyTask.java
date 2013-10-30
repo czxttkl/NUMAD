@@ -27,16 +27,17 @@ public class AddGuyTask extends AsyncTask<String, Integer, String> {
 		
 		
 		for (String guy : guys) {
-			if (guy.equals(Global.SERIAL))
+			if (guy.equals(Global.SERIAL)) {
 				needed = false;
+			}
 		}
 		
 		String putResult;
-		if(needed)
+//		if(needed)
 			putResult= "Error";
-		else
-			putResult = "noneed";
-		
+//		else
+//			putResult = "noneed";
+//		
 		if (needed) {
 			String value = list + ":" + Global.SERIAL;
 			
@@ -55,7 +56,10 @@ public class AddGuyTask extends AsyncTask<String, Integer, String> {
 				Log.d("addguytask", KeyValueAPI.get(usr, pwd, Global.SERVER_KEY_GUY_LIST)); 
 			}
 		} else {
-
+			//just refresh itself's wait status
+			long now = Global.NTP_REFERENCE + SystemClock.elapsedRealtime();
+			putResult = KeyValueAPI.put(usr, pwd, Global.SERIAL, now
+					+ ":" + Global.SERVER_STATUS_WAIT);
 		}
 
 		return putResult;

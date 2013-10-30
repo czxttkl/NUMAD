@@ -13,6 +13,7 @@ public class PutValueTaskGameActivity extends AsyncTask<String, Integer, String>
 	public boolean finishGameActivity = false;
 	public static int SET_DABBLES_STRING_AND_SCORE = 1;
 	public static int GAME_OVER_CLEAR_KEY = 2;
+	public boolean[] finishDual = {false, false};
 	
 	
 	public PutValueTaskGameActivity(GameActivity gameActivity, int code) {
@@ -32,6 +33,8 @@ public class PutValueTaskGameActivity extends AsyncTask<String, Integer, String>
 				putResult = KeyValueAPI.put(Global.USER_NAME, Global.PASSWORD, Global.SERIAL, 
 						now + ":" + Global.SERVER_STATUS_INGAME + ":" + Global.RIVAL + ":" +
 							Global.SERVER_SUBSTATUS_START_GAME + ":" + arg0[0] + ":" + arg0[1]);
+				if( Integer.valueOf(arg0[1])>=18 )
+					finishDual[0] = true;
 				
 			}
 		}
@@ -42,6 +45,7 @@ public class PutValueTaskGameActivity extends AsyncTask<String, Integer, String>
 				KeyValueAPI.clearKey(Global.USER_NAME, Global.PASSWORD, Global.RIVAL);
 				//TODO here should not clear whole list
 				KeyValueAPI.put(Global.USER_NAME, Global.PASSWORD, Global.SERVER_KEY_GUY_LIST, "");
+				finishDual[1] = true;
 			}
 		}
 		
@@ -51,12 +55,12 @@ public class PutValueTaskGameActivity extends AsyncTask<String, Integer, String>
 
 	@Override
 	protected void onPostExecute(String result) {
-//		wr.afterGetValue(result);
 		if(result.equals("Error")) {
 			
 		} else {
 //			if (code == SET_DABBLES_STRING_AND_SCORE && finishGameActivity) {
-//				wr.finish();
+			if( (finishDual[0] || wr.rivalScore >= 18) && finishDual[1] )
+				wr.finish();
 //			}
 		}
 	}

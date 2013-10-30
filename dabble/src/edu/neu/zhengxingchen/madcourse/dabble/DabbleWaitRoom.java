@@ -38,12 +38,11 @@ public class DabbleWaitRoom extends Activity implements Receiver {
 	RadioGroup mGuysList;
 	Button connectButton;
 	Button unconnectButton;
-//	Button unshakeButton;
-//	Button moveButton;
 	String rival;
 	public String list = "";
-	String formerMove = "";
+//	String formerMove = "";
 	public static volatile boolean invitepopuped = false;
+	public static volatile boolean networkError = false;
 //	public volatile boolean connected = false;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -55,8 +54,6 @@ public class DabbleWaitRoom extends Activity implements Receiver {
 		mGuysList = (RadioGroup) findViewById(R.id.guys_radio);
 		connectButton = (Button) findViewById(R.id.connect_button);
 		unconnectButton = (Button) findViewById(R.id.unconnect_button);
-//		unshakeButton = (Button) findViewById(R.id.unshake_button);
-//		moveButton = (Button) findViewById(R.id.move_button);
 		telMgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
 		Global.SERIAL = telMgr.getDeviceId();
 		/*
@@ -107,18 +104,13 @@ public class DabbleWaitRoom extends Activity implements Receiver {
 
 			if (status.equals(Global.SERVER_STATUS_INGAME)) {
 				rival = tmp[2];
-//				if(!connected)
-//					new PutValueTask(this, PutValueTask.SET_CONNECTED)
-//						.execute(rival);
 				
 				if (connectButton != null) {
 					connectButton.setText("Connected");
 					connectButton.setEnabled(false);
-//					unshakeButton.setEnabled(true);
-//					moveButton.setEnabled(true);
 				}
 				
-				//Set by the person you invite
+				//Set by the person you invite when he accepts your invitation
 				if(tmp.length == 3) {
 					Global.RIVAL = rival;
 					new PutValueTaskWaitRoom(this, PutValueTaskWaitRoom.ENTER_SHUFFLE_BOARD)
@@ -133,23 +125,13 @@ public class DabbleWaitRoom extends Activity implements Receiver {
 				
 				else if(tmp.length > 3) {
 					String substatus = tmp[3];
-//					if(!formerMove.equals(move)) {
-//						formerMove = move;
-//					if(substatus.equals(Global.SERVER_SUBSTATUS_MOVE)) {
-//							Toast.makeText(DabbleWaitRoom.this, "Your rival has a move", Toast.LENGTH_LONG)
-//							.show();
-//							new PutValueTask(this, PutValueTask.REMOVE_MOVE)
-//							.execute(rival);
+					
+//					if(substatus.equals(Global.SERVER_SUBSTATUS_SHUFFLE)) {
+						//if it is shuffle, it means the game status is wrong. Reset then.
 //					}
 					
-//					if(substatus.equals(Global.SERVER_SUBSTATUS_INVITEACCEPT)) {
-//						Toast.makeText(DabbleWaitRoom.this, "The rival has accepted your invite", Toast.LENGTH_LONG)
-//						.show();
-//					}
-					
-					if(substatus.equals(Global.SERVER_SUBSTATUS_SHUFFLE)) {
-						
-					}
+					//status with in_game means you should register as a new one to enter in the waitroom
+					new GetGuysTask(this, GetGuysTask.REGISTER).execute();
 				}
 				
 			}
@@ -160,8 +142,10 @@ public class DabbleWaitRoom extends Activity implements Receiver {
 				returnError();
 			}
 			
-			if (subresult.startsWith("No")) {
+			//If network error, try to register
+			if ( networkError || subresult.startsWith("No")) {
 				new GetGuysTask(this, GetGuysTask.REGISTER).execute();
+				networkError = false;
 			}
 			
 			if (subresult.startsWith("Network")) {
@@ -351,10 +335,7 @@ public class DabbleWaitRoom extends Activity implements Receiver {
 		if (connectButton != null) {
 			connectButton.setText("Connected");
 			connectButton.setEnabled(false);
-//			unshakeButton.setEnabled(true);
-//			moveButton.setEnabled(true);
 		}
-		Log.d(TAG, "aftersetconnected");
 		
 		Intent i = new Intent();
 		i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -383,6 +364,7 @@ public class DabbleWaitRoom extends Activity implements Receiver {
 	}
 	
 	public void returnError() {
+		networkError = true;
 		Toast.makeText(DabbleWaitRoom.this, "Network error. We will try reconnecting automatically.", Toast.LENGTH_LONG)
 				.show();
 	}
