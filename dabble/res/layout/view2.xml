@@ -13,7 +13,7 @@
               android:layout_centerHorizontal="true"
               android:layout_marginTop="34dp"
               android:gravity="center_horizontal"
-              android:text="After paired, shake hard to reset your board"
+              android:text="After paired, shake hard to reset your rival's board"
               android:textColor="#000"
               android:textSize="18sp" />
 
