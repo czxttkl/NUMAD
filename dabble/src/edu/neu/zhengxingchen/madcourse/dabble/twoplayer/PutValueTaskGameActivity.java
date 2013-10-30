@@ -5,6 +5,7 @@ import edu.neu.zhengxingchen.madcourse.dabble.game.GameActivity;
 import edu.neu.zhengxingchen.madcourse.dabble.helper.Global;
 import android.os.AsyncTask;
 import android.os.SystemClock;
+import android.util.Log;
 
 public class PutValueTaskGameActivity extends AsyncTask<String, Integer, String>{
 	public GameActivity wr;
@@ -26,6 +27,7 @@ public class PutValueTaskGameActivity extends AsyncTask<String, Integer, String>
 		String putResult = "Error";
 		if( code == SET_DABBLES_STRING_AND_SCORE) {
 			if(KeyValueAPI.isServerAvailable()) {
+				Log.d("dabblegameactivity", "now set score:" + arg0[1] + ": array" + arg0[0]);
 				long now = Global.NTP_REFERENCE + SystemClock.elapsedRealtime();
 				putResult = KeyValueAPI.put(Global.USER_NAME, Global.PASSWORD, Global.SERIAL, 
 						now + ":" + Global.SERVER_STATUS_INGAME + ":" + Global.RIVAL + ":" +
@@ -38,6 +40,7 @@ public class PutValueTaskGameActivity extends AsyncTask<String, Integer, String>
 			if(KeyValueAPI.isServerAvailable()) {
 //				KeyValueAPI.clearKey(Global.USER_NAME, Global.PASSWORD, Global.SERIAL);
 				KeyValueAPI.clearKey(Global.USER_NAME, Global.PASSWORD, Global.RIVAL);
+				//TODO here should not clear whole list
 				KeyValueAPI.put(Global.USER_NAME, Global.PASSWORD, Global.SERVER_KEY_GUY_LIST, "");
 			}
 		}

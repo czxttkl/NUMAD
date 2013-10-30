@@ -44,7 +44,7 @@ public class DabbleWaitRoom extends Activity implements Receiver {
 	public String list = "";
 	String formerMove = "";
 	public static volatile boolean invitepopuped = false;
-	public volatile boolean connected = false;
+//	public volatile boolean connected = false;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -208,6 +208,7 @@ public class DabbleWaitRoom extends Activity implements Receiver {
 			Music.start(this);
 			Music.musicPaused = false;
 		}
+		
 		Music.musicShouldPause = true;
 	}
 
@@ -346,7 +347,7 @@ public class DabbleWaitRoom extends Activity implements Receiver {
 	public void afterSetConnected() {
 		Toast.makeText(DabbleWaitRoom.this, "You have connected with your rival", Toast.LENGTH_LONG)
 		.show();
-		connected = true;
+
 		if (connectButton != null) {
 			connectButton.setText("Connected");
 			connectButton.setEnabled(false);
@@ -382,7 +383,7 @@ public class DabbleWaitRoom extends Activity implements Receiver {
 	}
 	
 	public void returnError() {
-		Toast.makeText(DabbleWaitRoom.this, "Network error", Toast.LENGTH_LONG)
+		Toast.makeText(DabbleWaitRoom.this, "Network error. We will try reconnecting automatically.", Toast.LENGTH_LONG)
 				.show();
 	}
 

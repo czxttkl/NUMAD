@@ -233,6 +233,16 @@ public class GameActivity extends Activity implements Receiver{
 		mSharedPreferences.unregisterOnSharedPreferenceChangeListener(mListener);
 	}
 
+	
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		if( mode!=null && mode.equals("sync")) {
+			myCountDownTimer.cancel();
+		}
+	}
+	
+
 	@Override
 	protected void onRestart() {
 		super.onRestart();
@@ -300,17 +310,20 @@ public class GameActivity extends Activity implements Receiver{
 		
 		myCountDownTimer.start();
 		initing = false;
+		
+		if( mode!=null && mode.equals("sync")) {
+			String tmpScore = String.valueOf(score);
+			String tmpDabbleArray = String.valueOf(dabbleArray);
+			new PutValueTaskGameActivity(this, PutValueTaskGameActivity.SET_DABBLES_STRING_AND_SCORE).execute(tmpDabbleArray, tmpScore);
+		}
 	}
 
 	public void onClickTiles(Tile tile) {
 
 		Tile currentTile = (Tile) findViewById(R.id.tile1);
 
-		//Log.d("dabble", "onclick" + (currentTile == tile ? "yes" : "no"));
 		char[] cpDabbleArray = dabbleArray.clone();
 		
-
-		// Vibrate for 400 milliseconds
 		vibrator.vibrate(50);
 		
 		if (clickCount == 1 | clickCount == 0) {
@@ -416,6 +429,8 @@ public class GameActivity extends Activity implements Receiver{
 	}
 
 	
+	
+
 	public void initGameOver() {
 		myCountDownTimer.cancel();
 		if(sp!=null && beepStreamId!=0 && countDownShouldPlay) {
@@ -427,6 +442,7 @@ public class GameActivity extends Activity implements Receiver{
 		Intent i = new Intent();
 		i.setClass(this, GameOver.class);
 		i.putExtra("score", score);
+		
 		if( mode!=null && mode.equals("sync")) {
 			i.putExtra("rivalScore", rivalScore);
 			new PutValueTaskGameActivity(this, PutValueTaskGameActivity.GAME_OVER_CLEAR_KEY).execute();
@@ -441,7 +457,8 @@ public class GameActivity extends Activity implements Receiver{
 		
 		Prefs.setSaved(getBaseContext(), false);
 		
-//		if (mode==null)
+		//If in the single mode, 
+		if (mode == null)
 			finish();
 	}
 	

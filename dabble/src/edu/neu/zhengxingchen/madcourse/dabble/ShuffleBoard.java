@@ -26,11 +26,11 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
 
-public class ShuffleBoard extends Activity implements SensorEventListener {
+public class ShuffleBoard extends Activity implements SensorEventListener{
 	public String dabbleString = null;
 	public char[] dabbleArray = new char[18];
 
-	public long startTime = 30 * 1000;
+	public long startTime = 10 * 1000;
 	public long interval = 70;
 	public int score = 0;
 	MyShuffleCountDownTimer myCountDownTimer;
@@ -44,7 +44,7 @@ public class ShuffleBoard extends Activity implements SensorEventListener {
 	@Override
 	protected void onPause() {
 		super.onPause();
-			mSensorManager.unregisterListener(this);
+		mSensorManager.unregisterListener(this);
 		
 		if (Music.musicShouldPause) {
 			Music.pause(this);
@@ -103,11 +103,6 @@ public class ShuffleBoard extends Activity implements SensorEventListener {
 	public void initialTile() {
 		dabbleString = "youcoldmousereally";
 		dabbleArray = dabbleString.toCharArray();
-//		if(!Global.SERIAL.equals("000000000000000")) {
-//			dabbleArray[17] = 'l';
-//			dabbleArray[16] = 'y';
-//		}
-		
 		
 		for (int j = 1; j < 19; j++) {
 			int resId = getResources().getIdentifier(
@@ -116,13 +111,11 @@ public class ShuffleBoard extends Activity implements SensorEventListener {
 			mTile.setCharacter(String.valueOf(dabbleArray[j - 1]));
 		}
 
-//		Log.d("dabble", "after init: dabbleString:" + dabbleString
-//				+ "  dabbleArray:" + String.valueOf(dabbleArray));
 		myCountDownTimer.start();
 	}
 
 	public void initGameStart() {
-//		new PutValueTaskShuffleBoard(this, PutValueTaskShuffleBoard.GET_SHUFFLED_STRING).execute();
+		new PutValueTaskShuffleBoard(this, PutValueTaskShuffleBoard.GET_SHUFFLED_STRING).execute();
 	}
 	
 	public void afterInitGameStart(String dabbleArray) {
@@ -134,8 +127,6 @@ public class ShuffleBoard extends Activity implements SensorEventListener {
 		finish();
 	}
 
-	
-
 	@Override
 	public void onAccuracyChanged(Sensor arg0, int arg1) {
 		// TODO Auto-generated method stub
@@ -144,7 +135,6 @@ public class ShuffleBoard extends Activity implements SensorEventListener {
 
 	@Override
 	public void onSensorChanged(SensorEvent arg0) {
-//		if(arg0.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
 			if(lastUpdateTime == -1) {
 				lastUpdateTime = System.currentTimeMillis();
 				float[] xyz = arg0.values;
@@ -177,7 +167,6 @@ public class ShuffleBoard extends Activity implements SensorEventListener {
 				}
 			}
 		}
-//	}
 
 
 

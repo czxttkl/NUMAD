@@ -134,8 +134,8 @@ public class GameMenu extends Activity implements OnClickListener {
 	}
 
 	private void initDabbleWaitRoom() {
-/*		
-		Intent i = new Intent();
+		
+/*		Intent i = new Intent();
 		
 		if(Prefs.getFirstEnterTwoPlayer(this)) {
 			i.setClass(this, Viewpager.class);
