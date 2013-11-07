@@ -72,7 +72,6 @@ public class CameraActivity extends Activity implements CvCameraViewListener2 {
 
 	@Override
 	protected void onDestroy() {
-		// TODO Auto-generated method stub
 		super.onDestroy();
 		if (mOpenCvCameraView != null) {
 			mOpenCvCameraView.disableView();
