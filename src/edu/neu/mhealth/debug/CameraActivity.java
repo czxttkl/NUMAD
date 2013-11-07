@@ -58,8 +58,10 @@ public class CameraActivity extends Activity implements CvCameraViewListener2 {
 
 	@Override
 	protected void onPause() {
-		// TODO Auto-generated method stub
 		super.onPause();
+		if (mOpenCvCameraView != null) {
+			mOpenCvCameraView.disableView();
+		}
 	}
 
 	@Override
@@ -72,6 +74,9 @@ public class CameraActivity extends Activity implements CvCameraViewListener2 {
 	protected void onDestroy() {
 		// TODO Auto-generated method stub
 		super.onDestroy();
+		if (mOpenCvCameraView != null) {
+			mOpenCvCameraView.disableView();
+		}
 	}
 
 	
@@ -94,8 +99,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2 {
 
 	@Override
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
-		// TODO Auto-generated method stub
-		return null;
+		return inputFrame.rgba();
 	}
 
 	
