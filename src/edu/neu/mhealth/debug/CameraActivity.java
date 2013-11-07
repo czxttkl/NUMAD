@@ -6,6 +6,8 @@ import org.opencv.android.JavaCameraView;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 
+import edu.neu.mhealth.debug.helper.Global;
+
 import android.os.Bundle;
 import android.app.Activity;
 import android.util.Log;
