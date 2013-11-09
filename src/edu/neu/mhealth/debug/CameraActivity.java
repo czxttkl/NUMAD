@@ -15,6 +15,7 @@ import org.opencv.core.Core.MinMaxLocResult;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
+import org.opencv.core.Scalar;
 import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 
@@ -33,6 +34,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2 {
 
 	/*Basic Variables*/
 	private final String TAG = Global.APP_LOG_TAG;
+	private static final Scalar RECT_COLOR = new Scalar(0, 255, 0, 255);
 	
 	/*OpenCv Variables*/
 	private Mat mRgba;
@@ -105,7 +107,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2 {
 			toBeDetectedBitmap = BitmapFactory.decodeStream(getAssets().open("shoes.jpg"));
 			toBeDetectedMat = new Mat();
 			Utils.bitmapToMat(toBeDetectedBitmap, toBeDetectedMat);
-			Log.e(TAG, "load detect object image success");
+			Log.e(TAG, "load detect object image success. Mat:" + toBeDetectedMat.rows() + "*" + toBeDetectedMat.cols());
 		} catch (IOException e) {
 			Log.e(TAG, "load detect object image failed");
 		}
@@ -122,17 +124,19 @@ public class CameraActivity extends Activity implements CvCameraViewListener2 {
 		//Choose one method for template match
 		int matchMethod = Imgproc.TM_CCORR_NORMED;
 		//Create result mat
-		int resultCols =  mRgba.cols() - toBeDetectedMat.cols() + 1;
 		int resultRows = mRgba.rows() - toBeDetectedMat.rows() + 1;
-		detectResult.create(resultCols, resultRows, CvType.CV_32FC1);
+		int resultCols =  mRgba.cols() - toBeDetectedMat.cols() + 1;
+//		Log.i(TAG, "Create result mat:" + resultCols + "*" + resultRows); 
+		Log.i(TAG, "mRgba mat:" + mRgba.rows() + "*" + mRgba.cols()); 
+		detectResult = new Mat(resultRows, resultCols, CvType.CV_32FC1);
+//		detectResult.create(resultCols, resultRows, CvType.CV_32FC1);
 		//Match template
 		Imgproc.matchTemplate(mRgba, toBeDetectedMat, detectResult, matchMethod);
 		//Normalize
-		Core.normalize( detectResult, detectResult, 0, 1, Core.NORM_MINMAX, -1, new Mat() );
-		
-
+		Core.normalize( detectResult, detectResult, 0, 1, Core.NORM_MINMAX, -1, null );
+		// Create a point for match location
 		Point matchLoc;
-		MinMaxLocResult minMaxLocResult = Core.minMaxLoc( detectResult, new Mat() );
+		MinMaxLocResult minMaxLocResult = Core.minMaxLoc( detectResult, null );
 		// For SQDIFF and SQDIFF_NORMED, the best matches are lower values. 
 		// For all the other methods, the higher the better
 		if( matchMethod  == Imgproc.TM_SQDIFF || matchMethod == Imgproc.TM_SQDIFF_NORMED ){ 
@@ -141,7 +145,10 @@ public class CameraActivity extends Activity implements CvCameraViewListener2 {
 		else { 
 			matchLoc = minMaxLocResult.maxLoc; 
 		}
-		
+		// Start draw rectangle
+		Point pt2 = new Point(matchLoc.x + toBeDetectedMat.cols(), matchLoc.y + toBeDetectedMat.rows());
+		Log.i(TAG, "point1:" + matchLoc.x + "," + matchLoc.y + "  point2:" + pt2.x + "," + pt2.y);
+		Core.rectangle(mRgba, matchLoc, pt2, RECT_COLOR, 3);
 		return mRgba;
 	}
 
