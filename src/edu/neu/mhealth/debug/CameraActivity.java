@@ -1,5 +1,7 @@
 package edu.neu.mhealth.debug;
 
+import java.io.IOException;
+
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
@@ -7,12 +9,16 @@ import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
 import org.opencv.android.JavaCameraView;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
+import org.opencv.android.Utils;
 import org.opencv.core.Mat;
+import org.opencv.highgui.Highgui;
 
 import edu.neu.mhealth.debug.helper.Global;
 
 import android.os.Bundle;
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Log;
 import android.view.Menu;
 import android.view.SurfaceView;
@@ -24,6 +30,8 @@ public class CameraActivity extends Activity implements CvCameraViewListener2 {
 	private final String TAG = Global.APP_LOG_TAG;
 	
 	/*OpenCv Variables*/
+	private Mat mRgba;
+	private Mat toBeDetectedMat;
 	private CameraBridgeViewBase mOpenCvCameraView;
 	private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
 		@Override
@@ -86,8 +94,15 @@ public class CameraActivity extends Activity implements CvCameraViewListener2 {
 	 *   */
 	@Override
 	public void onCameraViewStarted(int width, int height) {
-		// TODO Auto-generated method stub
-		
+		Bitmap toBeDetectedBitmap = null;
+		try {
+			toBeDetectedBitmap = BitmapFactory.decodeStream(getAssets().open("shoes.jpg"));
+			toBeDetectedMat = new Mat();
+			Utils.bitmapToMat(toBeDetectedBitmap, toBeDetectedMat);
+			Log.e(TAG, "load detect object image success");
+		} catch (IOException e) {
+			Log.e(TAG, "load detect object image failed");
+		}
 	}
 
 	@Override
@@ -98,7 +113,9 @@ public class CameraActivity extends Activity implements CvCameraViewListener2 {
 
 	@Override
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
-		return inputFrame.rgba();
+		mRgba = inputFrame.rgba();
+//		Highgui.imread(toBeDetectedMat);
+		return mRgba;
 	}
 
 	
