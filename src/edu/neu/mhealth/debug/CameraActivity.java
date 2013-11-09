@@ -10,8 +10,13 @@ import org.opencv.android.JavaCameraView;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
+import org.opencv.core.Core;
+import org.opencv.core.Core.MinMaxLocResult;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.Point;
 import org.opencv.highgui.Highgui;
+import org.opencv.imgproc.Imgproc;
 
 import edu.neu.mhealth.debug.helper.Global;
 
@@ -32,6 +37,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2 {
 	/*OpenCv Variables*/
 	private Mat mRgba;
 	private Mat toBeDetectedMat;
+	private Mat detectResult;
 	private CameraBridgeViewBase mOpenCvCameraView;
 	private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
 		@Override
@@ -107,14 +113,35 @@ public class CameraActivity extends Activity implements CvCameraViewListener2 {
 
 	@Override
 	public void onCameraViewStopped() {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
 		mRgba = inputFrame.rgba();
-//		Highgui.imread(toBeDetectedMat);
+		//Choose one method for template match
+		int matchMethod = Imgproc.TM_CCORR_NORMED;
+		//Create result mat
+		int resultCols =  mRgba.cols() - toBeDetectedMat.cols() + 1;
+		int resultRows = mRgba.rows() - toBeDetectedMat.rows() + 1;
+		detectResult.create(resultCols, resultRows, CvType.CV_32FC1);
+		//Match template
+		Imgproc.matchTemplate(mRgba, toBeDetectedMat, detectResult, matchMethod);
+		//Normalize
+		Core.normalize( detectResult, detectResult, 0, 1, Core.NORM_MINMAX, -1, new Mat() );
+		
+
+		Point matchLoc;
+		MinMaxLocResult minMaxLocResult = Core.minMaxLoc( detectResult, new Mat() );
+		// For SQDIFF and SQDIFF_NORMED, the best matches are lower values. 
+		// For all the other methods, the higher the better
+		if( matchMethod  == Imgproc.TM_SQDIFF || matchMethod == Imgproc.TM_SQDIFF_NORMED ){ 
+			matchLoc = minMaxLocResult.minLoc; 
+		}
+		else { 
+			matchLoc = minMaxLocResult.maxLoc; 
+		}
+		
 		return mRgba;
 	}
 
