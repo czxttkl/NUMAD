@@ -141,14 +141,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2 {
 
 	@Override
 	public void onCameraViewStopped() {
-//		Imgproc.cvtColor(toBeDetectedMat, toBeDetectedMat,
-//				Imgproc.COLOR_BGRA2RGBA);
-//		File path = Environment
-//				.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-//		String filename = "captured1.png";
-//		File file = new File(path, filename);
-//		filename = file.toString();
-//		Highgui.imwrite(filename, toBeDetectedMat);
+
 	}
 
 	@Override
