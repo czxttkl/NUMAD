@@ -29,8 +29,14 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.SurfaceView;
+import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
 
 public class CameraActivity extends Activity implements CvCameraViewListener2 {
@@ -78,6 +84,9 @@ public class CameraActivity extends Activity implements CvCameraViewListener2 {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+//		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		setContentView(R.layout.activity_camera);
 		mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.HellpOpenCvView);
@@ -132,14 +141,14 @@ public class CameraActivity extends Activity implements CvCameraViewListener2 {
 
 	@Override
 	public void onCameraViewStopped() {
-		Imgproc.cvtColor(toBeDetectedMat, toBeDetectedMat,
-				Imgproc.COLOR_BGRA2RGBA);
-		File path = Environment
-				.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-		String filename = "captured1.png";
-		File file = new File(path, filename);
-		filename = file.toString();
-		Highgui.imwrite(filename, toBeDetectedMat);
+//		Imgproc.cvtColor(toBeDetectedMat, toBeDetectedMat,
+//				Imgproc.COLOR_BGRA2RGBA);
+//		File path = Environment
+//				.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+//		String filename = "captured1.png";
+//		File file = new File(path, filename);
+//		filename = file.toString();
+//		Highgui.imwrite(filename, toBeDetectedMat);
 	}
 
 	@Override
@@ -160,7 +169,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2 {
 				File file = new File(path, filename);
 				filename = file.toString();
 				Highgui.imwrite(filename, toBeDetectedMatRGBA);
-//				toBeDetectedMat = Highgui.imread(filename, Highgui.CV_LOAD_IMAGE_GRAYSCALE);		
+                // toBeDetectedMat = Highgui.imread(filename, Highgui.CV_LOAD_IMAGE_GRAYSCALE);		
 				detectResult = new Mat(resultMatRows, resultMatCols, CvType.CV_32FC1);
 				srcCaptured = true;
 			} else {
@@ -197,4 +206,23 @@ public class CameraActivity extends Activity implements CvCameraViewListener2 {
 		return mRgba;
 	}
 
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+	    MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.camera, menu);
+	    return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+	     	case R.id.pick_another_target:
+	     		cameraStartTime = System.currentTimeMillis();
+	     		srcCaptured = false;
+	     		return true;
+	        default:
+	        	return super.onOptionsItemSelected(item);
+	        }
+	}
+	
 }
