@@ -49,6 +49,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2 {
 
 	/* OpenCv Variables */
 	private Mat mRgba;
+	private Mat mGray;
 	private Mat toBeDetectedMat;
 	private Mat detectResult;
 	private Mat nullMat;
@@ -58,6 +59,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2 {
 	private Point captureRectPt2;
 	
 	private boolean srcCaptured = false;
+	private boolean useGrayChannel = false;
 	private int resultMatRows;
 	private int resultMatCols;
 	private CameraBridgeViewBase mOpenCvCameraView;
@@ -148,21 +150,28 @@ public class CameraActivity extends Activity implements CvCameraViewListener2 {
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
 		//It's actually bgra mat!
 		mRgba = inputFrame.rgba();
-		
+		mGray = inputFrame.gray();
 		if (System.currentTimeMillis() - cameraStartTime < 5000) {
 			 Core.rectangle(mRgba, captureRectPt1, captureRectPt2, RECT_COLOR_RED, 3);
 		} else {
 			if (!srcCaptured) {
-				mRgba.submat(captureRect).copyTo(toBeDetectedMat);
-				Mat toBeDetectedMatRGBA = new Mat();
-				Imgproc.cvtColor(toBeDetectedMat, toBeDetectedMatRGBA, Imgproc.COLOR_BGRA2RGBA);
 				File path = Environment
 						.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
 				String filename = "captured.png";
 				File file = new File(path, filename);
 				filename = file.toString();
-				Highgui.imwrite(filename, toBeDetectedMatRGBA);
-                // toBeDetectedMat = Highgui.imread(filename, Highgui.CV_LOAD_IMAGE_GRAYSCALE);		
+				
+				if (!useGrayChannel) {
+					mRgba.submat(captureRect).copyTo(toBeDetectedMat);
+					Mat toBeDetectedMatRGBA = new Mat();
+					Imgproc.cvtColor(toBeDetectedMat, toBeDetectedMatRGBA, Imgproc.COLOR_BGRA2RGBA);
+					Highgui.imwrite(filename, toBeDetectedMatRGBA);
+				} else {
+					mGray.submat(captureRect).copyTo(toBeDetectedMat);
+					Highgui.imwrite(filename, toBeDetectedMat);
+				}
+				
+				// toBeDetectedMat = Highgui.imread(filename, Highgui.CV_LOAD_IMAGE_GRAYSCALE);		
 				detectResult = new Mat(resultMatRows, resultMatCols, CvType.CV_32FC1);
 				srcCaptured = true;
 			} else {
@@ -172,8 +181,13 @@ public class CameraActivity extends Activity implements CvCameraViewListener2 {
 				// Choose one method for template match
 				int matchMethod = Imgproc.TM_SQDIFF_NORMED;
 				// Match template
-				Imgproc.matchTemplate(mRgba, toBeDetectedMat, detectResult,
-						matchMethod);
+				if (!useGrayChannel) {
+					Imgproc.matchTemplate(mRgba, toBeDetectedMat, detectResult,
+							matchMethod);
+				} else {
+					Imgproc.matchTemplate(mGray, toBeDetectedMat, detectResult,
+							matchMethod);
+				}
 				// Normalize
 				Core.normalize(detectResult, detectResult, 0, 1, Core.NORM_MINMAX, -1, nullMat);
 				// Create a point for match location
@@ -212,6 +226,17 @@ public class CameraActivity extends Activity implements CvCameraViewListener2 {
 	     	case R.id.pick_another_target:
 	     		cameraStartTime = System.currentTimeMillis();
 	     		srcCaptured = false;
+	     		return true;
+	     	case R.id.pick_channel:
+	     		cameraStartTime = System.currentTimeMillis();
+	     		srcCaptured = false;
+	     		if(item.getTitle().equals("Use gray channel")) {
+	     			useGrayChannel = true;
+	     			item.setTitle("Use rgba channel");
+	     		} else {
+	     			useGrayChannel = false;
+	     			item.setTitle("Use gray channel");
+	     		}
 	     		return true;
 	        default:
 	        	return super.onOptionsItemSelected(item);
