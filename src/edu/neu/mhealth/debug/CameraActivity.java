@@ -35,13 +35,8 @@ public class CameraActivity extends Activity implements CvCameraViewListener2 {
 			switch (status) {
 				case LoaderCallbackInterface.SUCCESS: {
 					Log.i(TAG, "OpenCV loaded successfully");
-//					mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.JavaCameraView);
 					restoreOrCreateGLSurfaceView();
-					mOpenCvCameraView = new JavaCameraView(CameraActivity.this, CameraBridgeViewBase.CAMERA_ID_ANY);
-					mFrameLayout.addView(mOpenCvCameraView);
-					mOpenCvCameraView.setCvCameraViewListener(CameraActivity.this);
-					mOpenCvCameraView.enableView();
-//					mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
+					restoreOrCreateJavaCameraView();
 				}
 				break;
 				default: {
@@ -50,6 +45,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2 {
 				break;
 			}
 		}
+
 	};
 	
 	
@@ -80,20 +76,8 @@ public class CameraActivity extends Activity implements CvCameraViewListener2 {
 	@Override
 	protected void onResume() {
 		OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_6, this, mLoaderCallback);
-//		findViewById(R.id.)
-//		mGLView = new MyGLSurfaceView(this);
-//		mFrameLayout.addView(mGLView);
 		super.onResume();
 	}
-
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-//		if (mOpenCvCameraView != null) {
-//			mOpenCvCameraView.disableView();
-//		}
-	}
-
 	
 	
 	/*
@@ -122,19 +106,21 @@ public class CameraActivity extends Activity implements CvCameraViewListener2 {
 	 *   
 	 *   */
 	private void saveGLSurfaceView() {
-//		mFrameLayout.removeView(mGLSurfaceView);
-//		mFrameLayout.removeView(mOpenCvCameraView);
 		mFrameLayout.removeAllViewsInLayout();
 	}
 	
 	private void restoreOrCreateGLSurfaceView() {
-		
-//		mGLSurfaceView = (MyGLSurfaceView)findViewById(R.id.MyGLSurfaceView);
-//		if (mGLSurfaceView == null) {
 		mGLSurfaceView = new MyGLSurfaceView(this);
-		mFrameLayout.addView(mGLSurfaceView);
-//		}
-//		mGLSurfaceView.setVisibility(SurfaceView.VISIBLE);
+		mFrameLayout.addView(mGLSurfaceView, 0);
+	}
+	
+	private void restoreOrCreateJavaCameraView() {
+		mOpenCvCameraView = new JavaCameraView(CameraActivity.this, CameraBridgeViewBase.CAMERA_ID_ANY);
+		mOpenCvCameraView.enableFpsMeter();
+//		mFrameLayout.addView(mOpenCvCameraView);
+		mFrameLayout.addView(mOpenCvCameraView, 1);
+		mOpenCvCameraView.setCvCameraViewListener(CameraActivity.this);
+		mOpenCvCameraView.enableView();
 	}
 	
 }
