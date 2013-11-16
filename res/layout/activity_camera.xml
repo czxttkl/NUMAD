@@ -1,27 +1,29 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:opencv="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/MyFrameLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".CameraActivity" >
-
-    <!-- <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/hello_world" /> -->
+    tools:context=".CameraActivity" 
+    xmlns:sufaceview="http://schemas.android.com/apk/res-auto">
 	
-<!-- 	<org.opencv.android.JavaCameraView -->
-	
-	<org.opencv.android.JavaCameraView
+<!--     You must define GlSurfaceView before JavaCamera" -->
+	<!-- 	<edu.neu.mhealth.debug.MyGLSurfaceView
 	    android:layout_width="fill_parent"
 	    android:layout_height="fill_parent"
-		android:visibility="gone"
-		android:id="@+id/HellpOpenCvView"
-		opencv:show_fps="true"
-		opencv:camera_id="any" />
+	    android:id="@+id/MyGLSurfaceView"
+	    android:visibility="visible"/>
 
+		<org.opencv.android.JavaCameraView
+	    android:layout_width="fill_parent"
+	    android:layout_height="fill_parent"
+		android:visibility="visible"
+		android:id="@+id/JavaCameraView"
+		opencv:show_fps="true" -->
+		opencv:camera_id="any" />
+	
 </FrameLayout>

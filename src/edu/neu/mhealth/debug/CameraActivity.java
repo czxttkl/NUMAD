@@ -24,7 +24,8 @@ public class CameraActivity extends Activity implements CvCameraViewListener2 {
 
 	/*Basic Variables*/
 	private final String TAG = Global.APP_LOG_TAG;
-	
+	FrameLayout mFrameLayout;
+	MyGLSurfaceView mGLSurfaceView;
 	
 	/*OpenCv Variables*/
 	private CameraBridgeViewBase mOpenCvCameraView;
@@ -34,7 +35,13 @@ public class CameraActivity extends Activity implements CvCameraViewListener2 {
 			switch (status) {
 				case LoaderCallbackInterface.SUCCESS: {
 					Log.i(TAG, "OpenCV loaded successfully");
+//					mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.JavaCameraView);
+					restoreOrCreateGLSurfaceView();
+					mOpenCvCameraView = new JavaCameraView(CameraActivity.this, CameraBridgeViewBase.CAMERA_ID_ANY);
+					mFrameLayout.addView(mOpenCvCameraView);
+					mOpenCvCameraView.setCvCameraViewListener(CameraActivity.this);
 					mOpenCvCameraView.enableView();
+//					mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
 				}
 				break;
 				default: {
@@ -48,6 +55,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2 {
 	
 	/*OpenGl Variables*/
 	private GLSurfaceView mGLView;
+	
 	/*
 	 *   Activity Callbacks
 	 *   
@@ -56,36 +64,34 @@ public class CameraActivity extends Activity implements CvCameraViewListener2 {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-		
-		FrameLayout mFrameLayout = (FrameLayout)getLayoutInflater().inflate(R.layout.activity_camera, null);
-		mGLView = new MyGLSurfaceView(this);
-		mFrameLayout.addView(mGLView);
-		setContentView(mFrameLayout);
-		mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.HellpOpenCvView);
-		mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
-		mOpenCvCameraView.setCvCameraViewListener(this);
+		setContentView(R.layout.activity_camera);	
+		mFrameLayout = (FrameLayout)findViewById(R.id.MyFrameLayout);
 	}
 
 	@Override
 	protected void onPause() {
-		super.onPause();
 		if (mOpenCvCameraView != null) {
 			mOpenCvCameraView.disableView();
+			saveGLSurfaceView();
 		}
+		super.onPause();
 	}
 
 	@Override
 	protected void onResume() {
-		super.onResume();
 		OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_6, this, mLoaderCallback);
+//		findViewById(R.id.)
+//		mGLView = new MyGLSurfaceView(this);
+//		mFrameLayout.addView(mGLView);
+		super.onResume();
 	}
 
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		if (mOpenCvCameraView != null) {
-			mOpenCvCameraView.disableView();
-		}
+//		if (mOpenCvCameraView != null) {
+//			mOpenCvCameraView.disableView();
+//		}
 	}
 
 	
@@ -111,5 +117,24 @@ public class CameraActivity extends Activity implements CvCameraViewListener2 {
 		return inputFrame.rgba();
 	}
 
+	/*
+	 *   Save/Restore States
+	 *   
+	 *   */
+	private void saveGLSurfaceView() {
+//		mFrameLayout.removeView(mGLSurfaceView);
+//		mFrameLayout.removeView(mOpenCvCameraView);
+		mFrameLayout.removeAllViewsInLayout();
+	}
+	
+	private void restoreOrCreateGLSurfaceView() {
+		
+//		mGLSurfaceView = (MyGLSurfaceView)findViewById(R.id.MyGLSurfaceView);
+//		if (mGLSurfaceView == null) {
+		mGLSurfaceView = new MyGLSurfaceView(this);
+		mFrameLayout.addView(mGLSurfaceView);
+//		}
+//		mGLSurfaceView.setVisibility(SurfaceView.VISIBLE);
+	}
 	
 }

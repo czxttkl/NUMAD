@@ -3,6 +3,7 @@ package edu.neu.mhealth.debug;
 import android.content.Context;
 import android.graphics.PixelFormat;
 import android.opengl.GLSurfaceView;
+import android.util.AttributeSet;
 
 
 public class MyGLSurfaceView extends GLSurfaceView {
@@ -10,9 +11,8 @@ public class MyGLSurfaceView extends GLSurfaceView {
     private final MyGLRenderer mRenderer;
 //    private final CubeRenderer mRenderer;
 
-    public MyGLSurfaceView(Context context) {
-        super(context);
-
+    public MyGLSurfaceView(Context context, AttributeSet attrs) {
+    	super(context, attrs);
         // Create an OpenGL ES 2.0 context.
         setEGLContextClientVersion(2);
         // We want an 8888 pixel format because that's required for
@@ -21,11 +21,24 @@ public class MyGLSurfaceView extends GLSurfaceView {
         setEGLConfigChooser(8, 8, 8, 8, 16, 0);
         // Use a surface format with an Alpha channel:
         getHolder().setFormat(PixelFormat.TRANSLUCENT);
-        
         // Set the Renderer for drawing on the GLSurfaceView
         mRenderer = new MyGLRenderer();
         setRenderer(mRenderer);
-
+    }
+    
+    public MyGLSurfaceView(Context context) {
+        super(context);
+        // Create an OpenGL ES 2.0 context.
+        setEGLContextClientVersion(2);
+        // We want an 8888 pixel format because that's required for
+        // a translucent window.
+        // And we want a depth buffer.
+        setEGLConfigChooser(8, 8, 8, 8, 16, 0);
+        // Use a surface format with an Alpha channel:
+        getHolder().setFormat(PixelFormat.TRANSLUCENT);
+        // Set the Renderer for drawing on the GLSurfaceView
+        mRenderer = new MyGLRenderer();
+        setRenderer(mRenderer);
 //        mRenderer = new FireRenderer();
 //        setRenderer(mRenderer);
         // Render the view only when there is a change in the drawing data
