@@ -23,9 +23,10 @@ import android.widget.FrameLayout;
 public class CameraActivity extends Activity implements CvCameraViewListener2 {
 
 	/*Basic Variables*/
+	/** Debug Tag */
 	private final String TAG = Global.APP_LOG_TAG;
+	/** The game activity's framelayout. Use this to handle adding/removing surfaceviews*/
 	FrameLayout mFrameLayout;
-	MyGLSurfaceView mGLSurfaceView;
 	
 	/*OpenCv Variables*/
 	private CameraBridgeViewBase mOpenCvCameraView;
@@ -50,7 +51,8 @@ public class CameraActivity extends Activity implements CvCameraViewListener2 {
 	
 	
 	/*OpenGl Variables*/
-	private GLSurfaceView mGLView;
+	/** OpenGL surface view for displaying bugs*/
+	MyGLSurfaceView mGLSurfaceView;
 	
 	/*
 	 *   Activity Callbacks
@@ -68,7 +70,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2 {
 	protected void onPause() {
 		if (mOpenCvCameraView != null) {
 			mOpenCvCameraView.disableView();
-			saveGLSurfaceView();
+			saveAndRemoveSurfaceViews();
 		}
 		super.onPause();
 	}
@@ -78,7 +80,6 @@ public class CameraActivity extends Activity implements CvCameraViewListener2 {
 		OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_6, this, mLoaderCallback);
 		super.onResume();
 	}
-	
 	
 	/*
 	 *   Opencv Callbacks
@@ -105,19 +106,28 @@ public class CameraActivity extends Activity implements CvCameraViewListener2 {
 	 *   Save/Restore States
 	 *   
 	 *   */
-	private void saveGLSurfaceView() {
+	private void saveAndRemoveSurfaceViews() {
 		mFrameLayout.removeAllViewsInLayout();
 	}
 	
+	/**
+	 * Restore or create SurfaceView for bugs.
+	 * This method is called after OpenCV library is loaded successfully.
+	 */
 	private void restoreOrCreateGLSurfaceView() {
 		mGLSurfaceView = new MyGLSurfaceView(this);
+		//CameraView must be added after GLSurfaceView so that GLSurfaceView could appear upon CameraView
 		mFrameLayout.addView(mGLSurfaceView, 0);
 	}
 	
+	/**
+	 * Restore or create SurfaceView for opencv CameraView.
+	 * This method is called after OpenCV library is loaded successfully.
+	 */
 	private void restoreOrCreateJavaCameraView() {
 		mOpenCvCameraView = new JavaCameraView(CameraActivity.this, CameraBridgeViewBase.CAMERA_ID_ANY);
 		mOpenCvCameraView.enableFpsMeter();
-//		mFrameLayout.addView(mOpenCvCameraView);
+		//CameraView must be added after GLSurfaceView so that GLSurfaceView could appear upon CameraView
 		mFrameLayout.addView(mOpenCvCameraView, 1);
 		mOpenCvCameraView.setCvCameraViewListener(CameraActivity.this);
 		mOpenCvCameraView.enableView();

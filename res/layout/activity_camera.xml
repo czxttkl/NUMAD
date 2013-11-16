@@ -11,8 +11,13 @@
     tools:context=".CameraActivity" 
     xmlns:sufaceview="http://schemas.android.com/apk/res-auto">
 	
-<!--     You must define GlSurfaceView before JavaCamera" -->
-	<!-- 	<edu.neu.mhealth.debug.MyGLSurfaceView
+<!--    If you want to manipulate two surfaceviews overlap,
+		add them to framelayout programmatically. 
+		MyGLSurfaceView must be the first child in the framelayout 
+		so that it could appear upon JavaCameraView.
+		-->
+		
+	<!--<edu.neu.mhealth.debug.MyGLSurfaceView
 	    android:layout_width="fill_parent"
 	    android:layout_height="fill_parent"
 	    android:id="@+id/MyGLSurfaceView"
@@ -23,7 +28,7 @@
 	    android:layout_height="fill_parent"
 		android:visibility="visible"
 		android:id="@+id/JavaCameraView"
-		opencv:show_fps="true" -->
-		opencv:camera_id="any" />
+		opencv:show_fps="true" 
+		opencv:camera_id="any" />-->
 	
 </FrameLayout>
