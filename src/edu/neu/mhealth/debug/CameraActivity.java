@@ -11,17 +11,20 @@ import org.opencv.core.Mat;
 
 import edu.neu.mhealth.debug.helper.Global;
 
+import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.app.Activity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.SurfaceView;
 import android.view.WindowManager;
+import android.widget.FrameLayout;
 
 public class CameraActivity extends Activity implements CvCameraViewListener2 {
 
 	/*Basic Variables*/
 	private final String TAG = Global.APP_LOG_TAG;
+	
 	
 	/*OpenCv Variables*/
 	private CameraBridgeViewBase mOpenCvCameraView;
@@ -42,6 +45,9 @@ public class CameraActivity extends Activity implements CvCameraViewListener2 {
 		}
 	};
 	
+	
+	/*OpenGl Variables*/
+	private GLSurfaceView mGLView;
 	/*
 	 *   Activity Callbacks
 	 *   
@@ -50,7 +56,11 @@ public class CameraActivity extends Activity implements CvCameraViewListener2 {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-		setContentView(R.layout.activity_camera);
+		
+		FrameLayout mFrameLayout = (FrameLayout)getLayoutInflater().inflate(R.layout.activity_camera, null);
+		mGLView = new MyGLSurfaceView(this);
+		mFrameLayout.addView(mGLView);
+		setContentView(mFrameLayout);
 		mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.HellpOpenCvView);
 		mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
 		mOpenCvCameraView.setCvCameraViewListener(this);
