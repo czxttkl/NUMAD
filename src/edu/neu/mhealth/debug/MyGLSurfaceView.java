@@ -8,7 +8,7 @@ import android.util.AttributeSet;
 
 public class MyGLSurfaceView extends GLSurfaceView {
 
-    private final MyGLRenderer mRenderer;
+    private final LessonTwoRenderer mRenderer;
 //    private final CubeRenderer mRenderer;
 
     public MyGLSurfaceView(Context context, AttributeSet attrs) {
@@ -22,7 +22,7 @@ public class MyGLSurfaceView extends GLSurfaceView {
         // Use a surface format with an Alpha channel:
         getHolder().setFormat(PixelFormat.TRANSLUCENT);
         // Set the Renderer for drawing on the GLSurfaceView
-        mRenderer = new MyGLRenderer();
+        mRenderer = new LessonTwoRenderer();
         setRenderer(mRenderer);
     }
     
@@ -37,7 +37,7 @@ public class MyGLSurfaceView extends GLSurfaceView {
         // Use a surface format with an Alpha channel:
         getHolder().setFormat(PixelFormat.TRANSLUCENT);
         // Set the Renderer for drawing on the GLSurfaceView
-        mRenderer = new MyGLRenderer();
+        mRenderer = new LessonTwoRenderer();
         setRenderer(mRenderer);
 //        mRenderer = new FireRenderer();
 //        setRenderer(mRenderer);
