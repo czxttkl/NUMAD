@@ -335,6 +335,20 @@ public class LessonTwoRenderer implements GLSurfaceView.Renderer
 		return fragmentShader;
 	}
 	
+	// Position the eye in front of the origin.
+	final float eyeX = 0.0f;
+	final float eyeY = 0.0f;
+	final float eyeZ = -0.5f;
+	
+	// We are looking toward the distance. The center of the image you are looking at.
+	final float lookX = 0.0f;
+	final float lookY = 0.0f;
+	final float lookZ = -1.0f;
+	
+	// Set our up vector. This is where our head would be pointing were we holding the camera.
+	final float upX = 0.0f;
+	final float upY = 1.0f;
+	final float upZ = 0.0f;
 	@Override
 	public void onSurfaceCreated(GL10 glUnused, EGLConfig config) 
 	{
@@ -347,20 +361,6 @@ public class LessonTwoRenderer implements GLSurfaceView.Renderer
 		// Enable depth testing
 		GLES20.glEnable(GLES20.GL_DEPTH_TEST);
 			
-		// Position the eye in front of the origin.
-		final float eyeX = 0.0f;
-		final float eyeY = 0.0f;
-		final float eyeZ = -0.5f;
-
-		// We are looking toward the distance. The center of the image you are looking at.
-		final float lookX = 0.0f;
-		final float lookY = 0.0f;
-		final float lookZ = -5.0f;
-
-		// Set our up vector. This is where our head would be pointing were we holding the camera.
-		final float upX = 0.0f;
-		final float upY = 1.0f;
-		final float upZ = 0.0f;
 
 		// Set the view matrix. This matrix can be said to represent the camera position.
 		// NOTE: In OpenGL 1, a ModelView matrix is used, which is a combination of a model and
@@ -421,15 +421,26 @@ public class LessonTwoRenderer implements GLSurfaceView.Renderer
 		Matrix.frustumM(mProjectionMatrix, 0, left, right, bottom, top, near, far);
 	}	
 
+	private float distance = -1;
+	private boolean flip = false;
 	@Override
 	public void onDrawFrame(GL10 glUnused) 
 	{
 		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);			        
                 
         // Do a complete rotation every 10 seconds.
-        long time = SystemClock.uptimeMillis() % 10000L;        
-        float angleInDegrees = (360.0f / 10000.0f) * ((int) time);                
-        
+        long time = SystemClock.uptimeMillis() % 3000L;        
+        float angleInDegrees = (360.0f / 3000.0f) * ((int) time);   
+        float k = angleInDegrees / 30.0f; 
+        if (k < distance) {
+        	flip = !flip;
+        } 
+        distance = k;
+        if(flip)
+        	Matrix.setLookAtM(mViewMatrix, 0, k, eyeY, eyeZ, k, lookY, lookZ, upX, upY, upZ);	
+        else
+        	Matrix.setLookAtM(mViewMatrix, 0, 12-k, eyeY, eyeZ, 12-k, lookY, lookZ, upX, upY, upZ);	
+        	
         // Set our per-vertex lighting program.
         GLES20.glUseProgram(mPerVertexProgramHandle);
         
@@ -447,10 +458,13 @@ public class LessonTwoRenderer implements GLSurfaceView.Renderer
 //        	Matrix.translateM(mLightModelMatrix, 0, 0.0f, 0.0f, -5.0f);      
 //        	translated = true;
 //        }
-        Matrix.translateM(mLightModelMatrix, 0, 0.0f, 0.0f, -5.0f);      
-        Matrix.rotateM(mLightModelMatrix, 0, angleInDegrees, 1.0f, 0.0f, 0.0f);
-        Matrix.translateM(mLightModelMatrix, 0, 0.0f, 0.0f, 2.0f);
-               
+//        Matrix.translateM(mLightModelMatrix, 0, 0.0f, 0.0f, -5.0f);      
+//        Matrix.rotateM(mLightModelMatrix, 0, angleInDegrees, 1.0f, 0.0f, 0.0f);
+        if(flip)        
+        	Matrix.translateM(mLightModelMatrix, 0, k, 0.0f, 0.0f);
+        else
+        	Matrix.translateM(mLightModelMatrix, 0, 12-k, 0.0f, 0.0f);
+        	
         Matrix.multiplyMV(mLightPosInEyeSpace, 0, mViewMatrix, 0, mLightPosInWorldSpace, 0);                        
         Matrix.multiplyMV(mLightPosInWorldSpace, 0, mLightModelMatrix, 0, mLightPosInModelSpace, 0);
         
@@ -475,13 +489,27 @@ public class LessonTwoRenderer implements GLSurfaceView.Renderer
 //        drawCube();
 //        
         Matrix.setIdentityM(mModelMatrix, 0);
-        Matrix.translateM(mModelMatrix, 0, 0.0f, 0.0f, -8.0f);
-        Matrix.rotateM(mModelMatrix, 0, angleInDegrees, 1.0f, 1.0f, 0.0f);        
+        
+        
+//        if (flip)
+//        	Matrix.translateM(mModelMatrix, 0, k, k, -6.0f);
+//        else
+//        	Matrix.translateM(mModelMatrix, 0, 4-k, 4-k, -6.0f);
+        Matrix.translateM(mModelMatrix, 0, 0, 0, -6.0f);
+        Matrix.rotateM(mModelMatrix, 0, angleInDegrees, 1.0f, 1.0f, 0.0f);     
         drawCube();      
         
         // Draw a point to indicate the light.
         GLES20.glUseProgram(mPointProgramHandle);        
         drawLight();
+        
+		// Set the view matrix. This matrix can be said to represent the camera position.
+		// NOTE: In OpenGL 1, a ModelView matrix is used, which is a combination of a model and
+		// view matrix. In OpenGL 2, we can keep track of these matrices separately if we choose.
+
+        	
+        
+        	
 	}				
 	
 	/**
