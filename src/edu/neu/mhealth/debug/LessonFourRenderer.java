@@ -448,7 +448,10 @@ public class LessonFourRenderer implements GLSurfaceView.Renderer
 		
 		Matrix.frustumM(mProjectionMatrix, 0, left, right, bottom, top, near, far);
 	}	
-
+	
+	
+	private float previousK = -1;
+	private boolean flip = false;
 	@Override
 	public void onDrawFrame(GL10 glUnused) 
 	{
@@ -457,6 +460,15 @@ public class LessonFourRenderer implements GLSurfaceView.Renderer
         // Do a complete rotation every 10 seconds.
         long time = SystemClock.uptimeMillis() % 10000L;        
         float angleInDegrees = (360.0f / 10000.0f) * ((int) time);                
+        float k = angleInDegrees / 30.0f; 
+        if (k < previousK) {
+        	flip = !flip;
+        } 
+        previousK = k;
+        if(flip)
+        	Matrix.setLookAtM(mViewMatrix, 0, k, eyeY, eyeZ, k, lookY, lookZ, upX, upY, upZ);	
+        else
+        	Matrix.setLookAtM(mViewMatrix, 0, 12-k, eyeY, eyeZ, 12-k, lookY, lookZ, upX, upY, upZ);	
         
         // Set our per-vertex lighting program.
         GLES20.glUseProgram(mProgramHandle);
@@ -482,9 +494,9 @@ public class LessonFourRenderer implements GLSurfaceView.Renderer
         
         // Calculate position of the light. Rotate and then push into the distance.
         Matrix.setIdentityM(mLightModelMatrix, 0);
-        Matrix.translateM(mLightModelMatrix, 0, 0.0f, 0.0f, -3.0f);      
+        Matrix.translateM(mLightModelMatrix, 0, 0.0f, 0.0f, -5.0f);      
 //        Matrix.rotateM(mLightModelMatrix, 0, angleInDegrees, 0.0f, 1.0f, 0.0f);
-//        Matrix.translateM(mLightModelMatrix, 0, 0.0f, 0.0f, 2.0f);
+        Matrix.translateM(mLightModelMatrix, 0, 0.0f, 0.0f, 2.0f);
                
         Matrix.multiplyMV(mLightPosInWorldSpace, 0, mLightModelMatrix, 0, mLightPosInModelSpace, 0);
         Matrix.multiplyMV(mLightPosInEyeSpace, 0, mViewMatrix, 0, mLightPosInWorldSpace, 0);                        
