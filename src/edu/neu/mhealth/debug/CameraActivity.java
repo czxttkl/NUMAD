@@ -36,8 +36,8 @@ public class CameraActivity extends Activity implements CvCameraViewListener2 {
 			switch (status) {
 				case LoaderCallbackInterface.SUCCESS: {
 					Log.i(TAG, "OpenCV loaded successfully");
-					restoreOrCreateGLSurfaceView();
 					restoreOrCreateJavaCameraView();
+					restoreOrCreateGLSurfaceView();
 				}
 				break;
 				default: {
@@ -117,7 +117,9 @@ public class CameraActivity extends Activity implements CvCameraViewListener2 {
 	private void restoreOrCreateGLSurfaceView() {
 		mGLSurfaceView = new MyGLSurfaceView(this);
 		//CameraView must be added after GLSurfaceView so that GLSurfaceView could appear upon CameraView
-		mFrameLayout.addView(mGLSurfaceView, 0);
+		mFrameLayout.addView(mGLSurfaceView);
+		mGLSurfaceView.setZOrderMediaOverlay(true);
+		mGLSurfaceView.setZOrderOnTop(true);
 	}
 	
 	/**
@@ -128,7 +130,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2 {
 		mOpenCvCameraView = new JavaCameraView(CameraActivity.this, CameraBridgeViewBase.CAMERA_ID_ANY);
 		mOpenCvCameraView.enableFpsMeter();
 		//CameraView must be added after GLSurfaceView so that GLSurfaceView could appear upon CameraView
-		mFrameLayout.addView(mOpenCvCameraView, 1);
+		mFrameLayout.addView(mOpenCvCameraView);
 		mOpenCvCameraView.setCvCameraViewListener(CameraActivity.this);
 		mOpenCvCameraView.enableView();
 	}
