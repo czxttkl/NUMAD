@@ -11,16 +11,23 @@ import org.opencv.core.Mat;
 
 import edu.neu.mhealth.debug.helper.Global;
 
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.os.Handler;
 import android.app.Activity;
+import android.content.Context;
 import android.util.Log;
 import android.view.Menu;
 import android.view.SurfaceView;
 import android.view.WindowManager;
+import android.view.animation.AccelerateInterpolator;
 import android.widget.FrameLayout;
 
-public class CameraActivity extends Activity implements CvCameraViewListener2 {
+public class CameraActivity extends Activity implements CvCameraViewListener2, SensorEventListener   {
 
 	/*Basic Variables*/
 	/** Debug Tag */
@@ -52,8 +59,17 @@ public class CameraActivity extends Activity implements CvCameraViewListener2 {
 	
 	/*OpenGl Variables*/
 	/** OpenGL surface view for displaying bugs*/
-	MyGLSurfaceView mGLSurfaceView;
+	private MyGLSurfaceView mGLSurfaceView;
 	
+	/*Sensor Variables*/
+	private final float MAX_ROATE_DEGREE = 1.0f;
+	private SensorManager mSensorManager;
+	private Sensor mOrientationSensor;
+    private float mDirection;
+    private float mTargetDirection;
+    private AccelerateInterpolator mInterpolator;
+    protected final Handler mHandler = new Handler();
+    private boolean mStopDrawing;
 	/*
 	 *   Activity Callbacks
 	 *   
@@ -64,6 +80,14 @@ public class CameraActivity extends Activity implements CvCameraViewListener2 {
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		setContentView(R.layout.activity_camera);	
 		mFrameLayout = (FrameLayout)findViewById(R.id.MyFrameLayout);
+		
+		mDirection = 0.0f;
+        mTargetDirection = 0.0f;
+        mInterpolator = new AccelerateInterpolator();
+        mStopDrawing = true;
+		  // sensor manager
+        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        mOrientationSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
 	}
 
 	@Override
@@ -72,12 +96,25 @@ public class CameraActivity extends Activity implements CvCameraViewListener2 {
 			mOpenCvCameraView.disableView();
 			saveAndRemoveSurfaceViews();
 		}
+		
+		mStopDrawing = true;
+        if (mOrientationSensor != null) {
+            mSensorManager.unregisterListener(this);
+        }
+        
 		super.onPause();
 	}
 
 	@Override
 	protected void onResume() {
 		OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_6, this, mLoaderCallback);
+		
+		if (mOrientationSensor != null) {
+			mSensorManager.registerListener(this, mOrientationSensor, SensorManager.SENSOR_DELAY_GAME);
+		}
+		mStopDrawing = false;
+	    mHandler.postDelayed(mRotationUpdater, 20);
+	    
 		super.onResume();
 	}
 	
@@ -134,5 +171,63 @@ public class CameraActivity extends Activity implements CvCameraViewListener2 {
 		mOpenCvCameraView.setCvCameraViewListener(CameraActivity.this);
 		mOpenCvCameraView.enableView();
 	}
+
+	/*
+	 *   Sensor Callbacks
+	 *   
+	 *   */
+	@Override
+	public void onAccuracyChanged(Sensor arg0, int arg1) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onSensorChanged(SensorEvent arg0) {
+		float direction = arg0.values[0] * -1.0f;
+        mTargetDirection = normalizeDegree(direction);
+	}
 	
+    protected Runnable mRotationUpdater = new Runnable() {
+        @Override
+        public void run() {
+            if (!mStopDrawing) {
+                if (mDirection != mTargetDirection) {
+
+                    // calculate the short routine
+                    float to = mTargetDirection;
+                    if (to - mDirection > 180) {
+                        to -= 360;
+                    } else if (to - mDirection < -180) {
+                        to += 360;
+                    }
+
+                    // limit the max speed to MAX_ROTATE_DEGREE
+                    float distance = to - mDirection;
+                    if (Math.abs(distance) > MAX_ROATE_DEGREE) {
+                        distance = distance > 0 ? MAX_ROATE_DEGREE : (-1.0f * MAX_ROATE_DEGREE);
+                    }
+
+                    // need to slow down if the distance is short
+                    float mDirectionNew = normalizeDegree(mDirection
+                            + ((to - mDirection) * mInterpolator.getInterpolation(Math
+                                    .abs(distance) > MAX_ROATE_DEGREE ? 0.4f : 0.3f)));
+                    float rotateDiff = mDirectionNew - mDirection;
+                    updateDirection(rotateDiff);
+                    mDirection = mDirectionNew;
+                }
+
+
+                mHandler.postDelayed(mRotationUpdater, 20);
+            }
+        }
+    };
+	
+    private float normalizeDegree(float degree) {
+        return (degree + 720) % 360;
+    }
+    
+    private void updateDirection(float rotateDiff) {
+    	Log.d(TAG, "rotateDiff:" + rotateDiff);
+    }
 }
