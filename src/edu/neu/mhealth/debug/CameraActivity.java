@@ -65,11 +65,15 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	private final float MAX_ROATE_DEGREE = 1.0f;
 	private SensorManager mSensorManager;
 	private Sensor mOrientationSensor;
+	private Sensor mLinearAccelerometer;
     private float mDirection;
     private float mTargetDirection;
     private AccelerateInterpolator mInterpolator;
     protected final Handler mHandler = new Handler();
-    private boolean mStopDrawing;
+    private boolean mStopDetecting;
+    private float linearAccX;
+    private float linearAccY;
+    private float linearAccZ;
 	/*
 	 *   Activity Callbacks
 	 *   
@@ -80,14 +84,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		setContentView(R.layout.activity_camera);	
 		mFrameLayout = (FrameLayout)findViewById(R.id.MyFrameLayout);
-		
-		mDirection = 0.0f;
-        mTargetDirection = 0.0f;
-        mInterpolator = new AccelerateInterpolator();
-        mStopDrawing = true;
-		  // sensor manager
-        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        mOrientationSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
+		initSensors();
 	}
 
 	@Override
@@ -96,28 +93,18 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 			mOpenCvCameraView.disableView();
 			saveAndRemoveSurfaceViews();
 		}
-		
-		mStopDrawing = true;
-        if (mOrientationSensor != null) {
-            mSensorManager.unregisterListener(this);
-        }
-        
+		pauseSensors();
 		super.onPause();
 	}
 
 	@Override
 	protected void onResume() {
 		OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_6, this, mLoaderCallback);
-		
-		if (mOrientationSensor != null) {
-			mSensorManager.registerListener(this, mOrientationSensor, SensorManager.SENSOR_DELAY_GAME);
-		}
-		mStopDrawing = false;
-	    mHandler.postDelayed(mRotationUpdater, 20);
-	    
+		resumeSensors();
 		super.onResume();
 	}
 	
+
 	/*
 	 *   Opencv Callbacks
 	 *   
@@ -173,9 +160,38 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	}
 
 	/*
-	 *   Sensor Callbacks
+	 *   Sensor methods
 	 *   
 	 *   */
+	private void initSensors() {
+		mDirection = 0.0f;
+        mTargetDirection = 0.0f;
+        mInterpolator = new AccelerateInterpolator();
+        mStopDetecting = true;
+		  // sensor manager
+        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        mOrientationSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
+        mLinearAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
+	}
+	
+	private void resumeSensors() {
+		mStopDetecting = false;
+		if (mOrientationSensor != null) {
+			mSensorManager.registerListener(this, mOrientationSensor, SensorManager.SENSOR_DELAY_GAME);
+		}
+		if (mLinearAccelerometer != null) {
+			mSensorManager.registerListener(this, mLinearAccelerometer, SensorManager.SENSOR_DELAY_GAME);
+		}
+	    mHandler.postDelayed(mEyeLocationUpdater, 20);
+	}
+	
+	private void pauseSensors() {
+		mStopDetecting = true;
+        if (mOrientationSensor != null && mLinearAccelerometer != null) {
+            mSensorManager.unregisterListener(this);
+        }
+	}
+	
 	@Override
 	public void onAccuracyChanged(Sensor arg0, int arg1) {
 		// TODO Auto-generated method stub
@@ -184,14 +200,23 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 
 	@Override
 	public void onSensorChanged(SensorEvent arg0) {
-		float direction = arg0.values[0] * -1.0f;
-        mTargetDirection = normalizeDegree(direction);
+		if (Sensor.TYPE_ORIENTATION == arg0.sensor.getType()) {
+			float direction = arg0.values[0] * -1.0f;
+			mTargetDirection = normalizeDegree(direction);
+		} else  {
+			if (Sensor.TYPE_LINEAR_ACCELERATION == arg0.sensor.getType()) {
+				linearAccX = arg0.values[0];
+				linearAccY = arg0.values[1];
+				linearAccZ = arg0.values[2];
+				Log.d(TAG, System.currentTimeMillis() + ":" + linearAccX + "," + linearAccY + "," + linearAccZ);
+			}
+		}
 	}
 	
-    protected Runnable mRotationUpdater = new Runnable() {
+    protected Runnable mEyeLocationUpdater = new Runnable() {
         @Override
         public void run() {
-            if (!mStopDrawing) {
+            if (!mStopDetecting) {
                 if (mDirection != mTargetDirection) {
 
                     // calculate the short routine
@@ -213,11 +238,11 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
                             + ((to - mDirection) * mInterpolator.getInterpolation(Math
                                     .abs(distance) > MAX_ROATE_DEGREE ? 0.4f : 0.3f)));
 //                    float rotateDiff =  mDirection - mDirectionNew;
-                    updateDirection(mDirectionNew);
                     mDirection = mDirectionNew;
                 }
+                updateOpenGLEyeLocation(mDirection);
 
-                mHandler.postDelayed(mRotationUpdater, 20);
+                mHandler.postDelayed(mEyeLocationUpdater, 20);
             }
         }
     };
@@ -226,9 +251,10 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
         return (degree + 720) % 360;
     }
     
-    private void updateDirection(float mDirectionNew) {
+    private void updateOpenGLEyeLocation(float mDirectionNew) {
 //    	mGLSurfaceView.mRenderer.rotateDegree = mGLSurfaceView.mRenderer.rotateDegree + rotateDiff;
     	mGLSurfaceView.mRenderer.globalRotateDegree = mDirectionNew;
     	
+//    	mGLSurfaceView.mRenderer.eyeX;
     }
 }

@@ -469,6 +469,8 @@ public class LessonFourRenderer implements GLSurfaceView.Renderer
 		
         upX = (float) (Math.abs(Math.tan(Math.toRadians(globalRotateDegree)))) ;
         
+     
+        
         if (globalRotateDegree >= 180 && globalRotateDegree <360) {
         	upX = - upX;
         }
@@ -479,6 +481,7 @@ public class LessonFourRenderer implements GLSurfaceView.Renderer
         	upY = 1.0f;
         }
         
+//        if( globalRotateDegree >= 335 && globalRotateDegree <= 337)
         Log.d(TAG, /*"firstGlobalRotateDegree:" + firstGlobalRotateDegree + */" globalRotateDegree:" + globalRotateDegree + " upX, upY:" + upX + "," + upY);
         // Do a complete rotation every 10 seconds.
 //        long time = SystemClock.uptimeMillis() % 10000L;        
