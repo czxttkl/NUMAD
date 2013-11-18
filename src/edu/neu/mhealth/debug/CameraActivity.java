@@ -74,6 +74,14 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
     private float linearAccX;
     private float linearAccY;
     private float linearAccZ;
+    private long lastTimeExceedPositiveThresholdX = 0;
+    private long lastTimeExceedNegativeThresholdX = 0;
+    private long lastTimeExceedPositiveThresholdY = 0;
+    private long lastTimeExceedNegativeThresholdY = 0;
+    private final float PACE_PEAK_THRESHOLD = 1.4f;
+    private final long PACE_TWO_OPPOSITE_PEAK_INTERVAL = 800;
+    private final long PACE_ONE_PEAK_INTERVAL = 200;
+    
 	/*
 	 *   Activity Callbacks
 	 *   
@@ -205,9 +213,36 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 			mTargetDirection = normalizeDegree(direction);
 		} else  {
 			if (Sensor.TYPE_LINEAR_ACCELERATION == arg0.sensor.getType()) {
+				long now = System.currentTimeMillis();
 				linearAccX = arg0.values[0];
 				linearAccY = arg0.values[1];
 				linearAccZ = arg0.values[2];
+				
+				if (linearAccY > PACE_PEAK_THRESHOLD) {
+					if (now - lastTimeExceedPositiveThresholdY > PACE_ONE_PEAK_INTERVAL)
+						lastTimeExceedPositiveThresholdY = now;
+				}
+				
+				if (linearAccY < -PACE_PEAK_THRESHOLD) {
+					if (now - lastTimeExceedNegativeThresholdY > PACE_ONE_PEAK_INTERVAL)
+						lastTimeExceedNegativeThresholdY = now;
+				}
+					
+				if (linearAccX > PACE_PEAK_THRESHOLD) {
+					if (now - lastTimeExceedPositiveThresholdX > PACE_ONE_PEAK_INTERVAL)
+						lastTimeExceedPositiveThresholdX = now;
+				}
+				
+				if (linearAccX < -PACE_PEAK_THRESHOLD) {
+					if (now - lastTimeExceedNegativeThresholdX > PACE_ONE_PEAK_INTERVAL)
+						lastTimeExceedNegativeThresholdX = now;
+				}
+				
+				if (lastTimeExceedPositiveThresholdY - lastTimeExceedNegativeThresholdY < PACE_TWO_OPPOSITE_PEAK_INTERVAL 
+						&& lastTimeExceedPositiveThresholdY - lastTimeExceedNegativeThresholdY > 0) {
+					
+				}
+				
 				Log.d(TAG, System.currentTimeMillis() + ":" + linearAccX + "," + linearAccY + "," + linearAccZ);
 			}
 		}
@@ -218,7 +253,6 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
         public void run() {
             if (!mStopDetecting) {
                 if (mDirection != mTargetDirection) {
-
                     // calculate the short routine
                     float to = mTargetDirection;
                     if (to - mDirection > 180) {
@@ -239,8 +273,8 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
                                     .abs(distance) > MAX_ROATE_DEGREE ? 0.4f : 0.3f)));
 //                    float rotateDiff =  mDirection - mDirectionNew;
                     mDirection = mDirectionNew;
+                    updateOpenGLEyeLocation(mDirection);
                 }
-                updateOpenGLEyeLocation(mDirection);
 
                 mHandler.postDelayed(mEyeLocationUpdater, 20);
             }
