@@ -8,7 +8,7 @@ import android.util.AttributeSet;
 
 public class MyGLSurfaceView extends GLSurfaceView {
 
-    private final LessonFourRenderer mRenderer;
+    public final LessonFourRenderer mRenderer;
 //    private final CubeRenderer mRenderer;
 
     public MyGLSurfaceView(Context context, AttributeSet attrs) {

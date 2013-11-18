@@ -12,6 +12,7 @@ import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.os.SystemClock;
+import android.util.Log;
 
 import com.learnopengles.android.common.RawResourceReader;
 import com.learnopengles.android.common.ShaderHelper;
@@ -373,19 +374,19 @@ public class LessonFourRenderer implements GLSurfaceView.Renderer
 	}
 	
 	// Position the eye in front of the origin.
-	final float eyeX = 0.0f;
-	final float eyeY = 0.0f;
-	final float eyeZ = -0.5f;
+	float eyeX = 0.0f;
+	float eyeY = 0.0f;
+	float eyeZ = -0.5f;
 	
 	// We are looking toward the distance
-	final float lookX = 0.0f;
-	final float lookY = 0.0f;
-	final float lookZ = -5.0f;
+	float lookX = 0.0f;
+	float lookY = 0.0f;
+	float lookZ = -5.0f;
 	
 	// Set our up vector. This is where our head would be pointing were we holding the camera.
-	final float upX = 0.0f;
-	final float upY = 1.0f;
-	final float upZ = 0.0f;
+	float upX = 0.0f;
+	float upY = 1.0f;
+	float upZ = 0.0f;
 	@Override
 	public void onSurfaceCreated(GL10 glUnused, EGLConfig config) 
 	{
@@ -450,25 +451,49 @@ public class LessonFourRenderer implements GLSurfaceView.Renderer
 	}	
 	
 	
-	private float previousK = -1;
-	private boolean flip = false;
+//	private float previousK = -1;
+	private boolean initializedRotate = false;
+	private volatile float firstGlobalRotateDegree = 0;
+	public volatile float globalRotateDegree = 0;
+//	public volatile float rotateDiff;
 	@Override
 	public void onDrawFrame(GL10 glUnused) 
 	{
-		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);			        
-                
+		if (!initializedRotate && globalRotateDegree!=0) {
+			firstGlobalRotateDegree = globalRotateDegree;
+			initializedRotate = true;
+		}
+//		globalRotateDegree = globalRotateDegree /*+ rotateDiff*/;
+		
+		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);	
+		
+        upX = (float) (Math.abs(Math.tan(Math.toRadians(globalRotateDegree)))) ;
+        
+        if (globalRotateDegree >= 180 && globalRotateDegree <360) {
+        	upX = - upX;
+        }
+        
+        if (globalRotateDegree >=90 && globalRotateDegree <270) {
+        	upY = -1.0f;
+        } else {
+        	upY = 1.0f;
+        }
+        
+        Log.d(TAG, /*"firstGlobalRotateDegree:" + firstGlobalRotateDegree + */" globalRotateDegree:" + globalRotateDegree + " upX, upY:" + upX + "," + upY);
         // Do a complete rotation every 10 seconds.
-        long time = SystemClock.uptimeMillis() % 10000L;        
-        float angleInDegrees = (360.0f / 10000.0f) * ((int) time);                
-        float k = angleInDegrees / 30.0f; 
-        if (k < previousK) {
-        	flip = !flip;
+//        long time = SystemClock.uptimeMillis() % 10000L;        
+//        float angleInDegrees = (360.0f / 10000.0f) * ((int) time);                
+//        float k = angleInDegrees / 30.0f; 
+//        if (k < previousK) {
+//        	flip = !flip;
+//        } 
+//        previousK = k;
+        if (globalRotateDegree - firstGlobalRotateDegree < 0) {
+        	upX = upX * -1;
         } 
-        previousK = k;
-        if(flip)
-        	Matrix.setLookAtM(mViewMatrix, 0, k, eyeY, eyeZ, k, lookY, lookZ, upX, upY, upZ);	
-        else
-        	Matrix.setLookAtM(mViewMatrix, 0, 12-k, eyeY, eyeZ, 12-k, lookY, lookZ, upX, upY, upZ);	
+        Matrix.setLookAtM(mViewMatrix, 0, eyeX, eyeY, eyeZ, lookX, lookY, lookZ, upX, upY, upZ);	
+        
+        	
         
         // Set our per-vertex lighting program.
         GLES20.glUseProgram(mProgramHandle);
@@ -494,10 +519,10 @@ public class LessonFourRenderer implements GLSurfaceView.Renderer
         
         // Calculate position of the light. Rotate and then push into the distance.
         Matrix.setIdentityM(mLightModelMatrix, 0);
-        if(flip)        
-        	Matrix.translateM(mLightModelMatrix, 0, k, 0.0f, 0.0f);
-        else
-        	Matrix.translateM(mLightModelMatrix, 0, 12-k, 0.0f, 0.0f);
+//        if(flip)        
+//        	Matrix.translateM(mLightModelMatrix, 0, k, 0.0f, 0.0f);
+//        else
+//        	Matrix.translateM(mLightModelMatrix, 0, 12-k, 0.0f, 0.0f);
         	
         Matrix.multiplyMV(mLightPosInEyeSpace, 0, mViewMatrix, 0, mLightPosInWorldSpace, 0);                        
         Matrix.multiplyMV(mLightPosInWorldSpace, 0, mLightModelMatrix, 0, mLightPosInModelSpace, 0);

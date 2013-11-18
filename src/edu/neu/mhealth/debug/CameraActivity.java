@@ -212,11 +212,10 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
                     float mDirectionNew = normalizeDegree(mDirection
                             + ((to - mDirection) * mInterpolator.getInterpolation(Math
                                     .abs(distance) > MAX_ROATE_DEGREE ? 0.4f : 0.3f)));
-                    float rotateDiff = mDirectionNew - mDirection;
-                    updateDirection(rotateDiff);
+//                    float rotateDiff =  mDirection - mDirectionNew;
+                    updateDirection(mDirectionNew);
                     mDirection = mDirectionNew;
                 }
-
 
                 mHandler.postDelayed(mRotationUpdater, 20);
             }
@@ -227,7 +226,9 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
         return (degree + 720) % 360;
     }
     
-    private void updateDirection(float rotateDiff) {
-    	Log.d(TAG, "rotateDiff:" + rotateDiff);
+    private void updateDirection(float mDirectionNew) {
+//    	mGLSurfaceView.mRenderer.rotateDegree = mGLSurfaceView.mRenderer.rotateDegree + rotateDiff;
+    	mGLSurfaceView.mRenderer.globalRotateDegree = mDirectionNew;
+    	
     }
 }
