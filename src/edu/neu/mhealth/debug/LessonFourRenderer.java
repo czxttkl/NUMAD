@@ -376,7 +376,7 @@ public class LessonFourRenderer implements GLSurfaceView.Renderer
 	// Position the eye in front of the origin.
 	float eyeX = 0.0f;
 	float eyeY = 0.0f;
-	float eyeZ = -0.5f;
+	float eyeZ = 0.0f;
 	
 	// We are looking toward the distance
 	float lookX = 0.0f;
@@ -498,7 +498,8 @@ public class LessonFourRenderer implements GLSurfaceView.Renderer
 //        if (globalRotateDegree - firstGlobalRotateDegree < 0) {
 //        	upX = upX * -1;
 //        } 
-        Matrix.setLookAtM(mViewMatrix, 0, eyeX, eyeY, eyeZ, lookX, lookY, lookZ, upX, upY, upZ);	
+//        Matrix.setLookAtM(mViewMatrix, 0, eyeX, eyeY, eyeZ, lookX, lookY, lookZ, upX, upY, upZ);	
+        Matrix.setLookAtM(mViewMatrix, 0, eyeX, eyeY, eyeZ, eyeX, eyeY, lookZ, upX, upY, upZ);	
         
         	
         

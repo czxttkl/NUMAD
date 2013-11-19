@@ -80,9 +80,11 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
     private long lastTimeExceedNegativeThresholdX = 0;
     private long lastTimeExceedPositiveThresholdY = 0;
     private long lastTimeExceedNegativeThresholdY = 0;
-    private final float PACE_PEAK_THRESHOLD = 1.4f;
-    private final long PACE_TWO_OPPOSITE_PEAK_INTERVAL = 800;
-    private final long PACE_ONE_PEAK_INTERVAL = 200;
+    private final float PACE_PEAK_THRESHOLD = 0.2f;
+    private final float SPEED_PEAK_THRESHOLD = 2.0f;
+    private final float SPEED_CONSTANT = 0.005f;
+//    private final long PACE_TWO_OPPOSITE_PEAK_INTERVAL = 2000;
+    private final long PACE_ONE_PEAK_INTERVAL = 800;
     
 	/*
 	 *   Activity Callbacks
@@ -220,10 +222,63 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 				linearAccY = arg0.values[1];
 				linearAccZ = arg0.values[2];
 				
-				speedX = speedX + linearAccX;
-				speedY = speedY + linearAccY;
-					
+				if (now - lastTimeExceedPositiveThresholdX > PACE_ONE_PEAK_INTERVAL 
+						|| now - lastTimeExceedNegativeThresholdX > PACE_ONE_PEAK_INTERVAL) {
+					speedX = 0;
+					mGLSurfaceView.mRenderer.eyeY = mGLSurfaceView.mRenderer.eyeY + speedX * SPEED_CONSTANT;
+
+				}
 				
+				if (now - lastTimeExceedPositiveThresholdY > PACE_ONE_PEAK_INTERVAL 
+						|| now - lastTimeExceedNegativeThresholdY > PACE_ONE_PEAK_INTERVAL) {
+					speedY = 0;
+					mGLSurfaceView.mRenderer.eyeX = mGLSurfaceView.mRenderer.eyeX + speedY * SPEED_CONSTANT;
+				}
+				
+				if (linearAccX > PACE_PEAK_THRESHOLD) {
+					speedX = speedX - linearAccX;
+					lastTimeExceedPositiveThresholdX = now;
+					mGLSurfaceView.mRenderer.eyeY = mGLSurfaceView.mRenderer.eyeY + speedX * SPEED_CONSTANT;
+				}
+				
+				if (linearAccX < -PACE_PEAK_THRESHOLD) {
+					speedX = speedX - linearAccX;
+					lastTimeExceedNegativeThresholdX = now;
+					mGLSurfaceView.mRenderer.eyeY = mGLSurfaceView.mRenderer.eyeY + speedX * SPEED_CONSTANT;
+				}
+				
+				if (linearAccY > PACE_PEAK_THRESHOLD) {
+					speedY = speedY + linearAccY;
+					lastTimeExceedPositiveThresholdY = now;
+					mGLSurfaceView.mRenderer.eyeX = mGLSurfaceView.mRenderer.eyeX + speedY * SPEED_CONSTANT;
+				}
+
+				if (linearAccY < -PACE_PEAK_THRESHOLD) {
+					speedY = speedY + linearAccY;
+					lastTimeExceedNegativeThresholdY = now;
+					mGLSurfaceView.mRenderer.eyeX = mGLSurfaceView.mRenderer.eyeX + speedY * SPEED_CONSTANT;
+				}
+				
+//				if (Math.abs(speedX) > SPEED_PEAK_THRESHOLD) {
+//					if (speedX < 0) {
+//						speedX = -SPEED_PEAK_THRESHOLD;
+//					} else {
+//						speedX = SPEED_PEAK_THRESHOLD;
+//					}
+////					mGLSurfaceView.mRenderer.eyeY = (mGLSurfaceView.mRenderer.eyeY + speedX) * 0.01f;
+//				}
+//				
+//				if (Math.abs(speedY) > SPEED_PEAK_THRESHOLD) {
+//					if (speedY < 0) {
+//						speedY = -SPEED_PEAK_THRESHOLD;
+//					} else {
+//						speedY = SPEED_PEAK_THRESHOLD;
+//					}
+////					mGLSurfaceView.mRenderer.eyeX = (mGLSurfaceView.mRenderer.eyeX + speedY) * 0.01f;
+//				}
+				
+//				mGLSurfaceView.mRenderer.eyeY = (mGLSurfaceView.mRenderer.eyeY + speedX) * 0.01f;
+//		    	mGLSurfaceView.mRenderer.eyeX = (mGLSurfaceView.mRenderer.eyeX + speedY) * 0.01f;
 //				if (linearAccY > PACE_PEAK_THRESHOLD) {
 //					if (now - lastTimeExceedPositiveThresholdY > PACE_ONE_PEAK_INTERVAL)
 //						lastTimeExceedPositiveThresholdY = now;
@@ -298,10 +353,10 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
     
     private void updateOpenGLEyeLocation(float mDirectionNew) {
 //    	mGLSurfaceView.mRenderer.rotateDegree = mGLSurfaceView.mRenderer.rotateDegree + rotateDiff;
-    	mGLSurfaceView.mRenderer.globalRotateDegree = mDirectionNew;
+//    	mGLSurfaceView.mRenderer.globalRotateDegree = mDirectionNew;
     	
-    	mGLSurfaceView.mRenderer.distanceX = mGLSurfaceView.mRenderer.distanceX + speedX * 0.02f;
-    	mGLSurfaceView.mRenderer.distanceY = mGLSurfaceView.mRenderer.distanceY + speedY * 0.02f;
+    	
+    	Log.d(TAG, "speedY:" + speedY + " eyeX:" + mGLSurfaceView.mRenderer.eyeX);
 //    	mGLSurfaceView.mRenderer.eyeX;
     }
 }
