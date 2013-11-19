@@ -71,6 +71,8 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
     private AccelerateInterpolator mInterpolator;
     protected final Handler mHandler = new Handler();
     private boolean mStopDetecting;
+    private float speedX;
+    private float speedY;
     private float linearAccX;
     private float linearAccY;
     private float linearAccZ;
@@ -218,32 +220,41 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 				linearAccY = arg0.values[1];
 				linearAccZ = arg0.values[2];
 				
-				if (linearAccY > PACE_PEAK_THRESHOLD) {
-					if (now - lastTimeExceedPositiveThresholdY > PACE_ONE_PEAK_INTERVAL)
-						lastTimeExceedPositiveThresholdY = now;
-				}
-				
-				if (linearAccY < -PACE_PEAK_THRESHOLD) {
-					if (now - lastTimeExceedNegativeThresholdY > PACE_ONE_PEAK_INTERVAL)
-						lastTimeExceedNegativeThresholdY = now;
-				}
+				speedX = speedX + linearAccX;
+				speedY = speedY + linearAccY;
 					
-				if (linearAccX > PACE_PEAK_THRESHOLD) {
-					if (now - lastTimeExceedPositiveThresholdX > PACE_ONE_PEAK_INTERVAL)
-						lastTimeExceedPositiveThresholdX = now;
-				}
 				
-				if (linearAccX < -PACE_PEAK_THRESHOLD) {
-					if (now - lastTimeExceedNegativeThresholdX > PACE_ONE_PEAK_INTERVAL)
-						lastTimeExceedNegativeThresholdX = now;
-				}
+//				if (linearAccY > PACE_PEAK_THRESHOLD) {
+//					if (now - lastTimeExceedPositiveThresholdY > PACE_ONE_PEAK_INTERVAL)
+//						lastTimeExceedPositiveThresholdY = now;
+//				}
+//				
+//				if (linearAccY < -PACE_PEAK_THRESHOLD) {
+//					if (now - lastTimeExceedNegativeThresholdY > PACE_ONE_PEAK_INTERVAL)
+//						lastTimeExceedNegativeThresholdY = now;
+//				}
+//					
+//				if (linearAccX > PACE_PEAK_THRESHOLD) {
+//					if (now - lastTimeExceedPositiveThresholdX > PACE_ONE_PEAK_INTERVAL)
+//						lastTimeExceedPositiveThresholdX = now;
+//				}
+//				
+//				if (linearAccX < -PACE_PEAK_THRESHOLD) {
+//					if (now - lastTimeExceedNegativeThresholdX > PACE_ONE_PEAK_INTERVAL)
+//						lastTimeExceedNegativeThresholdX = now;
+//				}
+//				
+//				if (lastTimeExceedPositiveThresholdY - lastTimeExceedNegativeThresholdY < PACE_TWO_OPPOSITE_PEAK_INTERVAL ) {
+//					if (lastTimeExceedPositiveThresholdY - lastTimeExceedNegativeThresholdY > 0) {
+//						Log.d(TAG, "move left");
+//					} else {
+//						Log.d(TAG, "move right");
+//					}
+//					lastTimeExceedPositiveThresholdY = 0;
+//					lastTimeExceedNegativeThresholdY = 0;		
+//				}
 				
-				if (lastTimeExceedPositiveThresholdY - lastTimeExceedNegativeThresholdY < PACE_TWO_OPPOSITE_PEAK_INTERVAL 
-						&& lastTimeExceedPositiveThresholdY - lastTimeExceedNegativeThresholdY > 0) {
-					
-				}
-				
-				Log.d(TAG, System.currentTimeMillis() + ":" + linearAccX + "," + linearAccY + "," + linearAccZ);
+//				Log.d(TAG, System.currentTimeMillis() + ":" + linearAccX + "," + linearAccY + "," + linearAccZ);
 			}
 		}
 	}
@@ -289,6 +300,8 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 //    	mGLSurfaceView.mRenderer.rotateDegree = mGLSurfaceView.mRenderer.rotateDegree + rotateDiff;
     	mGLSurfaceView.mRenderer.globalRotateDegree = mDirectionNew;
     	
+    	mGLSurfaceView.mRenderer.distanceX = mGLSurfaceView.mRenderer.distanceX + speedX * 0.02f;
+    	mGLSurfaceView.mRenderer.distanceY = mGLSurfaceView.mRenderer.distanceY + speedY * 0.02f;
 //    	mGLSurfaceView.mRenderer.eyeX;
     }
 }

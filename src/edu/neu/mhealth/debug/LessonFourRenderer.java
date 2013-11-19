@@ -455,14 +455,18 @@ public class LessonFourRenderer implements GLSurfaceView.Renderer
 	private boolean initializedRotate = false;
 	private volatile float firstGlobalRotateDegree = 0;
 	public volatile float globalRotateDegree = 0;
+	
+    public float distanceX;
+    public float distanceY;
+    
 //	public volatile float rotateDiff;
 	@Override
 	public void onDrawFrame(GL10 glUnused) 
 	{
-		if (!initializedRotate && globalRotateDegree!=0) {
-			firstGlobalRotateDegree = globalRotateDegree;
-			initializedRotate = true;
-		}
+//		if (!initializedRotate && globalRotateDegree!=0) {
+//			firstGlobalRotateDegree = globalRotateDegree;
+//			initializedRotate = true;
+//		}
 //		globalRotateDegree = globalRotateDegree /*+ rotateDiff*/;
 		
 		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);	
@@ -482,7 +486,7 @@ public class LessonFourRenderer implements GLSurfaceView.Renderer
         }
         
 //        if( globalRotateDegree >= 335 && globalRotateDegree <= 337)
-        Log.d(TAG, /*"firstGlobalRotateDegree:" + firstGlobalRotateDegree + */" globalRotateDegree:" + globalRotateDegree + " upX, upY:" + upX + "," + upY);
+//        Log.d(TAG, /*"firstGlobalRotateDegree:" + firstGlobalRotateDegree + */" globalRotateDegree:" + globalRotateDegree + " upX, upY:" + upX + "," + upY);
         // Do a complete rotation every 10 seconds.
 //        long time = SystemClock.uptimeMillis() % 10000L;        
 //        float angleInDegrees = (360.0f / 10000.0f) * ((int) time);                
@@ -491,9 +495,9 @@ public class LessonFourRenderer implements GLSurfaceView.Renderer
 //        	flip = !flip;
 //        } 
 //        previousK = k;
-        if (globalRotateDegree - firstGlobalRotateDegree < 0) {
-        	upX = upX * -1;
-        } 
+//        if (globalRotateDegree - firstGlobalRotateDegree < 0) {
+//        	upX = upX * -1;
+//        } 
         Matrix.setLookAtM(mViewMatrix, 0, eyeX, eyeY, eyeZ, lookX, lookY, lookZ, upX, upY, upZ);	
         
         	
