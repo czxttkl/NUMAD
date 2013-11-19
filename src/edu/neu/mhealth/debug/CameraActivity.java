@@ -221,7 +221,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 				linearAccX = arg0.values[0];
 				linearAccY = arg0.values[1];
 				linearAccZ = arg0.values[2];
-				
+				Log.d(TAG, linearAccX + "," + linearAccY);
 				if (now - lastTimeExceedPositiveThresholdX > PACE_ONE_PEAK_INTERVAL 
 						|| now - lastTimeExceedNegativeThresholdX > PACE_ONE_PEAK_INTERVAL) {
 					speedX = 0;
@@ -360,7 +360,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 //    	}
     	
     	
-    	Log.d(TAG, "speedY:" + speedY + " eyeX:" + mGLSurfaceView.mRenderer.eyeX);
+//    	Log.d(TAG, "speedY:" + speedY + " eyeX:" + mGLSurfaceView.mRenderer.eyeX);
 //    	mGLSurfaceView.mRenderer.eyeX;
     }
 }
