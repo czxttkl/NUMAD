@@ -1,5 +1,7 @@
 package edu.neu.mhealth.debug;
 
+import java.util.Arrays;
+
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
@@ -81,8 +83,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 	private float linearAccZ;
 
 	private long lastTimeActiveX = 0;
-	private final float SPEED_PEAK_THRESHOLD = 20.0f;
-	private final float SPEED_CONSTANT = 0.01f;
+	
 
 	// private final long PACE_TWO_OPPOSITE_PEAK_INTERVAL = 2000;
 
@@ -214,10 +215,11 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 	}
 
 	private int count = 0;
-	private float[] linearAccYArray = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+	private float[] linearAccYArray = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 	private float linearAccYAve = 0;
 	private boolean moved = false;
 	private boolean couldRedetect = true;
+	private boolean peaked = false;
 	private int direction = 0;
 	private final int LEFT = -1;
 	private final int RIGHT = 1;
@@ -230,8 +232,9 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 	private long lastTimeActiveNegY = 0;
 	private final long ONE_PACE_INTERVAL = 1000;
 	private long moveTime;
-	private final float ACCELEROMETER_THRESHOLD = 0.5f;// }
-
+	private final float ACCELEROMETER_THRESHOLD = 0.4f;// }
+	private final float SPEED_PEAK_THRESHOLD = 5.0f;
+	private final float SPEED_CONSTANT = 0.01f;
 	@Override
 	public void onSensorChanged(SensorEvent arg0) {
 		if (Sensor.TYPE_ORIENTATION == arg0.sensor.getType()) {
@@ -244,7 +247,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 				linearAccY = arg0.values[1];
 				linearAccZ = arg0.values[2];
 
-				count = (int) (now % 20);
+				count = (int) (now % 15);
 				linearAccYArray[count] = linearAccY;
 				linearAccYAve = average(linearAccYArray);
 				// Log.d(TAG, "liear:" + linearAccX + "," + linearAccY);
@@ -272,43 +275,49 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 						}
 					
 				} else {
+					
 					if (moved) {
-						speedY = speedY + linearAccYAve * SPEED_CONSTANT;
+						speedY = speedY + linearAccYAve;
+//						if (Math.abs(speedY) > SPEED_PEAK_THRESHOLD) {
+//							moveTime = now;
+//						}
 						if (direction == LEFT) {
-							if (speedY < 0) {
+							if (now - moveTime > 300 && speedY < 3f) {
 								speedY = 0;
 								moved = false;
-								// moveTime = now;
 								Log.d(TAG, "czx speed 0. stop turn left");
 							}
 						}
 						if (direction == RIGHT) {
-							if (speedY > 0) {
+							if (now - moveTime > 300 && speedY > -3f) {
 								moved = false;
-								moveTime = now;
 								speedY = 0;
 								Log.d(TAG, "czx speed 0. stop turn right");
 							}
 						}
-						if (now - moveTime > ONE_PACE_INTERVAL) {
-							speedY = 0;
-							flip = 0;
+						
+						if (now - moveTime > 1500 || Math.abs(speedY) > 30 ) {
 							moved = false;
+							speedY = 0;
 							couldRedetect = true;
-							Log.d(TAG, "czx moved. but refresh");
-						} 
-					}
-					
-					if(!couldRedetect) {
-						if (direction == LEFT && linearAccYAve > -ACCELEROMETER_THRESHOLD && !moved) {
-							couldRedetect = true;
-							Log.d(TAG, "czx could redetect after left. lineary > -threshold. ");
 						}
-						if (direction == RIGHT && linearAccYAve < ACCELEROMETER_THRESHOLD && !moved) {
+					}
+					Log.d(TAG, "czx speedY:" + speedY + ",linearAccYAve:" + linearAccYAve);
+					
+					if(!moved && !couldRedetect) {
+//						Log.d(TAG, "czx stop move: linearaccyave:" + linearAccYAve);
+						if (direction == LEFT && linearAccY > -ACCELEROMETER_THRESHOLD) {
 							couldRedetect = true;
+							Arrays.fill(linearAccYArray, 0);
+							Log.d(TAG, "czx could redetect after left. lineary > -threshold. :" + linearAccYAve);
+						}
+						if (direction == RIGHT && linearAccY < ACCELEROMETER_THRESHOLD) {
+							couldRedetect = true;
+							Arrays.fill(linearAccYArray, 0);
 							Log.d(TAG, "czx could redetec after right. lineary < threshold:" + linearAccYAve);
 						}
 					}
+					
 					
 //					else {
 //						
@@ -376,7 +385,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 				mGLSurfaceView.mRenderer.eyeY = mGLSurfaceView.mRenderer.eyeY
 						+ speedX;
 				mGLSurfaceView.mRenderer.eyeX = mGLSurfaceView.mRenderer.eyeX
-						- speedY;
+						- speedY * SPEED_CONSTANT;
 				// if (now - lastTimeExceedPositiveThresholdX >
 				// PACE_ONE_PEAK_INTERVAL
 				// || now - lastTimeExceedNegativeThresholdX >

@@ -445,7 +445,7 @@ public class LessonFourRenderer implements GLSurfaceView.Renderer
 		final float bottom = -1.0f;
 		final float top = 1.0f;
 		final float near = 1.0f;
-		final float far = 10.0f;
+		final float far = 20.0f;
 		
 		Matrix.frustumM(mProjectionMatrix, 0, left, right, bottom, top, near, far);
 	}	
@@ -538,26 +538,26 @@ public class LessonFourRenderer implements GLSurfaceView.Renderer
         
         // Draw some cubes.        
         Matrix.setIdentityM(mModelMatrix, 0);
-        Matrix.translateM(mModelMatrix, 0, 4.0f, 0.0f, -7.0f);
+        Matrix.translateM(mModelMatrix, 0, 4.0f, 0.0f, -14.0f);
 //        Matrix.rotateM(mModelMatrix, 0, angleInDegrees, 1.0f, 0.0f, 0.0f);        
         drawCube();
                         
         Matrix.setIdentityM(mModelMatrix, 0);
-        Matrix.translateM(mModelMatrix, 0, -4.0f, 0.0f, -7.0f);
+        Matrix.translateM(mModelMatrix, 0, -4.0f, 0.0f, -14.0f);
 //        Matrix.rotateM(mModelMatrix, 0, angleInDegrees, 0.0f, 1.0f, 0.0f);        
         drawCube();
         
         Matrix.setIdentityM(mModelMatrix, 0);
-        Matrix.translateM(mModelMatrix, 0, 0.0f, 4.0f, -7.0f);
+        Matrix.translateM(mModelMatrix, 0, 0.0f, 4.0f, -14.0f);
 //        Matrix.rotateM(mModelMatrix, 0, angleInDegrees, 0.0f, 0.0f, 1.0f);        
         drawCube();
         
         Matrix.setIdentityM(mModelMatrix, 0);
-        Matrix.translateM(mModelMatrix, 0, 0.0f, -4.0f, -7.0f);
+        Matrix.translateM(mModelMatrix, 0, 0.0f, -4.0f, -14.0f);
         drawCube();
         
         Matrix.setIdentityM(mModelMatrix, 0);
-        Matrix.translateM(mModelMatrix, 0, 0.0f, 0.0f, -5.0f);
+        Matrix.translateM(mModelMatrix, 0, 0.0f, 0.0f, -10.0f);
 //        Matrix.rotateM(mModelMatrix, 0, angleInDegrees, 1.0f, 1.0f, 0.0f);        
         drawCube();      
         
