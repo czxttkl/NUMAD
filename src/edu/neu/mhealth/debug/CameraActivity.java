@@ -84,9 +84,9 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
     private long lastTimeActiveX = 0;
     private final float ACCELEROMETER_THRESHOLD = 0.4f;
     private final float SPEED_PEAK_THRESHOLD = 20.0f;
-    private final float SPEED_CONSTANT = 0.005f;
+    private final float SPEED_CONSTANT = 0.01f;
 //    private final long PACE_TWO_OPPOSITE_PEAK_INTERVAL = 2000;
-    private final long ONE_PACE_INTERVAL = 800;
+    private final long ONE_PACE_INTERVAL = 100;
     
 	/*
 	 *   Activity Callbacks
@@ -212,6 +212,8 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		
 	}
 
+	private int count = 0;
+	private int[] linearAccYArray = {0,0,0,0,0};
 	@Override
 	public void onSensorChanged(SensorEvent arg0) {
 		if (Sensor.TYPE_ORIENTATION == arg0.sensor.getType()) {
@@ -223,25 +225,39 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 				linearAccX = arg0.values[0];
 				linearAccY = arg0.values[1];
 				linearAccZ = arg0.values[2];
-				Log.d(TAG, "distanceY:" + mGLSurfaceView.mRenderer.eyeX + ", speedY" + speedY);
 				
-				speedX = speedX - linearAccX;
-				speedY = speedY + linearAccY;
-				mGLSurfaceView.mRenderer.eyeY = mGLSurfaceView.mRenderer.eyeY + speedX * SPEED_CONSTANT;
-				mGLSurfaceView.mRenderer.eyeX = mGLSurfaceView.mRenderer.eyeX + speedY * SPEED_CONSTANT;
+//				Log.d(TAG, "liear:" + linearAccX + "," + linearAccY);
+//				Log.d(TAG, "distanceY:" + mGLSurfaceView.mRenderer.eyeX + ", speedY" + speedY);
+				
+				
 				
 				if (Math.abs(linearAccX) > ACCELEROMETER_THRESHOLD) {
 					lastTimeActiveX = now;
 				}
 				
-				if (Math.abs(linearAccY) > ACCELEROMETER_THRESHOLD) {
+				if (linearAccY > ACCELEROMETER_THRESHOLD) {
 					lastTimeActiveY = now;
 				}
 				
-				if (now - lastTimeActiveY > ONE_PACE_INTERVAL && now - lastTimeActiveX > ONE_PACE_INTERVAL) {
-					speedX = 0;
+				if (linearAccY < -ACCELEROMETER_THRESHOLD) {
+					lastTimeActiveY = -now;
+				}
+				
+				if (now - Math.abs(lastTimeActiveY) > ONE_PACE_INTERVAL) {
+					linearAccY = 0;
 					speedY = 0;
 				}
+				
+				if (now - lastTimeActiveX > ONE_PACE_INTERVAL) {
+					linearAccX = 0;
+					speedX = 0;
+				}
+				
+				speedX = speedX + linearAccX * SPEED_CONSTANT;
+				speedY = speedY + linearAccY * SPEED_CONSTANT;
+				
+				mGLSurfaceView.mRenderer.eyeY = mGLSurfaceView.mRenderer.eyeY + speedX;
+				mGLSurfaceView.mRenderer.eyeX = mGLSurfaceView.mRenderer.eyeX - speedY;
 //				if (now - lastTimeExceedPositiveThresholdX > PACE_ONE_PEAK_INTERVAL 
 //						|| now - lastTimeExceedNegativeThresholdX > PACE_ONE_PEAK_INTERVAL) {
 //					speedX = 0;
