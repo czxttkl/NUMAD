@@ -258,7 +258,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 				// lastTimeActiveX = now;
 				//
 				if (!moved && couldRedetect) {
-						if (linearAccYAve > ACCELEROMETER_THRESHOLD) {
+						if ((direction >=0 || now - moveTime > 4000) && linearAccYAve > ACCELEROMETER_THRESHOLD) {
 							direction = LEFT;
 							moved = true;
 							couldRedetect = false;
@@ -266,7 +266,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 							Log.d(TAG, "czx !moved. turn left:" + linearAccYAve);
 						}
 
-						if (linearAccYAve < -ACCELEROMETER_THRESHOLD) {
+						if ((direction <=0 || now - moveTime > 4000) && linearAccYAve < -ACCELEROMETER_THRESHOLD) {
 							direction = RIGHT;
 							moved = true;
 							couldRedetect = false;
@@ -285,6 +285,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 							if (now - moveTime > 300 && speedY < 3f) {
 								speedY = 0;
 								moved = false;
+								moveTime = now;
 								Log.d(TAG, "czx speed 0. stop turn left");
 							}
 						}
@@ -292,6 +293,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 							if (now - moveTime > 300 && speedY > -3f) {
 								moved = false;
 								speedY = 0;
+								moveTime = now;
 								Log.d(TAG, "czx speed 0. stop turn right");
 							}
 						}
@@ -300,6 +302,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 							moved = false;
 							speedY = 0;
 							couldRedetect = true;
+							moveTime = now;
 						}
 					}
 					Log.d(TAG, "czx speedY:" + speedY + ",linearAccYAve:" + linearAccYAve);
