@@ -214,9 +214,10 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 	}
 
 	private int count = 0;
-	private float[] linearAccYArray = { 0, 0, 0, 0, 0 };
+	private float[] linearAccYArray = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 	private float linearAccYAve = 0;
 	private boolean moved = false;
+	private boolean couldRedetect = true;
 	private int direction = 0;
 	private final int LEFT = -1;
 	private final int RIGHT = 1;
@@ -227,9 +228,9 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 	// private long lastTimeExceedNegativeThresholdY = 0;
 	private long lastTimeActivePosY = 0;
 	private long lastTimeActiveNegY = 0;
-	private final long ONE_PACE_INTERVAL = 2000;
+	private final long ONE_PACE_INTERVAL = 1000;
 	private long moveTime;
-	private final float ACCELEROMETER_THRESHOLD = 1.4f;// }
+	private final float ACCELEROMETER_THRESHOLD = 0.5f;// }
 
 	@Override
 	public void onSensorChanged(SensorEvent arg0) {
@@ -243,7 +244,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 				linearAccY = arg0.values[1];
 				linearAccZ = arg0.values[2];
 
-				count = (int) (now % 5);
+				count = (int) (now % 20);
 				linearAccYArray[count] = linearAccY;
 				linearAccYAve = average(linearAccYArray);
 				// Log.d(TAG, "liear:" + linearAccX + "," + linearAccY);
@@ -253,85 +254,112 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 				// if (Math.abs(linearAccX) > ACCELEROMETER_THRESHOLD) {
 				// lastTimeActiveX = now;
 				//
-				if (!moved) {
-					if (linearAccYAve > ACCELEROMETER_THRESHOLD) {
-						direction = LEFT;
-						moved = true;
-						moveTime = now;
-						Log.d(TAG, "czx !moved. turn left");
-					}
-					if (linearAccYAve < -ACCELEROMETER_THRESHOLD) {
-						direction = RIGHT;
-						moved = true;
-						moveTime = now;
-						Log.d(TAG, "czx !moved. turn right");
-					}
-				}
+				if (!moved && couldRedetect) {
+						if (linearAccYAve > ACCELEROMETER_THRESHOLD) {
+							direction = LEFT;
+							moved = true;
+							couldRedetect = false;
+							moveTime = now;
+							Log.d(TAG, "czx !moved. turn left:" + linearAccYAve);
+						}
 
-				if (moved) {
-					if (now - moveTime > ONE_PACE_INTERVAL) {
-						speedY = 0;
-						flip = 0;
-						moved = false;
-						direction = 0;
-						Log.d(TAG, "czx moved. but refresh");
-					} else {
-						speedY = speedY + linearAccY * SPEED_CONSTANT;
+						if (linearAccYAve < -ACCELEROMETER_THRESHOLD) {
+							direction = RIGHT;
+							moved = true;
+							couldRedetect = false;
+							moveTime = now;
+							Log.d(TAG, "czx !moved. turn right:" + linearAccYAve);
+						}
+					
+				} else {
+					if (moved) {
+						speedY = speedY + linearAccYAve * SPEED_CONSTANT;
 						if (direction == LEFT) {
 							if (speedY < 0) {
 								speedY = 0;
-							}
-
-							if (flip == 0
-									&& linearAccYAve < -ACCELEROMETER_THRESHOLD) {
-								flip = flip + 1;
-								Log.d(TAG, "czx left flip 1");
-							}
-
-							if (flip == 1
-									&& linearAccYAve > -ACCELEROMETER_THRESHOLD) {
-								flip = flip + 1;
-								Log.d(TAG, "czx left flip 2");
-							}
-
-							if (flip == 2) {
-								speedY = 0;
-								flip = 0;
 								moved = false;
-								direction = 0;
-								Log.d(TAG, "czx left flip 2:refresh");
+								// moveTime = now;
+								Log.d(TAG, "czx speed 0. stop turn left");
 							}
 						}
-
 						if (direction == RIGHT) {
 							if (speedY > 0) {
-								speedY = 0;
-							}
-							
-							if (flip == 0
-									&& linearAccYAve > ACCELEROMETER_THRESHOLD) {
-								flip = flip + 1;
-								Log.d(TAG, "czx right flip 1");
-							}
-
-							if (flip == 1
-									&& linearAccYAve < ACCELEROMETER_THRESHOLD) {
-								flip = flip + 1;
-								Log.d(TAG, "czx right flip 2");
-							}
-
-							if (flip == 2) {
-								speedY = 0;
-								flip = 0;
 								moved = false;
-								direction = 0;
-								Log.d(TAG, "czx right flip 2:refresh");
+								moveTime = now;
+								speedY = 0;
+								Log.d(TAG, "czx speed 0. stop turn right");
 							}
 						}
-
+						if (now - moveTime > ONE_PACE_INTERVAL) {
+							speedY = 0;
+							flip = 0;
+							moved = false;
+							couldRedetect = true;
+							Log.d(TAG, "czx moved. but refresh");
+						} 
 					}
+					
+					if(!couldRedetect) {
+						if (direction == LEFT && linearAccYAve > -ACCELEROMETER_THRESHOLD && !moved) {
+							couldRedetect = true;
+							Log.d(TAG, "czx could redetect after left. lineary > -threshold. ");
+						}
+						if (direction == RIGHT && linearAccYAve < ACCELEROMETER_THRESHOLD && !moved) {
+							couldRedetect = true;
+							Log.d(TAG, "czx could redetec after right. lineary < threshold:" + linearAccYAve);
+						}
+					}
+					
+//					else {
+//						
+//
+//							if (flip == 0
+//									&& linearAccYAve < -ACCELEROMETER_THRESHOLD) {
+//								flip = flip + 1;
+//								Log.d(TAG, "czx left flip 1");
+//							}
+//
+//							if (flip == 1
+//									&& linearAccYAve > -ACCELEROMETER_THRESHOLD) {
+//								flip = flip + 1;
+//								Log.d(TAG, "czx left flip 2");
+//							}
+//
+//							if (flip == 2) {
+//								speedY = 0;
+//								flip = 0;
+//								moved = false;
+//								direction = 0;
+//								Log.d(TAG, "czx left flip 2:refresh");
+//							}
+//						}
+//
+//						
+//
+//							if (flip == 0
+//									&& linearAccYAve > ACCELEROMETER_THRESHOLD) {
+//								flip = flip + 1;
+//								Log.d(TAG, "czx right flip 1");
+//							}
+//
+//							if (flip == 1
+//									&& linearAccYAve < ACCELEROMETER_THRESHOLD) {
+//								flip = flip + 1;
+//								Log.d(TAG, "czx right flip 2");
+//							}
+//
+//							if (flip == 2) {
+//								speedY = 0;
+//								flip = 0;
+//								moved = false;
+//								direction = 0;
+//								Log.d(TAG, "czx right flip 2:refresh");
+//							}
+//						}
+//
+//					}
 				}
-				
+
 				// if (now - Math.abs(lastTimeActiveY) > ONE_PACE_INTERVAL) {
 				// linearAccY = 0;
 				// speedY = 0;
