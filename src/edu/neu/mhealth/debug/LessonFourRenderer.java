@@ -451,29 +451,16 @@ public class LessonFourRenderer implements GLSurfaceView.Renderer
 	}	
 	
 	
-//	private float previousK = -1;
-	private boolean initializedRotate = false;
-	private volatile float firstGlobalRotateDegree = 0;
 	public volatile float globalRotateDegree = 0;
-	
     public float distanceX;
     public float distanceY;
     
-//	public volatile float rotateDiff;
 	@Override
-	public void onDrawFrame(GL10 glUnused) 
-	{
-//		if (!initializedRotate && globalRotateDegree!=0) {
-//			firstGlobalRotateDegree = globalRotateDegree;
-//			initializedRotate = true;
-//		}
-//		globalRotateDegree = globalRotateDegree /*+ rotateDiff*/;
+	public void onDrawFrame(GL10 glUnused) {
 		
 		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);	
 		
         upX = (float) (Math.abs(Math.tan(Math.toRadians(globalRotateDegree)))) ;
-        
-     
         
         if (globalRotateDegree >= 180 && globalRotateDegree <360) {
         	upX = - upX;
@@ -484,24 +471,7 @@ public class LessonFourRenderer implements GLSurfaceView.Renderer
         } else {
         	upY = 1.0f;
         }
-        
-//        if( globalRotateDegree >= 335 && globalRotateDegree <= 337)
-//        Log.d(TAG, /*"firstGlobalRotateDegree:" + firstGlobalRotateDegree + */" globalRotateDegree:" + globalRotateDegree + " upX, upY:" + upX + "," + upY);
-        // Do a complete rotation every 10 seconds.
-//        long time = SystemClock.uptimeMillis() % 10000L;        
-//        float angleInDegrees = (360.0f / 10000.0f) * ((int) time);                
-//        float k = angleInDegrees / 30.0f; 
-//        if (k < previousK) {
-//        	flip = !flip;
-//        } 
-//        previousK = k;
-//        if (globalRotateDegree - firstGlobalRotateDegree < 0) {
-//        	upX = upX * -1;
-//        } 
-//        Matrix.setLookAtM(mViewMatrix, 0, eyeX, eyeY, eyeZ, lookX, lookY, lookZ, upX, upY, upZ);	
         Matrix.setLookAtM(mViewMatrix, 0, eyeX, eyeY, eyeZ, eyeX, eyeY, lookZ, upX, upY, upZ);	
-        
-        	
         
         // Set our per-vertex lighting program.
         GLES20.glUseProgram(mProgramHandle);
@@ -535,7 +505,6 @@ public class LessonFourRenderer implements GLSurfaceView.Renderer
         Matrix.multiplyMV(mLightPosInEyeSpace, 0, mViewMatrix, 0, mLightPosInWorldSpace, 0);                        
         Matrix.multiplyMV(mLightPosInWorldSpace, 0, mLightModelMatrix, 0, mLightPosInModelSpace, 0);
                      
-        
         // Draw some cubes.        
         Matrix.setIdentityM(mModelMatrix, 0);
         Matrix.translateM(mModelMatrix, 0, 4.0f, 0.0f, -14.0f);
