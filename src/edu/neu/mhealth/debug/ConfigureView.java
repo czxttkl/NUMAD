@@ -59,4 +59,9 @@ public class ConfigureView extends View {
 		Point floorPoint = new Point(screenWidth/2, screenHeight-rectHeight-squareMetric/2);	
 		return floorPoint;
 	}
+	
+	public Point getShoesPosition() {
+		Point shoesPoint = new Point(screenWidth/2, screenHeight-rectHeight/2);
+		return shoesPoint;
+	}
 }

@@ -166,11 +166,6 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
     }
 
     public boolean onTouch(View v, MotionEvent event) {
-        int cols = mRgba.cols();
-        int rows = mRgba.rows();
-
-        int xOffset = (mOpenCvCameraView.getWidth() - cols) / 2;
-        int yOffset = (mOpenCvCameraView.getHeight() - rows) / 2;
 
 //        int x = (int)event.getX() - xOffset;
 //        int y = (int)event.getY() - yOffset;
@@ -180,10 +175,91 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
         int x = configureView.getFloorPosition().x;
         int y = configureView.getFloorPosition().y;
 
-        Log.i(TAG, "Touch image coordinates: (" + x + ", " + y + ")");
+//        Log.i(TAG, "Touch image coordinates: (" + x + ", " + y + ")");
 
-        if ((x < 0) || (y < 0) || (x > cols) || (y > rows)) return false;
+        mIsColorSelected = true;
 
+        return false; // don't need subsequent touch events
+    }
+
+    public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
+        mRgba = inputFrame.rgba();
+        
+        int cols = mRgba.cols();
+        int rows = mRgba.rows();
+        int xOffset = (mOpenCvCameraView.getWidth() - cols) / 2;
+        int yOffset = (mOpenCvCameraView.getHeight() - rows) / 2;
+        
+		this.runOnUiThread(new Runnable() {
+
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				configureView.invalidate();
+			}
+		});
+
+        if (mIsColorSelected) {
+        	
+            int x = configureView.getFloorPosition().x - xOffset;
+            int y = configureView.getFloorPosition().y - yOffset;
+            Log.i(TAG, "Touch image coordinates: (" + x + ", " + y + ")");                    
+            List<MatOfPoint> contoursfirst = findObjectAt(x, y);
+            Log.e(TAG, "Contoursfirst count: " + contoursfirst.size());
+            Imgproc.drawContours(mRgba, contoursfirst, -1, CONTOUR_COLOR);
+            
+            x = configureView.getShoesPosition().x - xOffset;
+            y = configureView.getShoesPosition().y - yOffset;
+            
+            Log.i(TAG, "Touch image coordinates: (" + x + ", " + y + ")");
+  
+            List<MatOfPoint> contoursSecond = findObjectAt(x, y);
+            Log.e(TAG, "ContoursSecond count: " + contoursSecond.size());
+            Imgproc.drawContours(mRgba, contoursSecond, -1, CONTOUR_COLOR);
+            
+
+            
+        	configureView.disableDrawing();
+
+            
+            steps++;
+			if (steps > 10) {
+				this.runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						bugManager.moveBugs();
+					}
+				});
+				
+				steps = 0;
+			}
+        }
+
+        return mRgba;
+    }
+
+    private Scalar converScalarHsv2Rgba(Scalar hsvColor) {
+        Mat pointMatRgba = new Mat();
+        Mat pointMatHsv = new Mat(1, 1, CvType.CV_8UC3, hsvColor);
+        Imgproc.cvtColor(pointMatHsv, pointMatRgba, Imgproc.COLOR_HSV2RGB_FULL, 4);
+
+        return new Scalar(pointMatRgba.get(0, 0));
+    }
+    
+    private List<MatOfPoint> findObjectAt(int x, int y) {
+    	
+        int cols = mRgba.cols();
+        int rows = mRgba.rows();
+
+        Log.i(TAG, "Cols and rows: (" + cols + ", " + rows + ")");
+
+        if ((x < 0) || (y < 0))  
+        	return null;
+        if (x > cols)
+        	x = cols;
+        if (y > rows)
+        	y = rows;
+        
         Rect touchedRect = new Rect();
 
         touchedRect.x = (x>4) ? x-4 : 0;
@@ -212,61 +288,20 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 
         Imgproc.resize(mDetector.getSpectrum(), mSpectrum, SPECTRUM_SIZE);
 
-        mIsColorSelected = true;
-
         touchedRegionRgba.release();
         touchedRegionHsv.release();
-
-        return false; // don't need subsequent touch events
-    }
-
-    public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
-        mRgba = inputFrame.rgba();
         
-		this.runOnUiThread(new Runnable() {
+        mDetector.process(mRgba);
+        
 
-			@Override
-			public void run() {
-				// TODO Auto-generated method stub
-				configureView.invalidate();
-			}
-		});
+//        Mat colorLabel = mRgba.submat(4, 68, 4, 68);
+//        colorLabel.setTo(mBlobColorRgba);
+//
+//        Mat spectrumLabel = mRgba.submat(4, 4 + mSpectrum.rows(), 70, 70 + mSpectrum.cols());
+//        mSpectrum.copyTo(spectrumLabel);
+        
+        return mDetector.getContours();
 
-        if (mIsColorSelected) {
-
-        	configureView.disableDrawing();
-            mDetector.process(mRgba);
-            List<MatOfPoint> contours = mDetector.getContours();
-            Log.e(TAG, "Contours count: " + contours.size());
-            Imgproc.drawContours(mRgba, contours, -1, CONTOUR_COLOR);
-
-            Mat colorLabel = mRgba.submat(4, 68, 4, 68);
-            colorLabel.setTo(mBlobColorRgba);
-
-            Mat spectrumLabel = mRgba.submat(4, 4 + mSpectrum.rows(), 70, 70 + mSpectrum.cols());
-            mSpectrum.copyTo(spectrumLabel);
-            
-            steps++;
-			if (steps > 10) {
-				this.runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						bugManager.moveBugs();
-					}
-				});
-				
-				steps = 0;
-			}
-        }
-
-        return mRgba;
-    }
-
-    private Scalar converScalarHsv2Rgba(Scalar hsvColor) {
-        Mat pointMatRgba = new Mat();
-        Mat pointMatHsv = new Mat(1, 1, CvType.CV_8UC3, hsvColor);
-        Imgproc.cvtColor(pointMatHsv, pointMatRgba, Imgproc.COLOR_HSV2RGB_FULL, 4);
-
-        return new Scalar(pointMatRgba.get(0, 0));
+        
     }
 }
