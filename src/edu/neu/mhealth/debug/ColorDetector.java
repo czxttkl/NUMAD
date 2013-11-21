@@ -13,23 +13,41 @@ import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
 public class ColorDetector {
-    // Lower and Upper bounds for range checking in HSV color space
-    private Scalar mLowerBound = new Scalar(0);
-    private Scalar mUpperBound = new Scalar(0);
     // Minimum contour area in percent for contours filtering
     private static double mMinContourArea = 0.1;
+    
+    // Lower and Upper bounds for range checking in HSV color space
+    private Scalar mLowerBound;
+    private Scalar mUpperBound;
+
     // Color radius for range checking in HSV color space
-    private Scalar mColorRadius = new Scalar(25,50,50,0);
-    private Mat mSpectrum = new Mat();
-    private List<MatOfPoint> mContours = new ArrayList<MatOfPoint>();
+    private Scalar mColorRadius;
+    private Mat mSpectrum;
+    private List<MatOfPoint> mContours;
 
     // Cache
-    Mat mPyrDownMat = new Mat();
-    Mat mHsvMat = new Mat();
-    Mat mMask = new Mat();
-    Mat mDilatedMask = new Mat();
-    Mat mHierarchy = new Mat();
+    Mat mPyrDownMat;
+    Mat mHsvMat;
+    Mat mMask;
+    Mat mDilatedMask;
+    Mat mHierarchy;
 
+    public ColorDetector() {
+        mLowerBound = new Scalar(0);
+        mUpperBound = new Scalar(0);
+
+        // Color radius for range checking in HSV color space
+        mColorRadius = new Scalar(25,50,50,0);
+        mSpectrum = new Mat();
+        mContours = new ArrayList<MatOfPoint>();
+
+        // Cache
+        mPyrDownMat = new Mat();
+        mHsvMat = new Mat();
+        mMask = new Mat();
+        mDilatedMask = new Mat();
+        mHierarchy = new Mat();
+    }
     public void setColorRadius(Scalar radius) {
         mColorRadius = radius;
     }

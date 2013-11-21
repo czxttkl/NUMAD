@@ -55,6 +55,10 @@ public class ConfigureView extends View {
 		mPause = true;
 	}
 	
+	public void enableDrawing() {
+		mPause = false;
+	}
+	
 	public Point getFloorPosition() {
 		Point floorPoint = new Point(screenWidth/2, screenHeight-rectHeight-squareMetric/2);	
 		return floorPoint;
