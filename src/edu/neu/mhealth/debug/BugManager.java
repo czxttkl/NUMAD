@@ -11,13 +11,6 @@ public class BugManager {
 	
 	private List<Bug> bugs;
 	
-	
-	private BugManager() {
-		if (bugs == null) {
-			bugs = new ArrayList<Bug>();
-		}
-	}
-	
 	public static BugManager getBugManager() {
 		if (bugManager == null) {
 			bugManager = new BugManager();
@@ -25,6 +18,14 @@ public class BugManager {
 		
 		return bugManager;
 	}
+	
+	private BugManager() {
+		if (bugs == null) {
+			bugs = new ArrayList<Bug>();
+		}
+	}
+	
+
 	
 	public void addBug(Bug bug) {
 		bugs.add(bug);
