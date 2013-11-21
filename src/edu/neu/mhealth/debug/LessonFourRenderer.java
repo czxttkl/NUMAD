@@ -3,13 +3,17 @@ package edu.neu.mhealth.debug;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.util.Random;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
+import javax.microedition.khronos.opengles.GL11;
+import javax.microedition.khronos.opengles.GL11Ext;
 
 import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
+import android.opengl.GLUtils;
 import android.opengl.Matrix;
 import android.os.SystemClock;
 import android.util.Log;
@@ -116,252 +120,258 @@ public class LessonFourRenderer implements GLSurfaceView.Renderer
 	/** This is a handle to our texture data. */
 	private int mTextureDataHandle;
 	
+	/** This is a handle to our fire texture data. */
+	private int mFireTextureDataHandle;
+	
+	/** This is the instance of Fire */
+	private Fire mFire;
+	
 	/**
 	 * Initialize the model data.
 	 */
-	public LessonFourRenderer(final Context activityContext)
-	{	
-		mActivityContext = activityContext;
-		
-		// Define points for a cube.		
-		
-		// X, Y, Z
-		final float[] cubePositionData =
-		{
-				// In OpenGL counter-clockwise winding is default. This means that when we look at a triangle, 
-				// if the points are counter-clockwise we are looking at the "front". If not we are looking at
-				// the back. OpenGL has an optimization where all back-facing triangles are culled, since they
-				// usually represent the backside of an object and aren't visible anyways.
-				
-				// Front face
-				-1.0f, 1.0f, 1.0f,				
-				-1.0f, -1.0f, 1.0f,
-				1.0f, 1.0f, 1.0f, 
-				-1.0f, -1.0f, 1.0f, 				
-				1.0f, -1.0f, 1.0f,
-				1.0f, 1.0f, 1.0f,
-				
-				// Right face
-				1.0f, 1.0f, 1.0f,				
-				1.0f, -1.0f, 1.0f,
-				1.0f, 1.0f, -1.0f,
-				1.0f, -1.0f, 1.0f,				
-				1.0f, -1.0f, -1.0f,
-				1.0f, 1.0f, -1.0f,
-				
-				// Back face
-				1.0f, 1.0f, -1.0f,				
-				1.0f, -1.0f, -1.0f,
-				-1.0f, 1.0f, -1.0f,
-				1.0f, -1.0f, -1.0f,				
-				-1.0f, -1.0f, -1.0f,
-				-1.0f, 1.0f, -1.0f,
-				
-				// Left face
-				-1.0f, 1.0f, -1.0f,				
-				-1.0f, -1.0f, -1.0f,
-				-1.0f, 1.0f, 1.0f, 
-				-1.0f, -1.0f, -1.0f,				
-				-1.0f, -1.0f, 1.0f, 
-				-1.0f, 1.0f, 1.0f, 
-				
-				// Top face
-				-1.0f, 1.0f, -1.0f,				
-				-1.0f, 1.0f, 1.0f, 
-				1.0f, 1.0f, -1.0f, 
-				-1.0f, 1.0f, 1.0f, 				
-				1.0f, 1.0f, 1.0f, 
-				1.0f, 1.0f, -1.0f,
-				
-				// Bottom face
-				1.0f, -1.0f, -1.0f,				
-				1.0f, -1.0f, 1.0f, 
-				-1.0f, -1.0f, -1.0f,
-				1.0f, -1.0f, 1.0f, 				
-				-1.0f, -1.0f, 1.0f,
-				-1.0f, -1.0f, -1.0f,
-		};	
-		
-		// R, G, B, A
-		final float[] cubeColorData =
-		{				
-				// Front face (red)
-				1.0f, 0.0f, 0.0f, 1.0f,				
-				1.0f, 0.0f, 0.0f, 1.0f,
-				1.0f, 0.0f, 0.0f, 1.0f,
-				1.0f, 0.0f, 0.0f, 1.0f,				
-				1.0f, 0.0f, 0.0f, 1.0f,
-				1.0f, 0.0f, 0.0f, 1.0f,
-				
-				// Right face (green)
-				0.0f, 1.0f, 0.0f, 1.0f,				
-				0.0f, 1.0f, 0.0f, 1.0f,
-				0.0f, 1.0f, 0.0f, 1.0f,
-				0.0f, 1.0f, 0.0f, 1.0f,				
-				0.0f, 1.0f, 0.0f, 1.0f,
-				0.0f, 1.0f, 0.0f, 1.0f,
-				
-				// Back face (blue)
-				0.0f, 0.0f, 1.0f, 1.0f,				
-				0.0f, 0.0f, 1.0f, 1.0f,
-				0.0f, 0.0f, 1.0f, 1.0f,
-				0.0f, 0.0f, 1.0f, 1.0f,				
-				0.0f, 0.0f, 1.0f, 1.0f,
-				0.0f, 0.0f, 1.0f, 1.0f,
-				
-				// Left face (yellow)
-				1.0f, 1.0f, 0.0f, 1.0f,				
-				1.0f, 1.0f, 0.0f, 1.0f,
-				1.0f, 1.0f, 0.0f, 1.0f,
-				1.0f, 1.0f, 0.0f, 1.0f,				
-				1.0f, 1.0f, 0.0f, 1.0f,
-				1.0f, 1.0f, 0.0f, 1.0f,
-				
-				// Top face (cyan)
-				0.0f, 1.0f, 1.0f, 1.0f,				
-				0.0f, 1.0f, 1.0f, 1.0f,
-				0.0f, 1.0f, 1.0f, 1.0f,
-				0.0f, 1.0f, 1.0f, 1.0f,				
-				0.0f, 1.0f, 1.0f, 1.0f,
-				0.0f, 1.0f, 1.0f, 1.0f,
-				
-				// Bottom face (magenta)
-				1.0f, 0.0f, 1.0f, 1.0f,				
-				1.0f, 0.0f, 1.0f, 1.0f,
-				1.0f, 0.0f, 1.0f, 1.0f,
-				1.0f, 0.0f, 1.0f, 1.0f,				
-				1.0f, 0.0f, 1.0f, 1.0f,
-				1.0f, 0.0f, 1.0f, 1.0f
-		};
-		
-		// X, Y, Z
-		// The normal is used in light calculations and is a vector which points
-		// orthogonal to the plane of the surface. For a cube model, the normals
-		// should be orthogonal to the points of each face.
-		final float[] cubeNormalData =
-		{												
-				// Front face
-				0.0f, 0.0f, 1.0f,				
-				0.0f, 0.0f, 1.0f,
-				0.0f, 0.0f, 1.0f,
-				0.0f, 0.0f, 1.0f,				
-				0.0f, 0.0f, 1.0f,
-				0.0f, 0.0f, 1.0f,
-				
-				// Right face 
-				1.0f, 0.0f, 0.0f,				
-				1.0f, 0.0f, 0.0f,
-				1.0f, 0.0f, 0.0f,
-				1.0f, 0.0f, 0.0f,				
-				1.0f, 0.0f, 0.0f,
-				1.0f, 0.0f, 0.0f,
-				
-				// Back face 
-				0.0f, 0.0f, -1.0f,				
-				0.0f, 0.0f, -1.0f,
-				0.0f, 0.0f, -1.0f,
-				0.0f, 0.0f, -1.0f,				
-				0.0f, 0.0f, -1.0f,
-				0.0f, 0.0f, -1.0f,
-				
-				// Left face 
-				-1.0f, 0.0f, 0.0f,				
-				-1.0f, 0.0f, 0.0f,
-				-1.0f, 0.0f, 0.0f,
-				-1.0f, 0.0f, 0.0f,				
-				-1.0f, 0.0f, 0.0f,
-				-1.0f, 0.0f, 0.0f,
-				
-				// Top face 
-				0.0f, 1.0f, 0.0f,			
-				0.0f, 1.0f, 0.0f,
-				0.0f, 1.0f, 0.0f,
-				0.0f, 1.0f, 0.0f,				
-				0.0f, 1.0f, 0.0f,
-				0.0f, 1.0f, 0.0f,
-				
-				// Bottom face 
-				0.0f, -1.0f, 0.0f,			
-				0.0f, -1.0f, 0.0f,
-				0.0f, -1.0f, 0.0f,
-				0.0f, -1.0f, 0.0f,				
-				0.0f, -1.0f, 0.0f,
-				0.0f, -1.0f, 0.0f
-		};
-		
-		// S, T (or X, Y)
-		// Texture coordinate data.
-		// Because images have a Y axis pointing downward (values increase as you move down the image) while
-		// OpenGL has a Y axis pointing upward, we adjust for that here by flipping the Y axis.
-		// What's more is that the texture coordinates are the same for every face.
-		final float[] cubeTextureCoordinateData =
-		{												
-				// Front face
-				0.0f, 0.0f, 				
-				0.0f, 1.0f,
-				1.0f, 0.0f,
-				0.0f, 1.0f,
-				1.0f, 1.0f,
-				1.0f, 0.0f,				
-				
-				// Right face 
-				0.0f, 0.0f, 				
-				0.0f, 1.0f,
-				1.0f, 0.0f,
-				0.0f, 1.0f,
-				1.0f, 1.0f,
-				1.0f, 0.0f,	
-				
-				// Back face 
-				0.0f, 0.0f, 				
-				0.0f, 1.0f,
-				1.0f, 0.0f,
-				0.0f, 1.0f,
-				1.0f, 1.0f,
-				1.0f, 0.0f,	
-				
-				// Left face 
-				0.0f, 0.0f, 				
-				0.0f, 1.0f,
-				1.0f, 0.0f,
-				0.0f, 1.0f,
-				1.0f, 1.0f,
-				1.0f, 0.0f,	
-				
-				// Top face 
-				0.0f, 0.0f, 				
-				0.0f, 1.0f,
-				1.0f, 0.0f,
-				0.0f, 1.0f,
-				1.0f, 1.0f,
-				1.0f, 0.0f,	
-				
-				// Bottom face 
-				0.0f, 0.0f, 				
-				0.0f, 1.0f,
-				1.0f, 0.0f,
-				0.0f, 1.0f,
-				1.0f, 1.0f,
-				1.0f, 0.0f
-		};
-		
-		// Initialize the buffers.
-		mCubePositions = ByteBuffer.allocateDirect(cubePositionData.length * mBytesPerFloat)
-        .order(ByteOrder.nativeOrder()).asFloatBuffer();							
-		mCubePositions.put(cubePositionData).position(0);		
-		
-		mCubeColors = ByteBuffer.allocateDirect(cubeColorData.length * mBytesPerFloat)
-        .order(ByteOrder.nativeOrder()).asFloatBuffer();							
-		mCubeColors.put(cubeColorData).position(0);
-		
-		mCubeNormals = ByteBuffer.allocateDirect(cubeNormalData.length * mBytesPerFloat)
-        .order(ByteOrder.nativeOrder()).asFloatBuffer();							
-		mCubeNormals.put(cubeNormalData).position(0);
-		
-		mCubeTextureCoordinates = ByteBuffer.allocateDirect(cubeTextureCoordinateData.length * mBytesPerFloat)
-		.order(ByteOrder.nativeOrder()).asFloatBuffer();
-		mCubeTextureCoordinates.put(cubeTextureCoordinateData).position(0);
-	}
+	  public LessonFourRenderer(final Context activityContext)
+      {        
+              mActivityContext = activityContext;
+              mFire = new Fire();
+              // Define points for a cube.                
+              
+              // X, Y, Z
+              final float[] cubePositionData =
+              {
+                              // In OpenGL counter-clockwise winding is default. This means that when we look at a triangle, 
+                              // if the points are counter-clockwise we are looking at the "front". If not we are looking at
+                              // the back. OpenGL has an optimization where all back-facing triangles are culled, since they
+                              // usually represent the backside of an object and aren't visible anyways.
+                              
+                              // Front face
+                              -1.0f, 1.0f, 1.0f,                                
+                              -1.0f, -1.0f, 1.0f,
+                              1.0f, 1.0f, 1.0f, 
+                              -1.0f, -1.0f, 1.0f,                                 
+                              1.0f, -1.0f, 1.0f,
+                              1.0f, 1.0f, 1.0f,
+                              
+                              // Right face
+                              1.0f, 1.0f, 1.0f,                                
+                              1.0f, -1.0f, 1.0f,
+                              1.0f, 1.0f, -1.0f,
+                              1.0f, -1.0f, 1.0f,                                
+                              1.0f, -1.0f, -1.0f,
+                              1.0f, 1.0f, -1.0f,
+                              
+                              // Back face
+                              1.0f, 1.0f, -1.0f,                                
+                              1.0f, -1.0f, -1.0f,
+                              -1.0f, 1.0f, -1.0f,
+                              1.0f, -1.0f, -1.0f,                                
+                              -1.0f, -1.0f, -1.0f,
+                              -1.0f, 1.0f, -1.0f,
+                              
+                              // Left face
+                              -1.0f, 1.0f, -1.0f,                                
+                              -1.0f, -1.0f, -1.0f,
+                              -1.0f, 1.0f, 1.0f, 
+                              -1.0f, -1.0f, -1.0f,                                
+                              -1.0f, -1.0f, 1.0f, 
+                              -1.0f, 1.0f, 1.0f, 
+                              
+                              // Top face
+                              -1.0f, 1.0f, -1.0f,                                
+                              -1.0f, 1.0f, 1.0f, 
+                              1.0f, 1.0f, -1.0f, 
+                              -1.0f, 1.0f, 1.0f,                                 
+                              1.0f, 1.0f, 1.0f, 
+                              1.0f, 1.0f, -1.0f,
+                              
+                              // Bottom face
+                              1.0f, -1.0f, -1.0f,                                
+                              1.0f, -1.0f, 1.0f, 
+                              -1.0f, -1.0f, -1.0f,
+                              1.0f, -1.0f, 1.0f,                                 
+                              -1.0f, -1.0f, 1.0f,
+                              -1.0f, -1.0f, -1.0f,
+              };        
+              
+              // R, G, B, A
+              final float[] cubeColorData =
+              {                                
+                              // Front face (red)
+                              1.0f, 0.0f, 0.0f, 1.0f,                                
+                              1.0f, 0.0f, 0.0f, 1.0f,
+                              1.0f, 0.0f, 0.0f, 1.0f,
+                              1.0f, 0.0f, 0.0f, 1.0f,                                
+                              1.0f, 0.0f, 0.0f, 1.0f,
+                              1.0f, 0.0f, 0.0f, 1.0f,
+                              
+                              // Right face (green)
+                              0.0f, 1.0f, 0.0f, 1.0f,                                
+                              0.0f, 1.0f, 0.0f, 1.0f,
+                              0.0f, 1.0f, 0.0f, 1.0f,
+                              0.0f, 1.0f, 0.0f, 1.0f,                                
+                              0.0f, 1.0f, 0.0f, 1.0f,
+                              0.0f, 1.0f, 0.0f, 1.0f,
+                              
+                              // Back face (blue)
+                              0.0f, 0.0f, 1.0f, 1.0f,                                
+                              0.0f, 0.0f, 1.0f, 1.0f,
+                              0.0f, 0.0f, 1.0f, 1.0f,
+                              0.0f, 0.0f, 1.0f, 1.0f,                                
+                              0.0f, 0.0f, 1.0f, 1.0f,
+                              0.0f, 0.0f, 1.0f, 1.0f,
+                              
+                              // Left face (yellow)
+                              1.0f, 1.0f, 0.0f, 1.0f,                                
+                              1.0f, 1.0f, 0.0f, 1.0f,
+                              1.0f, 1.0f, 0.0f, 1.0f,
+                              1.0f, 1.0f, 0.0f, 1.0f,                                
+                              1.0f, 1.0f, 0.0f, 1.0f,
+                              1.0f, 1.0f, 0.0f, 1.0f,
+                              
+                              // Top face (cyan)
+                              0.0f, 1.0f, 1.0f, 1.0f,                                
+                              0.0f, 1.0f, 1.0f, 1.0f,
+                              0.0f, 1.0f, 1.0f, 1.0f,
+                              0.0f, 1.0f, 1.0f, 1.0f,                                
+                              0.0f, 1.0f, 1.0f, 1.0f,
+                              0.0f, 1.0f, 1.0f, 1.0f,
+                              
+                              // Bottom face (magenta)
+                              1.0f, 0.0f, 1.0f, 1.0f,                                
+                              1.0f, 0.0f, 1.0f, 1.0f,
+                              1.0f, 0.0f, 1.0f, 1.0f,
+                              1.0f, 0.0f, 1.0f, 1.0f,                                
+                              1.0f, 0.0f, 1.0f, 1.0f,
+                              1.0f, 0.0f, 1.0f, 1.0f
+              };
+              
+              // X, Y, Z
+              // The normal is used in light calculations and is a vector which points
+              // orthogonal to the plane of the surface. For a cube model, the normals
+              // should be orthogonal to the points of each face.
+              final float[] cubeNormalData =
+              {                                                                                                
+                              // Front face
+                              0.0f, 0.0f, 1.0f,                                
+                              0.0f, 0.0f, 1.0f,
+                              0.0f, 0.0f, 1.0f,
+                              0.0f, 0.0f, 1.0f,                                
+                              0.0f, 0.0f, 1.0f,
+                              0.0f, 0.0f, 1.0f,
+                              
+                              // Right face 
+                              1.0f, 0.0f, 0.0f,                                
+                              1.0f, 0.0f, 0.0f,
+                              1.0f, 0.0f, 0.0f,
+                              1.0f, 0.0f, 0.0f,                                
+                              1.0f, 0.0f, 0.0f,
+                              1.0f, 0.0f, 0.0f,
+                              
+                              // Back face 
+                              0.0f, 0.0f, -1.0f,                                
+                              0.0f, 0.0f, -1.0f,
+                              0.0f, 0.0f, -1.0f,
+                              0.0f, 0.0f, -1.0f,                                
+                              0.0f, 0.0f, -1.0f,
+                              0.0f, 0.0f, -1.0f,
+                              
+                              // Left face 
+                              -1.0f, 0.0f, 0.0f,                                
+                              -1.0f, 0.0f, 0.0f,
+                              -1.0f, 0.0f, 0.0f,
+                              -1.0f, 0.0f, 0.0f,                                
+                              -1.0f, 0.0f, 0.0f,
+                              -1.0f, 0.0f, 0.0f,
+                              
+                              // Top face 
+                              0.0f, 1.0f, 0.0f,                        
+                              0.0f, 1.0f, 0.0f,
+                              0.0f, 1.0f, 0.0f,
+                              0.0f, 1.0f, 0.0f,                                
+                              0.0f, 1.0f, 0.0f,
+                              0.0f, 1.0f, 0.0f,
+                              
+                              // Bottom face 
+                              0.0f, -1.0f, 0.0f,                        
+                              0.0f, -1.0f, 0.0f,
+                              0.0f, -1.0f, 0.0f,
+                              0.0f, -1.0f, 0.0f,                                
+                              0.0f, -1.0f, 0.0f,
+                              0.0f, -1.0f, 0.0f
+              };
+              
+              // S, T (or X, Y)
+              // Texture coordinate data.
+              // Because images have a Y axis pointing downward (values increase as you move down the image) while
+              // OpenGL has a Y axis pointing upward, we adjust for that here by flipping the Y axis.
+              // What's more is that the texture coordinates are the same for every face.
+              final float[] cubeTextureCoordinateData =
+              {                                                                                                
+                              // Front face
+                              0.0f, 0.0f,                                 
+                              0.0f, 1.0f,
+                              1.0f, 0.0f,
+                              0.0f, 1.0f,
+                              1.0f, 1.0f,
+                              1.0f, 0.0f,                                
+                              
+                              // Right face 
+                              0.0f, 0.0f,                                 
+                              0.0f, 1.0f,
+                              1.0f, 0.0f,
+                              0.0f, 1.0f,
+                              1.0f, 1.0f,
+                              1.0f, 0.0f,        
+                              
+                              // Back face 
+                              0.0f, 0.0f,                                 
+                              0.0f, 1.0f,
+                              1.0f, 0.0f,
+                              0.0f, 1.0f,
+                              1.0f, 1.0f,
+                              1.0f, 0.0f,        
+                              
+                              // Left face 
+                              0.0f, 0.0f,                                 
+                              0.0f, 1.0f,
+                              1.0f, 0.0f,
+                              0.0f, 1.0f,
+                              1.0f, 1.0f,
+                              1.0f, 0.0f,        
+                              
+                              // Top face 
+                              0.0f, 0.0f,                                 
+                              0.0f, 1.0f,
+                              1.0f, 0.0f,
+                              0.0f, 1.0f,
+                              1.0f, 1.0f,
+                              1.0f, 0.0f,        
+                              
+                              // Bottom face 
+                              0.0f, 0.0f,                                 
+                              0.0f, 1.0f,
+                              1.0f, 0.0f,
+                              0.0f, 1.0f,
+                              1.0f, 1.0f,
+                              1.0f, 0.0f
+              };
+              
+              // Initialize the buffers.
+              mCubePositions = ByteBuffer.allocateDirect(cubePositionData.length * mBytesPerFloat)
+      .order(ByteOrder.nativeOrder()).asFloatBuffer();                                                        
+              mCubePositions.put(cubePositionData).position(0);                
+              
+              mCubeColors = ByteBuffer.allocateDirect(cubeColorData.length * mBytesPerFloat)
+      .order(ByteOrder.nativeOrder()).asFloatBuffer();                                                        
+              mCubeColors.put(cubeColorData).position(0);
+              
+              mCubeNormals = ByteBuffer.allocateDirect(cubeNormalData.length * mBytesPerFloat)
+      .order(ByteOrder.nativeOrder()).asFloatBuffer();                                                        
+              mCubeNormals.put(cubeNormalData).position(0);
+              
+              mCubeTextureCoordinates = ByteBuffer.allocateDirect(cubeTextureCoordinateData.length * mBytesPerFloat)
+              .order(ByteOrder.nativeOrder()).asFloatBuffer();
+              mCubeTextureCoordinates.put(cubeTextureCoordinateData).position(0);
+      }
 	
 	protected String getVertexShader()
 	{
@@ -428,7 +438,8 @@ public class LessonFourRenderer implements GLSurfaceView.Renderer
         		new String[] {"a_Position"}); 
         
         // Load the texture
-        mTextureDataHandle = TextureHelper.loadTexture(mActivityContext, R.drawable.bumpy_bricks_public_domain);
+//        mTextureDataHandle = TextureHelper.loadTexture(mActivityContext, R.drawable.bumpy_bricks_public_domain);
+        mTextureDataHandle = TextureHelper.loadTexture(mActivityContext, R.drawable.happy_face);
 	}	
 		
 	@Override
@@ -445,9 +456,11 @@ public class LessonFourRenderer implements GLSurfaceView.Renderer
 		final float bottom = -1.0f;
 		final float top = 1.0f;
 		final float near = 1.0f;
-		final float far = 20.0f;
+		final float far = 10.0f;
 		
 		Matrix.frustumM(mProjectionMatrix, 0, left, right, bottom, top, near, far);
+		
+		mFireTextureDataHandle = mFire.initialize(width, height);
 	}	
 	
 	
@@ -459,18 +472,18 @@ public class LessonFourRenderer implements GLSurfaceView.Renderer
 	public void onDrawFrame(GL10 glUnused) {
 		
 		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);	
-		
-        upX = (float) (Math.abs(Math.tan(Math.toRadians(globalRotateDegree)))) ;
-        
-        if (globalRotateDegree >= 180 && globalRotateDegree <360) {
-        	upX = - upX;
-        }
-        
-        if (globalRotateDegree >=90 && globalRotateDegree <270) {
-        	upY = -1.0f;
-        } else {
-        	upY = 1.0f;
-        }
+//		
+//        upX = (float) (Math.abs(Math.tan(Math.toRadians(globalRotateDegree)))) ;
+//        
+//        if (globalRotateDegree >= 180 && globalRotateDegree <360) {
+//        	upX = - upX;
+//        }
+//        
+//        if (globalRotateDegree >=90 && globalRotateDegree <270) {
+//        	upY = -1.0f;
+//        } else {
+//        	upY = 1.0f;
+//        }
         Matrix.setLookAtM(mViewMatrix, 0, eyeX, eyeY, eyeZ, eyeX, eyeY, lookZ, upX, upY, upZ);	
         
         // Set our per-vertex lighting program.
@@ -488,9 +501,10 @@ public class LessonFourRenderer implements GLSurfaceView.Renderer
         
         // Set the active texture unit to texture unit 0.
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+        mFire.performFrame();
         
         // Bind the texture to this unit.
-        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mTextureDataHandle);
+//        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mTextureDataHandle);
         
         // Tell the texture uniform sampler to use this texture in the shader by binding to texture unit 0.
         GLES20.glUniform1i(mTextureUniformHandle, 0);        
@@ -507,26 +521,26 @@ public class LessonFourRenderer implements GLSurfaceView.Renderer
                      
         // Draw some cubes.        
         Matrix.setIdentityM(mModelMatrix, 0);
-        Matrix.translateM(mModelMatrix, 0, 4.0f, 0.0f, -14.0f);
+        Matrix.translateM(mModelMatrix, 0, 4.0f, 0.0f, -7.0f);
 //        Matrix.rotateM(mModelMatrix, 0, angleInDegrees, 1.0f, 0.0f, 0.0f);        
         drawCube();
                         
         Matrix.setIdentityM(mModelMatrix, 0);
-        Matrix.translateM(mModelMatrix, 0, -4.0f, 0.0f, -14.0f);
+        Matrix.translateM(mModelMatrix, 0, -4.0f, 0.0f, -7.0f);
 //        Matrix.rotateM(mModelMatrix, 0, angleInDegrees, 0.0f, 1.0f, 0.0f);        
         drawCube();
         
         Matrix.setIdentityM(mModelMatrix, 0);
-        Matrix.translateM(mModelMatrix, 0, 0.0f, 4.0f, -14.0f);
+        Matrix.translateM(mModelMatrix, 0, 0.0f, 4.0f, -7.0f);
 //        Matrix.rotateM(mModelMatrix, 0, angleInDegrees, 0.0f, 0.0f, 1.0f);        
         drawCube();
         
         Matrix.setIdentityM(mModelMatrix, 0);
-        Matrix.translateM(mModelMatrix, 0, 0.0f, -4.0f, -14.0f);
+        Matrix.translateM(mModelMatrix, 0, 0.0f, -4.0f, -7.0f);
         drawCube();
         
         Matrix.setIdentityM(mModelMatrix, 0);
-        Matrix.translateM(mModelMatrix, 0, 0.0f, 0.0f, -10.0f);
+        Matrix.translateM(mModelMatrix, 0, 0.0f, 0.0f, -5.0f);
 //        Matrix.rotateM(mModelMatrix, 0, angleInDegrees, 1.0f, 1.0f, 0.0f);        
         drawCube();      
         
@@ -610,5 +624,303 @@ public class LessonFourRenderer implements GLSurfaceView.Renderer
 		
 		// Draw the point.
 		GLES20.glDrawArrays(GLES20.GL_POINTS, 0, 1);
+	}
+}
+
+class Fire {
+
+	private static Random random = new Random();
+	
+	private int textureWidth;
+	
+	private int textureHeight;
+	
+	private static final int seedLines = 3;
+	
+	private byte[] intensityMap;
+	
+	private ByteBuffer pixelBuffer;
+	
+	private static final int bytesPerPixel = 3;
+
+	private int[] colors;
+	
+	private int glFireTextureId = -1;
+
+	private int[] textureCrop = new int[4];	
+	
+	private boolean glInited = false;
+	
+	
+	private static final int iterationsPerFrame = 1;
+	
+	private long lastSeedTime = -1L;
+
+	private static final long targetFrameInterval = 1000L / 25L; // target 5 FPS 
+	
+	private static final long seedInterval = 175L;
+	
+	private long lastFpsTime = -1L;
+	
+	private static final long fpsInterval = 1000L * 5;
+	
+	private int frameCounter = 0;
+	
+	
+	public Fire() {
+		generateColors();
+	}
+	
+	private void generateColors() {
+		colors = new int[256];
+		
+		float gg = 200.0f;
+		for (int i = 0xff; i >= 0x00; i--) {
+			int r = 0;
+			r = i << 16;
+			
+			int g = 0;
+			if (gg > 0) {
+				g = ((int) gg) << 8;
+				if (i < 0xe0) {
+					gg -= 2.0f;
+				} else {
+					gg -= 1.0f;
+				}
+			}
+			
+			int b = 0;
+			
+			colors[i] = (r | g | b);
+		}
+	}	
+	
+	public int initialize(int surfaceWidth, int surfaceHeight) {
+		// TODO: choose values smarter
+		// but remember they have to be powers of 2
+//		if (surfaceWidth < surfaceHeight) {
+//			textureWidth = 128;
+//			textureHeight = 32;
+//		} else {
+//			textureWidth = 256;
+//			textureHeight = 16;
+//		}
+		textureWidth = 256;
+		textureHeight = 256;
+		
+		textureCrop[0] = 0;
+		textureCrop[1] = seedLines;
+		textureCrop[2] = textureWidth;
+		textureCrop[3] = textureHeight;
+		
+		// init the intensity map
+		intensityMap = new byte[textureWidth * textureHeight];
+		
+		// init the pixel buffer
+		pixelBuffer = ByteBuffer.allocateDirect(textureWidth * textureHeight * bytesPerPixel);
+		
+		// init the GL settings
+//		if (glInited) {
+//			resetGl(gl);
+//		}
+//		initGl(gl, surfaceWidth, surfaceHeight);
+		
+		// init the GL texture
+		return initFireTexture();
+	}	
+	
+//	private void resetGl(GL11 gl) {
+//        gl.glMatrixMode(GL10.GL_PROJECTION);
+//        gl.glPopMatrix();
+//        gl.glMatrixMode(GL10.GL_MODELVIEW);
+//        gl.glPopMatrix();				
+//	}
+	
+//	private void initGl(GL11 gl, int surfaceWidth, int surfaceHeight) {
+//        gl.glShadeModel(GL11.GL_FLAT);
+//        gl.glFrontFace(GL11.GL_CCW);
+//        
+//        gl.glEnable(GL11.GL_TEXTURE_2D);
+//
+//        gl.glMatrixMode(GL11.GL_PROJECTION);
+//        gl.glPushMatrix();
+//        gl.glLoadIdentity();
+//        gl.glOrthof(0.0f, surfaceWidth, 0.0f, surfaceHeight, 0.0f, 1.0f);
+//
+//        gl.glMatrixMode(GL10.GL_MODELVIEW);
+//        gl.glPushMatrix();
+//        gl.glLoadIdentity();
+//        
+//        glInited = false;
+//	}
+//	
+	private static int nextRandomInt(int max) {
+		return max == 0 ? 0 : random.nextInt(max);
+	}
+	
+	private void seedIntensity() {
+		int y = intensityMap.length - textureWidth;
+		
+		for (int line = 0; line < seedLines; ++line) {
+			boolean on = random.nextBoolean();
+			for (int x = 0; x < textureWidth; ++x) {
+				// magic settings for good looking fire				
+				if ((on && nextRandomInt(20 / (line + 1)) == 0) 
+						|| ((! on) && nextRandomInt(9) == 0)) {
+					
+					on = ! on;
+				}				
+
+				intensityMap[y + x] = (byte) (on ? 0xff : 0x00);
+			}
+			y -= textureWidth;
+		}
+	}
+	
+	private void iterateIntensity() {
+		int y = intensityMap.length - textureWidth * 2;
+		
+		int v1, v2, v3, v4;
+		while (y > 0) {
+			for (int x = 0; x < textureWidth; ++x) {
+				// now take the current value, the values from both sides
+				// and the one from the bottom				
+				v1 = unsignedByte(intensityMap[y + x]);
+				if (x < textureWidth - 1) {
+					v2 = unsignedByte(intensityMap[y + x + 1]);
+				} else {
+					v2 = 0;
+				}
+				if (x > 0) {
+					v3 = unsignedByte(intensityMap[y + x - 1]);
+				} else {
+					v3 = 0;
+				}
+				v4 = unsignedByte(intensityMap[y + textureWidth + x]);
+				
+				int v = (v1 + v2 + v3 + v4) / (((x != 0) && (x != textureWidth - 1)) ? 4 : 3);
+				
+				// magic values - needed for good decay
+				v = v - 2 * (255 - v) / 128;
+				
+				// now clip the value
+				if (v > 0xff) {
+					v = 0xff;
+				} else if (v < 0x00) {
+					v = 0;
+				}
+				
+				intensityMap[y + x] = (byte) v;
+			}
+			
+			y -= textureWidth;
+		}
+	}
+	
+	private static int unsignedByte(byte v) {
+		return (v >= 0 ? v : (256 + v));
+	}
+	
+	private void updatePixelsFromIntensity() {
+		pixelBuffer.rewind();
+		// we need to output the pixels upside down due to glDrawTex peculiarities
+		for (int y = intensityMap.length - textureWidth; y > 0; y -= textureWidth) {
+			for (int x = 0; x < textureWidth; ++x) {
+				int pixel = pixelFromIntensity(intensityMap[y + x]);
+				pixelBuffer.put((byte) (pixel >> 16));
+				pixelBuffer.put((byte) ((pixel >> 8) & 0xff));
+				pixelBuffer.put((byte) (pixel & 0xff));
+			}
+		}
+	}
+	
+	private int pixelFromIntensity(byte intensity) {
+		return colors[unsignedByte(intensity)];
+	}
+
+	private void releaseTexture() {
+		if (glFireTextureId != -1) {
+			GLES20.glDeleteTextures(1, new int[] { glFireTextureId }, 0);
+		}		
+	}
+	
+	private int initFireTexture() {
+		releaseTexture();
+		int[] fireTextureHandle = new int[1];
+		GLES20.glGenTextures(1, fireTextureHandle, 0);
+		glFireTextureId = fireTextureHandle[0];
+		if (fireTextureHandle[0] != 0) {
+			// we want to modify this texture so bind it
+			GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, glFireTextureId);
+
+			// GL_LINEAR gives us smoothing since the texture is larger than the screen
+			GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
+			GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST);
+			// repeat the edge pixels if a surface is larger than the texture
+			GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
+			GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);  
+        
+			// now, let's init the texture with pixel values
+			updatePixelsFromIntensity();
+        
+			// and init the GL texture with the pixels
+			GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA, textureWidth, textureHeight,
+				0, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, pixelBuffer);        
+			// at this point, we are OK to further modify the texture
+			// using glTexSubImage2D
+			return glFireTextureId;
+		}
+		return 0;
+	}
+	
+	public void dispose(GL11 gl) {
+		releaseTexture();
+	}
+	
+	public void performFrame() {
+		Log.d("czxopengl", "performFrame");
+		long frameStartTime = System.currentTimeMillis();
+		if (lastSeedTime == -1L || (frameStartTime - lastSeedTime) >= seedInterval) {
+			seedIntensity();
+			lastSeedTime = frameStartTime;
+		}
+		for (int i = 0; i < iterationsPerFrame; ++i) {
+			iterateIntensity();
+		}
+		updatePixelsFromIntensity();
+//		// Clear the surface
+//		gl.glClearColorx(0, 0, 0, 0);
+//		gl.glClear(GL11.GL_COLOR_BUFFER_BIT);
+//		
+		// Choose the texture
+		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, glFireTextureId);
+		// Update the texture
+		GLES20.glTexSubImage2D(GLES20.GL_TEXTURE_2D, 0, 0, 0, textureWidth, textureHeight, 
+				GLES20.GL_RGB, GLES20.GL_UNSIGNED_BYTE, pixelBuffer);
+		
+		// Draw the texture on the surface
+//		GLES20.glTexParameteriv(GLES20.GL_TEXTURE_2D, GL11Ext.GL_TEXTURE_CROP_RECT_OES, textureCrop, 0);
+//		((GL11Ext) gl).glDrawTexiOES(0, 0, 0, surfaceWidth, surfaceHeight);
+		
+		// Sleep the extra time
+//		long frameEndTime = System.currentTimeMillis();
+//		long delta = frameEndTime - frameStartTime;
+//		if (targetFrameInterval - delta > 10L) {
+//			try {
+//				Thread.sleep(targetFrameInterval - delta);
+//			} catch (InterruptedException e) {}
+//		}
+		
+		// Output FPS if necessary
+//		frameCounter++;
+//		if (lastFpsTime == -1L) {
+//			lastFpsTime = frameEndTime;
+//		} else if ((frameEndTime - lastFpsTime) >= fpsInterval) {
+//			float fps = frameCounter / ((frameEndTime - lastFpsTime) / 1000.0f);
+//			Log.d("FPS", String.format("%1.0f", fps));
+//			
+//			frameCounter = 0;
+//			lastFpsTime = frameEndTime;
+//		}
 	}
 }

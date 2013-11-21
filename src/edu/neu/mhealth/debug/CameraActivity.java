@@ -76,13 +76,6 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 	private AccelerateInterpolator mInterpolator;
 	protected final Handler mHandler = new Handler();
 	private boolean mStopDetecting;
-	private float speedX;
-	private float speedY;
-	private float linearAccX;
-	private float linearAccY;
-	private float linearAccZ;
-
-	private long lastTimeActiveX = 0;
 	
 
 	// private final long PACE_TWO_OPPOSITE_PEAK_INTERVAL = 2000;
