@@ -1,5 +1,6 @@
 package com.learnopengles.android.common;
 
+import edu.neu.mhealth.debug.R;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -8,14 +9,12 @@ import android.opengl.GLUtils;
 
 public class TextureHelper
 {
-	public static int loadTexture(final Context context, final int resourceId)
-	{
-		final int[] textureHandle = new int[1];
+	public static int loadTexture(final Context context, final int resourceId) {
+		final int[] textureHandle = new int[3];
 		
-		GLES20.glGenTextures(1, textureHandle, 0);
+		GLES20.glGenTextures(3, textureHandle, 0);
 		
-		if (textureHandle[0] != 0)
-		{
+		if (textureHandle[0] != 0) {
 			final BitmapFactory.Options options = new BitmapFactory.Options();
 			options.inScaled = false;	// No pre-scaling
 
