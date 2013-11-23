@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.util.Arrays;
 import java.util.Scanner;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -369,7 +370,7 @@ public class LessonFourRenderer implements GLSurfaceView.Renderer
 		int i = 0;
 		BufferedReader buff;
 		long now = System.currentTimeMillis();
-		float[] cubePositionData = new float[3 * 932];
+		float[] cubePositionData = new float[3 * 5580];
 		try {
 			buff = new BufferedReader(new InputStreamReader(mActivityContext.getAssets().open("vertices")));
 			i = 0;
@@ -394,31 +395,32 @@ public class LessonFourRenderer implements GLSurfaceView.Renderer
 		mCubePositions.put(cubePositionData).position(0);		
 		
 		
-		float[] cubeColorData = new float[4 * 932];
-		try {
-			buff = new BufferedReader(new InputStreamReader(mActivityContext.getAssets().open("color")));
-			i = 0;
-			String tmp = buff.readLine();
-			while(tmp!= null) {
-				if (tmp.equals("")) {
-					tmp = buff.readLine();
-					continue;
-				}
-				cubeColorData[i++] = Float.parseFloat(tmp);
-				tmp = buff.readLine();
-			}
-			buff.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} 
+		float[] cubeColorData = new float[4 * 5580];
+		Arrays.fill(cubeColorData, 1.0f);
+//		try {
+//			buff = new BufferedReader(new InputStreamReader(mActivityContext.getAssets().open("color")));
+//			i = 0;
+//			String tmp = buff.readLine();
+//			while(tmp!= null) {
+//				if (tmp.equals("")) {
+//					tmp = buff.readLine();
+//					continue;
+//				}
+//				cubeColorData[i++] = Float.parseFloat(tmp);
+//				tmp = buff.readLine();
+//			}
+//			buff.close();
+//		} catch (FileNotFoundException e) {
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} 
 		mCubeColors = ByteBuffer.allocateDirect(cubeColorData.length * mBytesPerFloat)
         .order(ByteOrder.nativeOrder()).asFloatBuffer();							
 		mCubeColors.put(cubeColorData).position(0);
 
-		float[] cubeNormalData = new float[3 * 932];
+		float[] cubeNormalData = new float[3 * 5580];
 		try {
 			buff = new BufferedReader(new InputStreamReader(mActivityContext.getAssets().open("normal")));
 			i = 0;
@@ -649,8 +651,9 @@ public class LessonFourRenderer implements GLSurfaceView.Renderer
 //        drawCube();
         
         Matrix.setIdentityM(mModelMatrix, 0);
-        Matrix.translateM(mModelMatrix, 0, 0.0f, 2.0f, -7.0f);
-        Matrix.rotateM(mModelMatrix, 0, angleInDegrees, 1.0f, 1.0f, 0.0f);        
+        Matrix.translateM(mModelMatrix, 0, 0.0f, 0.0f, -4.0f);
+        Matrix.rotateM(mModelMatrix, 0, angleInDegrees, 1.0f, 0.0f, 0.0f);        
+//        Matrix.rotateM(mModelMatrix, 0, 180, 0.0f, 0.0f, -1.0f);  
         drawCube();      
         
         // Draw a point to indicate the light.
@@ -709,7 +712,7 @@ public class LessonFourRenderer implements GLSurfaceView.Renderer
         GLES20.glUniform3f(mLightPosHandle, mLightPosInEyeSpace[0], mLightPosInEyeSpace[1], mLightPosInEyeSpace[2]);
         
         // Draw the cube.
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 932);                               
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 5580);                               
 	}	
 	
 	/**
