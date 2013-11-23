@@ -104,6 +104,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 
 	@Override
 	protected void onResume() {
+		restoreOrCreateMainMenu();
 		OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_6, this,
 				mLoaderCallback);
 		resumeSensors();
@@ -165,6 +166,9 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 		mOpenCvCameraView.enableView();
 	}
 
+	private void restoreOrCreateMainMenu() {
+//		mFrameLayout.add
+	}
 	/*
 	 * Sensor methods
 	 */
