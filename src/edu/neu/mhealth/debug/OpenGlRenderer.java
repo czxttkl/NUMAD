@@ -8,7 +8,9 @@ import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Random;
 import java.util.Scanner;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -138,7 +140,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 	private int mPointProgramHandle;
 
 	/** This is a handle to our texture data. */
-	private int mTextureDataHandle;
+	private int mBugTextureDataHandle;
 	private int mTextureDataHandle1;
 	private int mTextureDataHandle2;
 
@@ -147,6 +149,11 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 	public int MODE_MAIN_MENU = 0;
 	public int MODE_TUTORIAL = 1;
 
+	/** The width of screen, in pixels*/
+	private int screenWidth;
+	/** The height of screen, in pixels*/
+	private int screenHeight;
+	private ArrayList<OpenGLBug> bugList = new ArrayList<OpenGLBug>();
 	/**
 	 * Initialize the model data.
 	 */
@@ -260,6 +267,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 
 	@Override
 	public void onSurfaceCreated(GL10 glUnused, EGLConfig config) {
+		Log.d(TAG, "surface screated");
 		// Set the background clear color to black.
 		GLES20.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
@@ -280,7 +288,6 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		// of a model and
 		// view matrix. In OpenGL 2, we can keep track of these matrices
 		// separately if we choose.
-		Matrix.setLookAtM(mViewMatrix, 0, eyeX, eyeY, eyeZ, lookX, lookY, lookZ, upX, upY, upZ);
 
 		final String vertexShader = getVertexShader();
 		final String fragmentShader = getFragmentShader();
@@ -304,11 +311,11 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 				new String[] { "a_Position" });
 
 		// Load the texture
-		mTextureDataHandle = TextureHelper.loadTexture(mActivityContext, R.drawable.ladybug);
+		mBugTextureDataHandle = TextureHelper.loadTexture(mActivityContext, R.drawable.ladybug);
 		// Set the active texture unit to texture unit 0.
 		GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
 		// Bind the texture to this unit.
-		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mTextureDataHandle);
+		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mBugTextureDataHandle);
 		// mTextureDataHandle1 = TextureHelper.loadTexture(mActivityContext,
 		// R.drawable.bumpy_bricks_public_domain);
 		// mTextureDataHandle2 = TextureHelper.loadTexture(mActivityContext,
@@ -319,7 +326,14 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 	public void onSurfaceChanged(GL10 glUnused, int width, int height) {
 		// Set the OpenGL viewport to the same size as the surface.
 		GLES20.glViewport(0, 0, width, height);
-
+		screenWidth = width;
+		screenHeight = height;
+		Log.d(TAG, "screenWidth&Height:" + screenWidth + "," + screenHeight);
+		eyeX = screenWidth / 2;
+		eyeY = screenHeight / 2;
+		lookX = screenWidth / 2;
+		lookY = screenHeight / 2;
+		Matrix.setLookAtM(mViewMatrix, 0, eyeX, eyeY, eyeZ, lookX, lookY, lookZ, upX, upY, upZ);
 		// Create a new perspective projection matrix. The height will stay the
 		// same
 		// while the width will vary as per aspect ratio.
@@ -362,8 +376,15 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 			// Tell the texture uniform sampler to use this texture in the shader by binding to texture unit 0.
 			GLES20.glUniform1i(mTextureUniformHandle, 0);
 			
+			if (bugList.size() == 0) {
+				Random rd = new Random();
+				rd.nextInt(screenHeight/3);
+				OpenGLBug menuBug = new OpenGLBug(screenWidth - OpenGLBug.radius, screenHeight/3, -1, 1);
+				bugList.add(menuBug);
+			}
+			
 			Matrix.setIdentityM(mModelMatrix, 0);
-			Matrix.translateM(mModelMatrix, 0, 2.0f, 0.0f, -500.0f);
+			Matrix.translateM(mModelMatrix, 0, screenWidth/2, screenHeight/2, -500.0f);
 			Matrix.rotateM(mModelMatrix, 0, angleInDegrees, 0.0f, 1.0f, 0.0f);
 			Matrix.rotateM(mModelMatrix, 0, 90, -1.0f, 0.0f, 0.0f);
 			Matrix.scaleM(mModelMatrix, 0, 100f, 100f, 100f);
