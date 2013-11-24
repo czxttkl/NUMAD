@@ -175,13 +175,6 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 		mOpenCvCameraView.setCvCameraViewListener(this);
 		mOpenCvCameraView.enableFpsMeter();
 		mFrameLayout.addView(mOpenCvCameraView);
-//		mOpenCvCameraView = new JavaCameraView(CameraActivity.this,
-//				CameraBridgeViewBase.CAMERA_ID_ANY);
-//		mOpenCvCameraView.enableFpsMeter();
-//		// CameraView must be added after GLSurfaceView so that GLSurfaceView
-//		// could appear upon CameraView
-//		mFrameLayout.addView(mOpenCvCameraView);
-//		mOpenCvCameraView.setCvCameraViewListener(CameraActivity.this);
 		mOpenCvCameraView.enableView();
 	}
 
@@ -195,7 +188,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 		if (mMainMenuBackground == null) {
 			mMainMenuBackground = new ImageView(this);
 			mMainMenuBackground.setImageResource(R.drawable.black_bg);
-			mMainMenuBackground.setAlpha(0.8f);
+			mMainMenuBackground.setAlpha(0.6f);
 			mMainMenuBackground.setLayoutParams(new LayoutParams(
 					LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 			mMainMenuBackground.setScaleType(ImageView.ScaleType.FIT_XY);
