@@ -29,6 +29,7 @@ import android.view.Menu;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
+import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AccelerateInterpolator;
 import android.widget.FrameLayout;
@@ -96,9 +97,10 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-		setContentView(R.layout.activity_camera);
-		mFrameLayout = (FrameLayout) findViewById(R.id.MyFrameLayout);
+		mFrameLayout = new FrameLayout(this);
+		setContentView(mFrameLayout);
 		initSensors();
 	}
 
@@ -166,13 +168,20 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 	 * called after OpenCV library is loaded successfully.
 	 */
 	private void restoreOrCreateJavaCameraView() {
-		mOpenCvCameraView = new JavaCameraView(CameraActivity.this,
-				CameraBridgeViewBase.CAMERA_ID_ANY);
+		mOpenCvCameraView = new CameraView(this);
+		mOpenCvCameraView.setLayoutParams(new LayoutParams(
+				LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+		mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
+		mOpenCvCameraView.setCvCameraViewListener(this);
 		mOpenCvCameraView.enableFpsMeter();
-		// CameraView must be added after GLSurfaceView so that GLSurfaceView
-		// could appear upon CameraView
 		mFrameLayout.addView(mOpenCvCameraView);
-		mOpenCvCameraView.setCvCameraViewListener(CameraActivity.this);
+//		mOpenCvCameraView = new JavaCameraView(CameraActivity.this,
+//				CameraBridgeViewBase.CAMERA_ID_ANY);
+//		mOpenCvCameraView.enableFpsMeter();
+//		// CameraView must be added after GLSurfaceView so that GLSurfaceView
+//		// could appear upon CameraView
+//		mFrameLayout.addView(mOpenCvCameraView);
+//		mOpenCvCameraView.setCvCameraViewListener(CameraActivity.this);
 		mOpenCvCameraView.enableView();
 	}
 
