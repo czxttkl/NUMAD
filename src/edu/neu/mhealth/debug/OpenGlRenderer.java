@@ -149,6 +149,8 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 	public int MODE_MAIN_MENU = 0;
 	public int MODE_TUTORIAL = 1;
 
+	/** Random instance */
+	public Random rd;
 	/** The width of screen, in pixels*/
 	private int screenWidth;
 	/** The height of screen, in pixels*/
@@ -239,6 +241,8 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		mBugTextureCoordinates.put(cubeTextureCoordinateData).position(0);
 		long cost = System.currentTimeMillis() - now;
 		Log.d(TAG, "loading time:" + cost);
+		
+		rd = new Random();
 	}
 
 	protected String getVertexShader() {
@@ -375,21 +379,29 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 			float angleInDegrees = (360.0f / 10000.0f) * ((int) time);
 			// Tell the texture uniform sampler to use this texture in the shader by binding to texture unit 0.
 			GLES20.glUniform1i(mTextureUniformHandle, 0);
-			
+			//We only want one bug in the main menu
+			if (bugList.size() != 1) {
+				bugList.clear();
+			}
 			if (bugList.size() == 0) {
-				Random rd = new Random();
-				rd.nextInt(screenHeight/3);
-				OpenGLBug menuBug = new OpenGLBug(screenWidth - OpenGLBug.radius, screenHeight/3, -1, 1);
+				
+				int randomHeight = rd.nextInt(screenHeight/3);
+				OpenGLBug menuBug = new OpenGLBug(screenWidth - OpenGLBug.radius, screenHeight/4 + randomHeight, -1, 1);
 				bugList.add(menuBug);
 			}
-			
+			OpenGLBug menuBug = bugList.get(0);
 			Matrix.setIdentityM(mModelMatrix, 0);
-			Matrix.translateM(mModelMatrix, 0, screenWidth/2, screenHeight/2, -500.0f);
-			Matrix.rotateM(mModelMatrix, 0, angleInDegrees, 0.0f, 1.0f, 0.0f);
+			Matrix.translateM(mModelMatrix, 0, menuBug.x, menuBug.y, -500.0f);
+			Matrix.rotateM(mModelMatrix, 0, headRotate(menuBug.speedX, menuBug.speedY), 0, 0, -1.0f);
+			Matrix.rotateM(mModelMatrix, 0, 180, 0.0f, 1.0f, 0.0f);
 			Matrix.rotateM(mModelMatrix, 0, 90, -1.0f, 0.0f, 0.0f);
 			Matrix.scaleM(mModelMatrix, 0, 100f, 100f, 100f);
 			// Matrix.rotateM(mModelMatrix, 0, 180, 0.0f, 0.0f, -1.0f);
 			drawBug();
+			
+			menuBug.x = menuBug.x + menuBug.speedX;
+			menuBug.y = menuBug.y + menuBug.speedY;
+			
 			break;
 		// Tutorial mode
 		case 1:
@@ -512,5 +524,25 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 
 		// Draw the point.
 		GLES20.glDrawArrays(GLES20.GL_POINTS, 0, 1);
+	}
+	
+	private float headRotate(int speedX, int speedY) {
+		float rotateDegree = 0;
+		rotateDegree = (float) Math.toDegrees(Math.atan(Math.abs(speedY/speedX)));
+		if (speedX > 0 && speedY < 0) {
+			rotateDegree = 90 + rotateDegree;
+		}
+		if (speedX > 0 && speedY > 0) {
+			rotateDegree = 90 - rotateDegree;
+		}
+		if (speedX < 0 && speedY < 0) {
+			rotateDegree = 90 + rotateDegree;
+			rotateDegree = -rotateDegree;
+		}
+		if (speedX < 0 && speedY > 0) {
+			rotateDegree = 90 - rotateDegree;
+			rotateDegree = -rotateDegree;
+		}
+		return rotateDegree;
 	}
 }
