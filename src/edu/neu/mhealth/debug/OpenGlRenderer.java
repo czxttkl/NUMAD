@@ -233,7 +233,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer
 	// We are looking toward the distance
 	float lookX = 0.0f;
 	float lookY = 0.0f;
-	float lookZ = -5.0f;
+	float lookZ = -100.0f;
 	
 	// Set our up vector. This is where our head would be pointing were we holding the camera.
 	float upX = 0.0f;
@@ -292,15 +292,15 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer
 
 		// Create a new perspective projection matrix. The height will stay the same
 		// while the width will vary as per aspect ratio.
-		final float ratio = (float) width / height;
-		final float left = -ratio;
-		final float right = ratio;
-		final float bottom = -1.0f;
-		final float top = 1.0f;
-		final float near = 1.0f;
-		final float far = 30.0f;
+//		final float ratio = (float) width / height;
+		final float left = -width/2;
+		final float right = width/2;
+		final float bottom = -height/2;
+		final float top = height/2;
+		final float near = 0.001f;
+		final float far = 3000.0f;
 		
-		Matrix.frustumM(mProjectionMatrix, 0, left, right, bottom, top, near, far);
+		Matrix.orthoM(mProjectionMatrix, 0, left, right, bottom, top, near, far);
 	}	
 	
 	
@@ -394,9 +394,10 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer
         
         Matrix.setIdentityM(mModelMatrix, 0);
         
-        Matrix.translateM(mModelMatrix, 0, 2.0f, 0.0f, -4.0f);
+        Matrix.translateM(mModelMatrix, 0, 2.0f, 0.0f, -500.0f);
         Matrix.rotateM(mModelMatrix, 0, angleInDegrees, 0.0f, 1.0f, 0.0f); 
-        Matrix.rotateM(mModelMatrix, 0, 90, -1.0f, 0.0f, 0.0f);        
+        Matrix.rotateM(mModelMatrix, 0, 90, -1.0f, 0.0f, 0.0f);    
+        Matrix.scaleM(mModelMatrix, 0, 100f, 100f, 100f);
 //        Matrix.rotateM(mModelMatrix, 0, 180, 0.0f, 0.0f, -1.0f);  
         drawCube();      
         
