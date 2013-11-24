@@ -45,7 +45,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 	 */
 	FrameLayout mFrameLayout;
 	ImageView mMainMenuBackground;
-	ImageView mMainMenuBug;
+	ImageView mMainMenuTitle;
 	public int screenWidth;
 	public int screenHeight;
 	
@@ -183,25 +183,24 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 		
 		if (mMainMenuBackground == null) {
 			mMainMenuBackground = new ImageView(this);
-			// setting image resource
 			mMainMenuBackground
-					.setImageResource(R.drawable.main_menu_background);
-			// setting image position
+					.setImageResource(R.drawable.black_bg);
+			mMainMenuBackground.setAlpha(0.8f);
 			mMainMenuBackground.setLayoutParams(new LayoutParams(
 					LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 			mMainMenuBackground.setScaleType(ImageView.ScaleType.FIT_XY);
 		}
 		mFrameLayout.addView(mMainMenuBackground);
-		if (mMainMenuBug == null) {
-			mMainMenuBug = new ImageView(this);
-			mMainMenuBug
-			.setImageResource(R.drawable.ladybug_bg);
-			FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
-					LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-			lp.setMargins(screenWidth/2, screenHeight/2, 50, 1);
-			mMainMenuBug.setLayoutParams(lp);
+		
+		if (mMainMenuTitle == null) {
+			mMainMenuTitle = new ImageView(this);
+			mMainMenuTitle
+			.setImageResource(R.drawable.main_menu_title);
+			FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(screenWidth/3, screenWidth/8);
+			lp.setMargins(screenWidth/5, screenHeight/10, 0, 1);
+			mMainMenuTitle.setLayoutParams(lp);
 		}
-		mFrameLayout.addView(mMainMenuBug);
+		mFrameLayout.addView(mMainMenuTitle);
 	}
 
 	/*
