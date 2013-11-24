@@ -398,8 +398,19 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 			Matrix.scaleM(mModelMatrix, 0, 100f, 100f, 100f);
 			// Matrix.rotateM(mModelMatrix, 0, 180, 0.0f, 0.0f, -1.0f);
 			drawBug();
+			int tmpX = menuBug.x + menuBug.speedX;
+			int tmpY = menuBug.y + menuBug.speedY;
 			
-			menuBug.x = menuBug.x + menuBug.speedX;
+			if (tmpX > screenWidth || tmpX < 0) {
+				menuBug.speedX = -menuBug.speedX;
+				tmpX = menuBug.x;
+			}
+			if (tmpY > screenHeight || tmpY < 0) {
+				menuBug.speedY = -menuBug.speedY;
+				tmpY = menuBug.y;
+			}
+			
+			menuBug.x = tmpX;
 			menuBug.y = menuBug.y + menuBug.speedY;
 			
 			break;
