@@ -393,8 +393,10 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer
 //        drawCube();
         
         Matrix.setIdentityM(mModelMatrix, 0);
-        Matrix.translateM(mModelMatrix, 0, 0.0f, 0.0f, -4.0f);
-        Matrix.rotateM(mModelMatrix, 0, angleInDegrees, 1.0f, 0.0f, 0.0f);        
+        
+        Matrix.translateM(mModelMatrix, 0, 2.0f, 0.0f, -4.0f);
+        Matrix.rotateM(mModelMatrix, 0, angleInDegrees, 0.0f, 1.0f, 0.0f); 
+        Matrix.rotateM(mModelMatrix, 0, 90, -1.0f, 0.0f, 0.0f);        
 //        Matrix.rotateM(mModelMatrix, 0, 180, 0.0f, 0.0f, -1.0f);  
         drawCube();      
         

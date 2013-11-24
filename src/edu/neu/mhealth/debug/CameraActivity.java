@@ -50,7 +50,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 	View mButtonView;
 	public int screenWidth;
 	public int screenHeight;
-	
+
 	/* OpenCv Variables */
 	private CameraBridgeViewBase mOpenCvCameraView;
 	private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
@@ -158,7 +158,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 		mFrameLayout.addView(mGLSurfaceView);
 		mGLSurfaceView.setZOrderMediaOverlay(true);
 		mGLSurfaceView.setZOrderOnTop(true);
-		
+
 	}
 
 	/**
@@ -182,33 +182,37 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 		display.getSize(size);
 		screenWidth = size.x;
 		screenHeight = size.y;
-		
+
 		if (mMainMenuBackground == null) {
 			mMainMenuBackground = new ImageView(this);
-			mMainMenuBackground
-					.setImageResource(R.drawable.black_bg);
+			mMainMenuBackground.setImageResource(R.drawable.black_bg);
 			mMainMenuBackground.setAlpha(0.8f);
 			mMainMenuBackground.setLayoutParams(new LayoutParams(
 					LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 			mMainMenuBackground.setScaleType(ImageView.ScaleType.FIT_XY);
+			mFrameLayout.addView(mMainMenuBackground);
 		}
-		mFrameLayout.addView(mMainMenuBackground);
-		
+
 		if (mMainMenuTitle == null) {
 			mMainMenuTitle = new ImageView(this);
-			mMainMenuTitle
-			.setImageResource(R.drawable.main_menu_title);
-			FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(screenWidth/3, screenWidth/8);
-			lp.setMargins(screenWidth/5, screenHeight/10, 0, 1);
+			mMainMenuTitle.setImageResource(R.drawable.main_menu_title);
+			FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
+					screenWidth / 3, screenWidth / 8);
+			lp.setMargins(screenWidth / 5, screenHeight / 10, 0, 1);
 			mMainMenuTitle.setLayoutParams(lp);
+			mFrameLayout.addView(mMainMenuTitle);
 		}
-		mFrameLayout.addView(mMainMenuTitle);
-		
-		LayoutInflater layoutInflater = (LayoutInflater) getBaseContext()
-				.getSystemService(LAYOUT_INFLATER_SERVICE);
-		mButtonView = layoutInflater.inflate(
-				R.layout.main_menu, null);
-		mFrameLayout.addView(mButtonView);
+
+		if (mButtonView == null) {
+			LayoutInflater layoutInflater = (LayoutInflater) getBaseContext()
+					.getSystemService(LAYOUT_INFLATER_SERVICE);
+			mButtonView = layoutInflater.inflate(R.layout.main_menu, null);
+			FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
+					LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+			lp.setMargins(0, 300, 0, 0);
+			mButtonView.setLayoutParams(lp);
+			mFrameLayout.addView(mButtonView);
+		}
 	}
 
 	/*
