@@ -1,7 +1,6 @@
 package edu.neu.mhealth.debug;
 
 import java.util.Arrays;
-
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
@@ -25,8 +24,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 import android.view.Display;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.SurfaceView;
+import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
 import android.view.animation.AccelerateInterpolator;
@@ -46,6 +47,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 	FrameLayout mFrameLayout;
 	ImageView mMainMenuBackground;
 	ImageView mMainMenuTitle;
+	View mButtonView;
 	public int screenWidth;
 	public int screenHeight;
 	
@@ -201,6 +203,12 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 			mMainMenuTitle.setLayoutParams(lp);
 		}
 		mFrameLayout.addView(mMainMenuTitle);
+		
+		LayoutInflater layoutInflater = (LayoutInflater) getBaseContext()
+				.getSystemService(LAYOUT_INFLATER_SERVICE);
+		mButtonView = layoutInflater.inflate(
+				R.layout.main_menu, null);
+		mFrameLayout.addView(mButtonView);
 	}
 
 	/*
