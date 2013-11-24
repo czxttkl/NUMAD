@@ -197,7 +197,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 
 		if (mMainMenuTitle == null) {
 			mMainMenuTitle = new ImageView(this);
-			mMainMenuTitle.setImageResource(R.drawable.main_menu_title);
+			mMainMenuTitle.setImageResource(R.drawable.main_menu_title2);
 			FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
 					screenWidth / 3, screenWidth / 8);
 			lp.setMargins(screenWidth / 5, screenHeight / 10, 0, 1);

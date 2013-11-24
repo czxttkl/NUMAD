@@ -125,6 +125,11 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer
 	private int mTextureDataHandle1;
 	private int mTextureDataHandle2;
 	
+	
+	/** This indicates which mode the game is now at*/
+	public int mode;
+	public int MODE_MAIN_MENU;
+	public int MODE_TUTORIAL;
 	/**
 	 * Initialize the model data.
 	 */
