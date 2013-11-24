@@ -1,6 +1,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:opencv="http://schemas.android.com/apk/res-auto"
+    xmlns:sufaceview="http://schemas.android.com/apk/res-auto"
     android:id="@+id/MyFrameLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -8,16 +9,31 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".CameraActivity" 
-    xmlns:sufaceview="http://schemas.android.com/apk/res-auto">
-	
-<!--    If you want to manipulate two surfaceviews overlap,
+    tools:context=".CameraActivity" >
+
+    <!-- <ImageView
+        android:id="@+id/main_menu_background"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:contentDescription="main_menu_background"
+        android:scaleType="fitXY"
+        android:src="@drawable/main_menu_background" />
+    <ImageView
+        android:id="@+id/ladybug_background"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="ladybug_bg"
+        android:src="@drawable/ladybug_bg" 
+        android:layout_marginRight="10dp" /> -->
+    <!--
+        If you want to manipulate two surfaceviews overlap,
 		add them to framelayout programmatically. 
 		MyGLSurfaceView must be the first child in the framelayout 
-		so that it could appear upon JavaCameraView.
-		-->
-		
-	<!--<edu.neu.mhealth.debug.MyGLSurfaceView
+		so that it could appear upon JavaCameraView.    -->
+
+
+    <!--
+        <edu.neu.mhealth.debug.MyGLSurfaceView
 	    android:layout_width="fill_parent"
 	    android:layout_height="fill_parent"
 	    android:id="@+id/MyGLSurfaceView"
@@ -29,10 +45,11 @@
 		android:visibility="visible"
 		android:id="@+id/JavaCameraView"
 		opencv:show_fps="true" 
-		opencv:camera_id="any" />-->
-	
-</FrameLayout>
-<!-- =======
+		opencv:camera_id="any" />
+    -->
+
+</FrameLayout><!--
+=======
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:opencv="http://schemas.android.com/apk/res-auto"
@@ -60,4 +77,5 @@
 		opencv:camera_id="any" />
 
 </LinearLayout>
->>>>>>> 51f1a3bb56f170a00acc28a3c8a4a721161cf493 -->
+>>>>>>> 51f1a3bb56f170a00acc28a3c8a4a721161cf493
+-->

@@ -13,6 +13,7 @@ import org.opencv.core.Mat;
 
 import edu.neu.mhealth.debug.helper.Global;
 
+import android.graphics.Point;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -23,11 +24,14 @@ import android.os.Handler;
 import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
+import android.view.Display;
 import android.view.Menu;
 import android.view.SurfaceView;
+import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
 import android.view.animation.AccelerateInterpolator;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 
 public class CameraActivity extends Activity implements CvCameraViewListener2,
 		SensorEventListener {
@@ -40,7 +44,11 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 	 * surfaceviews
 	 */
 	FrameLayout mFrameLayout;
-
+	ImageView mMainMenuBackground;
+	ImageView mMainMenuBug;
+	public int screenWidth;
+	public int screenHeight;
+	
 	/* OpenCv Variables */
 	private CameraBridgeViewBase mOpenCvCameraView;
 	private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
@@ -51,6 +59,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 				Log.i(TAG, "OpenCV loaded successfully");
 				restoreOrCreateJavaCameraView();
 				restoreOrCreateGLSurfaceView();
+				restoreOrCreateMainMenu();
 			}
 				break;
 			default: {
@@ -76,7 +85,6 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 	private AccelerateInterpolator mInterpolator;
 	protected final Handler mHandler = new Handler();
 	private boolean mStopDetecting;
-	
 
 	// private final long PACE_TWO_OPPOSITE_PEAK_INTERVAL = 2000;
 
@@ -104,7 +112,6 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 
 	@Override
 	protected void onResume() {
-		restoreOrCreateMainMenu();
 		OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_6, this,
 				mLoaderCallback);
 		resumeSensors();
@@ -149,6 +156,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 		mFrameLayout.addView(mGLSurfaceView);
 		mGLSurfaceView.setZOrderMediaOverlay(true);
 		mGLSurfaceView.setZOrderOnTop(true);
+		
 	}
 
 	/**
@@ -167,8 +175,35 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 	}
 
 	private void restoreOrCreateMainMenu() {
-//		mFrameLayout.add
+		Display display = getWindowManager().getDefaultDisplay();
+		Point size = new Point();
+		display.getSize(size);
+		screenWidth = size.x;
+		screenHeight = size.y;
+		
+		if (mMainMenuBackground == null) {
+			mMainMenuBackground = new ImageView(this);
+			// setting image resource
+			mMainMenuBackground
+					.setImageResource(R.drawable.main_menu_background);
+			// setting image position
+			mMainMenuBackground.setLayoutParams(new LayoutParams(
+					LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+			mMainMenuBackground.setScaleType(ImageView.ScaleType.FIT_XY);
+		}
+		mFrameLayout.addView(mMainMenuBackground);
+		if (mMainMenuBug == null) {
+			mMainMenuBug = new ImageView(this);
+			mMainMenuBug
+			.setImageResource(R.drawable.ladybug_bg);
+			FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
+					LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+			lp.setMargins(screenWidth/2, screenHeight/2, 50, 1);
+			mMainMenuBug.setLayoutParams(lp);
+		}
+		mFrameLayout.addView(mMainMenuBug);
 	}
+
 	/*
 	 * Sensor methods
 	 */
@@ -218,10 +253,10 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 			mTargetDirection = normalizeDegree(direction);
 		} else {
 			if (Sensor.TYPE_LINEAR_ACCELERATION == arg0.sensor.getType()) {
-//				mGLSurfaceView.mRenderer.eyeY = mGLSurfaceView.mRenderer.eyeY
-//						+ speedX;
-//				mGLSurfaceView.mRenderer.eyeX = mGLSurfaceView.mRenderer.eyeX
-//						- speedY * SPEED_CONSTANT;
+				// mGLSurfaceView.mRenderer.eyeY = mGLSurfaceView.mRenderer.eyeY
+				// + speedX;
+				// mGLSurfaceView.mRenderer.eyeX = mGLSurfaceView.mRenderer.eyeX
+				// - speedY * SPEED_CONSTANT;
 			}
 		}
 	}
