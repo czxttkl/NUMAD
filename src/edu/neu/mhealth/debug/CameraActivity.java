@@ -37,8 +37,7 @@ import android.view.animation.AccelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
-public class CameraActivity extends Activity implements CvCameraViewListener2,
-		SensorEventListener {
+public class CameraActivity extends Activity implements CvCameraViewListener2, SensorEventListener {
 
 	/* Basic Variables */
 	/** Debug Tag */
@@ -118,8 +117,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 
 	@Override
 	protected void onResume() {
-		OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_6, this,
-				mLoaderCallback);
+		OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_6, this, mLoaderCallback);
 		resumeSensors();
 		super.onResume();
 	}
@@ -162,22 +160,22 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 		// could appear upon CameraView
 	}
 
-	/** This method is executed after init render work has been done.*/
+	/** This method is executed after init render work has been done. */
 	public void restoreOrCreateGLSurfaceView2() {
-		if(mGLSurfaceView != null) {
+		if (mGLSurfaceView != null) {
 			mFrameLayout.addView(mGLSurfaceView);
 			mGLSurfaceView.setZOrderMediaOverlay(true);
 			mGLSurfaceView.setZOrderOnTop(true);
 		}
 	}
+
 	/**
 	 * Restore or create SurfaceView for opencv CameraView. This method is
 	 * called after OpenCV library is loaded successfully.
 	 */
 	private void restoreOrCreateJavaCameraView() {
 		mOpenCvCameraView = new CameraView(this);
-		mOpenCvCameraView.setLayoutParams(new LayoutParams(
-				LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+		mOpenCvCameraView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 		mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
 		mOpenCvCameraView.setCvCameraViewListener(this);
 		mOpenCvCameraView.enableFpsMeter();
@@ -192,40 +190,33 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 		screenWidth = size.x;
 		screenHeight = size.y;
 
-		if (mMainMenuBackground == null) {
-			mMainMenuBackground = new ImageView(this);
-			mMainMenuBackground.setImageResource(R.drawable.black_bg);
-			mMainMenuBackground.setAlpha(0.6f);
-			mMainMenuBackground.setLayoutParams(new LayoutParams(
-					LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-			mMainMenuBackground.setScaleType(ImageView.ScaleType.FIT_XY);
-			mFrameLayout.addView(mMainMenuBackground);
-		}
+		mMainMenuBackground = new ImageView(this);
+		mMainMenuBackground.setImageResource(R.drawable.black_bg);
+		mMainMenuBackground.setAlpha(0.6f);
+		mMainMenuBackground.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+		mMainMenuBackground.setScaleType(ImageView.ScaleType.FIT_XY);
+		mFrameLayout.addView(mMainMenuBackground);
 
-		if (mMainMenuTitle == null) {
-			mMainMenuTitle = new ImageView(this);
-			//We set mMainMenuTitle's id to be 6789
-			mMainMenuTitle.setId(6789);
-			mMainMenuTitle.setImageResource(R.drawable.main_menu_title2);
-			FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
-					screenWidth / 3, screenWidth / 8);
-			lp.setMargins(screenWidth / 5, screenHeight / 10, 0, 1);
-			mMainMenuTitle.setLayoutParams(lp);
-			mFrameLayout.addView(mMainMenuTitle);
-		}
+		mMainMenuTitle = new ImageView(this);
+		// We set mMainMenuTitle's id to be 6789
+		mMainMenuTitle.setId(6789);
+		mMainMenuTitle.setImageResource(R.drawable.main_menu_title2);
+		FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(screenWidth / 3, screenWidth / 8);
+		lp.setMargins(screenWidth / 5, screenHeight / 10, 0, 1);
+		mMainMenuTitle.setLayoutParams(lp);
+		mFrameLayout.addView(mMainMenuTitle);
 
-		if (mButtonView == null) {
-			LayoutInflater layoutInflater = (LayoutInflater) getBaseContext()
-					.getSystemService(LAYOUT_INFLATER_SERVICE);
-			mButtonView = layoutInflater.inflate(R.layout.main_menu, null);
-			FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
-					LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-			lp.setMargins(0, 300, 0, 0);
-			mButtonView.setLayoutParams(lp);
-			mFrameLayout.addView(mButtonView);
-		}
-		mHandler.postDelayed(mMainMenuBorderRunnable ,20);
-//		Log.d(TAG, "position:" + mButtonView.getX() + "," + mButtonView.getWidth() + "," + mButtonView.getY() + mButtonView.getHeight());
+		LayoutInflater layoutInflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+		mButtonView = layoutInflater.inflate(R.layout.main_menu, null);
+		FrameLayout.LayoutParams lp1 = new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+		lp1.setMargins(0, 300, 0, 0);
+		mButtonView.setLayoutParams(lp1);
+		mFrameLayout.addView(mButtonView);
+
+		mHandler.postDelayed(mMainMenuBorderRunnable, 20);
+		// Log.d(TAG, "position:" + mButtonView.getX() + "," +
+		// mButtonView.getWidth() + "," + mButtonView.getY() +
+		// mButtonView.getHeight());
 	}
 
 	/*
@@ -238,21 +229,17 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 		mStopDetecting = true;
 		// sensor manager
 		mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-		mOrientationSensor = mSensorManager
-				.getDefaultSensor(Sensor.TYPE_ORIENTATION);
-		mLinearAccelerometer = mSensorManager
-				.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
+		mOrientationSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
+		mLinearAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
 	}
 
 	private void resumeSensors() {
 		mStopDetecting = false;
 		if (mOrientationSensor != null) {
-			mSensorManager.registerListener(this, mOrientationSensor,
-					SensorManager.SENSOR_DELAY_GAME);
+			mSensorManager.registerListener(this, mOrientationSensor, SensorManager.SENSOR_DELAY_GAME);
 		}
 		if (mLinearAccelerometer != null) {
-			mSensorManager.registerListener(this, mLinearAccelerometer,
-					SensorManager.SENSOR_DELAY_GAME);
+			mSensorManager.registerListener(this, mLinearAccelerometer, SensorManager.SENSOR_DELAY_GAME);
 		}
 		mHandler.postDelayed(mEyeLocationUpdaterRunnable, 20);
 	}
@@ -301,15 +288,13 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 					// limit the max speed to MAX_ROTATE_DEGREE
 					float distance = to - mDirection;
 					if (Math.abs(distance) > MAX_ROATE_DEGREE) {
-						distance = distance > 0 ? MAX_ROATE_DEGREE
-								: (-1.0f * MAX_ROATE_DEGREE);
+						distance = distance > 0 ? MAX_ROATE_DEGREE : (-1.0f * MAX_ROATE_DEGREE);
 					}
 
 					// need to slow down if the distance is short
 					float mDirectionNew = normalizeDegree(mDirection
 							+ ((to - mDirection) * mInterpolator
-									.getInterpolation(Math.abs(distance) > MAX_ROATE_DEGREE ? 0.4f
-											: 0.3f)));
+									.getInterpolation(Math.abs(distance) > MAX_ROATE_DEGREE ? 0.4f : 0.3f)));
 					mDirection = mDirectionNew;
 					updateOpenGLEyeLocation(mDirection);
 				}
@@ -317,50 +302,58 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 			}
 		}
 	};
-	
+
 	protected Runnable mMainMenuBorderRunnable = new Runnable() {
 		@Override
 		public void run() {
-//			int mainMenuTitleX= (int) mMainMenuTitle.getX();
-//			int mainMenuTitleY = (int) mMainMenuTitle.getY();
+			// This means the views haven't been rendered
 			View buttonLinearLayout = findViewById(R.id.buttons_linear_layout);
-//			int buttonLinearLayoutX = (int) buttonLinearLayout.getX();
-//			int buttonLinearLayoutY = (int) buttonLinearLayout.getY();
+			if (buttonLinearLayout == null || mMainMenuTitle == null) {
+				mHandler.postDelayed(mMainMenuBorderRunnable, 200);
+				return;
+			}
 			int mainMenuTitleWidth = mMainMenuTitle.getWidth();
 			int mainMenuTitleHeight = mMainMenuTitle.getHeight();
 			int buttonLinearLayoutWidth = buttonLinearLayout.getWidth();
 			int buttonLinearLayoutHeight = buttonLinearLayout.getHeight();
-//			
+			//
 			int[] mainMenuTitleLocation = new int[2];
 			mMainMenuTitle.getLocationInWindow(mainMenuTitleLocation);
 			int[] mainMenuButtonLocation = new int[2];
 			buttonLinearLayout.getLocationInWindow(mainMenuButtonLocation);
-			//This means the views haven't been rendered
-			if ((mainMenuTitleLocation[0] == 0 && mainMenuTitleLocation[1] == 0) || (mainMenuButtonLocation[0] == 0 && mainMenuButtonLocation[1] == 0)
+			// This means the views haven't been rendered
+			if ((mainMenuTitleLocation[0] == 0 && mainMenuTitleLocation[1] == 0)
+					|| (mainMenuButtonLocation[0] == 0 && mainMenuButtonLocation[1] == 0)
 					|| mGLSurfaceView.mRenderer == null) {
 				mHandler.postDelayed(mMainMenuBorderRunnable, 200);
 				return;
 			}
-			//Convert to y-axis upwards coordinate
+			// Convert to y-axis upwards coordinate
 			mainMenuTitleLocation[1] = screenHeight - mainMenuTitleLocation[1];
 			mainMenuButtonLocation[1] = screenHeight - mainMenuButtonLocation[1];
-			Log.d(TAG, "main menu title location:" + mainMenuTitleLocation[0] + "," + mainMenuTitleLocation[1] + ":" + mainMenuTitleWidth + "," + mainMenuTitleHeight);
-			Log.d(TAG, "main menu button location:" + mainMenuButtonLocation[0] + "," + mainMenuButtonLocation[1] + ":" + buttonLinearLayoutWidth + "," + buttonLinearLayoutHeight);
-			//Add the title and buttons constraints
+			Log.d(TAG, "main menu title location:" + mainMenuTitleLocation[0] + "," + mainMenuTitleLocation[1] + ":"
+					+ mainMenuTitleWidth + "," + mainMenuTitleHeight);
+			Log.d(TAG, "main menu button location:" + mainMenuButtonLocation[0] + "," + mainMenuButtonLocation[1] + ":"
+					+ buttonLinearLayoutWidth + "," + buttonLinearLayoutHeight);
+			// Add the title and buttons constraints
 			BorderLine bl1 = new BorderLine(BorderLine.TYPE_UPPER_BOUND, 0, mainMenuTitleLocation[1], 1);
 			BorderLine bl2 = new BorderLine(BorderLine.TYPE_UPPER_BOUND, 0, mainMenuButtonLocation[1], 1);
-			BorderLine bl3 = new BorderLine(BorderLine.TYPE_LOWER_BOUND, 0, mainMenuTitleLocation[1] - mainMenuTitleHeight, 1);
-			BorderLine bl4 = new BorderLine(BorderLine.TYPE_LOWER_BOUND, 0, mainMenuButtonLocation[1] - buttonLinearLayoutHeight, 1);
+			BorderLine bl3 = new BorderLine(BorderLine.TYPE_LOWER_BOUND, 0, mainMenuTitleLocation[1]
+					- mainMenuTitleHeight, 1);
+			BorderLine bl4 = new BorderLine(BorderLine.TYPE_LOWER_BOUND, 0, mainMenuButtonLocation[1]
+					- buttonLinearLayoutHeight, 1);
 			BorderLine bl5 = new BorderLine(BorderLine.TYPE_X_LEFT_BOUND, 1, mainMenuTitleLocation[0], 0);
 			BorderLine bl6 = new BorderLine(BorderLine.TYPE_X_LEFT_BOUND, 1, mainMenuButtonLocation[0], 0);
-			BorderLine bl7 = new BorderLine(BorderLine.TYPE_X_RIGHT_BOUND, 1, mainMenuTitleLocation[0] + mainMenuTitleWidth, 0);
-			BorderLine bl8 = new BorderLine(BorderLine.TYPE_X_RIGHT_BOUND, 1, mainMenuButtonLocation[0] + buttonLinearLayoutWidth, 0);
-			//Add the screen constraints
+			BorderLine bl7 = new BorderLine(BorderLine.TYPE_X_RIGHT_BOUND, 1, mainMenuTitleLocation[0]
+					+ mainMenuTitleWidth, 0);
+			BorderLine bl8 = new BorderLine(BorderLine.TYPE_X_RIGHT_BOUND, 1, mainMenuButtonLocation[0]
+					+ buttonLinearLayoutWidth, 0);
+			// Add the screen constraints
 			BorderLine bl9 = new BorderLine(BorderLine.TYPE_UPPER_BOUND, 0, screenHeight, 1);
 			BorderLine bl10 = new BorderLine(BorderLine.TYPE_LOWER_BOUND, 0, 0, 1);
 			BorderLine bl11 = new BorderLine(BorderLine.TYPE_X_LEFT_BOUND, 1, 0, 0);
 			BorderLine bl12 = new BorderLine(BorderLine.TYPE_X_RIGHT_BOUND, 1, screenWidth, 0);
-			
+
 			ArrayList<BorderLine> mBorderLineList = new ArrayList<BorderLine>();
 			mBorderLineList.add(bl1);
 			mBorderLineList.add(bl2);
@@ -375,7 +368,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 			mBorderLineList.add(bl11);
 			mBorderLineList.add(bl12);
 			mGLSurfaceView.mRenderer.borderLineList = mBorderLineList;
-			
+
 		}
 	};
 
