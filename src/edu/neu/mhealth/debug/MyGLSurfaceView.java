@@ -3,16 +3,19 @@ package edu.neu.mhealth.debug;
 import android.content.Context;
 import android.graphics.PixelFormat;
 import android.opengl.GLSurfaceView;
+import android.opengl.GLSurfaceView.Renderer;
 import android.util.AttributeSet;
 
 
 public class MyGLSurfaceView extends GLSurfaceView {
 
-    public final OpenGlRenderer mRenderer;
+    public OpenGlRenderer mRenderer;
+    public Context mContext;
 //    private final CubeRenderer mRenderer;
 
     public MyGLSurfaceView(Context context, AttributeSet attrs) {
     	super(context, attrs);
+    	mContext = context;
         // Create an OpenGL ES 2.0 context.
         setEGLContextClientVersion(2);
         // We want an 8888 pixel format because that's required for
@@ -28,6 +31,7 @@ public class MyGLSurfaceView extends GLSurfaceView {
     
     public MyGLSurfaceView(Context context) {
         super(context);
+        mContext = context;
         // Create an OpenGL ES 2.0 context.
         setEGLContextClientVersion(2);
         // We want an 8888 pixel format because that's required for
@@ -37,15 +41,23 @@ public class MyGLSurfaceView extends GLSurfaceView {
         // Use a surface format with an Alpha channel:
         getHolder().setFormat(PixelFormat.TRANSLUCENT);
         // Set the Renderer for drawing on the GLSurfaceView
-        mRenderer = new OpenGlRenderer(context);
-        setRenderer(mRenderer);
+       
+//        setRenderer(mRenderer);
 //        mRenderer = new FireRenderer();
 //        setRenderer(mRenderer);
         // Render the view only when there is a change in the drawing data
 //        setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
     }
+    
 
-    private final float TOUCH_SCALE_FACTOR = 180.0f / 320;
+	/** Create mRenderer instance and call setRenderer(Render render)*/
+	public void setMyRenderer() {
+    	mRenderer = new OpenGlRenderer(mContext);
+		setRenderer(mRenderer);
+	}
+
+
+	private final float TOUCH_SCALE_FACTOR = 180.0f / 320;
     private float mPreviousX;
     private float mPreviousY;
 

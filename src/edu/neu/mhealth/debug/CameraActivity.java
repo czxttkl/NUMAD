@@ -12,6 +12,7 @@ import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Mat;
 
 import edu.neu.mhealth.debug.helper.Global;
+import edu.neu.mhealth.debug.helper.InitRenderTask;
 
 import android.graphics.Point;
 import android.hardware.Sensor;
@@ -77,7 +78,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 
 	/* OpenGl Variables */
 	/** OpenGL surface view for displaying bugs */
-	private MyGLSurfaceView mGLSurfaceView;
+	public MyGLSurfaceView mGLSurfaceView;
 
 	/* Sensor Variables */
 	private final float MAX_ROATE_DEGREE = 1.0f;
@@ -156,13 +157,19 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 	 */
 	private void restoreOrCreateGLSurfaceView() {
 		mGLSurfaceView = new MyGLSurfaceView(this);
+		new InitRenderTask(this).execute();
 		// CameraView must be added after GLSurfaceView so that GLSurfaceView
 		// could appear upon CameraView
-		mFrameLayout.addView(mGLSurfaceView);
-		mGLSurfaceView.setZOrderMediaOverlay(true);
-		mGLSurfaceView.setZOrderOnTop(true);
 	}
 
+	/** This method is executed after init render work has been done.*/
+	public void restoreOrCreateGLSurfaceView2() {
+		if(mGLSurfaceView != null) {
+			mFrameLayout.addView(mGLSurfaceView);
+			mGLSurfaceView.setZOrderMediaOverlay(true);
+			mGLSurfaceView.setZOrderOnTop(true);
+		}
+	}
 	/**
 	 * Restore or create SurfaceView for opencv CameraView. This method is
 	 * called after OpenCV library is loaded successfully.
@@ -329,8 +336,9 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 			int[] mainMenuButtonLocation = new int[2];
 			buttonLinearLayout.getLocationInWindow(mainMenuButtonLocation);
 			//This means the views haven't been rendered
-			if ((mainMenuTitleLocation[0] == 0 && mainMenuTitleLocation[1] == 0) || (mainMenuButtonLocation[0] == 0 && mainMenuButtonLocation[1] == 0)) {
-				mHandler.postDelayed(mMainMenuBorderRunnable, 20);
+			if ((mainMenuTitleLocation[0] == 0 && mainMenuTitleLocation[1] == 0) || (mainMenuButtonLocation[0] == 0 && mainMenuButtonLocation[1] == 0)
+					|| mGLSurfaceView.mRenderer == null) {
+				mHandler.postDelayed(mMainMenuBorderRunnable, 200);
 				return;
 			}
 			//Convert to y-axis upwards coordinate
