@@ -398,21 +398,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 			Matrix.scaleM(mModelMatrix, 0, 100f, 100f, 100f);
 			// Matrix.rotateM(mModelMatrix, 0, 180, 0.0f, 0.0f, -1.0f);
 			drawBug();
-			int tmpX = menuBug.x + menuBug.speedX;
-			int tmpY = menuBug.y + menuBug.speedY;
-			
-			if (tmpX > screenWidth || tmpX < 0) {
-				menuBug.speedX = -menuBug.speedX;
-				tmpX = menuBug.x;
-			}
-			if (tmpY > screenHeight || tmpY < 0) {
-				menuBug.speedY = -menuBug.speedY;
-				tmpY = menuBug.y;
-			}
-			
-			menuBug.x = tmpX;
-			menuBug.y = menuBug.y + menuBug.speedY;
-			
+			menuBug = refreshBug(menuBug);
 			break;
 		// Tutorial mode
 		case 1:
@@ -555,5 +541,25 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 			rotateDegree = -rotateDegree;
 		}
 		return rotateDegree;
+	}
+	
+	private OpenGLBug refreshBug(OpenGLBug menuBug) {
+		int polarityX= menuBug.speedX >= 0? 1: -1;
+		int polarityY = menuBug.speedY >= 0? 1: -1; 
+		int tmpX = menuBug.x + menuBug.speedX ;
+		int tmpY = menuBug.y + menuBug.speedY;
+		
+		if (tmpX + polarityX * menuBug.radius > screenWidth || tmpX + polarityX * menuBug.radius < 0) {
+			menuBug.speedX = -menuBug.speedX;
+			tmpX = menuBug.x;
+		}
+		if (tmpY + polarityY * menuBug.radius > screenHeight || tmpY + polarityY * menuBug.radius < 0) {
+			menuBug.speedY = -menuBug.speedY;
+			tmpY = menuBug.y;
+		}
+		
+		menuBug.x = tmpX;
+		menuBug.y = tmpY;
+		return menuBug;
 	}
 }
