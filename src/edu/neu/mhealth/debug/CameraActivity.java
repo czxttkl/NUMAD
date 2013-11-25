@@ -197,6 +197,8 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 
 		if (mMainMenuTitle == null) {
 			mMainMenuTitle = new ImageView(this);
+			//We set mMainMenuTitle's id to be 6789
+			mMainMenuTitle.setId(6789);
 			mMainMenuTitle.setImageResource(R.drawable.main_menu_title2);
 			FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
 					screenWidth / 3, screenWidth / 8);
@@ -215,6 +217,8 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 			mButtonView.setLayoutParams(lp);
 			mFrameLayout.addView(mButtonView);
 		}
+		mHandler.postDelayed(mMainMenuBorderRunnable ,20);
+//		Log.d(TAG, "position:" + mButtonView.getX() + "," + mButtonView.getWidth() + "," + mButtonView.getY() + mButtonView.getHeight());
 	}
 
 	/*
@@ -243,7 +247,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 			mSensorManager.registerListener(this, mLinearAccelerometer,
 					SensorManager.SENSOR_DELAY_GAME);
 		}
-		mHandler.postDelayed(mEyeLocationUpdater, 20);
+		mHandler.postDelayed(mEyeLocationUpdaterRunnable, 20);
 	}
 
 	private void pauseSensors() {
@@ -274,7 +278,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 		}
 	}
 
-	protected Runnable mEyeLocationUpdater = new Runnable() {
+	protected Runnable mEyeLocationUpdaterRunnable = new Runnable() {
 		@Override
 		public void run() {
 			if (!mStopDetecting) {
@@ -302,9 +306,36 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 					mDirection = mDirectionNew;
 					updateOpenGLEyeLocation(mDirection);
 				}
-
-				mHandler.postDelayed(mEyeLocationUpdater, 20);
+				mHandler.postDelayed(mEyeLocationUpdaterRunnable, 20);
 			}
+		}
+	};
+	
+	protected Runnable mMainMenuBorderRunnable = new Runnable() {
+		@Override
+		public void run() {
+//			int mainMenuTitleX= (int) mMainMenuTitle.getX();
+//			int mainMenuTitleY = (int) mMainMenuTitle.getY();
+			View buttonLinearLayout = findViewById(R.id.buttons_linear_layout);
+//			int buttonLinearLayoutX = (int) buttonLinearLayout.getX();
+//			int buttonLinearLayoutY = (int) buttonLinearLayout.getY();
+			int mainMenuTitleWidth = mMainMenuTitle.getWidth();
+			int mainMenuTitleHeight = mMainMenuTitle.getHeight();
+			int buttonLinearLayoutWidth = buttonLinearLayout.getWidth();
+			int buttonLinearLayoutHeight = buttonLinearLayout.getHeight();
+//			
+			int[] mainMenuTitleLocation = new int[2];
+			mMainMenuTitle.getLocationInWindow(mainMenuTitleLocation);
+			int[] mainMenuButtonLocation = new int[2];
+			buttonLinearLayout.getLocationInWindow(mainMenuButtonLocation);
+			if ((mainMenuTitleLocation[0] == 0.0 && mainMenuTitleLocation[1] == 0.0) || (mainMenuButtonLocation[0] == 0 && mainMenuButtonLocation[1] == 0)) {
+				mHandler.postDelayed(mMainMenuBorderRunnable, 20);
+			}
+			Log.d(TAG, "main menu title location:" + mainMenuTitleLocation[0] + "," + mainMenuTitleLocation[1] + ":" + mainMenuTitleWidth + "," + mainMenuTitleHeight);
+			Log.d(TAG, "main menu button location:" + mainMenuButtonLocation[0] + "," + mainMenuButtonLocation[1] + ":" + buttonLinearLayoutWidth + "," + buttonLinearLayoutHeight);
+//			Log.d(TAG, "position mainMenuTitle:" + mainMenuTitleX + "," +mainMenuTitleY + ":" + mainMenuTitleWidth + "," + mainMenuTitleHeight);
+//			Log.d(TAG, "position buttonLinearLayout:" + buttonLinearLayoutX + "," + buttonLinearLayoutY + ":" + buttonLinearLayoutWidth + "," + buttonLinearLayoutHeight);
+			
 		}
 	};
 
