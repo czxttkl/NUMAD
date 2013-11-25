@@ -156,6 +156,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 	/** The height of screen, in pixels*/
 	private int screenHeight;
 	private ArrayList<OpenGLBug> bugList = new ArrayList<OpenGLBug>();
+	private long lastRefreshBugTime = -1;
 	/**
 	 * Initialize the model data.
 	 */
@@ -371,12 +372,12 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		mColorHandle = GLES20.glGetAttribLocation(mProgramHandle, "a_Color");
 		mNormalHandle = GLES20.glGetAttribLocation(mProgramHandle, "a_Normal");
 		mTextureCoordinateHandle = GLES20.glGetAttribLocation(mProgramHandle, "a_TexCoordinate");
-		long time = SystemClock.uptimeMillis() % 10000L;
+		long now = SystemClock.uptimeMillis() % 10000L;
 		switch (mode) {
 		// Main Menu mode
 		case 0:
 			Log.d(TAG, "mode 0:mainmenu");
-			float angleInDegrees = (360.0f / 10000.0f) * ((int) time);
+			float angleInDegrees = (360.0f / 10000.0f) * ((int) now);
 			// Tell the texture uniform sampler to use this texture in the shader by binding to texture unit 0.
 			GLES20.glUniform1i(mTextureUniformHandle, 0);
 			//We only want one bug in the main menu
@@ -384,11 +385,11 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 				bugList.clear();
 			}
 			if (bugList.size() == 0) {
-				
 				int randomHeight = rd.nextInt(screenHeight/3);
 				OpenGLBug menuBug = new OpenGLBug(screenWidth - OpenGLBug.radius, screenHeight/4 + randomHeight, -1, 1);
 				bugList.add(menuBug);
 			}
+			
 			OpenGLBug menuBug = bugList.get(0);
 			Matrix.setIdentityM(mModelMatrix, 0);
 			Matrix.translateM(mModelMatrix, 0, menuBug.x, menuBug.y, -500.0f);
@@ -399,6 +400,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 			// Matrix.rotateM(mModelMatrix, 0, 180, 0.0f, 0.0f, -1.0f);
 			drawBug();
 			menuBug = refreshBug(menuBug);
+			
 			break;
 		// Tutorial mode
 		case 1:
@@ -543,23 +545,42 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		return rotateDegree;
 	}
 	
-	private OpenGLBug refreshBug(OpenGLBug menuBug) {
-		int polarityX= menuBug.speedX >= 0? 1: -1;
-		int polarityY = menuBug.speedY >= 0? 1: -1; 
-		int tmpX = menuBug.x + menuBug.speedX ;
-		int tmpY = menuBug.y + menuBug.speedY;
+	/** To simulate the reality, bug should halt sometimes */
+	private boolean bugShouldPause = false;
+	/** Hold the lines that bugs should be avoided from*/
+	private ArrayList<BorderLine> borderLineList;
+	private OpenGLBug refreshBug(OpenGLBug bug) {
+		int polarityX= bug.speedX >= 0? 1: -1;
+		int polarityY = bug.speedY >= 0? 1: -1; 
+//		int randomSubSpeedX = polarityX * rd.nextInt(2);
+//		int randomSubSpeedY = polarityY * rd.nextInt(2);
+		int tmpX = bug.x + bug.speedX;
+		int tmpY = bug.y + bug.speedY;
 		
-		if (tmpX + polarityX * menuBug.radius > screenWidth || tmpX + polarityX * menuBug.radius < 0) {
-			menuBug.speedX = -menuBug.speedX;
-			tmpX = menuBug.x;
+		if (bugShouldPause) {
+			if (System.currentTimeMillis() - lastRefreshBugTime > 2000) {
+				bugShouldPause = false;
+			}
+			return bug;
 		}
-		if (tmpY + polarityY * menuBug.radius > screenHeight || tmpY + polarityY * menuBug.radius < 0) {
-			menuBug.speedY = -menuBug.speedY;
-			tmpY = menuBug.y;
+		if (rd.nextInt(100) > 98) {
+			bugShouldPause = true;
+			return bug;
 		}
 		
-		menuBug.x = tmpX;
-		menuBug.y = tmpY;
-		return menuBug;
+//		Log.d(TAG, "random:" + randomSubSpeedX + "," + randomSubSpeedY);
+		if (tmpX + polarityX * bug.radius > screenWidth || tmpX + polarityX * bug.radius < 0) {
+			bug.speedX = -bug.speedX;
+			tmpX = bug.x;
+		}
+		if (tmpY + polarityY * bug.radius > screenHeight || tmpY + polarityY * bug.radius < 0) {
+			bug.speedY = -bug.speedY;
+			tmpY = bug.y;
+		}
+		
+		bug.x = tmpX;
+		bug.y = tmpY;
+		lastRefreshBugTime = System.currentTimeMillis();
+		return bug;
 	}
 }
