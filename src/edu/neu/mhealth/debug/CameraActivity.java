@@ -1,5 +1,6 @@
 package edu.neu.mhealth.debug;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
@@ -160,7 +161,6 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 		mFrameLayout.addView(mGLSurfaceView);
 		mGLSurfaceView.setZOrderMediaOverlay(true);
 		mGLSurfaceView.setZOrderOnTop(true);
-
 	}
 
 	/**
@@ -328,13 +328,45 @@ public class CameraActivity extends Activity implements CvCameraViewListener2,
 			mMainMenuTitle.getLocationInWindow(mainMenuTitleLocation);
 			int[] mainMenuButtonLocation = new int[2];
 			buttonLinearLayout.getLocationInWindow(mainMenuButtonLocation);
-			if ((mainMenuTitleLocation[0] == 0.0 && mainMenuTitleLocation[1] == 0.0) || (mainMenuButtonLocation[0] == 0 && mainMenuButtonLocation[1] == 0)) {
+			//This means the views haven't been rendered
+			if ((mainMenuTitleLocation[0] == 0 && mainMenuTitleLocation[1] == 0) || (mainMenuButtonLocation[0] == 0 && mainMenuButtonLocation[1] == 0)) {
 				mHandler.postDelayed(mMainMenuBorderRunnable, 20);
+				return;
 			}
+			//Convert to y-axis upwards coordinate
+			mainMenuTitleLocation[1] = screenHeight - mainMenuTitleLocation[1];
+			mainMenuButtonLocation[1] = screenHeight - mainMenuButtonLocation[1];
 			Log.d(TAG, "main menu title location:" + mainMenuTitleLocation[0] + "," + mainMenuTitleLocation[1] + ":" + mainMenuTitleWidth + "," + mainMenuTitleHeight);
 			Log.d(TAG, "main menu button location:" + mainMenuButtonLocation[0] + "," + mainMenuButtonLocation[1] + ":" + buttonLinearLayoutWidth + "," + buttonLinearLayoutHeight);
-//			Log.d(TAG, "position mainMenuTitle:" + mainMenuTitleX + "," +mainMenuTitleY + ":" + mainMenuTitleWidth + "," + mainMenuTitleHeight);
-//			Log.d(TAG, "position buttonLinearLayout:" + buttonLinearLayoutX + "," + buttonLinearLayoutY + ":" + buttonLinearLayoutWidth + "," + buttonLinearLayoutHeight);
+			//Add the title and buttons constraints
+			BorderLine bl1 = new BorderLine(BorderLine.TYPE_UPPER_BOUND, 0, mainMenuTitleLocation[1], 1);
+			BorderLine bl2 = new BorderLine(BorderLine.TYPE_UPPER_BOUND, 0, mainMenuButtonLocation[1], 1);
+			BorderLine bl3 = new BorderLine(BorderLine.TYPE_LOWER_BOUND, 0, mainMenuTitleLocation[1] - mainMenuTitleHeight, 1);
+			BorderLine bl4 = new BorderLine(BorderLine.TYPE_LOWER_BOUND, 0, mainMenuButtonLocation[1] - buttonLinearLayoutHeight, 1);
+			BorderLine bl5 = new BorderLine(BorderLine.TYPE_X_LEFT_BOUND, 1, mainMenuTitleLocation[0], 0);
+			BorderLine bl6 = new BorderLine(BorderLine.TYPE_X_LEFT_BOUND, 1, mainMenuButtonLocation[0], 0);
+			BorderLine bl7 = new BorderLine(BorderLine.TYPE_X_RIGHT_BOUND, 1, mainMenuTitleLocation[0] + mainMenuTitleWidth, 0);
+			BorderLine bl8 = new BorderLine(BorderLine.TYPE_X_RIGHT_BOUND, 1, mainMenuButtonLocation[0] + buttonLinearLayoutWidth, 0);
+			//Add the screen constraints
+			BorderLine bl9 = new BorderLine(BorderLine.TYPE_UPPER_BOUND, 0, screenHeight, 1);
+			BorderLine bl10 = new BorderLine(BorderLine.TYPE_LOWER_BOUND, 0, 0, 1);
+			BorderLine bl11 = new BorderLine(BorderLine.TYPE_X_LEFT_BOUND, 1, 0, 0);
+			BorderLine bl12 = new BorderLine(BorderLine.TYPE_X_RIGHT_BOUND, 1, screenWidth, 0);
+			
+			ArrayList<BorderLine> mBorderLineList = new ArrayList<BorderLine>();
+			mBorderLineList.add(bl1);
+			mBorderLineList.add(bl2);
+			mBorderLineList.add(bl3);
+			mBorderLineList.add(bl4);
+			mBorderLineList.add(bl5);
+			mBorderLineList.add(bl6);
+			mBorderLineList.add(bl7);
+			mBorderLineList.add(bl8);
+			mBorderLineList.add(bl9);
+			mBorderLineList.add(bl10);
+			mBorderLineList.add(bl11);
+			mBorderLineList.add(bl12);
+			mGLSurfaceView.mRenderer.borderLineList = mBorderLineList;
 			
 		}
 	};

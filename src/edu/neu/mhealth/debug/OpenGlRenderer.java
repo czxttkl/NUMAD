@@ -155,8 +155,14 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 	private int screenWidth;
 	/** The height of screen, in pixels*/
 	private int screenHeight;
+	/** Hold all the bugs that should be counted and calculated */
 	private ArrayList<OpenGLBug> bugList = new ArrayList<OpenGLBug>();
+	/** Record the last time we update the speed/position of the bug in opengl */
 	private long lastRefreshBugTime = -1;
+	/** To simulate the reality, bug should halt sometimes */
+	private boolean bugShouldPause = false;
+	/** Hold the lines that bugs should be avoided from*/
+	public ArrayList<BorderLine> borderLineList;
 	/**
 	 * Initialize the model data.
 	 */
@@ -545,15 +551,13 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		return rotateDegree;
 	}
 	
-	/** To simulate the reality, bug should halt sometimes */
-	private boolean bugShouldPause = false;
-	/** Hold the lines that bugs should be avoided from*/
-	private ArrayList<BorderLine> borderLineList;
 	private OpenGLBug refreshBug(OpenGLBug bug) {
+		//That means CameraActivity hasn't initialized the border lines.
+		if (borderLineList == null) 
+			return bug;
+		
 		int polarityX= bug.speedX >= 0? 1: -1;
 		int polarityY = bug.speedY >= 0? 1: -1; 
-//		int randomSubSpeedX = polarityX * rd.nextInt(2);
-//		int randomSubSpeedY = polarityY * rd.nextInt(2);
 		int tmpX = bug.x + bug.speedX;
 		int tmpY = bug.y + bug.speedY;
 		
@@ -569,13 +573,15 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		}
 		
 //		Log.d(TAG, "random:" + randomSubSpeedX + "," + randomSubSpeedY);
-		if (tmpX + polarityX * bug.radius > screenWidth || tmpX + polarityX * bug.radius < 0) {
-			bug.speedX = -bug.speedX;
-			tmpX = bug.x;
-		}
-		if (tmpY + polarityY * bug.radius > screenHeight || tmpY + polarityY * bug.radius < 0) {
-			bug.speedY = -bug.speedY;
-			tmpY = bug.y;
+		for (BorderLine bl : borderLineList) {
+			if (tmpX + polarityX * bug.radius > screenWidth || tmpX + polarityX * bug.radius < 0) {
+				bug.speedX = -bug.speedX;
+				tmpX = bug.x;
+			}
+			if (tmpY + polarityY * bug.radius > screenHeight || tmpY + polarityY * bug.radius < 0) {
+				bug.speedY = -bug.speedY;
+				tmpY = bug.y;
+			}
 		}
 		
 		bug.x = tmpX;
