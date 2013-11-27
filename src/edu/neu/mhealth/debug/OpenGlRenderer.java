@@ -553,8 +553,8 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 	
 	private OpenGLBug refreshBug(OpenGLBug bug) {
 		//That means CameraActivity hasn't initialized the border lines.
-		if (borderLineList == null) 
-			return bug;
+//		if (borderLineList == null) 
+//			return bug;
 		
 		int polarityX= bug.speedX >= 0? 1: -1;
 		int polarityY = bug.speedY >= 0? 1: -1; 
@@ -573,7 +573,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		}
 		
 //		Log.d(TAG, "random:" + randomSubSpeedX + "," + randomSubSpeedY);
-		for (BorderLine bl : borderLineList) {
+//		for (BorderLine bl : borderLineList) {
 			if (tmpX + polarityX * bug.radius > screenWidth || tmpX + polarityX * bug.radius < 0) {
 				bug.speedX = -bug.speedX;
 				tmpX = bug.x;
@@ -582,7 +582,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 				bug.speedY = -bug.speedY;
 				tmpY = bug.y;
 			}
-		}
+//		}
 		
 		bug.x = tmpX;
 		bug.y = tmpY;

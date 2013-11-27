@@ -10,11 +10,10 @@ import org.opencv.android.JavaCameraView;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Mat;
-
 import edu.neu.mhealth.debug.helper.Global;
 import edu.neu.mhealth.debug.helper.InitRenderTask;
-
 import android.graphics.Point;
+import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -24,6 +23,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Resources;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -36,20 +38,26 @@ import android.view.WindowManager;
 import android.view.animation.AccelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 public class CameraActivity extends Activity implements CvCameraViewListener2, SensorEventListener {
 
 	/* Basic Variables */
 	/** Debug Tag */
 	private final String TAG = Global.APP_LOG_TAG;
-	/** The game activity's framelayout. Use this to handle adding/removing surfaceviews*/
+	/**
+	 * The game activity's framelayout. Use this to handle adding/removing
+	 * surfaceviews
+	 */
 	FrameLayout mFrameLayout;
 	ImageView mMainMenuBackground;
 	ImageView mMainMenuTitle;
-	View mButtonView;
+	View mMainMenuButtonListView;
+	View mAboutView;
+	TextView mAboutText;
 	public int screenWidth;
 	public int screenHeight;
-	
+
 	/* OpenCv Variables */
 	private CameraBridgeViewBase mOpenCvCameraView;
 	private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
@@ -60,7 +68,8 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 				Log.i(TAG, "OpenCV loaded successfully");
 				restoreOrCreateJavaCameraView();
 				restoreOrCreateGLSurfaceView();
-				restoreOrCreateMainMenu();
+				restoreOrCreateAboutScreen();
+//				restoreOrCreateMainMenu();
 			}
 				break;
 			default: {
@@ -121,22 +130,24 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 
 	public void onClickStartGame(View v) {
 		mFrameLayout.removeView(mMainMenuTitle);
-		mFrameLayout.removeView(mButtonView);
+		mFrameLayout.removeView(mMainMenuButtonListView);
 		mMainMenuBackground.setAlpha(0.8f);
 	}
-	
+
+	public void onClickAboutStartButton(View v) {
+		mFrameLayout.removeView(mAboutView);
+		restoreOrCreateMainMenu();
+	}
 	/*
 	 * Opencv Callbacks
 	 */
 	@Override
 	public void onCameraViewStarted(int width, int height) {
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public void onCameraViewStopped() {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -145,7 +156,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		return inputFrame.rgba();
 	}
 
-	/*
+	/**
 	 * Save/Restore States
 	 */
 	private void saveAndRemoveSurfaceViews() {
@@ -154,16 +165,18 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 
 	/**
 	 * Restore or create SurfaceView for bugs. This method is called after
-	 * OpenCV library is loaded successfully.
+	 * OpenCV library is loaded successfully and must be called after
+	 * restoreOrCreateJavaCameraView is called so that CameraView would not overlap GLSurfaceView.
 	 */
 	private void restoreOrCreateGLSurfaceView() {
 		mGLSurfaceView = new MyGLSurfaceView(this);
 		new InitRenderTask(this).execute();
-		// CameraView must be added after GLSurfaceView so that GLSurfaceView
-		// could appear upon CameraView
 	}
 
-	/** This method is executed after init render work has been done. */
+	/**
+	 * This method is executed after init render work, genrated from
+	 * restoreOrCreateGLSurfaceView, has been done.
+	 */
 	public void restoreOrCreateGLSurfaceView2() {
 		if (mGLSurfaceView != null) {
 			mFrameLayout.addView(mGLSurfaceView);
@@ -174,7 +187,8 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 
 	/**
 	 * Restore or create SurfaceView for opencv CameraView. This method is
-	 * called after OpenCV library is loaded successfully.
+	 * called after OpenCV library is loaded successfully and must be called
+	 * before restoreOrCreateGLSurfaceView is called so that CameraView would not overlap GLSurfaceView.
 	 */
 	private void restoreOrCreateJavaCameraView() {
 		mOpenCvCameraView = new CameraView(this);
@@ -186,6 +200,10 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		mOpenCvCameraView.enableView();
 	}
 
+	/**
+	 * Restore or create Main Menu button/title view. This method is called
+	 * after clicking start button in about screen.
+	 */
 	private void restoreOrCreateMainMenu() {
 		Display display = getWindowManager().getDefaultDisplay();
 		Point size = new Point();
@@ -201,8 +219,6 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		mFrameLayout.addView(mMainMenuBackground);
 
 		mMainMenuTitle = new ImageView(this);
-		// We set mMainMenuTitle's id to be 6789
-		mMainMenuTitle.setId(6789);
 		mMainMenuTitle.setImageResource(R.drawable.main_menu_title2);
 		FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(screenWidth / 3, screenWidth / 8);
 		lp.setMargins(screenWidth / 5, screenHeight / 10, 0, 1);
@@ -210,18 +226,36 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		mFrameLayout.addView(mMainMenuTitle);
 
 		LayoutInflater layoutInflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
-		mButtonView = layoutInflater.inflate(R.layout.main_menu, null);
-		FrameLayout.LayoutParams lp1 = new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+		mMainMenuButtonListView = layoutInflater.inflate(R.layout.main_menu, null);
+		FrameLayout.LayoutParams lp1 = new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT,
+				LayoutParams.WRAP_CONTENT);
 		lp1.setMargins(0, 300, 0, 0);
-		mButtonView.setLayoutParams(lp1);
-		mFrameLayout.addView(mButtonView);
+		mMainMenuButtonListView.setLayoutParams(lp1);
+		mFrameLayout.addView(mMainMenuButtonListView);
 
 		mHandler.postDelayed(mMainMenuBorderRunnable, 20);
-		// Log.d(TAG, "position:" + mButtonView.getX() + "," +
-		// mButtonView.getWidth() + "," + mButtonView.getY() +
-		// mButtonView.getHeight());
 	}
 
+	/**
+	 * Restore or create about screen. (including adding text from strings.xml)
+	 */
+	private void restoreOrCreateAboutScreen() {
+		LayoutInflater layoutInflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+		mAboutView = layoutInflater.inflate(R.layout.about_screen, null);
+		Resources res = getResources();
+		Drawable background = res.getDrawable(R.drawable.black_bg);
+		background.setAlpha(200);
+		mAboutView.setBackgroundDrawable(background);
+		mFrameLayout.addView(mAboutView);
+		
+		mAboutText = (TextView) findViewById(R.id.about_text);
+        mAboutText.setText(Html.fromHtml(getString(R.string.about_text)));
+        mAboutText.setMovementMethod(LinkMovementMethod.getInstance());
+        // Setups the link color
+        mAboutText.setLinkTextColor(getResources().getColor(
+                R.color.holo_light_blue));
+	}
+	
 	/*
 	 * Sensor methods
 	 */
@@ -306,6 +340,9 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		}
 	};
 
+	/**
+	 * This runnable will be run until Main Menu Title
+	 */
 	protected Runnable mMainMenuBorderRunnable = new Runnable() {
 		@Override
 		public void run() {
@@ -371,7 +408,6 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 			mBorderLineList.add(bl11);
 			mBorderLineList.add(bl12);
 			mGLSurfaceView.mRenderer.borderLineList = mBorderLineList;
-
 		}
 	};
 
