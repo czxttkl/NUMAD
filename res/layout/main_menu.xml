@@ -16,21 +16,24 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@null"
-            android:src="@drawable/start_game" />
+            android:src="@drawable/start_game" 
+            android:onClick="onClickStartGame"/>
 
         <ImageButton
             android:id="@+id/settings"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@null"
-            android:src="@drawable/settings" />
+            android:src="@drawable/settings" 
+            android:onClick="onClickSettings"/>
 
         <ImageButton
             android:id="@+id/exit_game"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@null"
-            android:src="@drawable/exit_game" />
+            android:src="@drawable/exit_game" 
+            android:onClick="onClickExit"/>
     </LinearLayout>
 
 </LinearLayout>

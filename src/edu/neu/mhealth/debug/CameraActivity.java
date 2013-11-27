@@ -42,17 +42,14 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	/* Basic Variables */
 	/** Debug Tag */
 	private final String TAG = Global.APP_LOG_TAG;
-	/**
-	 * The game activity's framelayout. Use this to handle adding/removing
-	 * surfaceviews
-	 */
+	/** The game activity's framelayout. Use this to handle adding/removing surfaceviews*/
 	FrameLayout mFrameLayout;
 	ImageView mMainMenuBackground;
 	ImageView mMainMenuTitle;
 	View mButtonView;
 	public int screenWidth;
 	public int screenHeight;
-
+	
 	/* OpenCv Variables */
 	private CameraBridgeViewBase mOpenCvCameraView;
 	private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
@@ -122,6 +119,12 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		super.onResume();
 	}
 
+	public void onClickStartGame(View v) {
+		mFrameLayout.removeView(mMainMenuTitle);
+		mFrameLayout.removeView(mButtonView);
+		mMainMenuBackground.setAlpha(0.8f);
+	}
+	
 	/*
 	 * Opencv Callbacks
 	 */
@@ -192,7 +195,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 
 		mMainMenuBackground = new ImageView(this);
 		mMainMenuBackground.setImageResource(R.drawable.black_bg);
-		mMainMenuBackground.setAlpha(0.6f);
+		mMainMenuBackground.setAlpha(0f);
 		mMainMenuBackground.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 		mMainMenuBackground.setScaleType(ImageView.ScaleType.FIT_XY);
 		mFrameLayout.addView(mMainMenuBackground);
