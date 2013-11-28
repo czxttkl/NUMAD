@@ -8,4 +8,5 @@
     android:paddingTop="10dp"
     android:singleLine="true"
     android:text="@string/color_pick_help_notif"
-    android:textColor="@color/white" />
+    android:textColor="@color/white" 
+    android:animateLayoutChanges="true"/>

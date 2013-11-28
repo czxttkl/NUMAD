@@ -42,6 +42,9 @@ import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AccelerateInterpolator;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.TranslateAnimation;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -120,6 +123,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		storeScreenDimensions();
 		initSensors();
 		initBlackBackground();
+//		initAnimations();
 	}
 
 	@Override
@@ -322,9 +326,9 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 
 			mColorPickRgba = converScalarHsv2Rgba(mColorPickHsv);
 			Mat colorLabel = mRgba.submat(4, 68, 4, 68);
-            colorLabel.setTo(mColorPickRgba);
-            Core.line(mRgba, crosshairHeftmost, crosshairRightmost, redColor, 10);
-            Core.line(mRgba, crosshairUpmost, crosshairDownmost, redColor, 10);
+			colorLabel.setTo(mColorPickRgba);
+			Core.line(mRgba, crosshairHeftmost, crosshairRightmost, redColor, 10);
+			Core.line(mRgba, crosshairUpmost, crosshairDownmost, redColor, 10);
 			break;
 		case COLOR_PICK_PICK_MODE:
 			break;

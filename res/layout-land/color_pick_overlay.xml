@@ -2,7 +2,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/color_pick_overlay"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:animateLayoutChanges="true" >
 
     <ViewStub
         android:id="@+id/overlay_build_target_help"
