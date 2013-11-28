@@ -148,13 +148,19 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	public void onClickStartGame(View v) {
 		mFrameLayout.removeView(mMainMenuTitle);
 		mFrameLayout.removeView(mMainMenuButtonListView);
-		mMainMenuBackground.setAlpha(0.8f);
+		mFrameLayout.removeView(mMainMenuBackground);
 
 		// Inflates the Overlay Layout to be displayed above the Camera View
 		LayoutInflater layoutInflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
 		mColorPickLayout = (RelativeLayout) layoutInflater.inflate(R.layout.color_pick_overlay, null, false);
-		// mFrameLayout.addView(mColorPickLayout);
-		addContentView(mColorPickLayout, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+		
+		//Set background to semi-transparent black
+		Resources res = getResources();
+		Drawable background = res.getDrawable(R.drawable.black_bg);
+		background.setAlpha(200);
+		mColorPickLayout.setBackgroundDrawable(background);
+		
+		mFrameLayout.addView(mColorPickLayout);
 		// Gets a reference to the bottom navigation bar
 		mColorPickBottomBar = mColorPickLayout.findViewById(R.id.bottom_bar);
 
@@ -178,13 +184,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 			mColorPickInstructionsView.setVisibility(View.VISIBLE);
 			mColorPickNewTargetButton.setEnabled(false);
 		}
-		initializeColorPickAddMode();
-		// Checks the UIStatus to initialize the navigation bar
-		// with the proper UI
-//		if (mColorPickStatus == COLOR_PICK_ADD_MODE) {
-//		} else {
-//			initializeColorPickCameraMode();
-//		}
+		initializeInstructionMode();
 	}
 
 	public void onClickAboutStartButton(View v) {
@@ -201,7 +201,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	 /** Button Close/Cancel clicked in the process of color picking*/
     public void onClickColorPickCameraClose(View v) {
         // Goes back to the Color Pick Add rMode
-    	initializeColorPickAddMode();
+    	initializeInstructionMode();
     }
     
 	/** Button Add clicked - This will cause the instruction interfaces shows. */
@@ -221,25 +221,26 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
         initializeColorPickCameraMode();
     }
 
-
     /** Instructions button Cancel clicked */
     public void onClickInstructionsOnCancel(View v) {
         // Hides the instructions view without
         // updating the instructions flag
-        mColorPickInstructionsView.setVisibility(View.GONE);
-        mColorPickNewTargetButton.setEnabled(true);
+//        mColorPickInstructionsView.setVisibility(View.GONE);
+//        mColorPickNewTargetButton.setEnabled(true);
+        mFrameLayout.removeView(mColorPickLayout);
+        restoreOrCreateMainMenu();
     }
     
 	/** Initialize Color Pick Add mode views */
-	private void initializeColorPickAddMode() {
+	private void initializeInstructionMode() {
 		// Shows the bottom bar with the new Target Button
-		mColorPickBottomBar.setVisibility(View.VISIBLE);
-		mColorPickNewTargetButton.setVisibility(View.VISIBLE);
-
+		mColorPickBottomBar.setVisibility(View.GONE);
+		mColorPickNewTargetButton.setVisibility(View.GONE);
 		// Hides the target build controls
 		mColorPickBuildTargetHelp.setVisibility(View.GONE);
-		mColorPickCameraButton.setVisibility(View.INVISIBLE);
-		mColorPickCloseButton.setVisibility(View.INVISIBLE);
+		mColorPickCameraButton.setVisibility(View.GONE);
+		mColorPickCloseButton.setVisibility(View.GONE);
+		mColorPickInstructionsView.setVisibility(View.VISIBLE);
 	}
 
 	/** Initialize Color Pick Camera mode views */

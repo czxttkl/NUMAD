@@ -10,7 +10,8 @@
     <string name="color_pick_instructions_number_1">1.</string>
     <string name="color_pick_instructions_number_2">2.</string>
     <string name="color_pick_instructions_number_3">3.</string>
-    <string name="color_pick_instructions_point_1">Hold the device \nparallel to the target</string>
-    <string name="color_pick_instructions_point_2">Fill the viewfinder \nwith the target</string>
-    <string name="color_pick_instructions_point_3">Take picture</string>
+    <string name="color_pick_instructions_point_1">Stick a high contrast color note on your shoes</string>
+    <string name="color_pick_instructions_point_2">Hold your phone hori-zontally, with your shoes in the screen</string>
+    <string name="color_pick_instructions_point_3">Aim the crosshair to your note and finish picking its color</string>
+    <string name="instruction_title">First, know where your shoes are.</string>
 </resources>
