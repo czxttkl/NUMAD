@@ -136,7 +136,6 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	View mColorPickBottomBar;
 	View mColorPickInstructionsView;
 	View mColorPickBuildTargetHelp;
-	View mColorPickNewTargetButton;
 	View mColorPickCloseButton;
 	View mColorPickCameraButton;
 //	private final int COLOR_PICK_ADD_MODE = 123;
@@ -171,20 +170,12 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		// Gets a reference to the build target help
 		mColorPickBuildTargetHelp = mColorPickLayout.findViewById(R.id.overlay_build_target_help);
 
-		// Gets a reference to the NewTarget button
-		mColorPickNewTargetButton = mColorPickLayout.findViewById(R.id.new_target_button);
-
 		// Gets a reference to the CloseBuildTargetMode button
 		mColorPickCloseButton = mColorPickLayout.findViewById(R.id.close_button);
 
 		// Gets a reference to the Camera button
 		mColorPickCameraButton = mColorPickLayout.findViewById(R.id.camera_button);
 
-		// Checks if it needs to show the instructions view or not
-		if (mIsShowingColorPickIntsructions) {
-			mColorPickInstructionsView.setVisibility(View.VISIBLE);
-			mColorPickNewTargetButton.setEnabled(false);
-		}
 		initializeInstructionMode();
 	}
 
@@ -197,6 +188,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	public void onClickColorPickCameraButton(View v) {
 		// Builds the new target
 //		startBuild();
+		mColorPickCameraButton.setEnabled(false);
 	}
 
 	 /** Button Close/Cancel clicked in the process of color picking*/
@@ -211,14 +203,12 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	public void onClickColorPickAddButton(View v) {
 		// Shows the instructions view and returns
 		mColorPickInstructionsView.setVisibility(View.VISIBLE);
-		mColorPickNewTargetButton.setEnabled(false);
 	}
 
 	/** Instructions button OK clicked */
     public void onClickInstructionsOnOk(View v) {
         // Hides the instructions view
         mColorPickInstructionsView.setVisibility(View.GONE);
-        mColorPickNewTargetButton.setEnabled(true);
         // Calls to the newTargetButtonClick Method
         // to enter the BuildTargetMode
         initializeColorPickCameraMode();
@@ -238,7 +228,6 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	private void initializeInstructionMode() {
 		// Shows the bottom bar with the new Target Button
 		mColorPickBottomBar.setVisibility(View.GONE);
-		mColorPickNewTargetButton.setVisibility(View.GONE);
 		// Hides the target build controls
 		mColorPickBuildTargetHelp.setVisibility(View.GONE);
 		mColorPickCameraButton.setVisibility(View.GONE);
@@ -255,7 +244,6 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		mColorPickCloseButton.setVisibility(View.VISIBLE);
 
 		// Hides the new target control
-		mColorPickNewTargetButton.setVisibility(View.INVISIBLE);
 		blackBackground.setAlpha(0);
 		mColorPickLayout.setBackgroundDrawable(blackBackground);
 	}
