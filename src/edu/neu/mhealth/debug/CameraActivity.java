@@ -57,6 +57,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	View mMainMenuButtonListView;
 	View mAboutView;
 	TextView mAboutText;
+	Drawable blackBackground;
 	public int screenWidth;
 	public int screenHeight;
 
@@ -109,6 +110,8 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		mFrameLayout = new FrameLayout(this);
+		Resources res = getResources();
+		blackBackground = res.getDrawable(R.drawable.black_bg);
 		setContentView(mFrameLayout);
 		initSensors();
 	}
@@ -155,10 +158,8 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		mColorPickLayout = (RelativeLayout) layoutInflater.inflate(R.layout.color_pick_overlay, null, false);
 		
 		//Set background to semi-transparent black
-		Resources res = getResources();
-		Drawable background = res.getDrawable(R.drawable.black_bg);
-		background.setAlpha(200);
-		mColorPickLayout.setBackgroundDrawable(background);
+		blackBackground.setAlpha(200);
+		mColorPickLayout.setBackgroundDrawable(blackBackground);
 		
 		mFrameLayout.addView(mColorPickLayout);
 		// Gets a reference to the bottom navigation bar
@@ -200,6 +201,8 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 
 	 /** Button Close/Cancel clicked in the process of color picking*/
     public void onClickColorPickCameraClose(View v) {
+    	blackBackground.setAlpha(200);
+		mColorPickLayout.setBackgroundDrawable(blackBackground);
         // Goes back to the Color Pick Add rMode
     	initializeInstructionMode();
     }
@@ -253,6 +256,8 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 
 		// Hides the new target control
 		mColorPickNewTargetButton.setVisibility(View.INVISIBLE);
+		blackBackground.setAlpha(0);
+		mColorPickLayout.setBackgroundDrawable(blackBackground);
 	}
 
 	/*
