@@ -6,4 +6,11 @@
 	<string name="about_title">About</string>
     <string name="about_text">Debug is a reality-augmented game which encourages people exercise in a fun way. You will get enough sweat while using your feet to "burn" and "squash" bugs on the screen. &lt;br />&lt;br />All games have limitation. We have minimized the requirements of playing the game. Things you need to make sure before playing are:&lt;br />1. A good light condition while playing&lt;br />2. Sticky notes/markers of high contrast color with the floor.&lt;br />&lt;br />We are keen on having your feedback via email: &lt;a href="https://mail.google.com/mail/?view=cm&amp;fs=1&amp;tf=1&amp;to=czxttkl@gmail.com" target="_blank">czxttkl@gmail.com&lt;/a>&lt;. &lt;br />&lt;br />&lt;br />Happy debugging!</string>
     <string name="button_start">Start</string>
+    <string name="color_pick_help_notif">Put your marker/sticky notes in the crosshair</string>
+    <string name="color_pick_instructions_number_1">1.</string>
+    <string name="color_pick_instructions_number_2">2.</string>
+    <string name="color_pick_instructions_number_3">3.</string>
+    <string name="color_pick_instructions_point_1">Hold the device \nparallel to the target</string>
+    <string name="color_pick_instructions_point_2">Fill the viewfinder \nwith the target</string>
+    <string name="color_pick_instructions_point_3">Take picture</string>
 </resources>

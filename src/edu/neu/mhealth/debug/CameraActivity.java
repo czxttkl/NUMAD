@@ -132,6 +132,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		mFrameLayout.removeView(mMainMenuTitle);
 		mFrameLayout.removeView(mMainMenuButtonListView);
 		mMainMenuBackground.setAlpha(0.8f);
+		
 	}
 
 	public void onClickAboutStartButton(View v) {
