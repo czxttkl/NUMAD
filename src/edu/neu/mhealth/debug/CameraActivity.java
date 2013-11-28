@@ -10,8 +10,11 @@ import org.opencv.android.JavaCameraView;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Core;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
+import org.opencv.imgproc.Imgproc;
 
 import edu.neu.mhealth.debug.helper.Global;
 import edu.neu.mhealth.debug.helper.InitRenderTask;
@@ -138,7 +141,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 
 	View mColorPickBottomBar;
 	View mColorPickInstructionsView;
-	View mColorPickBuildTargetHelp;
+	View mColorPickHelpNotif;
 	View mColorPickCloseButton;
 	View mColorPickCameraButton;
 
@@ -169,7 +172,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		mColorPickInstructionsView = mColorPickLayout.findViewById(R.id.instructions);
 
 		// Gets a reference to the build target help
-		mColorPickBuildTargetHelp = mColorPickLayout.findViewById(R.id.overlay_build_target_help);
+		mColorPickHelpNotif = mColorPickLayout.findViewById(R.id.overlay_build_target_help);
 
 		// Gets a reference to the CloseBuildTargetMode button
 		mColorPickCloseButton = mColorPickLayout.findViewById(R.id.close_button);
@@ -237,7 +240,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		// Shows the bottom bar with the new Target Button
 		mColorPickBottomBar.setVisibility(View.GONE);
 		// Hides the target build controls
-		mColorPickBuildTargetHelp.setVisibility(View.GONE);
+		mColorPickHelpNotif.setVisibility(View.GONE);
 		mColorPickCameraButton.setVisibility(View.GONE);
 		mColorPickCloseButton.setVisibility(View.GONE);
 		mColorPickInstructionsView.setVisibility(View.VISIBLE);
@@ -246,7 +249,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	/** Initialize Color Pick Camera mode views */
 	private void initializeColorPickCameraMode() {
 		// Shows the bottom bar with the Build target options
-		mColorPickBuildTargetHelp.setVisibility(View.VISIBLE);
+		mColorPickHelpNotif.setVisibility(View.VISIBLE);
 		mColorPickBottomBar.setVisibility(View.VISIBLE);
 		mColorPickCameraButton.setVisibility(View.VISIBLE);
 		mColorPickCloseButton.setVisibility(View.VISIBLE);
@@ -264,24 +267,33 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	Mat mGray;
 	Mat mRgba;
 	Scalar redColor;
-	org.opencv.core.Point leftmost;
-	org.opencv.core.Point rightmost;
-	org.opencv.core.Point upmost;
-	org.opencv.core.Point downmost;
+	org.opencv.core.Point crosshairHeftmost;
+	org.opencv.core.Point crosshairRightmost;
+	org.opencv.core.Point crosshairUpmost;
+	org.opencv.core.Point crosshairDownmost;
+	private Scalar mColorPickRgba;
+	private Scalar mColorPickHsv;
 	int openCvMode;
 	private final int COLOR_PICK_CROSSHAIR_MODE = 123;
 	private final int COLOR_PICK_PICK_MODE = 124;
+	Rect colorPickArea;
 
 	@Override
 	public void onCameraViewStarted(int width, int height) {
 		mGray = new Mat();
 		mRgba = new Mat();
 		redColor = new Scalar(255, 0, 0);
-		leftmost = new org.opencv.core.Point(width / 2 - 50, height / 2);
-		rightmost = new org.opencv.core.Point(width / 2 + 50, height / 2);
-		upmost = new org.opencv.core.Point(width / 2, height / 2 - 50);
-		downmost = new org.opencv.core.Point(width / 2, height / 2 + 50);
-//		Log.d(TAG, "czx screenwidth & height:" + screenWidth + "," + screenHeight + ":" + width + "," + height);
+		crosshairHeftmost = new org.opencv.core.Point(width / 2 - 50, height / 2);
+		crosshairRightmost = new org.opencv.core.Point(width / 2 + 50, height / 2);
+		crosshairUpmost = new org.opencv.core.Point(width / 2, height / 2 - 50);
+		crosshairDownmost = new org.opencv.core.Point(width / 2, height / 2 + 50);
+		colorPickArea = new Rect();
+		colorPickArea.x = width / 2 - 5;
+		colorPickArea.y = height / 2 - 5;
+		colorPickArea.width = 10;
+		colorPickArea.height = 10;
+		// Log.d(TAG, "czx screenwidth & height:" + screenWidth + "," +
+		// screenHeight + ":" + width + "," + height);
 	}
 
 	@Override
@@ -296,8 +308,23 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		mRgba = inputFrame.rgba();
 		switch (openCvMode) {
 		case COLOR_PICK_CROSSHAIR_MODE:
-			Core.line(mRgba, leftmost, rightmost, redColor, 10);
-			Core.line(mRgba, upmost, downmost, redColor, 10);
+			Mat colorPickAreaRgba = mRgba.submat(colorPickArea);
+			Mat colorPickAreaHsv = new Mat();
+			Imgproc.cvtColor(colorPickAreaRgba, colorPickAreaHsv, Imgproc.COLOR_RGB2HSV_FULL);
+			// Calculate average color of color pick region
+			mColorPickHsv = Core.sumElems(colorPickAreaHsv);
+			int pointCount = colorPickArea.width * colorPickArea.height;
+			Log.i(TAG, "mBlobColorHsv.val.length:" + mColorPickHsv.val.length);
+			Log.i(TAG, "pointCount:" + pointCount);
+
+			for (int i = 0; i < mColorPickHsv.val.length; i++)
+				mColorPickHsv.val[i] /= pointCount;
+
+			mColorPickRgba = converScalarHsv2Rgba(mColorPickHsv);
+			Mat colorLabel = mRgba.submat(4, 68, 4, 68);
+            colorLabel.setTo(mColorPickRgba);
+            Core.line(mRgba, crosshairHeftmost, crosshairRightmost, redColor, 10);
+            Core.line(mRgba, crosshairUpmost, crosshairDownmost, redColor, 10);
 			break;
 		case COLOR_PICK_PICK_MODE:
 			break;
@@ -305,6 +332,13 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 
 		}
 		return mRgba;
+	}
+
+	private Scalar converScalarHsv2Rgba(Scalar hsvColor) {
+		Mat pointMatRgba = new Mat();
+		Mat pointMatHsv = new Mat(1, 1, CvType.CV_8UC3, hsvColor);
+		Imgproc.cvtColor(pointMatHsv, pointMatRgba, Imgproc.COLOR_HSV2RGB_FULL, 4);
+		return new Scalar(pointMatRgba.get(0, 0));
 	}
 
 	/**
@@ -595,4 +629,5 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		screenHeight = size.y;
 		Log.d(TAG, "czx screenwidth & height:" + screenWidth + "," + screenHeight);
 	}
+
 }
