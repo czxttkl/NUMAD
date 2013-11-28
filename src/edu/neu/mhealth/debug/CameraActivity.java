@@ -38,6 +38,7 @@ import android.view.WindowManager;
 import android.view.animation.AccelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class CameraActivity extends Activity implements CvCameraViewListener2, SensorEventListener {
@@ -50,6 +51,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	 * surfaceviews
 	 */
 	FrameLayout mFrameLayout;
+	RelativeLayout mColorPickLayout;
 	ImageView mMainMenuBackground;
 	ImageView mMainMenuTitle;
 	View mMainMenuButtonListView;
@@ -128,17 +130,98 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		super.onResume();
 	}
 
+	View mColorPickBottomBar;
+	View mColorPickInstructionsView;
+	View mColorPickBuildTargetHelp;
+	View mColorPickNewTargetButton;
+	View mColorPickCloseButton;
+	View mColorPickCameraButton;
+	private final int COLOR_PICK_SCANNING_MODE = 123;
+	private final int COLOR_PICK_BUILD_TARGET_MODE = 124;
+	private int mColorPickStatus = COLOR_PICK_SCANNING_MODE;
+	
+	/** Indicates if the color pick instructions screen is being displayed or not*/
+    private boolean mIsShowingColorPickIntsructions = false;
+    
 	public void onClickStartGame(View v) {
 		mFrameLayout.removeView(mMainMenuTitle);
 		mFrameLayout.removeView(mMainMenuButtonListView);
 		mMainMenuBackground.setAlpha(0.8f);
 		
+		 // Inflates the Overlay Layout to be displayed above the Camera View
+		LayoutInflater layoutInflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+        mColorPickLayout = (RelativeLayout) layoutInflater.inflate(R.layout.color_pick_overlay,
+                null, false);
+//        mFrameLayout.addView(mColorPickLayout);
+        addContentView(mColorPickLayout, new LayoutParams(LayoutParams.MATCH_PARENT,
+                LayoutParams.MATCH_PARENT));
+        // Gets a reference to the bottom navigation bar
+        mColorPickBottomBar = mColorPickLayout.findViewById(R.id.bottom_bar);
+
+        // Gets a reference to the instructions view
+        mColorPickInstructionsView = mColorPickLayout.findViewById(R.id.instructions);
+
+        // Gets a reference to the build target help
+        mColorPickBuildTargetHelp = mColorPickLayout
+                .findViewById(R.id.overlay_build_target_help);
+
+        // Gets a reference to the NewTarget button
+        mColorPickNewTargetButton = mColorPickLayout.findViewById(R.id.new_target_button);
+
+        // Gets a reference to the CloseBuildTargetMode button
+        mColorPickCloseButton = mColorPickLayout.findViewById(R.id.close_button);
+
+        // Gets a reference to the Camera button
+        mColorPickCameraButton = mColorPickLayout.findViewById(R.id.camera_button);
+        
+        // Checks if it needs to show the instructions view or not
+        if (mIsShowingColorPickIntsructions) {
+            mColorPickInstructionsView.setVisibility(View.VISIBLE);
+            mColorPickNewTargetButton.setEnabled(false);
+        }
+
+        // Checks the UIStatus to initialize the navigation bar
+        // with the proper UI
+        if (mColorPickStatus == COLOR_PICK_SCANNING_MODE) {
+            initializeViewFinderModeViews();
+        }
+        else {
+            initializeBuildTargetModeViews();
+        }
 	}
 
 	public void onClickAboutStartButton(View v) {
 		mFrameLayout.removeView(mAboutView);
 		restoreOrCreateMainMenu();
 	}
+	
+	 /** Initialize the ViewFinder mode views */
+    private void initializeViewFinderModeViews() {
+        // Shows the bottom bar with the new Target Button
+    	mColorPickBottomBar.setVisibility(View.VISIBLE);
+        mColorPickNewTargetButton.setVisibility(View.VISIBLE);
+
+        // Hides the target build controls
+        mColorPickBuildTargetHelp.setVisibility(View.GONE);
+        mColorPickCameraButton.setVisibility(View.INVISIBLE);
+        mColorPickCloseButton.setVisibility(View.INVISIBLE);
+    }
+	
+    /** Initialize Build Target mode views */
+    private void initializeBuildTargetModeViews()
+    {
+        // Shows the bottom bar with the Build target options
+        mColorPickBuildTargetHelp.setVisibility(View.VISIBLE);
+        mColorPickBottomBar.setVisibility(View.VISIBLE);
+        mColorPickCameraButton.setVisibility(View.VISIBLE);
+        mColorPickCloseButton.setVisibility(View.VISIBLE);
+
+        // Hides the new target control
+        mColorPickNewTargetButton.setVisibility(View.INVISIBLE);
+    }
+	
+	
+	
 	/*
 	 * Opencv Callbacks
 	 */
