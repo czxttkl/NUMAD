@@ -144,11 +144,6 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 	private int mTextureDataHandle1;
 	private int mTextureDataHandle2;
 
-	/** This indicates which mode the game is now at */
-	public int mode = 0;
-	public int MODE_MAIN_MENU = 0;
-	public int MODE_TUTORIAL = 1;
-
 	/** Random instance */
 	public Random rd;
 	/** The width of screen, in pixels*/
@@ -363,7 +358,11 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 	public float distanceX;
 	public float distanceY;
 	public int fire = 1;
-
+	/** This indicates which mode the game is now at */
+	public int openGlMode = 0;
+	public final int MODE_MAIN_MENU = 1;
+	public final int MODE_TUTORIAL = 2;
+	public final int MODE_DEFAULT = 0;
 	@Override
 	public void onDrawFrame(GL10 glUnused) {
 		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
@@ -379,9 +378,9 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		mNormalHandle = GLES20.glGetAttribLocation(mProgramHandle, "a_Normal");
 		mTextureCoordinateHandle = GLES20.glGetAttribLocation(mProgramHandle, "a_TexCoordinate");
 		long now = SystemClock.uptimeMillis() % 10000L;
-		switch (mode) {
+		switch (openGlMode) {
 		// Main Menu mode
-		case 0:
+		case MODE_MAIN_MENU:
 			Log.d(TAG, "mode 0:mainmenu");
 			float angleInDegrees = (360.0f / 10000.0f) * ((int) now);
 			// Tell the texture uniform sampler to use this texture in the shader by binding to texture unit 0.
@@ -409,14 +408,12 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 			
 			break;
 		// Tutorial mode
-		case 1:
+		case MODE_TUTORIAL:
 			Log.d(TAG, "mode 1:tutorial");
 			Matrix.setLookAtM(mViewMatrix, 0, eyeX, eyeY, eyeZ, eyeX, eyeY, lookZ, upX, upY, upZ);
 			break;
-		case 2:
-			break;
 		default:
-			Log.d(TAG, "wrong mode");
+			//Don't render anything
 		}
 
 		// upX = (float)

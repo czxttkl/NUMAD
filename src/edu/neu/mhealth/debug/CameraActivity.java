@@ -159,7 +159,8 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		mFrameLayout.removeView(mMainMenuTitle);
 		mFrameLayout.removeView(mMainMenuButtonListView);
 		mFrameLayout.removeView(mMainMenuBackground);
-
+		mGLSurfaceView.mRenderer.openGlMode = mGLSurfaceView.mRenderer.MODE_DEFAULT;
+		
 		// Inflates the Overlay Layout to be displayed above the Camera View
 		LayoutInflater layoutInflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
 		mColorPickLayout = (RelativeLayout) layoutInflater.inflate(R.layout.color_pick_overlay, null, false);
@@ -239,6 +240,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		// mColorPickNewTargetButton.setEnabled(true);
 		mFrameLayout.removeView(mColorPickLayout);
 		restoreOrCreateMainMenu();
+		mGLSurfaceView.mRenderer.openGlMode = mGLSurfaceView.mRenderer.MODE_MAIN_MENU;
 	}
 
 	/** Initialize Color Pick Add mode views */
@@ -335,7 +337,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		case COLOR_PICK_PICK_MODE:
 			break;
 		default:
-
+			//Do no process here
 		}
 		return mRgba;
 	}
@@ -371,6 +373,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	 */
 	public void restoreOrCreateGLSurfaceView2() {
 		if (mGLSurfaceView != null) {
+			mGLSurfaceView.mRenderer.openGlMode = mGLSurfaceView.mRenderer.MODE_MAIN_MENU;
 			mFrameLayout.addView(mGLSurfaceView);
 			mGLSurfaceView.setZOrderMediaOverlay(true);
 			mGLSurfaceView.setZOrderOnTop(true);
