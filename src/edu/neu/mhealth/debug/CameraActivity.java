@@ -110,10 +110,10 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		mFrameLayout = new FrameLayout(this);
-		Resources res = getResources();
-		blackBackground = res.getDrawable(R.drawable.black_bg);
 		setContentView(mFrameLayout);
+		storeScreenDimensions();
 		initSensors();
+		initBlackBackground();
 	}
 
 	@Override
@@ -319,12 +319,6 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	 * after clicking start button in about screen.
 	 */
 	private void restoreOrCreateMainMenu() {
-		Display display = getWindowManager().getDefaultDisplay();
-		Point size = new Point();
-		display.getSize(size);
-		screenWidth = size.x;
-		screenHeight = size.y;
-
 		mMainMenuBackground = new ImageView(this);
 		mMainMenuBackground.setImageResource(R.drawable.black_bg);
 		mMainMenuBackground.setAlpha(0f);
@@ -545,5 +539,21 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		// Log.d(TAG, "speedY:" + speedY + " eyeX:" +
 		// mGLSurfaceView.mRenderer.eyeX);
 		// mGLSurfaceView.mRenderer.eyeX;
+	}
+	
+	/** Initialize blackbackground drawable resource */
+	private void initBlackBackground() {
+		Resources res = getResources();
+		blackBackground = res.getDrawable(R.drawable.black_bg);
+	}
+	
+	/** Store screenwidth and screenheight */
+	private void storeScreenDimensions() {
+		Display display = getWindowManager().getDefaultDisplay();
+		Point size = new Point();
+		display.getSize(size);
+		screenWidth = size.x;
+		screenHeight = size.y;
+//		Log.d(TAG, "czx screenwidth & height:" + screenWidth + "," + screenHeight);
 	}
 }
