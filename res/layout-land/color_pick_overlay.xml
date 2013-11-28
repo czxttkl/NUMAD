@@ -42,7 +42,7 @@
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
                 android:background="@null"
-                android:onClick="onCameraClick"
+                android:onClick="onClickColorPickCameraButton"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
                 android:src="@drawable/camera_button_background" />
@@ -53,7 +53,7 @@
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
                 android:background="@null"
-                android:onClick="onNewTargetButtonClick"
+                android:onClick="onClickColorPickAddButton"
                 android:paddingLeft="15dp"
                 android:paddingRight="15dp"
                 android:src="@drawable/close_button_background" />
@@ -72,7 +72,7 @@
             android:layout_gravity="center_horizontal"
             android:layout_weight="0.25"
             android:background="@null"
-            android:onClick="onCloseClick"
+            android:onClick="onClickColorPickCameraClose"
             android:text="Cancel"
             android:textColor="@color/white"
             android:textSize="@dimen/cancel_text" />

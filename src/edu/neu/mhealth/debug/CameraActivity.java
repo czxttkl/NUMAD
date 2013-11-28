@@ -71,7 +71,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 				restoreOrCreateJavaCameraView();
 				restoreOrCreateGLSurfaceView();
 				restoreOrCreateAboutScreen();
-//				restoreOrCreateMainMenu();
+				// restoreOrCreateMainMenu();
 			}
 				break;
 			default: {
@@ -136,92 +136,124 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	View mColorPickNewTargetButton;
 	View mColorPickCloseButton;
 	View mColorPickCameraButton;
-	private final int COLOR_PICK_SCANNING_MODE = 123;
-	private final int COLOR_PICK_BUILD_TARGET_MODE = 124;
-	private int mColorPickStatus = COLOR_PICK_SCANNING_MODE;
-	
-	/** Indicates if the color pick instructions screen is being displayed or not*/
-    private boolean mIsShowingColorPickIntsructions = false;
-    
+//	private final int COLOR_PICK_ADD_MODE = 123;
+//	private final int COLOR_PICK_PICK_MODE = 124;
+//	private int mColorPickStatus = COLOR_PICK_ADD_MODE;
+
+	/**
+	 * Indicates if the color pick instructions screen is being displayed or not
+	 */
+	private boolean mIsShowingColorPickIntsructions = false;
+
 	public void onClickStartGame(View v) {
 		mFrameLayout.removeView(mMainMenuTitle);
 		mFrameLayout.removeView(mMainMenuButtonListView);
 		mMainMenuBackground.setAlpha(0.8f);
-		
-		 // Inflates the Overlay Layout to be displayed above the Camera View
+
+		// Inflates the Overlay Layout to be displayed above the Camera View
 		LayoutInflater layoutInflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
-        mColorPickLayout = (RelativeLayout) layoutInflater.inflate(R.layout.color_pick_overlay,
-                null, false);
-//        mFrameLayout.addView(mColorPickLayout);
-        addContentView(mColorPickLayout, new LayoutParams(LayoutParams.MATCH_PARENT,
-                LayoutParams.MATCH_PARENT));
-        // Gets a reference to the bottom navigation bar
-        mColorPickBottomBar = mColorPickLayout.findViewById(R.id.bottom_bar);
+		mColorPickLayout = (RelativeLayout) layoutInflater.inflate(R.layout.color_pick_overlay, null, false);
+		// mFrameLayout.addView(mColorPickLayout);
+		addContentView(mColorPickLayout, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+		// Gets a reference to the bottom navigation bar
+		mColorPickBottomBar = mColorPickLayout.findViewById(R.id.bottom_bar);
 
-        // Gets a reference to the instructions view
-        mColorPickInstructionsView = mColorPickLayout.findViewById(R.id.instructions);
+		// Gets a reference to the instructions view
+		mColorPickInstructionsView = mColorPickLayout.findViewById(R.id.instructions);
 
-        // Gets a reference to the build target help
-        mColorPickBuildTargetHelp = mColorPickLayout
-                .findViewById(R.id.overlay_build_target_help);
+		// Gets a reference to the build target help
+		mColorPickBuildTargetHelp = mColorPickLayout.findViewById(R.id.overlay_build_target_help);
 
-        // Gets a reference to the NewTarget button
-        mColorPickNewTargetButton = mColorPickLayout.findViewById(R.id.new_target_button);
+		// Gets a reference to the NewTarget button
+		mColorPickNewTargetButton = mColorPickLayout.findViewById(R.id.new_target_button);
 
-        // Gets a reference to the CloseBuildTargetMode button
-        mColorPickCloseButton = mColorPickLayout.findViewById(R.id.close_button);
+		// Gets a reference to the CloseBuildTargetMode button
+		mColorPickCloseButton = mColorPickLayout.findViewById(R.id.close_button);
 
-        // Gets a reference to the Camera button
-        mColorPickCameraButton = mColorPickLayout.findViewById(R.id.camera_button);
-        
-        // Checks if it needs to show the instructions view or not
-        if (mIsShowingColorPickIntsructions) {
-            mColorPickInstructionsView.setVisibility(View.VISIBLE);
-            mColorPickNewTargetButton.setEnabled(false);
-        }
+		// Gets a reference to the Camera button
+		mColorPickCameraButton = mColorPickLayout.findViewById(R.id.camera_button);
 
-        // Checks the UIStatus to initialize the navigation bar
-        // with the proper UI
-        if (mColorPickStatus == COLOR_PICK_SCANNING_MODE) {
-            initializeViewFinderModeViews();
-        }
-        else {
-            initializeBuildTargetModeViews();
-        }
+		// Checks if it needs to show the instructions view or not
+		if (mIsShowingColorPickIntsructions) {
+			mColorPickInstructionsView.setVisibility(View.VISIBLE);
+			mColorPickNewTargetButton.setEnabled(false);
+		}
+		initializeColorPickAddMode();
+		// Checks the UIStatus to initialize the navigation bar
+		// with the proper UI
+//		if (mColorPickStatus == COLOR_PICK_ADD_MODE) {
+//		} else {
+//			initializeColorPickCameraMode();
+//		}
 	}
 
 	public void onClickAboutStartButton(View v) {
 		mFrameLayout.removeView(mAboutView);
 		restoreOrCreateMainMenu();
 	}
-	
-	 /** Initialize the ViewFinder mode views */
-    private void initializeViewFinderModeViews() {
-        // Shows the bottom bar with the new Target Button
-    	mColorPickBottomBar.setVisibility(View.VISIBLE);
-        mColorPickNewTargetButton.setVisibility(View.VISIBLE);
 
-        // Hides the target build controls
-        mColorPickBuildTargetHelp.setVisibility(View.GONE);
-        mColorPickCameraButton.setVisibility(View.INVISIBLE);
-        mColorPickCloseButton.setVisibility(View.INVISIBLE);
-    }
-	
-    /** Initialize Build Target mode views */
-    private void initializeBuildTargetModeViews()
-    {
-        // Shows the bottom bar with the Build target options
-        mColorPickBuildTargetHelp.setVisibility(View.VISIBLE);
-        mColorPickBottomBar.setVisibility(View.VISIBLE);
-        mColorPickCameraButton.setVisibility(View.VISIBLE);
-        mColorPickCloseButton.setVisibility(View.VISIBLE);
+	/** Button Camera clicked. Marker's color is picked after this method is called. */
+	public void onClickColorPickCameraButton(View v) {
+		// Builds the new target
+//		startBuild();
+	}
 
-        // Hides the new target control
-        mColorPickNewTargetButton.setVisibility(View.INVISIBLE);
+	 /** Button Close/Cancel clicked in the process of color picking*/
+    public void onClickColorPickCameraClose(View v) {
+        // Goes back to the Color Pick Add rMode
+    	initializeColorPickAddMode();
     }
-	
-	
-	
+    
+	/** Button Add clicked - This will cause the instruction interfaces shows. */
+	public void onClickColorPickAddButton(View v) {
+		// Shows the instructions view and returns
+		mColorPickInstructionsView.setVisibility(View.VISIBLE);
+		mColorPickNewTargetButton.setEnabled(false);
+	}
+
+	/** Instructions button OK clicked */
+    public void onClickInstructionsOnOk(View v) {
+        // Hides the instructions view
+        mColorPickInstructionsView.setVisibility(View.GONE);
+        mColorPickNewTargetButton.setEnabled(true);
+        // Calls to the newTargetButtonClick Method
+        // to enter the BuildTargetMode
+        initializeColorPickCameraMode();
+    }
+
+
+    /** Instructions button Cancel clicked */
+    public void onClickInstructionsOnCancel(View v) {
+        // Hides the instructions view without
+        // updating the instructions flag
+        mColorPickInstructionsView.setVisibility(View.GONE);
+        mColorPickNewTargetButton.setEnabled(true);
+    }
+    
+	/** Initialize Color Pick Add mode views */
+	private void initializeColorPickAddMode() {
+		// Shows the bottom bar with the new Target Button
+		mColorPickBottomBar.setVisibility(View.VISIBLE);
+		mColorPickNewTargetButton.setVisibility(View.VISIBLE);
+
+		// Hides the target build controls
+		mColorPickBuildTargetHelp.setVisibility(View.GONE);
+		mColorPickCameraButton.setVisibility(View.INVISIBLE);
+		mColorPickCloseButton.setVisibility(View.INVISIBLE);
+	}
+
+	/** Initialize Color Pick Camera mode views */
+	private void initializeColorPickCameraMode() {
+		// Shows the bottom bar with the Build target options
+		mColorPickBuildTargetHelp.setVisibility(View.VISIBLE);
+		mColorPickBottomBar.setVisibility(View.VISIBLE);
+		mColorPickCameraButton.setVisibility(View.VISIBLE);
+		mColorPickCloseButton.setVisibility(View.VISIBLE);
+
+		// Hides the new target control
+		mColorPickNewTargetButton.setVisibility(View.INVISIBLE);
+	}
+
 	/*
 	 * Opencv Callbacks
 	 */
@@ -250,7 +282,8 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	/**
 	 * Restore or create SurfaceView for bugs. This method is called after
 	 * OpenCV library is loaded successfully and must be called after
-	 * restoreOrCreateJavaCameraView is called so that CameraView would not overlap GLSurfaceView.
+	 * restoreOrCreateJavaCameraView is called so that CameraView would not
+	 * overlap GLSurfaceView.
 	 */
 	private void restoreOrCreateGLSurfaceView() {
 		mGLSurfaceView = new MyGLSurfaceView(this);
@@ -272,7 +305,8 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	/**
 	 * Restore or create SurfaceView for opencv CameraView. This method is
 	 * called after OpenCV library is loaded successfully and must be called
-	 * before restoreOrCreateGLSurfaceView is called so that CameraView would not overlap GLSurfaceView.
+	 * before restoreOrCreateGLSurfaceView is called so that CameraView would
+	 * not overlap GLSurfaceView.
 	 */
 	private void restoreOrCreateJavaCameraView() {
 		mOpenCvCameraView = new CameraView(this);
@@ -331,15 +365,14 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		background.setAlpha(200);
 		mAboutView.setBackgroundDrawable(background);
 		mFrameLayout.addView(mAboutView);
-		
+
 		mAboutText = (TextView) findViewById(R.id.about_text);
-        mAboutText.setText(Html.fromHtml(getString(R.string.about_text)));
-        mAboutText.setMovementMethod(LinkMovementMethod.getInstance());
-        // Setups the link color
-        mAboutText.setLinkTextColor(getResources().getColor(
-                R.color.holo_light_blue));
+		mAboutText.setText(Html.fromHtml(getString(R.string.about_text)));
+		mAboutText.setMovementMethod(LinkMovementMethod.getInstance());
+		// Setups the link color
+		mAboutText.setLinkTextColor(getResources().getColor(R.color.holo_light_blue));
 	}
-	
+
 	/*
 	 * Sensor methods
 	 */
