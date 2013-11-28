@@ -90,7 +90,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical|center_horizontal"
                 android:contentDescription="@string/color_pick_instructions_point_1"
-                android:src="@drawable/instruction_02" />
+                android:src="@drawable/instruction_01a" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -132,7 +132,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical|center_horizontal"
                 android:contentDescription="@string/color_pick_instructions_point_2"
-                android:src="@drawable/instruction_01" />
+                android:src="@drawable/instruction_02a" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -174,7 +174,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical|center_horizontal"
                 android:contentDescription="@string/color_pick_instructions_point_3"
-                android:src="@drawable/instruction_03" />
+                android:src="@drawable/instruction_03a" />
 
             <LinearLayout
                 android:layout_width="match_parent"
