@@ -18,6 +18,7 @@ import org.opencv.imgproc.Imgproc;
 
 import edu.neu.mhealth.debug.helper.Global;
 import edu.neu.mhealth.debug.helper.InitRenderTask;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
@@ -39,6 +40,7 @@ import android.view.Menu;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
+import android.view.ViewStub;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AccelerateInterpolator;
@@ -102,6 +104,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	private SensorManager mSensorManager;
 	private Sensor mOrientationSensor;
 	private Sensor mLinearAccelerometer;
+	private Sensor mAccelerometer;
 	private float mDirection;
 	private float mTargetDirection;
 	private AccelerateInterpolator mInterpolator;
@@ -123,7 +126,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		storeScreenDimensions();
 		initSensors();
 		initBlackBackground();
-//		initAnimations();
+		// initAnimations();
 	}
 
 	@Override
@@ -148,8 +151,8 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	View mColorPickHelpNotif;
 	View mColorPickCloseButton;
 	View mColorPickCameraButton;
+	TextView mColorPickHelpNotifTextView;
 
-	// private int mColorPickStatus = COLOR_PICK_ADD_MODE;
 	public void onClickAboutStartButton(View v) {
 		mFrameLayout.removeView(mAboutView);
 		restoreOrCreateMainMenu();
@@ -160,7 +163,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		mFrameLayout.removeView(mMainMenuButtonListView);
 		mFrameLayout.removeView(mMainMenuBackground);
 		mGLSurfaceView.mRenderer.openGlMode = mGLSurfaceView.mRenderer.MODE_DEFAULT;
-		
+
 		// Inflates the Overlay Layout to be displayed above the Camera View
 		LayoutInflater layoutInflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
 		mColorPickLayout = (RelativeLayout) layoutInflater.inflate(R.layout.color_pick_overlay, null, false);
@@ -176,7 +179,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		// Gets a reference to the instructions view
 		mColorPickInstructionsView = mColorPickLayout.findViewById(R.id.instructions);
 
-		// Gets a reference to the build target help
+		// Gets a reference to the help notification viewstub
 		mColorPickHelpNotif = mColorPickLayout.findViewById(R.id.overlay_build_target_help);
 
 		// Gets a reference to the CloseBuildTargetMode button
@@ -213,7 +216,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		mColorPickLayout.setBackgroundDrawable(blackBackground);
 		// Goes back to the Color Pick Add rMode
 		initializeInstructionMode();
-		//Set mode to default
+		// Set mode to default
 		openCvMode = 0;
 	}
 
@@ -262,10 +265,14 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		mColorPickCameraButton.setVisibility(View.VISIBLE);
 		mColorPickCloseButton.setVisibility(View.VISIBLE);
 
-		// Hides the new target control
+		// Gets a reference to the help notification textview
+		mColorPickHelpNotifTextView = (TextView)mColorPickLayout.findViewById(R.id.color_pick_help_notif_text);
+		
+		// Set background to transparent
 		blackBackground.setAlpha(0);
 		mColorPickLayout.setBackgroundDrawable(blackBackground);
-
+		
+		//Set opencvmode to crosshair mode, so opencv will draw a crosshair in the center of image
 		openCvMode = COLOR_PICK_CROSSHAIR_MODE;
 	}
 
@@ -274,7 +281,8 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	 */
 	Mat mGray;
 	Mat mRgba;
-	Scalar redColor;
+	Scalar grayColor;
+	Scalar blueColor;
 	org.opencv.core.Point crosshairHeftmost;
 	org.opencv.core.Point crosshairRightmost;
 	org.opencv.core.Point crosshairUpmost;
@@ -284,13 +292,15 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	int openCvMode;
 	private final int COLOR_PICK_CROSSHAIR_MODE = 123;
 	private final int COLOR_PICK_PICK_MODE = 124;
+	private final int COLOR_PICK_HOLD_WRONGLY_MODE = 125;
 	Rect colorPickArea;
 
 	@Override
 	public void onCameraViewStarted(int width, int height) {
 		mGray = new Mat();
 		mRgba = new Mat();
-		redColor = new Scalar(255, 0, 0);
+		grayColor = new Scalar(192, 192, 192);
+		blueColor = new Scalar(0, 255, 255);
 		crosshairHeftmost = new org.opencv.core.Point(width / 2 - 50, height / 2);
 		crosshairRightmost = new org.opencv.core.Point(width / 2 + 50, height / 2);
 		crosshairUpmost = new org.opencv.core.Point(width / 2, height / 2 - 50);
@@ -331,13 +341,17 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 			mColorPickRgba = converScalarHsv2Rgba(mColorPickHsv);
 			Mat colorLabel = mRgba.submat(44, 108, 8, 72);
 			colorLabel.setTo(mColorPickRgba);
-			Core.line(mRgba, crosshairHeftmost, crosshairRightmost, redColor, 10);
-			Core.line(mRgba, crosshairUpmost, crosshairDownmost, redColor, 10);
+			Core.line(mRgba, crosshairHeftmost, crosshairRightmost, blueColor, 10);
+			Core.line(mRgba, crosshairUpmost, crosshairDownmost, blueColor, 10);
 			break;
 		case COLOR_PICK_PICK_MODE:
 			break;
+		case COLOR_PICK_HOLD_WRONGLY_MODE:
+			Core.line(mRgba, crosshairHeftmost, crosshairRightmost, grayColor, 10);
+			Core.line(mRgba, crosshairUpmost, crosshairDownmost, grayColor, 10);
+			break;
 		default:
-			//Do no process here
+			// Do no process here
 		}
 		return mRgba;
 	}
@@ -457,6 +471,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 		mOrientationSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
 		mLinearAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
+		mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 	}
 
 	private void resumeSensors() {
@@ -467,12 +482,15 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		if (mLinearAccelerometer != null) {
 			mSensorManager.registerListener(this, mLinearAccelerometer, SensorManager.SENSOR_DELAY_GAME);
 		}
+		if (mAccelerometer != null) {
+			mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_GAME);
+		}
 		mHandler.postDelayed(mEyeLocationUpdaterRunnable, 20);
 	}
 
 	private void pauseSensors() {
 		mStopDetecting = true;
-		if (mOrientationSensor != null && mLinearAccelerometer != null) {
+		if (mOrientationSensor != null || mLinearAccelerometer != null || mAccelerometer != null) {
 			mSensorManager.unregisterListener(this);
 		}
 	}
@@ -494,6 +512,29 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 				// + speedX;
 				// mGLSurfaceView.mRenderer.eyeX = mGLSurfaceView.mRenderer.eyeX
 				// - speedY * SPEED_CONSTANT;
+			} else {
+				if (Sensor.TYPE_ACCELEROMETER == arg0.sensor.getType()) {
+					Log.d(TAG, "accelerometer z:" + arg0.values[2]);
+					switch (openCvMode) {
+					case COLOR_PICK_CROSSHAIR_MODE:
+						if (arg0.values[2] < 8.5f) {
+							mColorPickHelpNotifTextView.setText(R.string.color_pick_help_notif_horizon);
+							mColorPickHelpNotifTextView.setTextColor(Color.RED);
+							openCvMode = COLOR_PICK_HOLD_WRONGLY_MODE;
+							mColorPickCameraButton.setEnabled(false);
+						}
+						break;
+					case COLOR_PICK_HOLD_WRONGLY_MODE:
+						if (arg0.values[2] > 8.5f) {
+							mColorPickHelpNotifTextView.setText(R.string.color_pick_help_notif);
+							mColorPickHelpNotifTextView.setTextColor(Color.WHITE);
+							openCvMode = COLOR_PICK_CROSSHAIR_MODE;
+							mColorPickCameraButton.setEnabled(true);
+						}
+					default:
+						//Do nothing
+					}
+				}
 			}
 		}
 	}
@@ -636,7 +677,6 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		display.getSize(size);
 		screenWidth = size.x;
 		screenHeight = size.y;
-		Log.d(TAG, "czx screenwidth & height:" + screenWidth + "," + screenHeight);
 	}
 
 }
