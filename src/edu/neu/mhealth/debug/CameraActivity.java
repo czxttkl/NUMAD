@@ -9,7 +9,10 @@ import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
 import org.opencv.android.JavaCameraView;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
+import org.opencv.core.Core;
 import org.opencv.core.Mat;
+import org.opencv.core.Scalar;
+
 import edu.neu.mhealth.debug.helper.Global;
 import edu.neu.mhealth.debug.helper.InitRenderTask;
 import android.graphics.Point;
@@ -138,9 +141,8 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	View mColorPickBuildTargetHelp;
 	View mColorPickCloseButton;
 	View mColorPickCameraButton;
-//	private final int COLOR_PICK_ADD_MODE = 123;
-//	private final int COLOR_PICK_PICK_MODE = 124;
-//	private int mColorPickStatus = COLOR_PICK_ADD_MODE;
+
+	// private int mColorPickStatus = COLOR_PICK_ADD_MODE;
 	public void onClickAboutStartButton(View v) {
 		mFrameLayout.removeView(mAboutView);
 		restoreOrCreateMainMenu();
@@ -154,11 +156,11 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		// Inflates the Overlay Layout to be displayed above the Camera View
 		LayoutInflater layoutInflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
 		mColorPickLayout = (RelativeLayout) layoutInflater.inflate(R.layout.color_pick_overlay, null, false);
-		
-		//Set background to semi-transparent black
+
+		// Set background to semi-transparent black
 		blackBackground.setAlpha(200);
 		mColorPickLayout.setBackgroundDrawable(blackBackground);
-		
+
 		mFrameLayout.addView(mColorPickLayout);
 		// Gets a reference to the bottom navigation bar
 		mColorPickBottomBar = mColorPickLayout.findViewById(R.id.bottom_bar);
@@ -181,26 +183,30 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	public void onClickMainMenuExit(View v) {
 		finish();
 	}
-	
+
 	public void onClickMainMenuSettings(View v) {
-		
-	}
-	
-	/** Button Camera clicked. Marker's color is picked after this method is called. */
-	public void onClickColorPickCameraButton(View v) {
-		// Builds the new target
-//		startBuild();
-		mColorPickCameraButton.setEnabled(false);
+
 	}
 
-	 /** Button Close/Cancel clicked in the process of color picking*/
-    public void onClickColorPickCameraClose(View v) {
-    	blackBackground.setAlpha(200);
+	/**
+	 * Button Camera clicked. Marker's color is picked after this method is
+	 * called.
+	 */
+	public void onClickColorPickCameraButton(View v) {
+		// Builds the new target
+		// startBuild();
+		mColorPickCameraButton.setEnabled(false);
+		openCvMode = COLOR_PICK_PICK_MODE;
+	}
+
+	/** Button Close/Cancel clicked in the process of color picking */
+	public void onClickColorPickCameraClose(View v) {
+		blackBackground.setAlpha(200);
 		mColorPickLayout.setBackgroundDrawable(blackBackground);
-        // Goes back to the Color Pick Add rMode
-    	initializeInstructionMode();
-    }
-    
+		// Goes back to the Color Pick Add rMode
+		initializeInstructionMode();
+	}
+
 	/** Button Add clicked - This will cause the instruction interfaces shows. */
 	public void onClickColorPickAddButton(View v) {
 		// Shows the instructions view and returns
@@ -208,24 +214,24 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	}
 
 	/** Instructions button OK clicked */
-    public void onClickInstructionsOnOk(View v) {
-        // Hides the instructions view
-        mColorPickInstructionsView.setVisibility(View.GONE);
-        // Calls to the newTargetButtonClick Method
-        // to enter the BuildTargetMode
-        initializeColorPickCameraMode();
-    }
+	public void onClickInstructionsOnOk(View v) {
+		// Hides the instructions view
+		mColorPickInstructionsView.setVisibility(View.GONE);
+		// Calls to the newTargetButtonClick Method
+		// to enter the BuildTargetMode
+		initializeColorPickCameraMode();
+	}
 
-    /** Instructions button Cancel clicked */
-    public void onClickInstructionsOnCancel(View v) {
-        // Hides the instructions view without
-        // updating the instructions flag
-//        mColorPickInstructionsView.setVisibility(View.GONE);
-//        mColorPickNewTargetButton.setEnabled(true);
-        mFrameLayout.removeView(mColorPickLayout);
-        restoreOrCreateMainMenu();
-    }
-    
+	/** Instructions button Cancel clicked */
+	public void onClickInstructionsOnCancel(View v) {
+		// Hides the instructions view without
+		// updating the instructions flag
+		// mColorPickInstructionsView.setVisibility(View.GONE);
+		// mColorPickNewTargetButton.setEnabled(true);
+		mFrameLayout.removeView(mColorPickLayout);
+		restoreOrCreateMainMenu();
+	}
+
 	/** Initialize Color Pick Add mode views */
 	private void initializeInstructionMode() {
 		// Shows the bottom bar with the new Target Button
@@ -248,24 +254,57 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		// Hides the new target control
 		blackBackground.setAlpha(0);
 		mColorPickLayout.setBackgroundDrawable(blackBackground);
+
+		openCvMode = COLOR_PICK_CROSSHAIR_MODE;
 	}
 
 	/*
 	 * Opencv Callbacks
 	 */
+	Mat mGray;
+	Mat mRgba;
+	Scalar redColor;
+	org.opencv.core.Point leftmost;
+	org.opencv.core.Point rightmost;
+	org.opencv.core.Point upmost;
+	org.opencv.core.Point downmost;
+	int openCvMode;
+	private final int COLOR_PICK_CROSSHAIR_MODE = 123;
+	private final int COLOR_PICK_PICK_MODE = 124;
+
 	@Override
 	public void onCameraViewStarted(int width, int height) {
-
+		mGray = new Mat();
+		mRgba = new Mat();
+		redColor = new Scalar(255, 0, 0);
+		leftmost = new org.opencv.core.Point(width / 2 - 50, height / 2);
+		rightmost = new org.opencv.core.Point(width / 2 + 50, height / 2);
+		upmost = new org.opencv.core.Point(width / 2, height / 2 - 50);
+		downmost = new org.opencv.core.Point(width / 2, height / 2 + 50);
+//		Log.d(TAG, "czx screenwidth & height:" + screenWidth + "," + screenHeight + ":" + width + "," + height);
 	}
 
 	@Override
 	public void onCameraViewStopped() {
-
+		mGray.release();
+		mRgba.release();
 	}
 
 	@Override
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
-		return inputFrame.rgba();
+		mGray = inputFrame.gray();
+		mRgba = inputFrame.rgba();
+		switch (openCvMode) {
+		case COLOR_PICK_CROSSHAIR_MODE:
+			Core.line(mRgba, leftmost, rightmost, redColor, 10);
+			Core.line(mRgba, upmost, downmost, redColor, 10);
+			break;
+		case COLOR_PICK_PICK_MODE:
+			break;
+		default:
+
+		}
+		return mRgba;
 	}
 
 	/**
@@ -540,13 +579,13 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		// mGLSurfaceView.mRenderer.eyeX);
 		// mGLSurfaceView.mRenderer.eyeX;
 	}
-	
+
 	/** Initialize blackbackground drawable resource */
 	private void initBlackBackground() {
 		Resources res = getResources();
 		blackBackground = res.getDrawable(R.drawable.black_bg);
 	}
-	
+
 	/** Store screenwidth and screenheight */
 	private void storeScreenDimensions() {
 		Display display = getWindowManager().getDefaultDisplay();
@@ -554,6 +593,6 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		display.getSize(size);
 		screenWidth = size.x;
 		screenHeight = size.y;
-//		Log.d(TAG, "czx screenwidth & height:" + screenWidth + "," + screenHeight);
+		Log.d(TAG, "czx screenwidth & height:" + screenWidth + "," + screenHeight);
 	}
 }
