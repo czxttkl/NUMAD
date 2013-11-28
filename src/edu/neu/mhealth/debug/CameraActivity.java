@@ -212,6 +212,8 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		mColorPickLayout.setBackgroundDrawable(blackBackground);
 		// Goes back to the Color Pick Add rMode
 		initializeInstructionMode();
+		//Set mode to default
+		openCvMode = 0;
 	}
 
 	/** Button Add clicked - This will cause the instruction interfaces shows. */
@@ -325,7 +327,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 				mColorPickHsv.val[i] /= pointCount;
 
 			mColorPickRgba = converScalarHsv2Rgba(mColorPickHsv);
-			Mat colorLabel = mRgba.submat(4, 68, 4, 68);
+			Mat colorLabel = mRgba.submat(44, 108, 8, 72);
 			colorLabel.setTo(mColorPickRgba);
 			Core.line(mRgba, crosshairHeftmost, crosshairRightmost, redColor, 10);
 			Core.line(mRgba, crosshairUpmost, crosshairDownmost, redColor, 10);
