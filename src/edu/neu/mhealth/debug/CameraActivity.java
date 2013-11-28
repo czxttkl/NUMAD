@@ -141,13 +141,12 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 //	private final int COLOR_PICK_ADD_MODE = 123;
 //	private final int COLOR_PICK_PICK_MODE = 124;
 //	private int mColorPickStatus = COLOR_PICK_ADD_MODE;
+	public void onClickAboutStartButton(View v) {
+		mFrameLayout.removeView(mAboutView);
+		restoreOrCreateMainMenu();
+	}
 
-	/**
-	 * Indicates if the color pick instructions screen is being displayed or not
-	 */
-	private boolean mIsShowingColorPickIntsructions = false;
-
-	public void onClickStartGame(View v) {
+	public void onClickMainMenuStartGame(View v) {
 		mFrameLayout.removeView(mMainMenuTitle);
 		mFrameLayout.removeView(mMainMenuButtonListView);
 		mFrameLayout.removeView(mMainMenuBackground);
@@ -179,11 +178,14 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		initializeInstructionMode();
 	}
 
-	public void onClickAboutStartButton(View v) {
-		mFrameLayout.removeView(mAboutView);
-		restoreOrCreateMainMenu();
+	public void onClickMainMenuExit(View v) {
+		finish();
 	}
-
+	
+	public void onClickMainMenuSettings(View v) {
+		
+	}
+	
 	/** Button Camera clicked. Marker's color is picked after this method is called. */
 	public void onClickColorPickCameraButton(View v) {
 		// Builds the new target

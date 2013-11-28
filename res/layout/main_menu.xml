@@ -17,7 +17,7 @@
             android:layout_height="wrap_content"
             android:background="@null"
             android:src="@drawable/start_game" 
-            android:onClick="onClickStartGame"/>
+            android:onClick="onClickMainMenuStartGame"/>
 
         <ImageButton
             android:id="@+id/settings"
@@ -25,7 +25,7 @@
             android:layout_height="wrap_content"
             android:background="@null"
             android:src="@drawable/settings" 
-            android:onClick="onClickSettings"/>
+            android:onClick="onClickMainMenuSettings"/>
 
         <ImageButton
             android:id="@+id/exit_game"
@@ -33,7 +33,7 @@
             android:layout_height="wrap_content"
             android:background="@null"
             android:src="@drawable/exit_game" 
-            android:onClick="onClickExit"/>
+            android:onClick="onClickMainMenuExit"/>
     </LinearLayout>
 
 </LinearLayout>
