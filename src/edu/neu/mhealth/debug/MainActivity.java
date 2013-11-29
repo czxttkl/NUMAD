@@ -9,14 +9,19 @@ import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfByte;
+import org.opencv.core.MatOfFloat;
+import org.opencv.core.MatOfInt;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
+import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.video.Video;
 
 import android.app.Activity;
 import android.graphics.Color;
@@ -40,6 +45,7 @@ public class MainActivity extends Activity implements OnTouchListener,
 
 	private boolean mIsColorSelected = false;
 	private Mat mRgba;
+	private Mat mGray;
 	private Scalar mBlobColorRgba;
 	private Scalar mBlobColorHsv;
 	private ColorDetector mDetector;
@@ -65,6 +71,21 @@ public class MainActivity extends Activity implements OnTouchListener,
 
 	private List<MatOfPoint> contourFloor;
 	private List<MatOfPoint> contourShoe;
+	private MatOfPoint cornersMOP;
+	private List<Point> corners;
+	
+	private Mat mOpFlowCurr;
+	private Mat mOpFlowPrev;
+	private MatOfPoint mMOPopFlowCurr;
+	private MatOfPoint mMOPopFlowPrev;
+	private MatOfPoint2f mMOP2PtsCurr;
+	private MatOfPoint2f mMOP2PtsPrev;
+	private MatOfPoint2f mMOP2PtsSafe;
+	private List<Point> cornersPrev;
+	private List<Point> cornersCurr;
+	private MatOfByte status;
+	private MatOfFloat err;
+	private List<Byte> byteStatus;
 
 	private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
 		@Override
@@ -128,7 +149,7 @@ public class MainActivity extends Activity implements OnTouchListener,
 				LayoutParams.FILL_PARENT));
 		layout.addView(mOpenCvCameraView);
 		layout.addView(configureView);
-		layout.addView(bug1);
+//		layout.addView(bug1);
 
 		setContentView(layout);
 
@@ -159,15 +180,27 @@ public class MainActivity extends Activity implements OnTouchListener,
 
 	public void onCameraViewStarted(int width, int height) {
 		mRgba = new Mat(height, width, CvType.CV_8UC4);
+		mGray = new Mat(height, width, CvType.CV_8UC1);
 		mSpectrum = new Mat();
 		mBlobColorRgba = new Scalar(255);
 		mBlobColorHsv = new Scalar(255);
 		SPECTRUM_SIZE = new Size(200, 64);
 		CONTOUR_COLOR = new Scalar(255, 0, 0, 255);
+		
+		mOpFlowCurr = new Mat();
+		mOpFlowPrev = new Mat();
+		mMOPopFlowPrev = new MatOfPoint();
+		mMOPopFlowCurr = new MatOfPoint();
+		mMOP2PtsCurr = new MatOfPoint2f();
+		mMOP2PtsPrev = new MatOfPoint2f();
+		mMOP2PtsSafe = new MatOfPoint2f();
+		status = new MatOfByte();
+		err = new MatOfFloat();
 	}
 
 	public void onCameraViewStopped() {
 		mRgba.release();
+		mGray.release();
 	}
 
 	public boolean onTouch(View v, MotionEvent event) {
@@ -189,6 +222,7 @@ public class MainActivity extends Activity implements OnTouchListener,
 
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
 		mRgba = inputFrame.rgba();
+		mGray = inputFrame.gray();
 
 		int cols = mRgba.cols();
 		int rows = mRgba.rows();
@@ -209,6 +243,7 @@ public class MainActivity extends Activity implements OnTouchListener,
 			}
 		});
 
+		/*
 		if (mIsColorSelected) {
 
 			int x = configureView.getFloorPosition().x - xOffset;
@@ -244,7 +279,53 @@ public class MainActivity extends Activity implements OnTouchListener,
 			}
 			
 
-			bugShoeCollisionCheck();
+			bugShoeCollisionCheck();			
+		}
+		*/
+//		cornersMOP = new MatOfPoint();
+//		Imgproc.goodFeaturesToTrack(mGray, cornersMOP, 50, 0.01, 30.0);
+//		int y_corners = cornersMOP.rows();
+//		corners = cornersMOP.toList();
+//		
+//		for (int i = 0; i < y_corners; i++) {
+//			Core.circle(mRgba, corners.get(i), 8, new Scalar(255, 0, 0));
+//		}
+
+		
+		if (mMOP2PtsPrev.rows() == 0) {
+			Log.e(TAG, "optical unavia");
+			Imgproc.cvtColor(mRgba, mOpFlowCurr, Imgproc.COLOR_RGBA2GRAY);
+			mOpFlowCurr.copyTo(mOpFlowPrev);
+			
+			Imgproc.goodFeaturesToTrack(mOpFlowPrev, mMOPopFlowPrev, 50, 0.01, 20);
+			mMOP2PtsPrev = new MatOfPoint2f(mMOPopFlowPrev.toArray());
+			mMOP2PtsPrev.copyTo(mMOP2PtsSafe);
+		} else {
+			Log.e(TAG, "start optical flow");
+
+			mOpFlowCurr.copyTo(mOpFlowPrev);
+			Imgproc.cvtColor(mRgba, mOpFlowCurr, Imgproc.COLOR_RGBA2GRAY);
+			
+			Imgproc.goodFeaturesToTrack(mOpFlowCurr, mMOPopFlowCurr, 50, 0.01, 20);
+			mMOP2PtsCurr = new MatOfPoint2f(mMOPopFlowCurr.toArray());
+			mMOP2PtsSafe.copyTo(mMOP2PtsPrev);
+			mMOP2PtsCurr.copyTo(mMOP2PtsSafe);
+			
+			Video.calcOpticalFlowPyrLK(mOpFlowPrev, mOpFlowCurr, mMOP2PtsPrev, mMOP2PtsCurr, status, err);
+			
+			cornersPrev = mMOP2PtsPrev.toList();
+			cornersCurr = mMOP2PtsCurr.toList();
+			byteStatus = status.toList();
+			
+			for (int i = 0; i < byteStatus.size() - 1; i++) {
+				if (byteStatus.get(i) == 1) {
+					Point pt = cornersCurr.get(i);
+					Point pt2 = cornersPrev.get(i);
+					
+					Core.circle(mRgba, pt, 5, new Scalar(255, 0, 0));
+					Core.line(mRgba, pt, pt2, new Scalar(255, 0, 0));
+				}
+			}
 		}
 
 		return mRgba;
