@@ -152,6 +152,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	View mColorPickBottomBar;
 	View mColorPickInstructionsView;
 	View mColorPickHelpNotif;
+	View mColorPickHelpConfirmButt;
 	View mColorPickCloseButton;
 	View mColorPickCameraButton;
 	TextView mColorPickHelpNotifTextView;
@@ -183,7 +184,10 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		mColorPickInstructionsView = mColorPickLayout.findViewById(R.id.instructions);
 
 		// Gets a reference to the help notification viewstub
-		mColorPickHelpNotif = mColorPickLayout.findViewById(R.id.overlay_build_target_help);
+		mColorPickHelpNotif = mColorPickLayout.findViewById(R.id.overlay_color_pick_help);
+		
+		// Gets a reference to the color pick confirm buttons viewstub
+		mColorPickHelpConfirmButt = mColorPickLayout.findViewById(R.id.overlay_color_pick_confirm_button);
 
 		// Gets a reference to the CloseBuildTargetMode button
 		mColorPickCloseButton = mColorPickLayout.findViewById(R.id.close_button);
@@ -212,6 +216,11 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		mColorPickCameraButton.setEnabled(false);
 		mColorBlobDetector.setHsvColor(mColorPickHsv);
 		openCvMode = COLOR_PICK_PICK_MODE;
+		mColorPickHelpNotifTextView.setVisibility(View.GONE);
+		mColorPickHelpNotifTextView.setText(R.string.color_pick_help_notif_confirm);
+		mColorPickHelpNotifTextView.setTextColor(Color.WHITE);
+		mColorPickHelpNotifTextView.setVisibility(View.VISIBLE);
+		mColorPickHelpConfirmButt.setVisibility(View.VISIBLE);
 	}
 
 	/** Button Close/Cancel clicked in the process of color picking */

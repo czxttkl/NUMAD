@@ -6,11 +6,19 @@
     android:animateLayoutChanges="true" >
 
     <ViewStub
-        android:id="@+id/overlay_build_target_help"
+        android:id="@+id/overlay_color_pick_help"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout="@layout/color_pick_help_notif"
+        android:visibility="gone" />
+    
+    <ViewStub
+        android:id="@+id/overlay_color_pick_confirm_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout="@layout/color_pick_help_confirm_butt"
         android:visibility="gone" />
 
     <LinearLayout
