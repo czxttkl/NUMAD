@@ -23,6 +23,8 @@ import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.video.Video;
 
+import edu.neu.mhealth.debug.helper.MovingAverage;
+
 import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -46,6 +48,7 @@ public class MainActivity extends Activity implements OnTouchListener,
 	private boolean mIsColorSelected = false;
 	private Mat mRgba;
 	private Mat mGray;
+	private Mat tempGray;
 	private Scalar mBlobColorRgba;
 	private Scalar mBlobColorHsv;
 	private ColorDetector mDetector;
@@ -73,7 +76,7 @@ public class MainActivity extends Activity implements OnTouchListener,
 	private List<MatOfPoint> contourShoe;
 	private MatOfPoint cornersMOP;
 	private List<Point> corners;
-	
+
 	private Mat mOpFlowCurr;
 	private Mat mOpFlowPrev;
 	private MatOfPoint mMOPopFlowCurr;
@@ -86,6 +89,22 @@ public class MainActivity extends Activity implements OnTouchListener,
 	private MatOfByte status;
 	private MatOfFloat err;
 	private List<Byte> byteStatus;
+	private MovingAverage filterX;
+	private MovingAverage filterY;
+	private Scalar colorGreen;
+	private Scalar colorRed;
+	private Scalar colorBlue;
+	private Scalar colorWhite;
+
+	Mat optFlowMatRgba;
+	Mat optFlowMatGray;
+
+	private static final int rectWidth = 500;
+	private static final int rectHeight = 250;
+	private static final int squareMetric = 200;
+	
+	private static final int motionThX = 100;
+	private static final int motionThY = 100;
 
 	private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
 		@Override
@@ -140,8 +159,6 @@ public class MainActivity extends Activity implements OnTouchListener,
 		bug1 = new Bug(this, 20, 30);
 		bug1.setImageDrawable(getResources().getDrawable(R.drawable.bug));
 
-
-		
 		bugManager = BugManager.getBugManager();
 		bugManager.addBug(bug1);
 
@@ -149,9 +166,11 @@ public class MainActivity extends Activity implements OnTouchListener,
 				LayoutParams.FILL_PARENT));
 		layout.addView(mOpenCvCameraView);
 		layout.addView(configureView);
-//		layout.addView(bug1);
+		// layout.addView(bug1);
 
 		setContentView(layout);
+		filterX = new MovingAverage(5);
+		filterY = new MovingAverage(5);
 
 		Log.e(TAG, "screen size: " + screenHeight + " " + screenWidth);
 		Log.e(TAG, "camera size: " + cameraHeight + " " + cameraWidth);
@@ -186,9 +205,11 @@ public class MainActivity extends Activity implements OnTouchListener,
 		mBlobColorHsv = new Scalar(255);
 		SPECTRUM_SIZE = new Size(200, 64);
 		CONTOUR_COLOR = new Scalar(255, 0, 0, 255);
-		
+
 		mOpFlowCurr = new Mat();
 		mOpFlowPrev = new Mat();
+		optFlowMatRgba = new Mat();
+		optFlowMatGray = new Mat();
 		mMOPopFlowPrev = new MatOfPoint();
 		mMOPopFlowCurr = new MatOfPoint();
 		mMOP2PtsCurr = new MatOfPoint2f();
@@ -196,6 +217,11 @@ public class MainActivity extends Activity implements OnTouchListener,
 		mMOP2PtsSafe = new MatOfPoint2f();
 		status = new MatOfByte();
 		err = new MatOfFloat();
+
+		colorRed = new Scalar(255, 0, 0);
+		colorGreen = new Scalar(0, 255, 0);
+		colorBlue = new Scalar(0, 0, 255);
+		colorWhite = new Scalar(255, 255, 255);
 	}
 
 	public void onCameraViewStopped() {
@@ -226,12 +252,15 @@ public class MainActivity extends Activity implements OnTouchListener,
 
 		int cols = mRgba.cols();
 		int rows = mRgba.rows();
+
 		xOffset = (mOpenCvCameraView.getWidth() - cols) / 2;
 		yOffset = (mOpenCvCameraView.getHeight() - rows) / 2;
-		
-//		Log.e(TAG, "bug position: " + bug1.getPosition().x + "   " + bug1.getPosition().y);
 
-		bug1.setLimit(mOpenCvCameraView.getWidth(), mOpenCvCameraView.getHeight());
+		// Log.e(TAG, "bug position: " + bug1.getPosition().x + "   " +
+		// bug1.getPosition().y);
+
+		bug1.setLimit(mOpenCvCameraView.getWidth(),
+				mOpenCvCameraView.getHeight());
 		bug1.setOffset(xOffset, yOffset);
 
 		this.runOnUiThread(new Runnable() {
@@ -244,87 +273,148 @@ public class MainActivity extends Activity implements OnTouchListener,
 		});
 
 		/*
-		if (mIsColorSelected) {
+		 * if (mIsColorSelected) {
+		 * 
+		 * int x = configureView.getFloorPosition().x - xOffset; int y =
+		 * configureView.getFloorPosition().y - yOffset; Log.i(TAG,
+		 * "Touch image coordinates: (" + x + ", " + y + ")"); contourFloor =
+		 * findObjectAt(x, y);
+		 * 
+		 * Log.e(TAG, "contourFloor count: " + contourFloor.size());
+		 * Imgproc.drawContours(mRgba, contourFloor, -1, CONTOUR_COLOR);
+		 * 
+		 * x = configureView.getShoesPosition().x - xOffset; y =
+		 * configureView.getShoesPosition().y - yOffset;
+		 * 
+		 * // Log.i(TAG, "Touch image coordinates: (" + x + ", " + y + ")");
+		 * 
+		 * contourShoe = findObjectAt(x, y);
+		 * 
+		 * Log.e(TAG, "contourShoe count: " + contourShoe.size());
+		 * Imgproc.drawContours(mRgba, contourShoe, -1, CONTOUR_COLOR);
+		 * 
+		 * configureView.disableDrawing();
+		 * 
+		 * steps++; if (steps > 10) { this.runOnUiThread(new Runnable() {
+		 * 
+		 * @Override public void run() { bugManager.moveBugs(); } });
+		 * 
+		 * steps = 0; }
+		 * 
+		 * 
+		 * bugShoeCollisionCheck(); }
+		 */
 
-			int x = configureView.getFloorPosition().x - xOffset;
-			int y = configureView.getFloorPosition().y - yOffset;
-			Log.i(TAG, "Touch image coordinates: (" + x + ", " + y + ")");
-			contourFloor = findObjectAt(x, y);
+		Rect optFlowRect = new Rect();
+		optFlowRect.x = screenWidth / 2 - squareMetric / 2;
+		optFlowRect.y = screenHeight - rectHeight - squareMetric;
+		optFlowRect.width = squareMetric;
+		optFlowRect.height = squareMetric;
 
-			Log.e(TAG, "contourFloor count: " + contourFloor.size());
-			Imgproc.drawContours(mRgba, contourFloor, -1, CONTOUR_COLOR);
+		Log.e(TAG, "optical location:" + optFlowRect.x + " " + optFlowRect.y);
+		optFlowMatRgba = mRgba.submat(optFlowRect);
+		// Imgproc.cvtColor(optFlowMatRgba, optFlowMatGray,
+		// Imgproc.COLOR_RGBA2GRAY);
+		// cornersMOP = new MatOfPoint();
+		// Imgproc.goodFeaturesToTrack(optFlowMatGray, cornersMOP, 50, 0.01,
+		// 30.0);
+		// int y_corners = cornersMOP.rows();
+		// corners = cornersMOP.toList();
+		//
+		// for (int i = 0; i < y_corners; i++) {
+		// Point cornerPt = corners.get(i);
+		// cornerPt.x += optFlowRect.x;
+		// cornerPt.y += optFlowRect.y;
+		//
+		// Core.circle(mRgba, cornerPt, 8, new Scalar(255, 0, 0));
+		// }
 
-			x = configureView.getShoesPosition().x - xOffset;
-			y = configureView.getShoesPosition().y - yOffset;
-
-//			Log.i(TAG, "Touch image coordinates: (" + x + ", " + y + ")");
-
-			contourShoe = findObjectAt(x, y);
-
-			Log.e(TAG, "contourShoe count: " + contourShoe.size());
-			Imgproc.drawContours(mRgba, contourShoe, -1, CONTOUR_COLOR);
-
-			configureView.disableDrawing();
-
-			steps++;
-			if (steps > 10) {
-				this.runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						bugManager.moveBugs();
-					}
-				});
-
-				steps = 0;
-			}
-			
-
-			bugShoeCollisionCheck();			
-		}
-		*/
-//		cornersMOP = new MatOfPoint();
-//		Imgproc.goodFeaturesToTrack(mGray, cornersMOP, 50, 0.01, 30.0);
-//		int y_corners = cornersMOP.rows();
-//		corners = cornersMOP.toList();
-//		
-//		for (int i = 0; i < y_corners; i++) {
-//			Core.circle(mRgba, corners.get(i), 8, new Scalar(255, 0, 0));
-//		}
-
-		
 		if (mMOP2PtsPrev.rows() == 0) {
 			Log.e(TAG, "optical unavia");
-			Imgproc.cvtColor(mRgba, mOpFlowCurr, Imgproc.COLOR_RGBA2GRAY);
+			Imgproc.cvtColor(optFlowMatRgba, mOpFlowCurr,
+					Imgproc.COLOR_RGBA2GRAY);
 			mOpFlowCurr.copyTo(mOpFlowPrev);
-			
-			Imgproc.goodFeaturesToTrack(mOpFlowPrev, mMOPopFlowPrev, 50, 0.01, 20);
-			mMOP2PtsPrev = new MatOfPoint2f(mMOPopFlowPrev.toArray());
+
+			Imgproc.goodFeaturesToTrack(mOpFlowPrev, mMOPopFlowPrev, 50, 0.01,
+					20);
+			mMOP2PtsPrev.fromArray(mMOPopFlowPrev.toArray());
 			mMOP2PtsPrev.copyTo(mMOP2PtsSafe);
 		} else {
 			Log.e(TAG, "start optical flow");
 
 			mOpFlowCurr.copyTo(mOpFlowPrev);
-			Imgproc.cvtColor(mRgba, mOpFlowCurr, Imgproc.COLOR_RGBA2GRAY);
-			
-			Imgproc.goodFeaturesToTrack(mOpFlowCurr, mMOPopFlowCurr, 50, 0.01, 20);
-			mMOP2PtsCurr = new MatOfPoint2f(mMOPopFlowCurr.toArray());
+			Imgproc.cvtColor(optFlowMatRgba, mOpFlowCurr,
+					Imgproc.COLOR_RGBA2GRAY);
+
+			Imgproc.goodFeaturesToTrack(mOpFlowCurr, mMOPopFlowCurr, 50, 0.01,
+					20);
+			mMOP2PtsCurr.fromArray(mMOPopFlowCurr.toArray());
 			mMOP2PtsSafe.copyTo(mMOP2PtsPrev);
 			mMOP2PtsCurr.copyTo(mMOP2PtsSafe);
-			
-			Video.calcOpticalFlowPyrLK(mOpFlowPrev, mOpFlowCurr, mMOP2PtsPrev, mMOP2PtsCurr, status, err);
-			
+
+			Video.calcOpticalFlowPyrLK(mOpFlowPrev, mOpFlowCurr, mMOP2PtsPrev,
+					mMOP2PtsCurr, status, err);
+
 			cornersPrev = mMOP2PtsPrev.toList();
 			cornersCurr = mMOP2PtsCurr.toList();
 			byteStatus = status.toList();
-			
+
+			double dis_X_uf = 0;
+			double dis_Y_uf = 0;
+
 			for (int i = 0; i < byteStatus.size() - 1; i++) {
 				if (byteStatus.get(i) == 1) {
 					Point pt = cornersCurr.get(i);
 					Point pt2 = cornersPrev.get(i);
-					
-					Core.circle(mRgba, pt, 5, new Scalar(255, 0, 0));
-					Core.line(mRgba, pt, pt2, new Scalar(255, 0, 0));
+
+					pt.x += optFlowRect.x;
+					pt.y += optFlowRect.y;
+
+					pt2.x += optFlowRect.x;
+					pt2.y += optFlowRect.y;
+
+					Core.circle(mRgba, pt, 5, colorRed);
+
+					dis_X_uf += pt.x - pt2.x;
+					dis_Y_uf += pt.y - pt2.y;
 				}
+			}
+			
+			if ( dis_X_uf > 0 && dis_X_uf < motionThX) {
+				dis_X_uf = 0;
+			}
+			if ( dis_X_uf < 0 && dis_X_uf > (-1*motionThX)) {
+				dis_X_uf = 0;
+			}
+			if ( dis_Y_uf > 0 && dis_Y_uf < motionThY) {
+				dis_Y_uf = 0;
+			}
+			if ( dis_Y_uf < 0 && dis_Y_uf > (-1*motionThY)) {
+				dis_Y_uf = 0;
+			}
+			
+			filterX.pushValue((int)dis_X_uf);
+			filterY.pushValue((int)dis_Y_uf);
+			
+			int dis_X = filterX.getValue();
+			int dis_Y = filterY.getValue();
+
+
+			Log.e(TAG, "distance offset: "+ dis_X + " " + dis_Y);
+			
+			if (dis_X >= motionThX && dis_Y >= motionThY) {
+				Log.e(TAG, "direction assigned: forward left");
+			}
+
+			if (dis_X <= (-1*motionThX) && dis_Y <= (-1*motionThY)) {
+				Log.e(TAG, "direction assigned: backward right");
+			}
+
+			if (dis_X >= motionThX & dis_Y <= (-1*motionThY)) {
+				Log.e(TAG, "direction assigned: backward left");
+			}
+			if (dis_X <= (-1*motionThX) & dis_Y >= motionThY) {
+				Log.e(TAG, "direction assigned: forward right");
 			}
 		}
 
@@ -391,7 +481,6 @@ public class MainActivity extends Activity implements OnTouchListener,
 		touchedRegionHsv.release();
 
 		mDetector.process(mRgba);
-		
 
 		// Mat colorLabel = mRgba.submat(4, 68, 4, 68);
 		// colorLabel.setTo(mBlobColorRgba);
@@ -406,22 +495,27 @@ public class MainActivity extends Activity implements OnTouchListener,
 
 	private void bugShoeCollisionCheck() {
 
-		Log.e(TAG, "bug position: " + bug1.getPosition().x + "   " + bug1.getPosition().y);
+		Log.e(TAG,
+				"bug position: " + bug1.getPosition().x + "   "
+						+ bug1.getPosition().y);
 
 		if (contourShoe.size() > 0) {
 			MatOfPoint2f shoeContour2f = new MatOfPoint2f();
 			contourShoe.get(0).convertTo(shoeContour2f, CvType.CV_32FC2);
 			double bugDistToShoe = Imgproc.pointPolygonTest(shoeContour2f,
 					bug1.getPosition(), true);
-			Log.e(TAG, "bug distance to shoe: " + bugDistToShoe + " contour num: " + contourShoe.size());
+			Log.e(TAG, "bug distance to shoe: " + bugDistToShoe
+					+ " contour num: " + contourShoe.size());
 		}
-		
+
 		if (contourFloor.size() > 0) {
 			MatOfPoint2f floorContour2f = new MatOfPoint2f();
 			contourFloor.get(0).convertTo(floorContour2f, CvType.CV_32FC2);
-			double bugDistToFloor = Imgproc.pointPolygonTest(floorContour2f, bug1.getPosition(), true);
-			Log.e(TAG, "bug distance to floor: " + bugDistToFloor + " contour num: " + contourFloor.size());
-		}			
+			double bugDistToFloor = Imgproc.pointPolygonTest(floorContour2f,
+					bug1.getPosition(), true);
+			Log.e(TAG, "bug distance to floor: " + bugDistToFloor
+					+ " contour num: " + contourFloor.size());
+		}
 
 	}
 }
