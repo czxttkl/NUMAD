@@ -316,12 +316,12 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 
 	}
 
-	protected String getVertexShader() {
-		return RawResourceReader.readTextFileFromRawResource(mActivityContext, R.raw.per_pixel_vertex_shader);
+	protected String getVertexShader(int resId) {
+		return RawResourceReader.readTextFileFromRawResource(mActivityContext, resId);
 	}
 
-	protected String getFragmentShader() {
-		return RawResourceReader.readTextFileFromRawResource(mActivityContext, R.raw.per_pixel_fragment_shader);
+	protected String getFragmentShader(int resId) {
+		return RawResourceReader.readTextFileFromRawResource(mActivityContext, resId);
 	}
 
 	// Position the eye in front of the origin.
@@ -364,8 +364,8 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		// view matrix. In OpenGL 2, we can keep track of these matrices
 		// separately if we choose.
 
-		final String bugVertexShader = getVertexShader();
-		final String bugFragmentShader = getFragmentShader();
+		final String bugVertexShader = getVertexShader(R.raw.per_pixel_vertex_shader);
+		final String bugFragmentShader = getFragmentShader(R.raw.per_pixel_fragment_shader);
 
 		final int bugVertexShaderHandle = ShaderHelper.compileShader(GLES20.GL_VERTEX_SHADER, bugVertexShader);
 		final int bugFragmentShaderHandle = ShaderHelper.compileShader(GLES20.GL_FRAGMENT_SHADER, bugFragmentShader);
@@ -388,6 +388,11 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		// Load the bug's texture
 		mBugTextureDataHandle = TextureHelper.loadTexture(mActivityContext, R.drawable.ladybug, GLES20.GL_TEXTURE0);
 
+		
+		
+		final String fireVertexShader = getVertexShader(R.raw.per_pixel_vertex_shader);
+	    final String fireFragmentShader = getFragmentShader(R.raw.per_pixel_fragment_shader_simple);
+		
 		// Load the fire's texture
 		int[] fireResourcesIds = new int[] { R.drawable.fire_1, R.drawable.fire_2, R.drawable.fire_3,
 				R.drawable.fire_4, R.drawable.fire_5 };
