@@ -281,6 +281,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	 */
 	Mat mGray;
 	Mat mRgba;
+	Mat colorPickAreaHsv;
 	Scalar grayColor;
 	Scalar blueColor;
 	org.opencv.core.Point crosshairHeftmost;
@@ -294,11 +295,13 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	private final int COLOR_PICK_PICK_MODE = 124;
 	private final int COLOR_PICK_HOLD_WRONGLY_MODE = 125;
 	Rect colorPickArea;
+	ColorDetector mColorBlobDetector;
 
 	@Override
 	public void onCameraViewStarted(int width, int height) {
 		mGray = new Mat();
 		mRgba = new Mat();
+		colorPickAreaHsv = new Mat();
 		grayColor = new Scalar(192, 192, 192);
 		blueColor = new Scalar(0, 255, 255);
 		crosshairHeftmost = new org.opencv.core.Point(width / 2 - 50, height / 2);
@@ -310,8 +313,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		colorPickArea.y = height / 2 - 5;
 		colorPickArea.width = 10;
 		colorPickArea.height = 10;
-		// Log.d(TAG, "czx screenwidth & height:" + screenWidth + "," +
-		// screenHeight + ":" + width + "," + height);
+		mColorBlobDetector = new ColorDetector();
 	}
 
 	@Override
@@ -327,7 +329,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		switch (openCvMode) {
 		case COLOR_PICK_CROSSHAIR_MODE:
 			Mat colorPickAreaRgba = mRgba.submat(colorPickArea);
-			Mat colorPickAreaHsv = new Mat();
+			
 			Imgproc.cvtColor(colorPickAreaRgba, colorPickAreaHsv, Imgproc.COLOR_RGB2HSV_FULL);
 			// Calculate average color of color pick region
 			mColorPickHsv = Core.sumElems(colorPickAreaHsv);
