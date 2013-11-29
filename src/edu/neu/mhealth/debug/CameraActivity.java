@@ -18,6 +18,7 @@ import org.opencv.core.MatOfPoint;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.imgproc.Moments;
 
 import edu.neu.mhealth.debug.helper.Global;
 import edu.neu.mhealth.debug.helper.InitRenderTask;
@@ -60,21 +61,42 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	/* Basic Variables */
 	/** Debug Tag */
 	private final String TAG = Global.APP_LOG_TAG;
-	/**
-	 * The game activity's framelayout. Use this to handle adding/removing
-	 * surfaceviews
-	 */
+	/** The game activity's framelayout. Use this to handle adding/removingsurfaceviews */
 	FrameLayout mFrameLayout;
+	
+	/** The layout for color picking. Including instructions and confirm buttons. */
 	RelativeLayout mColorPickLayout;
+	
+	/** Used for semi-transparent black background */
 	ImageView mMainMenuBackground;
+	
+	/** The "Debug" title appearing on the main menu, inflated by main_menu.xml */
 	ImageView mMainMenuTitle;
+	
+	/** Hold the buttons in the main menu screen */
 	View mMainMenuButtonListView;
+	
+	/** The whole about screen view. It will be inflated by about_screen.xml */
 	View mAboutView;
+	
+	/** The text in the about screen */
 	TextView mAboutText;
+	
+	/** Used for semi-transparent black background */
 	Drawable blackBackground;
-	public int screenWidth;
-	public int screenHeight;
+	
+	/** Screen width in pixels */
+	public int screenPixelWidth;
 
+	/** Screen height in pixels */
+	public int screenPixelHeight;
+
+	/** Screen width in opencv rows */
+	public int screenOpenCvWidth;
+	
+	/** Screen height in opencv rows */
+	public int screenOpenCvHeight;
+	
 	/* OpenCv Variables */
 	private CameraBridgeViewBase mOpenCvCameraView;
 	private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
@@ -211,9 +233,6 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	 * called.
 	 */
 	public void onClickColorPickCameraButton(View v) {
-		// Builds the new target
-		// startBuild();
-//		mColorPickCameraButton.setEnabled(false);
 		mColorBlobDetector.setHsvColor(mColorPickHsv);
 		openCvMode = COLOR_PICK_PICK_MODE;
 		mColorPickHelpNotifTextView.setVisibility(View.GONE);
@@ -244,8 +263,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	public void onClickInstructionsOnOk(View v) {
 		// Hides the instructions view
 		mColorPickInstructionsView.setVisibility(View.GONE);
-		// Calls to the newTargetButtonClick Method
-		// to enter the BuildTargetMode
+		// To enter the ColorPickCameraMode
 		initializeColorPickCameraMode();
 	}
 
@@ -273,7 +291,8 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	
 	/** Color pick confirm ok button clicked */
 	public void onClickColorPickConfirmOk(View v) {
-		
+		mFrameLayout.removeView(mColorPickLayout);
+		openCvMode = TUTORIAL_1_MODE;
 	}
 	
 	/** Initialize Color Pick Add mode views */
@@ -325,11 +344,16 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	private final int COLOR_PICK_CROSSHAIR_MODE = 123;
 	private final int COLOR_PICK_PICK_MODE = 124;
 	private final int COLOR_PICK_HOLD_WRONGLY_MODE = 125;
+	private final int TUTORIAL_1_MODE = 126;
 	Rect colorPickArea;
 	ColorDetector mColorBlobDetector;
+	List<MatOfPoint> detectedContours;
 
 	@Override
 	public void onCameraViewStarted(int width, int height) {
+		screenOpenCvWidth = width;
+		screenOpenCvHeight = height;
+		
 		mGray = new Mat();
 		mRgba = new Mat();
 		colorPickAreaHsv = new Mat();
@@ -377,14 +401,20 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 			
 		case COLOR_PICK_PICK_MODE:
 			mColorBlobDetector.process(mRgba);
-            List<MatOfPoint> contours = mColorBlobDetector.getContours();
+            detectedContours = mColorBlobDetector.getContours();
 //            Log.e(TAG, "Contours count: " + contours.size());
-            Imgproc.drawContours(mRgba, contours, -1, redColor, 6);
+            Imgproc.drawContours(mRgba, detectedContours, -1, redColor, 6);
 			break;
 			
 		case COLOR_PICK_HOLD_WRONGLY_MODE:
 			Core.line(mRgba, crosshairHeftmost, crosshairRightmost, grayColor, 10);
 			Core.line(mRgba, crosshairUpmost, crosshairDownmost, grayColor, 10);
+			break;
+			
+		case TUTORIAL_1_MODE:
+			mColorBlobDetector.process(mRgba);
+            detectedContours = mColorBlobDetector.getContours();
+            setRendererContourMassCenter();
 			break;
 			
 		default:
@@ -393,6 +423,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		return mRgba;
 	}
 
+	/** convert hsv color to rgba color in Scalar class */
 	private Scalar converScalarHsv2Rgba(Scalar hsvColor) {
 		Mat pointMatRgba = new Mat();
 		Mat pointMatHsv = new Mat(1, 1, CvType.CV_8UC3, hsvColor);
@@ -400,6 +431,18 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		return new Scalar(pointMatRgba.get(0, 0));
 	}
 
+	/** This method is called in opencv so that we could know the location of shoes*/
+	private void setRendererContourMassCenter() {
+		List<Moments> mu = new ArrayList<Moments>(detectedContours.size());
+		for (int i = 0; i < detectedContours.size(); i++) {
+			Moments detectedMoment = Imgproc.moments(detectedContours.get(i), false);
+			mu.add(detectedMoment);
+			int x = (int) (detectedMoment.get_m10() / detectedMoment.get_m00());
+	        int y = (int) (detectedMoment.get_m01() / detectedMoment.get_m00());
+			Core.circle(mRgba, new org.opencv.core.Point(x, y), 4, redColor);
+		}
+	}
+	
 	/**
 	 * Save/Restore States
 	 */
@@ -461,8 +504,8 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 
 		mMainMenuTitle = new ImageView(this);
 		mMainMenuTitle.setImageResource(R.drawable.main_menu_title2);
-		FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(screenWidth / 3, screenWidth / 8);
-		lp.setMargins(screenWidth / 5, screenHeight / 10, 0, 1);
+		FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(screenPixelWidth / 3, screenPixelWidth / 8);
+		lp.setMargins(screenPixelWidth / 5, screenPixelHeight / 10, 0, 1);
 		mMainMenuTitle.setLayoutParams(lp);
 		mFrameLayout.addView(mMainMenuTitle);
 
@@ -640,8 +683,8 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 				return;
 			}
 			// Convert to y-axis upwards coordinate
-			mainMenuTitleLocation[1] = screenHeight - mainMenuTitleLocation[1];
-			mainMenuButtonLocation[1] = screenHeight - mainMenuButtonLocation[1];
+			mainMenuTitleLocation[1] = screenPixelHeight - mainMenuTitleLocation[1];
+			mainMenuButtonLocation[1] = screenPixelHeight - mainMenuButtonLocation[1];
 			Log.d(TAG, "main menu title location:" + mainMenuTitleLocation[0] + "," + mainMenuTitleLocation[1] + ":"
 					+ mainMenuTitleWidth + "," + mainMenuTitleHeight);
 			Log.d(TAG, "main menu button location:" + mainMenuButtonLocation[0] + "," + mainMenuButtonLocation[1] + ":"
@@ -660,10 +703,10 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 			BorderLine bl8 = new BorderLine(BorderLine.TYPE_X_RIGHT_BOUND, 1, mainMenuButtonLocation[0]
 					+ buttonLinearLayoutWidth, 0);
 			// Add the screen constraints
-			BorderLine bl9 = new BorderLine(BorderLine.TYPE_UPPER_BOUND, 0, screenHeight, 1);
+			BorderLine bl9 = new BorderLine(BorderLine.TYPE_UPPER_BOUND, 0, screenPixelHeight, 1);
 			BorderLine bl10 = new BorderLine(BorderLine.TYPE_LOWER_BOUND, 0, 0, 1);
 			BorderLine bl11 = new BorderLine(BorderLine.TYPE_X_LEFT_BOUND, 1, 0, 0);
-			BorderLine bl12 = new BorderLine(BorderLine.TYPE_X_RIGHT_BOUND, 1, screenWidth, 0);
+			BorderLine bl12 = new BorderLine(BorderLine.TYPE_X_RIGHT_BOUND, 1, screenPixelWidth, 0);
 
 			ArrayList<BorderLine> mBorderLineList = new ArrayList<BorderLine>();
 			mBorderLineList.add(bl1);
@@ -716,8 +759,8 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		Display display = getWindowManager().getDefaultDisplay();
 		Point size = new Point();
 		display.getSize(size);
-		screenWidth = size.x;
-		screenHeight = size.y;
+		screenPixelWidth = size.x;
+		screenPixelHeight = size.y;
 	}
 
 }
