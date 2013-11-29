@@ -10,6 +10,7 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -161,7 +162,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 	private int mFireTextureDataHandle5;
 
 	/** Hold all the fire flames that should be rendered */
-	public ArrayList<OpenGLFire> mFireList = new ArrayList<OpenGLFire>();
+	public List<OpenGLFire> mFireList;
 	
 	/** Random instance */
 	public Random rd;
@@ -437,14 +438,15 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 			OpenGLBug menuBug = mBugList.get(0);
 			Matrix.setIdentityM(mModelMatrix, 0);
 			Matrix.translateM(mModelMatrix, 0, menuBug.x, menuBug.y, -500.0f);
+			// Rotate in order to make the bug's back facing us.
 			Matrix.rotateM(mModelMatrix, 0, headRotate(menuBug.speedX, menuBug.speedY), 0, 0, -1.0f);
 			Matrix.rotateM(mModelMatrix, 0, 180, 0.0f, 1.0f, 0.0f);
 			Matrix.rotateM(mModelMatrix, 0, 90, -1.0f, 0.0f, 0.0f);
-			Matrix.scaleM(mModelMatrix, 0, 100f, 100f, 100f);
+			// The original 3d obj model is too small. So we scale it by 100 times.
+			Matrix.scaleM(mModelMatrix, 0, screenWidth/11.0f, screenWidth/11.0f, 100f);
 			// Matrix.rotateM(mModelMatrix, 0, 180, 0.0f, 0.0f, -1.0f);
 			drawBug();
 			menuBug = refreshBug(menuBug);
-
 			break;
 			
 		// Tutorial 1 mode

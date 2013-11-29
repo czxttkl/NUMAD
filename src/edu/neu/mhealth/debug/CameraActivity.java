@@ -22,6 +22,7 @@ import org.opencv.imgproc.Moments;
 
 import edu.neu.mhealth.debug.helper.Global;
 import edu.neu.mhealth.debug.helper.InitRenderTask;
+import edu.neu.mhealth.debug.opengl.OpenGLFire;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
@@ -188,6 +189,8 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		mFrameLayout.removeView(mMainMenuTitle);
 		mFrameLayout.removeView(mMainMenuButtonListView);
 		mFrameLayout.removeView(mMainMenuBackground);
+		
+		//OpenGL shouldn't render anything right after clicking start game.
 		mGLSurfaceView.mRenderer.openGlMode = mGLSurfaceView.mRenderer.MODE_DEFAULT;
 
 		// Inflates the Overlay Layout to be displayed above the Camera View
@@ -293,6 +296,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	public void onClickColorPickConfirmOk(View v) {
 		mFrameLayout.removeView(mColorPickLayout);
 		openCvMode = TUTORIAL_1_MODE;
+		mGLSurfaceView.mRenderer.openGlMode = mGLSurfaceView.mRenderer.MODE_TUTORIAL_1;
 	}
 	
 	/** Initialize Color Pick Add mode views */
@@ -434,13 +438,17 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	/** This method is called in opencv so that we could know the location of shoes*/
 	private void setRendererContourMassCenter() {
 		List<Moments> mu = new ArrayList<Moments>(detectedContours.size());
+		List<OpenGLFire> mFireList = new ArrayList<OpenGLFire>(detectedContours.size());
 		for (int i = 0; i < detectedContours.size(); i++) {
 			Moments detectedMoment = Imgproc.moments(detectedContours.get(i), false);
 			mu.add(detectedMoment);
-			int x = (int) (detectedMoment.get_m10() / detectedMoment.get_m00());
-	        int y = (int) (detectedMoment.get_m01() / detectedMoment.get_m00());
-			Core.circle(mRgba, new org.opencv.core.Point(x, y), 4, redColor);
+			double ratioX = detectedMoment.get_m10() / (detectedMoment.get_m00() * screenOpenCvWidth);
+			//Reverse the y axis because opencv uses y-down-axis while opengl uses y-up-axis
+	        double ratioY = 1 - detectedMoment.get_m01() / (detectedMoment.get_m00() * screenOpenCvHeight);
+//			Core.circle(mRgba, new org.opencv.core.Point(x, y), 4, redColor);
+	        mFireList.add(new OpenGLFire(ratioX, ratioY));
 		}
+		mGLSurfaceView.mRenderer.mFireList = mFireList;
 	}
 	
 	/**
