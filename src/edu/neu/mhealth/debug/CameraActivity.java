@@ -2,6 +2,8 @@ package edu.neu.mhealth.debug;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
@@ -12,6 +14,7 @@ import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
@@ -207,6 +210,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		// Builds the new target
 		// startBuild();
 		mColorPickCameraButton.setEnabled(false);
+		mColorBlobDetector.setHsvColor(mColorPickHsv);
 		openCvMode = COLOR_PICK_PICK_MODE;
 	}
 
@@ -284,6 +288,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	Mat colorPickAreaHsv;
 	Scalar grayColor;
 	Scalar blueColor;
+	Scalar redColor;
 	org.opencv.core.Point crosshairHeftmost;
 	org.opencv.core.Point crosshairRightmost;
 	org.opencv.core.Point crosshairUpmost;
@@ -304,6 +309,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		colorPickAreaHsv = new Mat();
 		grayColor = new Scalar(192, 192, 192);
 		blueColor = new Scalar(0, 255, 255);
+		redColor = new Scalar(255, 0, 0);
 		crosshairHeftmost = new org.opencv.core.Point(width / 2 - 50, height / 2);
 		crosshairRightmost = new org.opencv.core.Point(width / 2 + 50, height / 2);
 		crosshairUpmost = new org.opencv.core.Point(width / 2, height / 2 - 50);
@@ -327,31 +333,34 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		mGray = inputFrame.gray();
 		mRgba = inputFrame.rgba();
 		switch (openCvMode) {
+		
 		case COLOR_PICK_CROSSHAIR_MODE:
 			Mat colorPickAreaRgba = mRgba.submat(colorPickArea);
-			
 			Imgproc.cvtColor(colorPickAreaRgba, colorPickAreaHsv, Imgproc.COLOR_RGB2HSV_FULL);
 			// Calculate average color of color pick region
 			mColorPickHsv = Core.sumElems(colorPickAreaHsv);
 			int pointCount = colorPickArea.width * colorPickArea.height;
-			Log.i(TAG, "mBlobColorHsv.val.length:" + mColorPickHsv.val.length);
-			Log.i(TAG, "pointCount:" + pointCount);
-
 			for (int i = 0; i < mColorPickHsv.val.length; i++)
 				mColorPickHsv.val[i] /= pointCount;
-
 			mColorPickRgba = converScalarHsv2Rgba(mColorPickHsv);
 			Mat colorLabel = mRgba.submat(44, 108, 8, 72);
 			colorLabel.setTo(mColorPickRgba);
 			Core.line(mRgba, crosshairHeftmost, crosshairRightmost, blueColor, 10);
 			Core.line(mRgba, crosshairUpmost, crosshairDownmost, blueColor, 10);
 			break;
+			
 		case COLOR_PICK_PICK_MODE:
+			mColorBlobDetector.process(mRgba);
+            List<MatOfPoint> contours = mColorBlobDetector.getContours();
+//            Log.e(TAG, "Contours count: " + contours.size());
+            Imgproc.drawContours(mRgba, contours, -1, redColor, 6);
 			break;
+			
 		case COLOR_PICK_HOLD_WRONGLY_MODE:
 			Core.line(mRgba, crosshairHeftmost, crosshairRightmost, grayColor, 10);
 			Core.line(mRgba, crosshairUpmost, crosshairDownmost, grayColor, 10);
 			break;
+			
 		default:
 			// Do no process here
 		}
