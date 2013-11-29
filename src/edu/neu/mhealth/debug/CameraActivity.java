@@ -358,7 +358,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		mRgba = new Mat();
 		colorPickAreaHsv = new Mat();
 		grayColor = new Scalar(192, 192, 192);
-		blueColor = new Scalar(0, 255, 255);
+		blueColor = new Scalar(51, 181, 229);
 		redColor = new Scalar(255, 0, 0);
 		crosshairHeftmost = new org.opencv.core.Point(width / 2 - 50, height / 2);
 		crosshairRightmost = new org.opencv.core.Point(width / 2 + 50, height / 2);
