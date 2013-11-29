@@ -79,6 +79,12 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 	private final FloatBuffer mBugNormals;
 	private final FloatBuffer mBugTextureCoordinates;
 
+	/** Store our bug model data in a float buffer. */
+	private final FloatBuffer mFirePositions;
+	private final FloatBuffer mFireColors;
+	private final FloatBuffer mFireNormals;
+	private final FloatBuffer mFireTextureCoordinates;
+
 	/** This will be used to pass in the transformation matrix. */
 	private int mMVPMatrixHandle;
 
@@ -162,7 +168,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 	private int mFireTextureDataHandle5;
 
 	/** Hold all the fire flames that should be rendered */
-	public List<OpenGLFire> mFireList;
+	public List<OpenGLFire> mFireList = new ArrayList<OpenGLFire>();
 
 	/** Random instance */
 	public Random rd;
@@ -270,6 +276,44 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		Log.d(TAG, "loading time:" + cost);
 
 		rd = new Random();
+
+		// Load fire data
+		final float[] firePositionData = {
+				// Front face
+				-1.0f, 1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f, 1.0f,
+				1.0f, 1.0f };
+
+		final float[] fireColorData = {
+				// Front face (red)
+				1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+				1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f };
+
+		final float[] fireNormalData = {
+				// Front face
+				0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+				1.0f };
+
+		final float[] fireTextureCoordinateData = {
+				// Front face
+				0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f };
+
+		// Initialize the buffers.
+		mFirePositions = ByteBuffer.allocateDirect(firePositionData.length * mBytesPerFloat)
+				.order(ByteOrder.nativeOrder()).asFloatBuffer();
+		mFirePositions.put(firePositionData).position(0);
+
+		mFireColors = ByteBuffer.allocateDirect(fireColorData.length * mBytesPerFloat).order(ByteOrder.nativeOrder())
+				.asFloatBuffer();
+		mFireColors.put(fireColorData).position(0);
+
+		mFireNormals = ByteBuffer.allocateDirect(fireNormalData.length * mBytesPerFloat).order(ByteOrder.nativeOrder())
+				.asFloatBuffer();
+		mFireNormals.put(fireNormalData).position(0);
+
+		mFireTextureCoordinates = ByteBuffer.allocateDirect(fireTextureCoordinateData.length * mBytesPerFloat)
+				.order(ByteOrder.nativeOrder()).asFloatBuffer();
+		mFireTextureCoordinates.put(fireTextureCoordinateData).position(0);
+
 	}
 
 	protected String getVertexShader() {
@@ -344,7 +388,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		// Load the bug's texture
 		mBugTextureDataHandle = TextureHelper.loadTexture(mActivityContext, R.drawable.ladybug, GLES20.GL_TEXTURE0);
 
-		// Load the fire's texture 
+		// Load the fire's texture
 		int[] fireResourcesIds = new int[] { R.drawable.fire_1, R.drawable.fire_2, R.drawable.fire_3,
 				R.drawable.fire_4, R.drawable.fire_5 };
 		int[] activeTextureNums = new int[] { GLES20.GL_TEXTURE1, GLES20.GL_TEXTURE2, GLES20.GL_TEXTURE3,
@@ -357,15 +401,6 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		mFireTextureDataHandle3 = fireTextureHandlesArr[2];
 		mFireTextureDataHandle4 = fireTextureHandlesArr[3];
 		mFireTextureDataHandle5 = fireTextureHandlesArr[4];
-		// Bind the texture to this unit.
-		// GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mBugTextureDataHandle);
-		//
-		// Log.d(TAG, "czx texture #:" +
-		// GLES20.GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS);
-		// mFireTextureDataHandle1 = TextureHelper.loadTexture(mActivityContext,
-		// R.drawable.fire_1);
-		// mFireTextureDataHandle2 = TextureHelper.loadTexture(mActivityContext,
-		// R.drawable.fire_2);
 	}
 
 	@Override
@@ -374,16 +409,14 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		GLES20.glViewport(0, 0, width, height);
 		screenWidth = width;
 		screenHeight = height;
-		Log.d(TAG, "screenWidth&Height:" + screenWidth + "," + screenHeight);
+
 		eyeX = screenWidth / 2;
 		eyeY = screenHeight / 2;
 		lookX = screenWidth / 2;
 		lookY = screenHeight / 2;
+
 		Matrix.setLookAtM(mViewMatrix, 0, eyeX, eyeY, eyeZ, lookX, lookY, lookZ, upX, upY, upZ);
-		// Create a new perspective projection matrix. The height will stay the
-		// same
-		// while the width will vary as per aspect ratio.
-		// final float ratio = (float) width / height;
+
 		final float left = -width / 2;
 		final float right = width / 2;
 		final float bottom = -height / 2;
@@ -406,63 +439,39 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 
 	@Override
 	public void onDrawFrame(GL10 glUnused) {
-		//Clear background to transparency
+		// Clear background to transparency
 		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
-		
-		//Calculate current milliseconds
+
+		// Calculate current milliseconds
 		long now = SystemClock.uptimeMillis() % 10000L;
-		
+		// Calculate rotate degree for some use
+		// float angleInDegrees = (360.0f / 10000.0f) * ((int) now);
+
 		switch (openGlMode) {
 
 		// Main Menu mode
 		case MODE_MAIN_MENU:
 			// Set our per-vertex bug program.
 			GLES20.glUseProgram(mBugHandle);
-			// Set program handles for cube drawing.
-			mMVPMatrixHandle = GLES20.glGetUniformLocation(mBugHandle, "u_MVPMatrix");
-			mMVMatrixHandle = GLES20.glGetUniformLocation(mBugHandle, "u_MVMatrix");
-			mLightPosHandle = GLES20.glGetUniformLocation(mBugHandle, "u_LightPos");
-			mTextureUniformHandle = GLES20.glGetUniformLocation(mBugHandle, "u_Texture");
-			mBugPositionHandle = GLES20.glGetAttribLocation(mBugHandle, "a_Position");
-			mBugColorHandle = GLES20.glGetAttribLocation(mBugHandle, "a_Color");
-			mBugNormalHandle = GLES20.glGetAttribLocation(mBugHandle, "a_Normal");
-			mBugTextureCoordinateHandle = GLES20.glGetAttribLocation(mBugHandle, "a_TexCoordinate");
-			
-			float angleInDegrees = (360.0f / 10000.0f) * ((int) now);
+
+			// Load the res handles that will be used in drawing bugs.
+			loadOpenGLResHandles(mBugHandle);
+
 			// Tell the texture uniform sampler to use this texture in the
 			// shader by binding to texture unit 0.
 			GLES20.glUniform1i(mTextureUniformHandle, 0);
+
 			// We only want one bug in the main menu
-			if (mBugList.size() != 1) {
-				mBugList.clear();
-			}
-			if (mBugList.size() == 0) {
-				int randomHeight = rd.nextInt(screenHeight / 3);
-				OpenGLBug menuBug = new OpenGLBug(screenWidth - OpenGLBug.radius, screenHeight / 4 + randomHeight, -1,
-						1);
-				mBugList.add(menuBug);
-			}
+			createMainMenuBugIfNecessary();
 
-			OpenGLBug menuBug = mBugList.get(0);
-			Matrix.setIdentityM(mModelMatrix, 0);
-			Matrix.translateM(mModelMatrix, 0, menuBug.x, menuBug.y, -500.0f);
-			// Rotate in order to make the bug's back facing us.
-			Matrix.rotateM(mModelMatrix, 0, headRotate(menuBug.speedX, menuBug.speedY), 0, 0, -1.0f);
-			Matrix.rotateM(mModelMatrix, 0, 180, 0.0f, 1.0f, 0.0f);
-			Matrix.rotateM(mModelMatrix, 0, 90, -1.0f, 0.0f, 0.0f);
-			
-			// The original 3d obj model is too small. So we scale it by 100
-			// times.
-			Matrix.scaleM(mModelMatrix, 0, screenWidth / 11.0f, screenWidth / 11.0f, 100f);
-
-			drawBug();
-			menuBug = refreshBug(menuBug);
+			// Draw bugs
+			drawBugs();
 
 			// Draw light
 			Matrix.setIdentityM(mLightModelMatrix, 0);
 			Matrix.multiplyMV(mLightPosInEyeSpace, 0, mViewMatrix, 0, mLightPosInWorldSpace, 0);
 			Matrix.multiplyMV(mLightPosInWorldSpace, 0, mLightModelMatrix, 0, mLightPosInModelSpace, 0);
-			
+
 			// Draw a point to indicate the light.
 			GLES20.glUseProgram(mLightProgramHandle);
 			drawLight();
@@ -470,11 +479,16 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 
 		// Tutorial 1 mode
 		case MODE_TUTORIAL_1:
-			if (mFireList == null)
+			if (mFireList.size() == 0)
 				return;
 			Log.d(TAG, "mode 1:tutorial");
-//			Matrix.setLookAtM(mViewMatrix, 0, eyeX, eyeY, eyeZ, eyeX, eyeY, lookZ, upX, upY, upZ);
+			// Matrix.setLookAtM(mViewMatrix, 0, eyeX, eyeY, eyeZ, eyeX, eyeY,
+			// lookZ, upX, upY, upZ);
 			GLES20.glUseProgram(mFireProgramHandle);
+			
+			// Load the res handles that will be used in drawing fire.
+			loadOpenGLResHandles(mFireHandle);
+			
 			drawFires();
 			break;
 
@@ -514,105 +528,162 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 	}
 
 	/**
-	 * Draws bugs in mBugList
+	 * In the main menu, there is only one bug. This method will either return a
+	 * bug that has been created in mBugList, or create a new bug in mListBug if
+	 * it is empty or has more than one bug in it.
 	 */
-	private void drawBug() {
-		// Pass in the position information
-		mBugPositions.position(0);
-		GLES20.glVertexAttribPointer(mBugPositionHandle, mPositionDataSize, GLES20.GL_FLOAT, false, 0, mBugPositions);
+	private void createMainMenuBugIfNecessary() {
+		if (mBugList.size() != 1) {
+			mBugList.clear();
+		}
 
-		GLES20.glEnableVertexAttribArray(mBugPositionHandle);
-
-		// Pass in the color information
-		mBugColors.position(0);
-		GLES20.glVertexAttribPointer(mBugColorHandle, mColorDataSize, GLES20.GL_FLOAT, false, 0, mBugColors);
-
-		GLES20.glEnableVertexAttribArray(mBugColorHandle);
-
-		// Pass in the normal information
-		mBugNormals.position(0);
-		GLES20.glVertexAttribPointer(mBugNormalHandle, mNormalDataSize, GLES20.GL_FLOAT, false, 0, mBugNormals);
-
-		GLES20.glEnableVertexAttribArray(mBugNormalHandle);
-
-		// Pass in the texture coordinate information
-		mBugTextureCoordinates.position(0);
-		GLES20.glVertexAttribPointer(mBugTextureCoordinateHandle, mTextureCoordinateDataSize, GLES20.GL_FLOAT, false, 0,
-				mBugTextureCoordinates);
-
-		GLES20.glEnableVertexAttribArray(mBugTextureCoordinateHandle);
-
-		// This multiplies the view matrix by the model matrix, and stores the
-		// result in the MVP matrix
-		// (which currently contains model * view).
-		Matrix.multiplyMM(mMVPMatrix, 0, mViewMatrix, 0, mModelMatrix, 0);
-
-		// Pass in the modelview matrix.
-		GLES20.glUniformMatrix4fv(mMVMatrixHandle, 1, false, mMVPMatrix, 0);
-
-		// This multiplies the modelview matrix by the projection matrix, and
-		// stores the result in the MVP matrix
-		// (which now contains model * view * projection).
-		Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mMVPMatrix, 0);
-
-		// Pass in the combined matrix.
-		GLES20.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, mMVPMatrix, 0);
-
-		// Pass in the light position in eye space.
-		GLES20.glUniform3f(mLightPosHandle, mLightPosInEyeSpace[0], mLightPosInEyeSpace[1], mLightPosInEyeSpace[2]);
-
-		// Draw the cube.
-		GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 5580);
+		if (mBugList.size() == 0) {
+			int randomHeight = rd.nextInt(screenHeight / 3);
+			OpenGLBug menuBug = new OpenGLBug(screenWidth - OpenGLBug.radius, screenHeight / 4 + randomHeight, -1, 1);
+			mBugList.add(menuBug);
+		}
 	}
 
-	/** Draw fires */
+	/** Load the res handles that will be used in drawing. 
+	 * @param handle
+	 *  The handle that you want to bind*/
+	private void loadOpenGLResHandles(int handle) {
+		// Set program handles for bug drawing.
+		mMVPMatrixHandle = GLES20.glGetUniformLocation(handle, "u_MVPMatrix");
+		mMVMatrixHandle = GLES20.glGetUniformLocation(handle, "u_MVMatrix");
+		mLightPosHandle = GLES20.glGetUniformLocation(handle, "u_LightPos");
+		mTextureUniformHandle = GLES20.glGetUniformLocation(handle, "u_Texture");
+		mBugPositionHandle = GLES20.glGetAttribLocation(handle, "a_Position");
+		mBugColorHandle = GLES20.glGetAttribLocation(handle, "a_Color");
+		mBugNormalHandle = GLES20.glGetAttribLocation(handle, "a_Normal");
+		mBugTextureCoordinateHandle = GLES20.glGetAttribLocation(handle, "a_TexCoordinate");
+	}
+
+	/** Draws bugs in mBugList */
+	private void drawBugs() {
+		for (OpenGLBug mOpenGLBug : mBugList) {
+			// Load the model matrix as identity matrix
+			Matrix.setIdentityM(mModelMatrix, 0);
+
+			// Our projection is ortho.
+			Matrix.translateM(mModelMatrix, 0, mOpenGLBug.x, mOpenGLBug.y, -500.0f);
+
+			// Rotate in order to make the bug's back facing us.
+			Matrix.rotateM(mModelMatrix, 0, headRotate(mOpenGLBug.speedX, mOpenGLBug.speedY), 0, 0, -1.0f);
+			Matrix.rotateM(mModelMatrix, 0, 180, 0.0f, 1.0f, 0.0f);
+			Matrix.rotateM(mModelMatrix, 0, 90, -1.0f, 0.0f, 0.0f);
+
+			// The original 3d obj model is too small. So we scale it by 100
+			// times.
+			Matrix.scaleM(mModelMatrix, 0, screenWidth / 11.0f, screenWidth / 11.0f, 100f);
+			// Pass in the position information
+			mBugPositions.position(0);
+			GLES20.glVertexAttribPointer(mBugPositionHandle, mPositionDataSize, GLES20.GL_FLOAT, false, 0,
+					mBugPositions);
+
+			GLES20.glEnableVertexAttribArray(mBugPositionHandle);
+
+			// Pass in the color information
+			mBugColors.position(0);
+			GLES20.glVertexAttribPointer(mBugColorHandle, mColorDataSize, GLES20.GL_FLOAT, false, 0, mBugColors);
+
+			GLES20.glEnableVertexAttribArray(mBugColorHandle);
+
+			// Pass in the normal information
+			mBugNormals.position(0);
+			GLES20.glVertexAttribPointer(mBugNormalHandle, mNormalDataSize, GLES20.GL_FLOAT, false, 0, mBugNormals);
+
+			GLES20.glEnableVertexAttribArray(mBugNormalHandle);
+
+			// Pass in the texture coordinate information
+			mBugTextureCoordinates.position(0);
+			GLES20.glVertexAttribPointer(mBugTextureCoordinateHandle, mTextureCoordinateDataSize, GLES20.GL_FLOAT,
+					false, 0, mBugTextureCoordinates);
+
+			GLES20.glEnableVertexAttribArray(mBugTextureCoordinateHandle);
+
+			// This multiplies the view matrix by the model matrix, and stores
+			// the
+			// result in the MVP matrix
+			// (which currently contains model * view).
+			Matrix.multiplyMM(mMVPMatrix, 0, mViewMatrix, 0, mModelMatrix, 0);
+
+			// Pass in the modelview matrix.
+			GLES20.glUniformMatrix4fv(mMVMatrixHandle, 1, false, mMVPMatrix, 0);
+
+			// This multiplies the modelview matrix by the projection matrix,
+			// and
+			// stores the result in the MVP matrix
+			// (which now contains model * view * projection).
+			Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mMVPMatrix, 0);
+
+			// Pass in the combined matrix.
+			GLES20.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, mMVPMatrix, 0);
+
+			// Pass in the light position in eye space.
+			GLES20.glUniform3f(mLightPosHandle, mLightPosInEyeSpace[0], mLightPosInEyeSpace[1], mLightPosInEyeSpace[2]);
+
+			// Draw the cube.
+			GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 5580);
+
+			// Rerfresh the bug status
+			mOpenGLBug = refreshBug(mOpenGLBug);
+		}
+	}
+
+	/** Draw fires in mFireList */
 	private void drawFires() {
-		// Pass in the position information
-		mFirePositions.position(0);
-		GLES20.glVertexAttribPointer(mFirePositionHandle, mPositionDataSize, GLES20.GL_FLOAT, false, 0, mFirePositions);
+		for (OpenGLFire mOpenGLFire : mFireList) {
+			// Pass in the position information
+			mFirePositions.position(0);
+			GLES20.glVertexAttribPointer(mFirePositionHandle, mPositionDataSize, GLES20.GL_FLOAT, false, 0,
+					mFirePositions);
 
-		GLES20.glEnableVertexAttribArray(mFirePositionHandle);
+			GLES20.glEnableVertexAttribArray(mFirePositionHandle);
 
-		// Pass in the color information
-		mFireColors.position(0);
-		GLES20.glVertexAttribPointer(mFireColorHandle, mColorDataSize, GLES20.GL_FLOAT, false, 0, mFireColors);
+			// Pass in the color information
+			mFireColors.position(0);
+			GLES20.glVertexAttribPointer(mFireColorHandle, mColorDataSize, GLES20.GL_FLOAT, false, 0, mFireColors);
 
-		GLES20.glEnableVertexAttribArray(mFireColorHandle);
+			GLES20.glEnableVertexAttribArray(mFireColorHandle);
 
-		// Pass in the normal information
-		mFireNormals.position(0);
-		GLES20.glVertexAttribPointer(mFireNormalHandle, mNormalDataSize, GLES20.GL_FLOAT, false, 0, mFireNormals);
+			// Pass in the normal information
+			mFireNormals.position(0);
+			GLES20.glVertexAttribPointer(mFireNormalHandle, mNormalDataSize, GLES20.GL_FLOAT, false, 0, mFireNormals);
 
-		GLES20.glEnableVertexAttribArray(mFireNormalHandle);
+			GLES20.glEnableVertexAttribArray(mFireNormalHandle);
 
-		// Pass in the texture coordinate information
-		mFireTextureCoordinates.position(0);
-		GLES20.glVertexAttribPointer(mFireTextureCoordinateHandle1, mTextureCoordinateDataSize, GLES20.GL_FLOAT, false, 0,
-				mBugTextureCoordinates);
+			// Pass in the texture coordinate information
+			mFireTextureCoordinates.position(0);
+			GLES20.glVertexAttribPointer(mFireTextureCoordinateHandle1, mTextureCoordinateDataSize, GLES20.GL_FLOAT,
+					false, 0, mBugTextureCoordinates);
 
-		GLES20.glEnableVertexAttribArray(mFireTextureCoordinateHandle1);
+			GLES20.glEnableVertexAttribArray(mFireTextureCoordinateHandle1);
 
-		// This multiplies the view matrix by the model matrix, and stores the
-		// result in the MVP matrix
-		// (which currently contains model * view).
-		Matrix.multiplyMM(mMVPMatrix, 0, mViewMatrix, 0, mModelMatrix, 0);
+			// This multiplies the view matrix by the model matrix, and stores
+			// the
+			// result in the MVP matrix
+			// (which currently contains model * view).
+			Matrix.multiplyMM(mMVPMatrix, 0, mViewMatrix, 0, mModelMatrix, 0);
 
-		// Pass in the modelview matrix.
-		GLES20.glUniformMatrix4fv(mMVMatrixHandle, 1, false, mMVPMatrix, 0);
+			// Pass in the modelview matrix.
+			GLES20.glUniformMatrix4fv(mMVMatrixHandle, 1, false, mMVPMatrix, 0);
 
-		// This multiplies the modelview matrix by the projection matrix, and
-		// stores the result in the MVP matrix
-		// (which now contains model * view * projection).
-		Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mMVPMatrix, 0);
+			// This multiplies the modelview matrix by the projection matrix,
+			// and
+			// stores the result in the MVP matrix
+			// (which now contains model * view * projection).
+			Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mMVPMatrix, 0);
 
-		// Pass in the combined matrix.
-		GLES20.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, mMVPMatrix, 0);
+			// Pass in the combined matrix.
+			GLES20.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, mMVPMatrix, 0);
 
-		// Pass in the light position in eye space.
-		GLES20.glUniform3f(mLightPosHandle, mLightPosInEyeSpace[0], mLightPosInEyeSpace[1], mLightPosInEyeSpace[2]);
+			// Pass in the light position in eye space.
+			GLES20.glUniform3f(mLightPosHandle, mLightPosInEyeSpace[0], mLightPosInEyeSpace[1], mLightPosInEyeSpace[2]);
 
-		// Draw the cube.
-		GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6);
+			// Draw the cube.
+			GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6);
+		}
 	}
 
 	/**
