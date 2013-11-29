@@ -30,7 +30,8 @@
         android:gravity="bottom"
         android:orientation="vertical"
         android:visibility="visible"
-        android:weightSum="1" >
+        android:weightSum="1" 
+        android:animateLayoutChanges="true">
 
         <View
             android:layout_width="match_parent"
@@ -43,7 +44,8 @@
             android:layout_height="0dp"
             android:layout_gravity="center"
             android:layout_weight="0.5"
-            android:gravity="center" >
+            android:gravity="center" 
+            android:animateLayoutChanges="true">
 
             <ImageButton
                 android:id="@+id/camera_button"

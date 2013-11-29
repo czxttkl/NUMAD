@@ -213,7 +213,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	public void onClickColorPickCameraButton(View v) {
 		// Builds the new target
 		// startBuild();
-		mColorPickCameraButton.setEnabled(false);
+//		mColorPickCameraButton.setEnabled(false);
 		mColorBlobDetector.setHsvColor(mColorPickHsv);
 		openCvMode = COLOR_PICK_PICK_MODE;
 		mColorPickHelpNotifTextView.setVisibility(View.GONE);
@@ -221,6 +221,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		mColorPickHelpNotifTextView.setTextColor(Color.WHITE);
 		mColorPickHelpNotifTextView.setVisibility(View.VISIBLE);
 		mColorPickHelpConfirmButt.setVisibility(View.VISIBLE);
+		mColorPickBottomBar.setVisibility(View.GONE);
 	}
 
 	/** Button Close/Cancel clicked in the process of color picking */
@@ -259,6 +260,22 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		mGLSurfaceView.mRenderer.openGlMode = mGLSurfaceView.mRenderer.MODE_MAIN_MENU;
 	}
 
+	/** Color pick confirm cancel button clicked */
+	public void onClickColorPickConfirmCancel(View v) {
+		mColorPickBottomBar.setVisibility(View.VISIBLE);
+		mColorPickHelpNotifTextView.setVisibility(View.GONE);
+		mColorPickHelpNotifTextView.setText(R.string.color_pick_help_notif);
+		mColorPickHelpNotifTextView.setTextColor(Color.WHITE);
+		mColorPickHelpNotifTextView.setVisibility(View.VISIBLE);
+		mColorPickHelpConfirmButt.setVisibility(View.GONE);
+		openCvMode = COLOR_PICK_CROSSHAIR_MODE;
+	}
+	
+	/** Color pick confirm ok button clicked */
+	public void onClickColorPickConfirmOk(View v) {
+		
+	}
+	
 	/** Initialize Color Pick Add mode views */
 	private void initializeInstructionMode() {
 		// Shows the bottom bar with the new Target Button
