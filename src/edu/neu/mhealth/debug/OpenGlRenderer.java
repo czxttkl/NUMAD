@@ -27,6 +27,9 @@ import com.learnopengles.android.common.RawResourceReader;
 import com.learnopengles.android.common.ShaderHelper;
 import com.learnopengles.android.common.TextureHelper;
 
+import edu.neu.mhealth.debug.opengl.OpenGLBug;
+import edu.neu.mhealth.debug.opengl.OpenGLFire;
+
 /**
  * This class implements our custom renderer. Note that the GL10 parameter
  * passed in is unused for OpenGL ES 2.0 renderers -- the static class GLES20 is
