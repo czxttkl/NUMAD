@@ -514,20 +514,24 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 				// - speedY * SPEED_CONSTANT;
 			} else {
 				if (Sensor.TYPE_ACCELEROMETER == arg0.sensor.getType()) {
-					Log.d(TAG, "accelerometer z:" + arg0.values[2]);
+//					Log.d(TAG, "accelerometer z:" + arg0.values[2]);
 					switch (openCvMode) {
 					case COLOR_PICK_CROSSHAIR_MODE:
 						if (arg0.values[2] < 8.5f) {
+							mColorPickHelpNotifTextView.setVisibility(View.GONE);
 							mColorPickHelpNotifTextView.setText(R.string.color_pick_help_notif_horizon);
 							mColorPickHelpNotifTextView.setTextColor(Color.RED);
+							mColorPickHelpNotifTextView.setVisibility(View.VISIBLE);
 							openCvMode = COLOR_PICK_HOLD_WRONGLY_MODE;
 							mColorPickCameraButton.setEnabled(false);
 						}
 						break;
 					case COLOR_PICK_HOLD_WRONGLY_MODE:
 						if (arg0.values[2] > 8.5f) {
+							mColorPickHelpNotifTextView.setVisibility(View.GONE);
 							mColorPickHelpNotifTextView.setText(R.string.color_pick_help_notif);
 							mColorPickHelpNotifTextView.setTextColor(Color.WHITE);
+							mColorPickHelpNotifTextView.setVisibility(View.VISIBLE);
 							openCvMode = COLOR_PICK_CROSSHAIR_MODE;
 							mColorPickCameraButton.setEnabled(true);
 						}
