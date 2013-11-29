@@ -97,16 +97,16 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 	/** This will be used to pass in the texture. */
 	private int mTextureUniformHandle;
 
-	/** This will be used to pass in model position information. */
+	/** This will be used to pass in bug model position information. */
 	private int mBugPositionHandle;
 
-	/** This will be used to pass in model color information. */
+	/** This will be used to pass in bug model color information. */
 	private int mBugColorHandle;
 
-	/** This will be used to pass in model normal information. */
+	/** This will be used to pass in bug model normal information. */
 	private int mBugNormalHandle;
 
-	/** This will be used to pass in model texture coordinate information. */
+	/** This will be used to pass in bug model texture coordinate information. */
 	private int mBugTextureCoordinateHandle;
 
 	/** How many bytes per float. */
@@ -144,11 +144,26 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 	private final float[] mLightPosInEyeSpace = new float[4];
 
 	/** This is a handle to our bug shading program. */
-	private int mBugHandle;
+	private int mBugProgramHandle;
 
 	/** This is a handle to our light point program. */
 	private int mLightProgramHandle;
+	
+	/** This is a handle to our bug shading program. */
+	private int mFireProgramHandle;
 
+	/** This will be used to pass in fire model position information. */
+	private int mFirePositionHandle;
+
+	/** This will be used to pass in fire model color information. */
+	private int mFireColorHandle;
+
+	/** This will be used to pass in fire model normal information. */
+	private int mFireNormalHandle;
+
+	/** This will be used to pass in fire model texture coordinate information. */
+	private int mFireTextureCoordinateHandle;
+	
 	/** This is a handle to our bug's texture data. */
 	private int mBugTextureDataHandle;
 
@@ -217,14 +232,12 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		mBugPositions = ByteBuffer.allocateDirect(cubePositionData.length * mBytesPerFloat)
-				.order(ByteOrder.nativeOrder()).asFloatBuffer();
+		mBugPositions = ByteBuffer.allocateDirect(cubePositionData.length * mBytesPerFloat).order(ByteOrder.nativeOrder()).asFloatBuffer();
 		mBugPositions.put(cubePositionData).position(0);
 
 		float[] cubeColorData = new float[4 * 5580];
 		Arrays.fill(cubeColorData, 1.0f);
-		mBugColors = ByteBuffer.allocateDirect(cubeColorData.length * mBytesPerFloat).order(ByteOrder.nativeOrder())
-				.asFloatBuffer();
+		mBugColors = ByteBuffer.allocateDirect(cubeColorData.length * mBytesPerFloat).order(ByteOrder.nativeOrder()).asFloatBuffer();
 		mBugColors.put(cubeColorData).position(0);
 
 		float[] cubeNormalData = new float[3 * 5580];
@@ -246,8 +259,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		mBugNormals = ByteBuffer.allocateDirect(cubeNormalData.length * mBytesPerFloat).order(ByteOrder.nativeOrder())
-				.asFloatBuffer();
+		mBugNormals = ByteBuffer.allocateDirect(cubeNormalData.length * mBytesPerFloat).order(ByteOrder.nativeOrder()).asFloatBuffer();
 		mBugNormals.put(cubeNormalData).position(0);
 
 		float[] cubeTextureCoordinateData = new float[2 * 5580];
@@ -269,8 +281,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		mBugTextureCoordinates = ByteBuffer.allocateDirect(cubeTextureCoordinateData.length * mBytesPerFloat)
-				.order(ByteOrder.nativeOrder()).asFloatBuffer();
+		mBugTextureCoordinates = ByteBuffer.allocateDirect(cubeTextureCoordinateData.length * mBytesPerFloat).order(ByteOrder.nativeOrder()).asFloatBuffer();
 		mBugTextureCoordinates.put(cubeTextureCoordinateData).position(0);
 		long cost = System.currentTimeMillis() - now;
 		Log.d(TAG, "loading time:" + cost);
@@ -280,38 +291,31 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		// Load fire data
 		final float[] firePositionData = {
 				// Front face
-				-1.0f, 1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f, 1.0f,
-				1.0f, 1.0f };
+				-1.0f, 1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f };
 
 		final float[] fireColorData = {
 				// Front face (red)
-				1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
-				1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f };
+				1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f };
 
 		final float[] fireNormalData = {
 				// Front face
-				0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-				1.0f };
+				0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f };
 
 		final float[] fireTextureCoordinateData = {
 				// Front face
 				0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f };
 
 		// Initialize the buffers.
-		mFirePositions = ByteBuffer.allocateDirect(firePositionData.length * mBytesPerFloat)
-				.order(ByteOrder.nativeOrder()).asFloatBuffer();
+		mFirePositions = ByteBuffer.allocateDirect(firePositionData.length * mBytesPerFloat).order(ByteOrder.nativeOrder()).asFloatBuffer();
 		mFirePositions.put(firePositionData).position(0);
 
-		mFireColors = ByteBuffer.allocateDirect(fireColorData.length * mBytesPerFloat).order(ByteOrder.nativeOrder())
-				.asFloatBuffer();
+		mFireColors = ByteBuffer.allocateDirect(fireColorData.length * mBytesPerFloat).order(ByteOrder.nativeOrder()).asFloatBuffer();
 		mFireColors.put(fireColorData).position(0);
 
-		mFireNormals = ByteBuffer.allocateDirect(fireNormalData.length * mBytesPerFloat).order(ByteOrder.nativeOrder())
-				.asFloatBuffer();
+		mFireNormals = ByteBuffer.allocateDirect(fireNormalData.length * mBytesPerFloat).order(ByteOrder.nativeOrder()).asFloatBuffer();
 		mFireNormals.put(fireNormalData).position(0);
 
-		mFireTextureCoordinates = ByteBuffer.allocateDirect(fireTextureCoordinateData.length * mBytesPerFloat)
-				.order(ByteOrder.nativeOrder()).asFloatBuffer();
+		mFireTextureCoordinates = ByteBuffer.allocateDirect(fireTextureCoordinateData.length * mBytesPerFloat).order(ByteOrder.nativeOrder()).asFloatBuffer();
 		mFireTextureCoordinates.put(fireTextureCoordinateData).position(0);
 
 	}
@@ -370,34 +374,31 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		final int bugVertexShaderHandle = ShaderHelper.compileShader(GLES20.GL_VERTEX_SHADER, bugVertexShader);
 		final int bugFragmentShaderHandle = ShaderHelper.compileShader(GLES20.GL_FRAGMENT_SHADER, bugFragmentShader);
 
-		mBugHandle = ShaderHelper.createAndLinkProgram(bugVertexShaderHandle, bugFragmentShaderHandle, new String[] {
-				"a_Position", "a_Color", "a_Normal", "a_TexCoordinate" });
-
-		// Define a simple shader program for our point.
-		final String pointVertexShader = RawResourceReader.readTextFileFromRawResource(mActivityContext,
-				R.raw.point_vertex_shader);
-		final String pointFragmentShader = RawResourceReader.readTextFileFromRawResource(mActivityContext,
-				R.raw.point_fragment_shader);
-
-		final int pointVertexShaderHandle = ShaderHelper.compileShader(GLES20.GL_VERTEX_SHADER, pointVertexShader);
-		final int pointFragmentShaderHandle = ShaderHelper
-				.compileShader(GLES20.GL_FRAGMENT_SHADER, pointFragmentShader);
-		mLightProgramHandle = ShaderHelper.createAndLinkProgram(pointVertexShaderHandle, pointFragmentShaderHandle,
-				new String[] { "a_Position" });
+		mBugProgramHandle = ShaderHelper.createAndLinkProgram(bugVertexShaderHandle, bugFragmentShaderHandle, new String[] { "a_Position", "a_Color", "a_Normal", "a_TexCoordinate" });
 
 		// Load the bug's texture
 		mBugTextureDataHandle = TextureHelper.loadTexture(mActivityContext, R.drawable.ladybug, GLES20.GL_TEXTURE0);
 
-		
-		
+		// Define a simple shader program for our point.
+		final String pointVertexShader = RawResourceReader.readTextFileFromRawResource(mActivityContext, R.raw.point_vertex_shader);
+		final String pointFragmentShader = RawResourceReader.readTextFileFromRawResource(mActivityContext, R.raw.point_fragment_shader);
+
+		final int pointVertexShaderHandle = ShaderHelper.compileShader(GLES20.GL_VERTEX_SHADER, pointVertexShader);
+		final int pointFragmentShaderHandle = ShaderHelper.compileShader(GLES20.GL_FRAGMENT_SHADER, pointFragmentShader);
+		mLightProgramHandle = ShaderHelper.createAndLinkProgram(pointVertexShaderHandle, pointFragmentShaderHandle, new String[] { "a_Position" });
+
+		// Define fire program
 		final String fireVertexShader = getVertexShader(R.raw.per_pixel_vertex_shader);
-	    final String fireFragmentShader = getFragmentShader(R.raw.per_pixel_fragment_shader_simple);
+		final String fireFragmentShader = getFragmentShader(R.raw.per_pixel_fragment_shader_simple);
+
+		final int fireVertexShaderHandle = ShaderHelper.compileShader(GLES20.GL_VERTEX_SHADER, fireVertexShader);
+		final int fireFragmentShaderHandle = ShaderHelper.compileShader(GLES20.GL_FRAGMENT_SHADER, fireFragmentShader);
+
+		mFireProgramHandle = ShaderHelper.createAndLinkProgram(fireVertexShaderHandle, fireFragmentShaderHandle, new String[] { "a_Position", "a_Color", "a_Normal", "a_TexCoordinate" });
 		
 		// Load the fire's texture
-		int[] fireResourcesIds = new int[] { R.drawable.fire_1, R.drawable.fire_2, R.drawable.fire_3,
-				R.drawable.fire_4, R.drawable.fire_5 };
-		int[] activeTextureNums = new int[] { GLES20.GL_TEXTURE1, GLES20.GL_TEXTURE2, GLES20.GL_TEXTURE3,
-				GLES20.GL_TEXTURE4, GLES20.GL_TEXTURE5 };
+		int[] fireResourcesIds = new int[] { R.drawable.fire_1, R.drawable.fire_2, R.drawable.fire_3, R.drawable.fire_4, R.drawable.fire_5 };
+		int[] activeTextureNums = new int[] { GLES20.GL_TEXTURE1, GLES20.GL_TEXTURE2, GLES20.GL_TEXTURE3, GLES20.GL_TEXTURE4, GLES20.GL_TEXTURE5 };
 		int[] fireTextureHandlesArr = new int[5];
 		fireTextureHandlesArr = TextureHelper.loadTextures(mActivityContext, fireResourcesIds, activeTextureNums);
 
@@ -461,10 +462,10 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		// Main Menu mode
 		case MODE_MAIN_MENU:
 			// Set our per-vertex bug program.
-			GLES20.glUseProgram(mBugHandle);
+			GLES20.glUseProgram(mBugProgramHandle);
 
 			// Load the res handles that will be used in drawing bugs.
-			loadOpenGLBugResHandles(mBugHandle);
+			loadOpenGLBugResHandles(mBugProgramHandle);
 
 			// Tell the texture uniform sampler to use this texture in the
 			// shader by binding to texture unit 0.
@@ -490,6 +491,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		case MODE_TUTORIAL_1:
 			if (mFireList.size() == 0)
 				return;
+			
 			Log.d(TAG, "mode 1:tutorial");
 			// Matrix.setLookAtM(mViewMatrix, 0, eyeX, eyeY, eyeZ, eyeX, eyeY,
 			// lookZ, upX, upY, upZ);
@@ -497,7 +499,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 			GLES20.glUseProgram(mFireProgramHandle);
 
 			// Load the res handles that will be used in drawing fire.
-			loadOpenGLFireResHandles(mFireHandle);
+			loadOpenGLFireResHandles(mFireProgramHandle);
 
 			// Calculate which fire texture should be binded.
 			int fireTextureNum = fireDrawCount / 10 + 1;
@@ -599,13 +601,13 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 			Matrix.rotateM(mModelMatrix, 0, 180, 0.0f, 1.0f, 0.0f);
 			Matrix.rotateM(mModelMatrix, 0, 90, -1.0f, 0.0f, 0.0f);
 
-			// The original 3d obj model is too small. So we scale it by screenWidth/11
+			// The original 3d obj model is too small. So we scale it by
+			// screenWidth/11
 			// times.
 			Matrix.scaleM(mModelMatrix, 0, screenWidth / 11.0f, screenWidth / 11.0f, 100f);
 			// Pass in the position information
 			mBugPositions.position(0);
-			GLES20.glVertexAttribPointer(mBugPositionHandle, mPositionDataSize, GLES20.GL_FLOAT, false, 0,
-					mBugPositions);
+			GLES20.glVertexAttribPointer(mBugPositionHandle, mPositionDataSize, GLES20.GL_FLOAT, false, 0, mBugPositions);
 
 			GLES20.glEnableVertexAttribArray(mBugPositionHandle);
 
@@ -623,8 +625,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 
 			// Pass in the texture coordinate information
 			mBugTextureCoordinates.position(0);
-			GLES20.glVertexAttribPointer(mBugTextureCoordinateHandle, mTextureCoordinateDataSize, GLES20.GL_FLOAT,
-					false, 0, mBugTextureCoordinates);
+			GLES20.glVertexAttribPointer(mBugTextureCoordinateHandle, mTextureCoordinateDataSize, GLES20.GL_FLOAT, false, 0, mBugTextureCoordinates);
 
 			GLES20.glEnableVertexAttribArray(mBugTextureCoordinateHandle);
 
@@ -657,6 +658,25 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		}
 	}
 
+	/**
+	 * Load the res handles that will be used in drawing fires.
+	 * 
+	 * @param handle
+	 *            The handle that you want to bind
+	 */
+	private void loadOpenGLFireResHandles(int handle) {
+		mMVMatrixHandle = GLES20.glGetUniformLocation(handle, "u_MVMatrix");
+		mMVPMatrixHandle = GLES20.glGetUniformLocation(handle, "u_MVPMatrix");
+		mTextureUniformHandle = GLES20.glGetUniformLocation(handle, "u_Texture");
+		mLightPosHandle = GLES20.glGetUniformLocation(handle, "u_LightPos");
+
+		// Set program handles for bug drawing.
+		mFirePositionHandle = GLES20.glGetAttribLocation(handle, "a_Position");
+		mFireColorHandle = GLES20.glGetAttribLocation(handle, "a_Color");
+		mFireNormalHandle = GLES20.glGetAttribLocation(handle, "a_Normal");
+		mFireTextureCoordinateHandle = GLES20.glGetAttribLocation(handle, "a_TexCoordinate");
+	}
+	
 	/** Draw fires in mFireList */
 	private void drawFires() {
 		for (OpenGLFire mOpenGLFire : mFireList) {
@@ -664,16 +684,16 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 			Matrix.setIdentityM(mModelMatrix, 0);
 
 			// Our projection is ortho.
-			Matrix.translateM(mModelMatrix, 0, (float)mOpenGLFire.ratioX * screenWidth, (float)mOpenGLFire.ratioY * screenHeight, -500.0f);
+			Matrix.translateM(mModelMatrix, 0, (float) mOpenGLFire.ratioX * screenWidth, (float) mOpenGLFire.ratioY * screenHeight, -500.0f);
 
-			// The original coordinate model is too small. So we scale it by screenWidth/11
+			// The original coordinate model is too small. So we scale it by
+			// screenWidth/11
 			// times.
 			Matrix.scaleM(mModelMatrix, 0, screenWidth / 11.0f, screenWidth / 11.0f, 100f);
-			
+
 			// Pass in the position information
 			mFirePositions.position(0);
-			GLES20.glVertexAttribPointer(mFirePositionHandle, mPositionDataSize, GLES20.GL_FLOAT, false, 0,
-					mFirePositions);
+			GLES20.glVertexAttribPointer(mFirePositionHandle, mPositionDataSize, GLES20.GL_FLOAT, false, 0, mFirePositions);
 
 			GLES20.glEnableVertexAttribArray(mFirePositionHandle);
 
@@ -691,8 +711,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 
 			// Pass in the texture coordinate information
 			mFireTextureCoordinates.position(0);
-			GLES20.glVertexAttribPointer(mFireTextureCoordinateHandle, mTextureCoordinateDataSize, GLES20.GL_FLOAT,
-					false, 0, mBugTextureCoordinates);
+			GLES20.glVertexAttribPointer(mFireTextureCoordinateHandle, mTextureCoordinateDataSize, GLES20.GL_FLOAT, false, 0, mBugTextureCoordinates);
 
 			GLES20.glEnableVertexAttribArray(mFireTextureCoordinateHandle);
 
@@ -730,8 +749,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		final int pointPositionHandle = GLES20.glGetAttribLocation(mLightProgramHandle, "a_Position");
 
 		// Pass in the position.
-		GLES20.glVertexAttrib3f(pointPositionHandle, mLightPosInModelSpace[0], mLightPosInModelSpace[1],
-				mLightPosInModelSpace[2]);
+		GLES20.glVertexAttrib3f(pointPositionHandle, mLightPosInModelSpace[0], mLightPosInModelSpace[1], mLightPosInModelSpace[2]);
 
 		// Since we are not using a buffer object, disable vertex arrays for
 		// this attribute.
