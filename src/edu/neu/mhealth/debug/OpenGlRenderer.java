@@ -430,9 +430,13 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 	public volatile float globalRotateDegree = 0;
 	public float distanceX;
 	public float distanceY;
-	public int fire = 1;
+
+	/** This variable will be incremented every frame. */
+	public int fireDrawCount = 1;
+
 	/** This indicates which mode the game is now at */
 	public int openGlMode = 0;
+
 	public final int MODE_MAIN_MENU = 1;
 	public final int MODE_TUTORIAL_1 = 2;
 	public final int MODE_DEFAULT = 0;
@@ -455,7 +459,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 			GLES20.glUseProgram(mBugHandle);
 
 			// Load the res handles that will be used in drawing bugs.
-			loadOpenGLResHandles(mBugHandle);
+			loadOpenGLBugResHandles(mBugHandle);
 
 			// Tell the texture uniform sampler to use this texture in the
 			// shader by binding to texture unit 0.
@@ -467,13 +471,13 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 			// Draw bugs
 			drawBugs();
 
+			// Draw a point to indicate the light.
+			GLES20.glUseProgram(mLightProgramHandle);
+
 			// Draw light
 			Matrix.setIdentityM(mLightModelMatrix, 0);
 			Matrix.multiplyMV(mLightPosInEyeSpace, 0, mViewMatrix, 0, mLightPosInWorldSpace, 0);
 			Matrix.multiplyMV(mLightPosInWorldSpace, 0, mLightModelMatrix, 0, mLightPosInModelSpace, 0);
-
-			// Draw a point to indicate the light.
-			GLES20.glUseProgram(mLightProgramHandle);
 			drawLight();
 			break;
 
@@ -484,12 +488,25 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 			Log.d(TAG, "mode 1:tutorial");
 			// Matrix.setLookAtM(mViewMatrix, 0, eyeX, eyeY, eyeZ, eyeX, eyeY,
 			// lookZ, upX, upY, upZ);
+			// Set our per-vertex fire program.
 			GLES20.glUseProgram(mFireProgramHandle);
-			
+
 			// Load the res handles that will be used in drawing fire.
-			loadOpenGLResHandles(mFireHandle);
-			
+			loadOpenGLFireResHandles(mFireHandle);
+
+			// Calculate which fire texture should be binded.
+			int fireTextureNum = fireDrawCount / 10 + 1;
+			fireDrawCount++;
+			if (fireDrawCount > 50)
+				fireDrawCount = 1;
+
+			// Tell the texture uniform sampler to use this texture in the
+			// shader by binding to texture unit fireTextureNum.
+			GLES20.glUniform1i(mTextureUniformHandle, fireTextureNum);
+
+			// Draw fires
 			drawFires();
+
 			break;
 
 		default:
@@ -544,15 +561,19 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		}
 	}
 
-	/** Load the res handles that will be used in drawing. 
+	/**
+	 * Load the res handles that will be used in drawing bugs.
+	 * 
 	 * @param handle
-	 *  The handle that you want to bind*/
-	private void loadOpenGLResHandles(int handle) {
-		// Set program handles for bug drawing.
-		mMVPMatrixHandle = GLES20.glGetUniformLocation(handle, "u_MVPMatrix");
+	 *            The handle that you want to bind
+	 */
+	private void loadOpenGLBugResHandles(int handle) {
 		mMVMatrixHandle = GLES20.glGetUniformLocation(handle, "u_MVMatrix");
-		mLightPosHandle = GLES20.glGetUniformLocation(handle, "u_LightPos");
+		mMVPMatrixHandle = GLES20.glGetUniformLocation(handle, "u_MVPMatrix");
 		mTextureUniformHandle = GLES20.glGetUniformLocation(handle, "u_Texture");
+		mLightPosHandle = GLES20.glGetUniformLocation(handle, "u_LightPos");
+
+		// Set program handles for bug drawing.
 		mBugPositionHandle = GLES20.glGetAttribLocation(handle, "a_Position");
 		mBugColorHandle = GLES20.glGetAttribLocation(handle, "a_Color");
 		mBugNormalHandle = GLES20.glGetAttribLocation(handle, "a_Normal");
@@ -573,7 +594,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 			Matrix.rotateM(mModelMatrix, 0, 180, 0.0f, 1.0f, 0.0f);
 			Matrix.rotateM(mModelMatrix, 0, 90, -1.0f, 0.0f, 0.0f);
 
-			// The original 3d obj model is too small. So we scale it by 100
+			// The original 3d obj model is too small. So we scale it by screenWidth/11
 			// times.
 			Matrix.scaleM(mModelMatrix, 0, screenWidth / 11.0f, screenWidth / 11.0f, 100f);
 			// Pass in the position information
@@ -634,6 +655,16 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 	/** Draw fires in mFireList */
 	private void drawFires() {
 		for (OpenGLFire mOpenGLFire : mFireList) {
+			// Load the model matrix as identity matrix
+			Matrix.setIdentityM(mModelMatrix, 0);
+
+			// Our projection is ortho.
+			Matrix.translateM(mModelMatrix, 0, (float)mOpenGLFire.ratioX * screenWidth, (float)mOpenGLFire.ratioY * screenHeight, -500.0f);
+
+			// The original coordinate model is too small. So we scale it by screenWidth/11
+			// times.
+			Matrix.scaleM(mModelMatrix, 0, screenWidth / 11.0f, screenWidth / 11.0f, 100f);
+			
 			// Pass in the position information
 			mFirePositions.position(0);
 			GLES20.glVertexAttribPointer(mFirePositionHandle, mPositionDataSize, GLES20.GL_FLOAT, false, 0,
@@ -655,10 +686,10 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 
 			// Pass in the texture coordinate information
 			mFireTextureCoordinates.position(0);
-			GLES20.glVertexAttribPointer(mFireTextureCoordinateHandle1, mTextureCoordinateDataSize, GLES20.GL_FLOAT,
+			GLES20.glVertexAttribPointer(mFireTextureCoordinateHandle, mTextureCoordinateDataSize, GLES20.GL_FLOAT,
 					false, 0, mBugTextureCoordinates);
 
-			GLES20.glEnableVertexAttribArray(mFireTextureCoordinateHandle1);
+			GLES20.glEnableVertexAttribArray(mFireTextureCoordinateHandle);
 
 			// This multiplies the view matrix by the model matrix, and stores
 			// the
