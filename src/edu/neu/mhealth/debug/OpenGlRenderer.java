@@ -141,8 +141,8 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 
 	/** This is a handle to our texture data. */
 	private int mBugTextureDataHandle;
-	private int mTextureDataHandle1;
-	private int mTextureDataHandle2;
+	private int mFireTextureDataHandle1;
+	private int mFireTextureDataHandle2;
 
 	/** Random instance */
 	public Random rd;
