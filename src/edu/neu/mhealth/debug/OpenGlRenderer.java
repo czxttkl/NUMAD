@@ -134,33 +134,54 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 	private final float[] mLightPosInEyeSpace = new float[4];
 
 	/** This is a handle to our bug shading program. */
-	private int mProgramHandle;
+	private int mBugHandle;
 
 	/** This is a handle to our light point program. */
 	private int mPointProgramHandle;
 
-	/** This is a handle to our texture data. */
+	/** This is a handle to our bug's texture data. */
 	private int mBugTextureDataHandle;
+	
+	/** This is a handle to our fire's texture data 1. */
 	private int mFireTextureDataHandle1;
+	
+	/** This is a handle to our fire's texture data 2. */
 	private int mFireTextureDataHandle2;
+	
+	/** This is a handle to our fire's texture data 3. */
+	private int mFireTextureDataHandle3;
+	
+	/** This is a handle to our fire's texture data 4. */
+	private int mFireTextureDataHandle4;
+	
+	/** This is a handle to our fire's texture data 5. */
+	private int mFireTextureDataHandle5;
 
+	/** Hold all the fire flames that should be rendered */
+	public ArrayList<OpenGLFire> mFireList = new ArrayList<OpenGLFire>();
+	
 	/** Random instance */
 	public Random rd;
-	/** The width of screen, in pixels*/
+	
+	/** The width of screen, in pixels */
 	private int screenWidth;
-	/** The height of screen, in pixels*/
+	
+	/** The height of screen, in pixels */
 	private int screenHeight;
+	
 	/** Hold all the bugs that should be counted and calculated */
-	private ArrayList<OpenGLBug> bugList = new ArrayList<OpenGLBug>();
+	private ArrayList<OpenGLBug> mBugList = new ArrayList<OpenGLBug>();
+	
 	/** Record the last time we update the speed/position of the bug in opengl */
 	private long lastRefreshBugTime = -1;
+	
 	/** To simulate the reality, bug should halt sometimes */
 	private boolean bugShouldPause = false;
-	/** Hold the lines that bugs should be avoided from*/
+	
+	/** Hold the lines that bugs should be avoided from */
 	public ArrayList<BorderLine> borderLineList;
-	/**
-	 * Initialize the model data.
-	 */
+
+	/** Initialize the model data*/
 	public OpenGlRenderer(final Context activityContext) {
 		mActivityContext = activityContext;
 		// Initialize the buffers.
@@ -243,7 +264,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		mBugTextureCoordinates.put(cubeTextureCoordinateData).position(0);
 		long cost = System.currentTimeMillis() - now;
 		Log.d(TAG, "loading time:" + cost);
-		
+
 		rd = new Random();
 	}
 
@@ -295,13 +316,13 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		// view matrix. In OpenGL 2, we can keep track of these matrices
 		// separately if we choose.
 
-		final String vertexShader = getVertexShader();
-		final String fragmentShader = getFragmentShader();
+		final String bugVertexShader = getVertexShader();
+		final String bugFragmentShader = getFragmentShader();
 
-		final int vertexShaderHandle = ShaderHelper.compileShader(GLES20.GL_VERTEX_SHADER, vertexShader);
-		final int fragmentShaderHandle = ShaderHelper.compileShader(GLES20.GL_FRAGMENT_SHADER, fragmentShader);
+		final int bugVertexShaderHandle = ShaderHelper.compileShader(GLES20.GL_VERTEX_SHADER, bugVertexShader);
+		final int bugFragmentShaderHandle = ShaderHelper.compileShader(GLES20.GL_FRAGMENT_SHADER, bugFragmentShader);
 
-		mProgramHandle = ShaderHelper.createAndLinkProgram(vertexShaderHandle, fragmentShaderHandle, new String[] {
+		mBugHandle = ShaderHelper.createAndLinkProgram(bugVertexShaderHandle, bugFragmentShaderHandle, new String[] {
 				"a_Position", "a_Color", "a_Normal", "a_TexCoordinate" });
 
 		// Define a simple shader program for our point.
@@ -316,16 +337,26 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		mPointProgramHandle = ShaderHelper.createAndLinkProgram(pointVertexShaderHandle, pointFragmentShaderHandle,
 				new String[] { "a_Position" });
 
-		// Load the texture
-		mBugTextureDataHandle = TextureHelper.loadTexture(mActivityContext, R.drawable.ladybug);
-		// Set the active texture unit to texture unit 0.
-		GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+		
+		// Load the bug's texture
+		mBugTextureDataHandle = TextureHelper.loadTexture(mActivityContext, R.drawable.ladybug, GLES20.GL_TEXTURE0);
+		
+		int[] fireResourcesIds = new int[] {R.drawable.fire_1, R.drawable.fire_2, R.drawable.fire_3, R.drawable.fire_4, R.drawable.fire_5};
+		int[] activeTextureNums = new int[] {GLES20.GL_TEXTURE1, GLES20.GL_TEXTURE2, GLES20.GL_TEXTURE3, GLES20.GL_TEXTURE4, GLES20.GL_TEXTURE5};
+		int[] fireTextureHandlesArr = new int[5];
+		fireTextureHandlesArr = TextureHelper.loadTextures(mActivityContext, fireResourcesIds, activeTextureNums);
+		
+		mFireTextureDataHandle1 = fireTextureHandlesArr[0];
+		mFireTextureDataHandle2 = fireTextureHandlesArr[1];
+		mFireTextureDataHandle3 = fireTextureHandlesArr[2];
+		mFireTextureDataHandle4 = fireTextureHandlesArr[3];
+		mFireTextureDataHandle5 = fireTextureHandlesArr[4];
 		// Bind the texture to this unit.
-		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mBugTextureDataHandle);
-		// mTextureDataHandle1 = TextureHelper.loadTexture(mActivityContext,
-		// R.drawable.bumpy_bricks_public_domain);
-		// mTextureDataHandle2 = TextureHelper.loadTexture(mActivityContext,
-		// R.drawable.bumpy_bricks_public_domain);
+//		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mBugTextureDataHandle);
+//		
+//		Log.d(TAG, "czx texture #:" + GLES20.GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS);
+//		mFireTextureDataHandle1 = TextureHelper.loadTexture(mActivityContext, R.drawable.fire_1);
+//		mFireTextureDataHandle2 = TextureHelper.loadTexture(mActivityContext, R.drawable.fire_2);
 	}
 
 	@Override
@@ -361,41 +392,46 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 	/** This indicates which mode the game is now at */
 	public int openGlMode = 0;
 	public final int MODE_MAIN_MENU = 1;
-	public final int MODE_TUTORIAL = 2;
+	public final int MODE_TUTORIAL_1 = 2;
 	public final int MODE_DEFAULT = 0;
+
 	@Override
 	public void onDrawFrame(GL10 glUnused) {
 		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
 		// Set our per-vertex bug program.
-		GLES20.glUseProgram(mProgramHandle);
+		GLES20.glUseProgram(mBugHandle);
 		// Set program handles for cube drawing.
-		mMVPMatrixHandle = GLES20.glGetUniformLocation(mProgramHandle, "u_MVPMatrix");
-		mMVMatrixHandle = GLES20.glGetUniformLocation(mProgramHandle, "u_MVMatrix");
-		mLightPosHandle = GLES20.glGetUniformLocation(mProgramHandle, "u_LightPos");
-		mTextureUniformHandle = GLES20.glGetUniformLocation(mProgramHandle, "u_Texture");
-		mPositionHandle = GLES20.glGetAttribLocation(mProgramHandle, "a_Position");
-		mColorHandle = GLES20.glGetAttribLocation(mProgramHandle, "a_Color");
-		mNormalHandle = GLES20.glGetAttribLocation(mProgramHandle, "a_Normal");
-		mTextureCoordinateHandle = GLES20.glGetAttribLocation(mProgramHandle, "a_TexCoordinate");
+		mMVPMatrixHandle = GLES20.glGetUniformLocation(mBugHandle, "u_MVPMatrix");
+		mMVMatrixHandle = GLES20.glGetUniformLocation(mBugHandle, "u_MVMatrix");
+		mLightPosHandle = GLES20.glGetUniformLocation(mBugHandle, "u_LightPos");
+		mTextureUniformHandle = GLES20.glGetUniformLocation(mBugHandle, "u_Texture");
+		mPositionHandle = GLES20.glGetAttribLocation(mBugHandle, "a_Position");
+		mColorHandle = GLES20.glGetAttribLocation(mBugHandle, "a_Color");
+		mNormalHandle = GLES20.glGetAttribLocation(mBugHandle, "a_Normal");
+		mTextureCoordinateHandle = GLES20.glGetAttribLocation(mBugHandle, "a_TexCoordinate");
 		long now = SystemClock.uptimeMillis() % 10000L;
+		
 		switch (openGlMode) {
+		
 		// Main Menu mode
 		case MODE_MAIN_MENU:
 			Log.d(TAG, "mode 0:mainmenu");
 			float angleInDegrees = (360.0f / 10000.0f) * ((int) now);
-			// Tell the texture uniform sampler to use this texture in the shader by binding to texture unit 0.
+			// Tell the texture uniform sampler to use this texture in the
+			// shader by binding to texture unit 0.
 			GLES20.glUniform1i(mTextureUniformHandle, 0);
-			//We only want one bug in the main menu
-			if (bugList.size() != 1) {
-				bugList.clear();
+			// We only want one bug in the main menu
+			if (mBugList.size() != 1) {
+				mBugList.clear();
 			}
-			if (bugList.size() == 0) {
-				int randomHeight = rd.nextInt(screenHeight/3);
-				OpenGLBug menuBug = new OpenGLBug(screenWidth - OpenGLBug.radius, screenHeight/4 + randomHeight, -1, 1);
-				bugList.add(menuBug);
+			if (mBugList.size() == 0) {
+				int randomHeight = rd.nextInt(screenHeight / 3);
+				OpenGLBug menuBug = new OpenGLBug(screenWidth - OpenGLBug.radius, screenHeight / 4 + randomHeight, -1,
+						1);
+				mBugList.add(menuBug);
 			}
-			
-			OpenGLBug menuBug = bugList.get(0);
+
+			OpenGLBug menuBug = mBugList.get(0);
 			Matrix.setIdentityM(mModelMatrix, 0);
 			Matrix.translateM(mModelMatrix, 0, menuBug.x, menuBug.y, -500.0f);
 			Matrix.rotateM(mModelMatrix, 0, headRotate(menuBug.speedX, menuBug.speedY), 0, 0, -1.0f);
@@ -405,15 +441,17 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 			// Matrix.rotateM(mModelMatrix, 0, 180, 0.0f, 0.0f, -1.0f);
 			drawBug();
 			menuBug = refreshBug(menuBug);
-			
+
 			break;
-		// Tutorial mode
-		case MODE_TUTORIAL:
+			
+		// Tutorial 1 mode
+		case MODE_TUTORIAL_1:
 			Log.d(TAG, "mode 1:tutorial");
 			Matrix.setLookAtM(mViewMatrix, 0, eyeX, eyeY, eyeZ, eyeX, eyeY, lookZ, upX, upY, upZ);
 			break;
+			
 		default:
-			//Don't render anything
+			// Don't render anything
 		}
 
 		// upX = (float)
@@ -429,7 +467,6 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		// upY = 1.0f;
 		// }
 
-		
 		// switch(fire) {
 		// case 1:
 		// GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mTextureDataHandle);
@@ -443,7 +480,8 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		// }
 		// fire = (fire + 1) % 3;
 
-		// Calculate position of the light. Rotate and then push into th distance.
+		// Calculate position of the light. Rotate and then push into th
+		// distance.
 		Matrix.setIdentityM(mLightModelMatrix, 0);
 		Matrix.multiplyMV(mLightPosInEyeSpace, 0, mViewMatrix, 0, mLightPosInWorldSpace, 0);
 		Matrix.multiplyMV(mLightPosInWorldSpace, 0, mLightModelMatrix, 0, mLightPosInModelSpace, 0);
@@ -527,10 +565,10 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		// Draw the point.
 		GLES20.glDrawArrays(GLES20.GL_POINTS, 0, 1);
 	}
-	
+
 	private float headRotate(int speedX, int speedY) {
 		float rotateDegree = 0;
-		rotateDegree = (float) Math.toDegrees(Math.atan(Math.abs(speedY/speedX)));
+		rotateDegree = (float) Math.toDegrees(Math.atan(Math.abs(speedY / speedX)));
 		if (speedX > 0 && speedY < 0) {
 			rotateDegree = 90 + rotateDegree;
 		}
@@ -547,17 +585,17 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		}
 		return rotateDegree;
 	}
-	
+
 	private OpenGLBug refreshBug(OpenGLBug bug) {
-		//That means CameraActivity hasn't initialized the border lines.
-//		if (borderLineList == null) 
-//			return bug;
-		
-		int polarityX= bug.speedX >= 0? 1: -1;
-		int polarityY = bug.speedY >= 0? 1: -1; 
+		// That means CameraActivity hasn't initialized the border lines.
+		// if (borderLineList == null)
+		// return bug;
+
+		int polarityX = bug.speedX >= 0 ? 1 : -1;
+		int polarityY = bug.speedY >= 0 ? 1 : -1;
 		int tmpX = bug.x + bug.speedX;
 		int tmpY = bug.y + bug.speedY;
-		
+
 		if (bugShouldPause) {
 			if (System.currentTimeMillis() - lastRefreshBugTime > 2000) {
 				bugShouldPause = false;
@@ -568,19 +606,19 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 			bugShouldPause = true;
 			return bug;
 		}
-		
-//		Log.d(TAG, "random:" + randomSubSpeedX + "," + randomSubSpeedY);
-//		for (BorderLine bl : borderLineList) {
-			if (tmpX + polarityX * bug.radius > screenWidth || tmpX + polarityX * bug.radius < 0) {
-				bug.speedX = -bug.speedX;
-				tmpX = bug.x;
-			}
-			if (tmpY + polarityY * bug.radius > screenHeight || tmpY + polarityY * bug.radius < 0) {
-				bug.speedY = -bug.speedY;
-				tmpY = bug.y;
-			}
-//		}
-		
+
+		// Log.d(TAG, "random:" + randomSubSpeedX + "," + randomSubSpeedY);
+		// for (BorderLine bl : borderLineList) {
+		if (tmpX + polarityX * bug.radius > screenWidth || tmpX + polarityX * bug.radius < 0) {
+			bug.speedX = -bug.speedX;
+			tmpX = bug.x;
+		}
+		if (tmpY + polarityY * bug.radius > screenHeight || tmpY + polarityY * bug.radius < 0) {
+			bug.speedY = -bug.speedY;
+			tmpY = bug.y;
+		}
+		// }
+
 		bug.x = tmpX;
 		bug.y = tmpY;
 		lastRefreshBugTime = System.currentTimeMillis();
