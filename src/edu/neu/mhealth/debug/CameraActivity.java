@@ -445,7 +445,9 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 			double ratioX = detectedMoment.get_m10() / (detectedMoment.get_m00() * screenOpenCvWidth);
 			//Reverse the y axis because opencv uses y-down-axis while opengl uses y-up-axis
 	        double ratioY = 1 - detectedMoment.get_m01() / (detectedMoment.get_m00() * screenOpenCvHeight);
-//			Core.circle(mRgba, new org.opencv.core.Point(x, y), 4, redColor);
+	        int x = (int)ratioX * screenOpenCvWidth;
+	        int y = (int)ratioY * screenOpenCvHeight;
+			Core.circle(mRgba, new org.opencv.core.Point(x, y), 4, redColor);
 	        mFireList.add(new OpenGLFire(ratioX, ratioY));
 		}
 		mGLSurfaceView.mRenderer.mFireList = mFireList;

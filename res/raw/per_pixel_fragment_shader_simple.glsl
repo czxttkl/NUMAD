@@ -13,5 +13,5 @@ varying vec2 v_TexCoordinate;   // Interpolated texture coordinate per fragment.
 void main()                    		
 {                              
 	// Multiply the color by the diffuse illumination level and texture value to get final output color.
-    gl_FragColor = v_Color;                                  		
+    gl_FragColor = v_Color * texture2D(u_Texture, v_TexCoordinate);                                  		
 }                                                   

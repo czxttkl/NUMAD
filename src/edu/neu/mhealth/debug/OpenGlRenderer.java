@@ -504,7 +504,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 			// Calculate which fire texture should be binded.
 			int fireTextureNum = fireDrawCount / 10 + 1;
 			fireDrawCount++;
-			if (fireDrawCount > 50)
+			if (fireDrawCount > 49)
 				fireDrawCount = 1;
 
 			// Tell the texture uniform sampler to use this texture in the
@@ -711,7 +711,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 
 			// Pass in the texture coordinate information
 			mFireTextureCoordinates.position(0);
-			GLES20.glVertexAttribPointer(mFireTextureCoordinateHandle, mTextureCoordinateDataSize, GLES20.GL_FLOAT, false, 0, mBugTextureCoordinates);
+			GLES20.glVertexAttribPointer(mFireTextureCoordinateHandle, mTextureCoordinateDataSize, GLES20.GL_FLOAT, false, 0, mFireTextureCoordinates);
 
 			GLES20.glEnableVertexAttribArray(mFireTextureCoordinateHandle);
 
