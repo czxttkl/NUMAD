@@ -551,39 +551,41 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	/**
 	 * Determine the bug's next destination that it should bounce to. This
 	 * method will return a double array. array[0] is the x-axis ratio of
-	 * destination. array[1] is the y-axis ratio of destination.
+	 * destination. array[1] is the y-axis ratio of destination. The ratio is
+	 * according to the opengl coordinate.
 	 */
 	public double[] findBugNextDest() {
 		int randomWidth;
 		int randomHeight;
 		int result;
 		do {
-		// We assume that the screenPixelWidth is the same with the opengl
-		// coordinate
-		int minX = (int) (OpenGLBug.radius * openCVGLRatioX);
-		int maxX = (int) ((screenPixelWidth - OpenGLBug.radius) * openCVGLRatioX);
-		randomWidth = mGLSurfaceView.mRenderer.randInt(minX, maxX);
+			// We assume that the screenPixelWidth is the same with the opengl
+			// coordinate
+			int minX = (int) (OpenGLBug.radius * openCVGLRatioX);
+			int maxX = (int) ((screenPixelWidth - OpenGLBug.radius) * openCVGLRatioX);
+			randomWidth = mGLSurfaceView.mRenderer.randInt(minX, maxX);
 
-		// We assume that the screenPixelHeight is the same with the opengl
-		// coordinate
-		int minY = screenOpenCvHeight - (int) (screenPixelHeight / 2 * openCVGLRatioY);
-		int maxY = screenOpenCvHeight - (int) (screenPixelHeight * openCVGLRatioY);
-		randomHeight = mGLSurfaceView.mRenderer.randInt(minY, maxY);
+			// We assume that the screenPixelHeight is the same with the opengl
+			// coordinate
+			int minY = screenOpenCvHeight - (int) (screenPixelHeight / 2 * openCVGLRatioY);
+			int maxY = screenOpenCvHeight - (int) (screenPixelHeight * openCVGLRatioY);
+			randomHeight = mGLSurfaceView.mRenderer.randInt(minY, maxY);
 
-		org.opencv.core.Point pt = new org.opencv.core.Point(randomWidth, randomHeight);
-		MatOfPoint2f detectedFloorContour2f = new MatOfPoint2f();
-		detectedFloorContours.get(0).convertTo(detectedFloorContour2f, CvType.CV_32FC2);
-		
-		// +1: outside the contour    -1: inside the contour    0:lies on the edge;
-		result = (int) Imgproc.pointPolygonTest(detectedFloorContour2f, pt, false);
+			org.opencv.core.Point pt = new org.opencv.core.Point(randomWidth, randomHeight);
+			MatOfPoint2f detectedFloorContour2f = new MatOfPoint2f();
+			detectedFloorContours.get(0).convertTo(detectedFloorContour2f, CvType.CV_32FC2);
+
+			// +1: outside the contour -1: inside the contour 0:lies on the
+			// edge;
+			result = (int) Imgproc.pointPolygonTest(detectedFloorContour2f, pt, false);
 		} while (result != 1);
-		
+
 		// Convert coordinates between opencv and opengl
-		double resultDestX = (double)(randomWidth/screenOpenCvWidth);
+		double resultDestX = (double) (randomWidth / screenOpenCvWidth);
 		// Revert y-axis ratio between opencv and opengl
-		double resultDestY = 1- (double)(randomHeight/screenOpenCvHeight);
+		double resultDestY = 1 - (double) (randomHeight / screenOpenCvHeight);
 		Log.d(TAG, "finddesti:" + resultDestX + "," + resultDestY);
-		double[] resultArray = {resultDestX, resultDestY};
+		double[] resultArray = { resultDestX, resultDestY };
 		return resultArray;
 	}
 

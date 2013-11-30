@@ -190,10 +190,10 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 	public Random rd;
 
 	/** The width of screen, in pixels */
-	private int screenWidth;
+	private int screenOpenGLWidth;
 
 	/** The height of screen, in pixels */
-	private int screenHeight;
+	private int screenOpenGLHeight;
 
 	/** Hold all the bugs that should be counted and calculated in an arraylist*/
 	private ArrayList<OpenGLBug> mBugList = new ArrayList<OpenGLBug>();
@@ -415,13 +415,13 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 	public void onSurfaceChanged(GL10 glUnused, int width, int height) {
 		// Set the OpenGL viewport to the same size as the surface.
 		GLES20.glViewport(0, 0, width, height);
-		screenWidth = width;
-		screenHeight = height;
+		screenOpenGLWidth = width;
+		screenOpenGLHeight = height;
 
-		eyeX = screenWidth / 2;
-		eyeY = screenHeight / 2;
-		lookX = screenWidth / 2;
-		lookY = screenHeight / 2;
+		eyeX = screenOpenGLWidth / 2;
+		eyeY = screenOpenGLHeight / 2;
+		lookX = screenOpenGLWidth / 2;
+		lookY = screenOpenGLHeight / 2;
 
 		Matrix.setLookAtM(mViewMatrix, 0, eyeX, eyeY, eyeZ, lookX, lookY, lookZ, upX, upY, upZ);
 
@@ -590,7 +590,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 			// The original 3d obj model is too small. So we scale it by
 			// screenWidth/11
 			// times.
-			Matrix.scaleM(mModelMatrix, 0, screenWidth / 11.0f, screenWidth / 11.0f, 100f);
+			Matrix.scaleM(mModelMatrix, 0, screenOpenGLWidth / 11.0f, screenOpenGLWidth / 11.0f, 100f);
 			// Pass in the position information
 			mBugPositions.position(0);
 			GLES20.glVertexAttribPointer(mBugPositionHandle, mPositionDataSize, GLES20.GL_FLOAT, false, 0, mBugPositions);
@@ -670,12 +670,12 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 			Matrix.setIdentityM(mModelMatrix, 0);
 
 			// Our projection is ortho.
-			Matrix.translateM(mModelMatrix, 0, (float) mOpenGLFire.ratioX * screenWidth, (float) mOpenGLFire.ratioY * screenHeight, -500.0f);
+			Matrix.translateM(mModelMatrix, 0, (float) mOpenGLFire.ratioX * screenOpenGLWidth, (float) mOpenGLFire.ratioY * screenOpenGLHeight, -500.0f);
 
 			// The original coordinate model is too small. So we scale it by
 			// screenWidth/11
 			// times.
-			Matrix.scaleM(mModelMatrix, 0, screenWidth / 11.0f, screenWidth / 11.0f, 100f);
+			Matrix.scaleM(mModelMatrix, 0, screenOpenGLWidth / 11.0f, screenOpenGLWidth / 11.0f, 100f);
 
 			// Pass in the position information
 			mFirePositions.position(0);
@@ -797,11 +797,11 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 
 			// Log.d(TAG, "random:" + randomSubSpeedX + "," + randomSubSpeedY);
 			// for (BorderLine bl : borderLineList) {
-			if (tmpX + polarityX * bug.radius > screenWidth || tmpX + polarityX * bug.radius < 0) {
+			if (tmpX + polarityX * bug.radius > screenOpenGLWidth || tmpX + polarityX * bug.radius < 0) {
 				bug.speedX = -bug.speedX;
 				tmpX = bug.x;
 			}
-			if (tmpY + polarityY * bug.radius > screenHeight || tmpY + polarityY * bug.radius < 0) {
+			if (tmpY + polarityY * bug.radius > screenOpenGLHeight || tmpY + polarityY * bug.radius < 0) {
 				bug.speedY = -bug.speedY;
 				tmpY = bug.y;
 			}
@@ -835,8 +835,8 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 	/** Generate one main menu bug if necessary*/
 	private void generateMainMenuBug() {
 		if (mBugList.size() == 0) {
-			int randomHeight = rd.nextInt(screenHeight / 3);
-			OpenGLBug menuBug = new OpenGLBug(screenWidth - OpenGLBug.radius, screenHeight / 4 + randomHeight, -1, 1);
+			int randomHeight = rd.nextInt(screenOpenGLHeight / 3);
+			OpenGLBug menuBug = new OpenGLBug(screenOpenGLWidth - OpenGLBug.radius, screenOpenGLHeight / 4 + randomHeight, -1, 1);
 			mBugList.add(menuBug);
 		}
 	}
@@ -845,12 +845,12 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 	public void prepareForTutorial1() {
 		mBugList.clear();
 		//bugs will show up from left or right flank side. So the width is either 0+radius OR screenwidht-radius
-		int randomHeight = randInt(OpenGLBug.radius, screenHeight/2 );
+		int randomHeight = randInt(OpenGLBug.radius, screenOpenGLHeight/2 );
 		int randomWidth;
 		if(rd.nextInt(2) == 0)
 			randomWidth = OpenGLBug.radius;
 		else
-			randomWidth = screenWidth - OpenGLBug.radius;
+			randomWidth = screenOpenGLWidth - OpenGLBug.radius;
 		
 		//Make sure that abs(speedX) and abs(speedY) is at least 1
 		int[] destination = findBugNextDest();
@@ -859,14 +859,18 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		int speedX = xDiff > 20? xDiff/20 : xDiff/Math.abs(xDiff);
 		int speedY = yDiff > 20? yDiff/20 : yDiff/Math.abs(yDiff);
 		
-		
 		OpenGLBug tutorial1Bug = new OpenGLBug(randomWidth, randomHeight, speedX, speedY);
 		mBugList.add(tutorial1Bug);
 		
 	}
 	
-	private findBugNextDest() {
-		mCameraActivityInstance.findBugNextDest();
+	/** Return the bug's next destination (in opengl coordinate) */
+	private int[] findBugNextDest() {
+		double[] resultArray = mCameraActivityInstance.findBugNextDest();
+		int[] destination = new int[2];
+		destination[0] = (int)(screenOpenGLWidth * resultArray[0]);
+		destination[1] = (int)(screenOpenGLHeight * resultArray[1]);
+		return destination;
 	}
 	
 	/** generate an integer between a range */
