@@ -18,6 +18,7 @@ import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
+import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
@@ -109,10 +110,10 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 
 	/** X axis unit ratio for OpenCv/OpenGL */
 	public double openCVGLRatioX;
-	
+
 	/** Y axis unit ratio for OpenCv/OpenGL */
 	public double openCVGLRatioY;
-	
+
 	/* OpenCv Variables */
 	private CameraBridgeViewBase mOpenCvCameraView;
 	private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
@@ -440,7 +441,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		// We assume screenPixel dimensions are the same with opengl coordinate
 		openCVGLRatioX = screenOpenCvWidth / screenPixelWidth;
 		openCVGLRatioY = screenOpenCvHeight / screenPixelHeight;
-		
+
 		mGray = new Mat();
 		mRgba = new Mat();
 		colorPickAreaHsv = new Mat();
@@ -523,11 +524,11 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		case MODE_TUTORIAL_1:
 			mColorBlobDetector.process(mRgba, openCvMode);
 			detectedShoesContours = mColorBlobDetector.getShoesContours();
-//			if (detectedShoesContours == null)
-//				return mRgba;
+			// if (detectedShoesContours == null)
+			// return mRgba;
 			detectedShoesContours.removeAll(Collections.singleton(null));
 			setRendererContourMassCenter();
-			
+
 			detectedFloorContours = mColorBlobDetector.getFloorContours();
 			detectedFloorContours.removeAll(Collections.singleton(null));
 			Imgproc.drawContours(mRgba, detectedFloorContours, -1, redColor, 4);
@@ -547,18 +548,45 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		return new Scalar(pointMatRgba.get(0, 0));
 	}
 
+	/**
+	 * Determine the bug's next destination that it should bounce to. This
+	 * method will return a double array. array[0] is the x-axis ratio of
+	 * destination. array[1] is the y-axis ratio of destination.
+	 */
 	public double[] findBugNextDest() {
-		Random rd = mGLSurfaceView.mRenderer.rd;
-		// We assume that the screenPixelWidth is the same with the opengl coordinate
-		int minX = (int)(OpenGLBug.radius * openCVGLRatioX);
-		int maxX = (int)((screenPixelWidth - OpenGLBug.radius) * openCVGLRatioX);
-		int randomWidth = mGLSurfaceView.mRenderer.randInt(minX, maxX);
+		int randomWidth;
+		int randomHeight;
+		int result;
+		do {
+		// We assume that the screenPixelWidth is the same with the opengl
+		// coordinate
+		int minX = (int) (OpenGLBug.radius * openCVGLRatioX);
+		int maxX = (int) ((screenPixelWidth - OpenGLBug.radius) * openCVGLRatioX);
+		randomWidth = mGLSurfaceView.mRenderer.randInt(minX, maxX);
+
+		// We assume that the screenPixelHeight is the same with the opengl
+		// coordinate
+		int minY = screenOpenCvHeight - (int) (screenPixelHeight / 2 * openCVGLRatioY);
+		int maxY = screenOpenCvHeight - (int) (screenPixelHeight * openCVGLRatioY);
+		randomHeight = mGLSurfaceView.mRenderer.randInt(minY, maxY);
+
+		org.opencv.core.Point pt = new org.opencv.core.Point(randomWidth, randomHeight);
+		MatOfPoint2f detectedFloorContour2f = new MatOfPoint2f();
+		detectedFloorContours.get(0).convertTo(detectedFloorContour2f, CvType.CV_32FC2);
 		
-		// We assume that the screenPixelHeight is the same with the opengl coordinate
-		int minY = (int)(screenPixelHeight/2 * openCVGLRatioY);
-		int maxY = (int)(screenPixelHeight * openCVGLRatioY);
-		int randomHeight = mGLSurfaceView.mRenderer.randInt(minY, maxY);
+		// +1: outside the contour    -1: inside the contour    0:lies on the edge;
+		result = (int) Imgproc.pointPolygonTest(detectedFloorContour2f, pt, false);
+		} while (result != 1);
+		
+		// Convert coordinates between opencv and opengl
+		double resultDestX = (double)(randomWidth/screenOpenCvWidth);
+		// Revert y-axis ratio between opencv and opengl
+		double resultDestY = 1- (double)(randomHeight/screenOpenCvHeight);
+		Log.d(TAG, "finddesti:" + resultDestX + "," + resultDestY);
+		double[] resultArray = {resultDestX, resultDestY};
+		return resultArray;
 	}
+
 	/**
 	 * This method is called in opencv so that we could know the location of
 	 * shoes
