@@ -16,6 +16,9 @@ public class OpenGLBug {
 	/** Vertical speed of the bug*/
 	public int speedY = 0;
 	
+	/** Last time we change the bug */
+	public long lastRefreshTime = 0;
+	
 	public OpenGLBug(int x, int y, int speedX, int speedY) {
 		this.x = x;
 		this.y = y;

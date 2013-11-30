@@ -351,6 +351,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	public void onClickFloorColorPickConfirmOk(View v) {
 		mFrameLayout.removeView(mColorPickLayout);
 		openCvMode = MODE_TUTORIAL_1;
+		mGLSurfaceView.mRenderer.prepareForTutorial1();
 		mGLSurfaceView.mRenderer.openGlMode = mGLSurfaceView.mRenderer.MODE_TUTORIAL_1;
 	}
 

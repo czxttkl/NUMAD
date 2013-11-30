@@ -148,7 +148,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 
 	/** This is a handle to our light point program. */
 	private int mLightProgramHandle;
-	
+
 	/** This is a handle to our bug shading program. */
 	private int mFireProgramHandle;
 
@@ -163,7 +163,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 
 	/** This will be used to pass in fire model texture coordinate information. */
 	private int mFireTextureCoordinateHandle;
-	
+
 	/** This is a handle to our bug's texture data. */
 	private int mBugTextureDataHandle;
 
@@ -197,8 +197,8 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 	/** Hold all the bugs that should be counted and calculated */
 	private ArrayList<OpenGLBug> mBugList = new ArrayList<OpenGLBug>();
 
-	/** Record the last time we update the speed/position of the bug in opengl */
-	private long lastRefreshBugTime = -1;
+//	/** Record the last time we update the speed/position of the bug in opengl */
+//	private long lastRefreshBugTime = -1;
 
 	/** To simulate the reality, bug should halt sometimes */
 	private boolean bugShouldPause = false;
@@ -395,7 +395,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		final int fireFragmentShaderHandle = ShaderHelper.compileShader(GLES20.GL_FRAGMENT_SHADER, fireFragmentShader);
 
 		mFireProgramHandle = ShaderHelper.createAndLinkProgram(fireVertexShaderHandle, fireFragmentShaderHandle, new String[] { "a_Position", "a_Color", "a_Normal", "a_TexCoordinate" });
-		
+
 		// Load the fire's texture
 		int[] fireResourcesIds = new int[] { R.drawable.fire_1, R.drawable.fire_2, R.drawable.fire_3, R.drawable.fire_4, R.drawable.fire_5 };
 		int[] activeTextureNums = new int[] { GLES20.GL_TEXTURE1, GLES20.GL_TEXTURE2, GLES20.GL_TEXTURE3, GLES20.GL_TEXTURE4, GLES20.GL_TEXTURE5 };
@@ -472,7 +472,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 			GLES20.glUniform1i(mTextureUniformHandle, 0);
 
 			// We only want one bug in the main menu
-			createMainMenuBugIfNecessary();
+			prepareMainMenuBugIfNecessary();
 
 			// Draw bugs
 			drawBugs();
@@ -491,7 +491,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		case MODE_TUTORIAL_1:
 			if (mFireList.size() == 0)
 				return;
-			
+
 			Log.d(TAG, "mode 1:tutorial");
 			// Matrix.setLookAtM(mViewMatrix, 0, eyeX, eyeY, eyeZ, eyeX, eyeY,
 			// lookZ, upX, upY, upZ);
@@ -549,23 +549,6 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		// Calculate position of the light. Rotate and then push into th
 		// distance.
 
-	}
-
-	/**
-	 * In the main menu, there is only one bug. This method will either return a
-	 * bug that has been created in mBugList, or create a new bug in mListBug if
-	 * it is empty or has more than one bug in it.
-	 */
-	private void createMainMenuBugIfNecessary() {
-		if (mBugList.size() != 1) {
-			mBugList.clear();
-		}
-
-		if (mBugList.size() == 0) {
-			int randomHeight = rd.nextInt(screenHeight / 3);
-			OpenGLBug menuBug = new OpenGLBug(screenWidth - OpenGLBug.radius, screenHeight / 4 + randomHeight, -1, 1);
-			mBugList.add(menuBug);
-		}
 	}
 
 	/**
@@ -676,7 +659,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		mFireNormalHandle = GLES20.glGetAttribLocation(handle, "a_Normal");
 		mFireTextureCoordinateHandle = GLES20.glGetAttribLocation(handle, "a_TexCoordinate");
 	}
-	
+
 	/** Draw fires in mFireList */
 	private void drawFires() {
 		for (OpenGLFire mOpenGLFire : mFireList) {
@@ -764,6 +747,8 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		GLES20.glDrawArrays(GLES20.GL_POINTS, 0, 1);
 	}
 
+	/* Bug rendering */
+	/** Determine the bug's head rotation */
 	private float headRotate(int speedX, int speedY) {
 		float rotateDegree = 0;
 		rotateDegree = (float) Math.toDegrees(Math.atan(Math.abs(speedY / speedX)));
@@ -789,37 +774,70 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		// if (borderLineList == null)
 		// return bug;
 
-		int polarityX = bug.speedX >= 0 ? 1 : -1;
-		int polarityY = bug.speedY >= 0 ? 1 : -1;
-		int tmpX = bug.x + bug.speedX;
-		int tmpY = bug.y + bug.speedY;
+		switch (openGlMode) {
+		case MODE_MAIN_MENU:
+			int polarityX = bug.speedX >= 0 ? 1 : -1;
+			int polarityY = bug.speedY >= 0 ? 1 : -1;
+			int tmpX = bug.x + bug.speedX;
+			int tmpY = bug.y + bug.speedY;
 
-		if (bugShouldPause) {
-			if (System.currentTimeMillis() - lastRefreshBugTime > 2000) {
-				bugShouldPause = false;
+			if (bugShouldPause) {
+				if (System.currentTimeMillis() - bug.lastRefreshTime > 2000) {
+					bugShouldPause = false;
+				}
+				return bug;
 			}
-			return bug;
-		}
-		if (rd.nextInt(100) > 98) {
-			bugShouldPause = true;
-			return bug;
-		}
+			if (rd.nextInt(100) > 98) {
+				bugShouldPause = true;
+				return bug;
+			}
 
-		// Log.d(TAG, "random:" + randomSubSpeedX + "," + randomSubSpeedY);
-		// for (BorderLine bl : borderLineList) {
-		if (tmpX + polarityX * bug.radius > screenWidth || tmpX + polarityX * bug.radius < 0) {
-			bug.speedX = -bug.speedX;
-			tmpX = bug.x;
-		}
-		if (tmpY + polarityY * bug.radius > screenHeight || tmpY + polarityY * bug.radius < 0) {
-			bug.speedY = -bug.speedY;
-			tmpY = bug.y;
-		}
-		// }
+			// Log.d(TAG, "random:" + randomSubSpeedX + "," + randomSubSpeedY);
+			// for (BorderLine bl : borderLineList) {
+			if (tmpX + polarityX * bug.radius > screenWidth || tmpX + polarityX * bug.radius < 0) {
+				bug.speedX = -bug.speedX;
+				tmpX = bug.x;
+			}
+			if (tmpY + polarityY * bug.radius > screenHeight || tmpY + polarityY * bug.radius < 0) {
+				bug.speedY = -bug.speedY;
+				tmpY = bug.y;
+			}
+			// }
 
-		bug.x = tmpX;
-		bug.y = tmpY;
-		lastRefreshBugTime = System.currentTimeMillis();
+			bug.x = tmpX;
+			bug.y = tmpY;
+			bug.lastRefreshTime = System.currentTimeMillis();
+			break;
+		case MODE_TUTORIAL_1:
+			
+			break;
+		default:
+
+		}
 		return bug;
+	}
+	
+	/**
+	 * In the main menu, there is only one bug. This method will either return a
+	 * bug that has been created in mBugList, or create a new bug in mListBug if
+	 * it is empty or has more than one bug in it.
+	 */
+	private void prepareMainMenuBugIfNecessary() {
+		if (mBugList.size() != 1) {
+			mBugList.clear();
+		}
+
+		if (mBugList.size() == 0) {
+			int randomHeight = rd.nextInt(screenHeight / 3);
+			OpenGLBug menuBug = new OpenGLBug(screenWidth - OpenGLBug.radius, screenHeight / 4 + randomHeight, -1, 1);
+			mBugList.add(menuBug);
+		}
+	}
+	
+	/** In the tutorial 1, there is only one bug. */
+	public void prepareForTutorial1() {
+		mBugList.clear();
+		
+		
 	}
 }
