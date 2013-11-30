@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
@@ -24,6 +25,7 @@ import org.opencv.imgproc.Moments;
 
 import edu.neu.mhealth.debug.helper.Global;
 import edu.neu.mhealth.debug.helper.InitRenderTask;
+import edu.neu.mhealth.debug.opengl.OpenGLBug;
 import edu.neu.mhealth.debug.opengl.OpenGLFire;
 import android.graphics.Color;
 import android.graphics.Point;
@@ -105,6 +107,12 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	/** Screen height in opencv rows */
 	public int screenOpenCvHeight;
 
+	/** X axis unit ratio for OpenCv/OpenGL */
+	public double openCVGLRatioX;
+	
+	/** Y axis unit ratio for OpenCv/OpenGL */
+	public double openCVGLRatioY;
+	
 	/* OpenCv Variables */
 	private CameraBridgeViewBase mOpenCvCameraView;
 	private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
@@ -426,9 +434,13 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 
 	@Override
 	public void onCameraViewStarted(int width, int height) {
+		// Set the openCv dimension
 		screenOpenCvWidth = width;
 		screenOpenCvHeight = height;
-
+		// We assume screenPixel dimensions are the same with opengl coordinate
+		openCVGLRatioX = screenOpenCvWidth / screenPixelWidth;
+		openCVGLRatioY = screenOpenCvHeight / screenPixelHeight;
+		
 		mGray = new Mat();
 		mRgba = new Mat();
 		colorPickAreaHsv = new Mat();
@@ -535,6 +547,18 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		return new Scalar(pointMatRgba.get(0, 0));
 	}
 
+	public double[] findBugNextDest() {
+		Random rd = mGLSurfaceView.mRenderer.rd;
+		// We assume that the screenPixelWidth is the same with the opengl coordinate
+		int minX = (int)(OpenGLBug.radius * openCVGLRatioX);
+		int maxX = (int)((screenPixelWidth - OpenGLBug.radius) * openCVGLRatioX);
+		int randomWidth = mGLSurfaceView.mRenderer.randInt(minX, maxX);
+		
+		// We assume that the screenPixelHeight is the same with the opengl coordinate
+		int minY = (int)(screenPixelHeight/2 * openCVGLRatioY);
+		int maxY = (int)(screenPixelHeight * openCVGLRatioY);
+		int randomHeight = mGLSurfaceView.mRenderer.randInt(minY, maxY);
+	}
 	/**
 	 * This method is called in opencv so that we could know the location of
 	 * shoes

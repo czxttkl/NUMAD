@@ -16,6 +16,12 @@ public class OpenGLBug {
 	/** Vertical speed of the bug*/
 	public int speedY = 0;
 	
+	/** Horizontal relative speed of the bug with users' movement */
+	public int relativeSpeedX = 0;
+	
+	/** Vertical relative speed of the bug with users' movement */
+	public int relativeSpeedY = 0;
+	
 	/** Last time we change the bug */
 	public long lastRefreshTime = 0;
 	

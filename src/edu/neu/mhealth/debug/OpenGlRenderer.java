@@ -41,7 +41,8 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 	private static final String TAG = "mDebug";
 
 	private final Context mActivityContext;
-
+	private final CameraActivity mCameraActivityInstance;
+	
 	/**
 	 * Store the model matrix. This matrix is used to move models from object
 	 * space (where each model can be thought of being located at the center of
@@ -194,7 +195,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 	/** The height of screen, in pixels */
 	private int screenHeight;
 
-	/** Hold all the bugs that should be counted and calculated */
+	/** Hold all the bugs that should be counted and calculated in an arraylist*/
 	private ArrayList<OpenGLBug> mBugList = new ArrayList<OpenGLBug>();
 
 //	/** Record the last time we update the speed/position of the bug in opengl */
@@ -208,7 +209,8 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 
 	/** Initialize the model data */
 	public OpenGlRenderer(final Context activityContext) {
-		mActivityContext = activityContext;
+		this.mActivityContext = activityContext;
+		this.mCameraActivityInstance = (CameraActivity)mActivityContext;
 		// Initialize the buffers.
 		int i = 0;
 		BufferedReader buff;
@@ -294,7 +296,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 				-1.0f, 1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f };
 
 		final float[] fireColorData = {
-				// Front face (red)
+				// Front face (all white)
 				1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f };
 
 		final float[] fireNormalData = {
@@ -472,7 +474,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 			GLES20.glUniform1i(mTextureUniformHandle, 0);
 
 			// We only want one bug in the main menu
-			prepareMainMenuBugIfNecessary();
+			prepareMainMenuBug();
 
 			// Draw bugs
 			drawBugs();
@@ -579,8 +581,9 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 			// Our projection is ortho.
 			Matrix.translateM(mModelMatrix, 0, mOpenGLBug.x, mOpenGLBug.y, -500.0f);
 
-			// Rotate in order to make the bug's back facing us.
+			// Rotate to bug's speed direction
 			Matrix.rotateM(mModelMatrix, 0, headRotate(mOpenGLBug.speedX, mOpenGLBug.speedY), 0, 0, -1.0f);
+			// Rotate in order to make the bug's back facing us.
 			Matrix.rotateM(mModelMatrix, 0, 180, 0.0f, 1.0f, 0.0f);
 			Matrix.rotateM(mModelMatrix, 0, 90, -1.0f, 0.0f, 0.0f);
 
@@ -778,8 +781,8 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		case MODE_MAIN_MENU:
 			int polarityX = bug.speedX >= 0 ? 1 : -1;
 			int polarityY = bug.speedY >= 0 ? 1 : -1;
-			int tmpX = bug.x + bug.speedX;
-			int tmpY = bug.y + bug.speedY;
+			int tmpX = bug.x + bug.speedX + bug.relativeSpeedX;
+			int tmpY = bug.y + bug.speedY + bug.relativeSpeedY;
 
 			if (bugShouldPause) {
 				if (System.currentTimeMillis() - bug.lastRefreshTime > 2000) {
@@ -822,11 +825,15 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 	 * bug that has been created in mBugList, or create a new bug in mListBug if
 	 * it is empty or has more than one bug in it.
 	 */
-	private void prepareMainMenuBugIfNecessary() {
+	private void prepareMainMenuBug() {
 		if (mBugList.size() != 1) {
 			mBugList.clear();
 		}
-
+		generateMainMenuBug();
+	}
+	
+	/** Generate one main menu bug if necessary*/
+	private void generateMainMenuBug() {
 		if (mBugList.size() == 0) {
 			int randomHeight = rd.nextInt(screenHeight / 3);
 			OpenGLBug menuBug = new OpenGLBug(screenWidth - OpenGLBug.radius, screenHeight / 4 + randomHeight, -1, 1);
@@ -837,7 +844,37 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 	/** In the tutorial 1, there is only one bug. */
 	public void prepareForTutorial1() {
 		mBugList.clear();
+		//bugs will show up from left or right flank side. So the width is either 0+radius OR screenwidht-radius
+		int randomHeight = randInt(OpenGLBug.radius, screenHeight/2 );
+		int randomWidth;
+		if(rd.nextInt(2) == 0)
+			randomWidth = OpenGLBug.radius;
+		else
+			randomWidth = screenWidth - OpenGLBug.radius;
+		
+		//Make sure that abs(speedX) and abs(speedY) is at least 1
+		int[] destination = findBugNextDest();
+		int xDiff = destination[0] - randomWidth;
+		int yDiff = destination[1] - randomHeight;
+		int speedX = xDiff > 20? xDiff/20 : xDiff/Math.abs(xDiff);
+		int speedY = yDiff > 20? yDiff/20 : yDiff/Math.abs(yDiff);
 		
 		
+		OpenGLBug tutorial1Bug = new OpenGLBug(randomWidth, randomHeight, speedX, speedY);
+		mBugList.add(tutorial1Bug);
+		
+	}
+	
+	private findBugNextDest() {
+		mCameraActivityInstance.findBugNextDest();
+	}
+	
+	/** generate an integer between a range */
+	public int randInt(int min, int max) {
+	    // nextInt is normally exclusive of the top value,
+	    // so add 1 to make it inclusive
+	    int randomNum = rd.nextInt((max - min) + 1) + min;
+
+	    return randomNum;
 	}
 }
