@@ -57,7 +57,6 @@ public class ColorDetector {
 
 		// Color radius for range checking in HSV color space
 		mColorRadius = new Scalar(25, 50, 50, 0);
-//		mSpectrum = new Mat();
 		
 		mFloorContours = new MatOfPoint[1];
 		mShoesContours = new MatOfPoint[2];
@@ -113,21 +112,7 @@ public class ColorDetector {
 
 		mShoeLowerBound.val[3] = 0;
 		mShoeUpperBound.val[3] = 255;
-
-		// Mat spectrumHsv = new Mat(1, (int) (maxH - minH), CvType.CV_8UC3);
-		//
-		// for (int j = 0; j < maxH - minH; j++) {
-		// byte[] tmp = { (byte) (minH + j), (byte) 255, (byte) 255 };
-		// spectrumHsv.put(0, j, tmp);
-		// }
-		//
-		// Imgproc.cvtColor(spectrumHsv, mSpectrum, Imgproc.COLOR_HSV2RGB_FULL,
-		// 4);
 	}
-
-//	public Mat getSpectrum() {
-//		return mSpectrum;
-//	}
 
 	public void setMinContourArea(double area) {
 		mMaxContourArea = area;
@@ -217,8 +202,7 @@ public class ColorDetector {
 			Arrays.fill(mShoesContours, null);
 			for (MatOfPoint mshoesContour : shoesContours) {
 				double area = Imgproc.contourArea(mshoesContour);
-				// Log.d("mDebug", "czx contour area:" + area);
-				// Fake area if it is too large
+				// Fake area if it is too large for sticky notesd
 				if (openCvMode == CameraActivity.MODE_TUTORIAL_1) {
 					if (area > screenArea * mMaxContourArea)
 						continue;
