@@ -32,10 +32,12 @@ public class CameraView extends JavaCameraView implements PictureCallback {
 		}
     }
     
-    public int getFps() {
+
+//    public int getFps() {
 //    	return mFpsMeter.getFps();
-    	return 10;
-    }
+//    }
+    
+
     public CameraView(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
