@@ -182,7 +182,8 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	View mColorPickBottomBar;
 	View mColorPickInstructionsView;
 	View mColorPickHelpNotif;
-	View mColorPickHelpConfirmButt;
+	View mColorPickHelpConfirmButt1;
+	View mColorPickHelpConfirmButt2;
 	View mColorPickCloseButton;
 	View mColorPickCameraButton;
 	TextView mColorPickHelpNotifTextView;
@@ -218,8 +219,13 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		// Gets a reference to the help notification viewstub
 		mColorPickHelpNotif = mColorPickLayout.findViewById(R.id.overlay_color_pick_help);
 
-		// Gets a reference to the color pick confirm buttons viewstub
-		mColorPickHelpConfirmButt = mColorPickLayout.findViewById(R.id.overlay_color_pick_confirm_button);
+		// Gets a reference to the color pick confirm buttons1 viewstub (shoe
+		// color pick confirm buttons)
+		mColorPickHelpConfirmButt1 = mColorPickLayout.findViewById(R.id.overlay_color_pick_confirm_button1);
+
+		// Gets a reference to the color pick confirm buttons2 viewstub (floor
+		// color pick confirm buttons)
+		mColorPickHelpConfirmButt2 = mColorPickLayout.findViewById(R.id.overlay_color_pick_confirm_button2);
 
 		// Gets a reference to the CloseBuildTargetMode button
 		mColorPickCloseButton = mColorPickLayout.findViewById(R.id.close_button);
@@ -243,24 +249,45 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	 * called.
 	 */
 	public void onClickColorPickCameraButton(View v) {
-		mColorBlobDetector.setHsvColor(mColorPickHsv);
-		openCvMode = COLOR_PICK_PICK_MODE;
-		mColorPickHelpNotifTextView.setVisibility(View.GONE);
-		mColorPickHelpNotifTextView.setText(R.string.color_pick_help_notif_confirm);
-		mColorPickHelpNotifTextView.setTextColor(Color.WHITE);
-		mColorPickHelpNotifTextView.setVisibility(View.VISIBLE);
-		mColorPickHelpConfirmButt.setVisibility(View.VISIBLE);
-		mColorPickBottomBar.setVisibility(View.GONE);
+		if (!shoeColorPicked) {
+			shoeColorPicked = true;
+			mColorBlobDetector.setShoeHsvColor(mShoeColorPickHsv);
+			openCvMode = MODE_SHOE_COLOR_PICKED;
+			mColorPickHelpNotifTextView.setVisibility(View.GONE);
+			mColorPickHelpNotifTextView.setText(R.string.color_pick_help_notif_confirm_shoe);
+			mColorPickHelpNotifTextView.setTextColor(Color.WHITE);
+			mColorPickHelpNotifTextView.setVisibility(View.VISIBLE);
+			mColorPickHelpConfirmButt1.setVisibility(View.VISIBLE);
+			mColorPickBottomBar.setVisibility(View.GONE);
+		} else {
+			floorColorPicked = true;
+			mColorBlobDetector.setFloorHsvColor(mFloorColorPickHsv);
+			openCvMode = MODE_FLOOR_COLOR_PICKED;
+			mColorPickHelpNotifTextView.setVisibility(View.GONE);
+			mColorPickHelpNotifTextView.setText(R.string.color_pick_help_notif_confirm_floor);
+			mColorPickHelpNotifTextView.setTextColor(Color.WHITE);
+			mColorPickHelpNotifTextView.setVisibility(View.VISIBLE);
+			mColorPickHelpConfirmButt2.setVisibility(View.VISIBLE);
+			mColorPickBottomBar.setVisibility(View.GONE);
+		}
+
 	}
 
 	/** Button Close/Cancel clicked in the process of color picking */
 	public void onClickColorPickCameraClose(View v) {
+		// Set background to semi-transparent black
 		blackBackground.setAlpha(200);
 		mColorPickLayout.setBackgroundDrawable(blackBackground);
+
 		// Goes back to the Color Pick Add rMode
 		initializeInstructionMode();
+
 		// Set mode to default
 		openCvMode = 0;
+
+		// Set not picked shoes&floors' color yet
+		shoeColorPicked = false;
+		floorColorPicked = false;
 	}
 
 	/** Button Add clicked - This will cause the instruction interfaces shows. */
@@ -288,21 +315,42 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		mGLSurfaceView.mRenderer.openGlMode = mGLSurfaceView.mRenderer.MODE_MAIN_MENU;
 	}
 
-	/** Color pick confirm cancel button clicked */
-	public void onClickColorPickConfirmCancel(View v) {
+	/** Shoe color pick confirm cancel button clicked */
+	public void onClickShoeColorPickConfirmCancel(View v) {
 		mColorPickBottomBar.setVisibility(View.VISIBLE);
 		mColorPickHelpNotifTextView.setVisibility(View.GONE);
-		mColorPickHelpNotifTextView.setText(R.string.color_pick_help_notif);
+		mColorPickHelpNotifTextView.setText(R.string.color_pick_help_notif_shoe);
 		mColorPickHelpNotifTextView.setTextColor(Color.WHITE);
 		mColorPickHelpNotifTextView.setVisibility(View.VISIBLE);
-		mColorPickHelpConfirmButt.setVisibility(View.GONE);
-		openCvMode = COLOR_PICK_CROSSHAIR_MODE;
+		mColorPickHelpConfirmButt1.setVisibility(View.GONE);
+		openCvMode = MODE_COLOR_PICK_CROSSHAIR;
+		// Set not picked shoes' color yet
+		shoeColorPicked = false;
 	}
 
-	/** Color pick confirm ok button clicked */
-	public void onClickColorPickConfirmOk(View v) {
+	/** Shoe color pick confirm ok button clicked */
+	public void onClickShoeColorPickConfirmOk(View v) {
+		openCvMode = MODE_COLOR_PICK_CROSSHAIR;
+		mColorPickHelpConfirmButt1.setVisibility(View.GONE);
+		// To enter the ColorPickCameraMode
+		initializeColorPickCameraMode();
+	}
+
+	/** Floor color pick confirm cancel button clicked */
+	public void onClickFloorColorPickConfirmCancel(View v) {
+		mColorPickBottomBar.setVisibility(View.VISIBLE);
+		mColorPickHelpNotifTextView.setVisibility(View.GONE);
+		mColorPickHelpNotifTextView.setText(R.string.color_pick_help_notif_floor);
+		mColorPickHelpNotifTextView.setTextColor(Color.WHITE);
+		mColorPickHelpNotifTextView.setVisibility(View.VISIBLE);
+		mColorPickHelpConfirmButt2.setVisibility(View.GONE);
+		openCvMode = MODE_COLOR_PICK_CROSSHAIR;
+	}
+
+	/** Floor color pick confirm ok button clicked */
+	public void onClickFloorColorPickConfirmOk(View v) {
 		mFrameLayout.removeView(mColorPickLayout);
-		openCvMode = TUTORIAL_1_MODE;
+		openCvMode = MODE_TUTORIAL_1;
 		mGLSurfaceView.mRenderer.openGlMode = mGLSurfaceView.mRenderer.MODE_TUTORIAL_1;
 	}
 
@@ -328,13 +376,21 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		// Gets a reference to the help notification textview
 		mColorPickHelpNotifTextView = (TextView) mColorPickLayout.findViewById(R.id.color_pick_help_notif_text);
 
+		// If shoes' color hasn't been picked, show color_pick_help_notif_shoe
+		if (!shoeColorPicked) {
+			mColorPickHelpNotifTextView.setText(R.string.color_pick_help_notif_shoe);
+		} else {
+			// If shoes' color has been picked, show color_pick_help_notif_floor
+			mColorPickHelpNotifTextView.setText(R.string.color_pick_help_notif_floor);
+		}
+
 		// Set background to transparent
 		blackBackground.setAlpha(0);
 		mColorPickLayout.setBackgroundDrawable(blackBackground);
 
 		// Set opencvmode to crosshair mode, so opencv will draw a crosshair in
 		// the center of image
-		openCvMode = COLOR_PICK_CROSSHAIR_MODE;
+		openCvMode = MODE_COLOR_PICK_CROSSHAIR;
 	}
 
 	/*
@@ -350,13 +406,18 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	org.opencv.core.Point crosshairRightmost;
 	org.opencv.core.Point crosshairUpmost;
 	org.opencv.core.Point crosshairDownmost;
-	private Scalar mColorPickRgba;
-	private Scalar mColorPickHsv;
+	private Scalar mShoeColorPickRgba;
+	private Scalar mShoeColorPickHsv;
+	private Scalar mFloorColorPickRgba;
+	private Scalar mFloorColorPickHsv;
 	int openCvMode;
-	public static final int COLOR_PICK_CROSSHAIR_MODE = 123;
-	public static final int COLOR_PICK_PICK_MODE = 124;
-	public static final int COLOR_PICK_HOLD_WRONGLY_MODE = 125;
-	public static final int TUTORIAL_1_MODE = 126;
+	public static final int MODE_COLOR_PICK_CROSSHAIR = 123;
+	public static final int MODE_SHOE_COLOR_PICKED = 124;
+	public static final int MODE_COLOR_PICK_HOLD_WRONGLY = 125;
+	public static final int MODE_FLOOR_COLOR_PICKED = 126;
+	public static final int MODE_TUTORIAL_1 = 127;
+	private boolean shoeColorPicked = false;
+	private boolean floorColorPicked = false;
 	Rect colorPickArea;
 	ColorDetector mColorBlobDetector;
 	List<MatOfPoint> detectedContours;
@@ -396,24 +457,35 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		mRgba = inputFrame.rgba();
 		switch (openCvMode) {
 
-		case COLOR_PICK_CROSSHAIR_MODE:
+		case MODE_COLOR_PICK_CROSSHAIR:
 			Mat colorPickAreaRgba = mRgba.submat(colorPickArea);
 			Imgproc.cvtColor(colorPickAreaRgba, colorPickAreaHsv, Imgproc.COLOR_RGB2HSV_FULL);
-			// Calculate average color of color pick region
-			mColorPickHsv = Core.sumElems(colorPickAreaHsv);
 			int pointCount = colorPickArea.width * colorPickArea.height;
-			for (int i = 0; i < mColorPickHsv.val.length; i++)
-				mColorPickHsv.val[i] /= pointCount;
-			mColorPickRgba = converScalarHsv2Rgba(mColorPickHsv);
-			Mat colorLabel = mRgba.submat(44, 108, 8, 72);
-			colorLabel.setTo(mColorPickRgba);
+
+			// Pick shoes' color
+			if (!shoeColorPicked) {
+				// Calculate average color of shoes' color pick region
+				mShoeColorPickHsv = Core.sumElems(colorPickAreaHsv);
+				for (int i = 0; i < mShoeColorPickHsv.val.length; i++)
+					mShoeColorPickHsv.val[i] /= pointCount;
+				mShoeColorPickRgba = converScalarHsv2Rgba(mShoeColorPickHsv);
+				Mat colorLabel = mRgba.submat(44, 108, 8, 72);
+				colorLabel.setTo(mShoeColorPickRgba);
+			} else {
+				mFloorColorPickHsv = Core.sumElems(colorPickAreaHsv);
+				for (int i = 0; i < mFloorColorPickHsv.val.length; i++)
+					mFloorColorPickHsv.val[i] /= pointCount;
+				mFloorColorPickRgba = converScalarHsv2Rgba(mFloorColorPickHsv);
+				Mat colorLabel = mRgba.submat(44, 108, 8, 72);
+				colorLabel.setTo(mFloorColorPickRgba);
+			}
 			Core.line(mRgba, crosshairHeftmost, crosshairRightmost, blueColor, 10);
 			Core.line(mRgba, crosshairUpmost, crosshairDownmost, blueColor, 10);
 			break;
 
-		case COLOR_PICK_PICK_MODE:
+		case MODE_SHOE_COLOR_PICKED:
 			mColorBlobDetector.process(mRgba, openCvMode);
-			detectedContours = new LinkedList<MatOfPoint>(Arrays.asList(mColorBlobDetector.getContours()));
+			detectedContours = mColorBlobDetector.getShoesContours();
 			// Log.e(TAG, "Contours count: " + contours.size());
 			if (detectedContours == null)
 				return mRgba;
@@ -421,14 +493,22 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 			Imgproc.drawContours(mRgba, detectedContours, -1, redColor, 6);
 			break;
 
-		case COLOR_PICK_HOLD_WRONGLY_MODE:
+		case MODE_COLOR_PICK_HOLD_WRONGLY:
 			Core.line(mRgba, crosshairHeftmost, crosshairRightmost, grayColor, 10);
 			Core.line(mRgba, crosshairUpmost, crosshairDownmost, grayColor, 10);
 			break;
 
-		case TUTORIAL_1_MODE:
+		case MODE_FLOOR_COLOR_PICKED:
 			mColorBlobDetector.process(mRgba, openCvMode);
-			detectedContours = new LinkedList<MatOfPoint>(Arrays.asList(mColorBlobDetector.getContours()));
+			detectedContours = mColorBlobDetector.getFloorContours();
+			if (detectedContours == null)
+				return mRgba;
+			detectedContours.removeAll(Collections.singleton(null));
+			Imgproc.drawContours(mRgba, detectedContours, -1, redColor, 4);
+
+		case MODE_TUTORIAL_1:
+			mColorBlobDetector.process(mRgba, openCvMode);
+			detectedContours = mColorBlobDetector.getShoesContours();
 			if (detectedContours == null)
 				return mRgba;
 			detectedContours.removeAll(Collections.singleton(null));
@@ -623,23 +703,27 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 				if (Sensor.TYPE_ACCELEROMETER == arg0.sensor.getType()) {
 					// Log.d(TAG, "accelerometer z:" + arg0.values[2]);
 					switch (openCvMode) {
-					case COLOR_PICK_CROSSHAIR_MODE:
+					case MODE_COLOR_PICK_CROSSHAIR:
 						if (arg0.values[2] < 8.5f) {
 							mColorPickHelpNotifTextView.setVisibility(View.GONE);
 							mColorPickHelpNotifTextView.setText(R.string.color_pick_help_notif_horizon);
 							mColorPickHelpNotifTextView.setTextColor(Color.RED);
 							mColorPickHelpNotifTextView.setVisibility(View.VISIBLE);
-							openCvMode = COLOR_PICK_HOLD_WRONGLY_MODE;
+							openCvMode = MODE_COLOR_PICK_HOLD_WRONGLY;
 							mColorPickCameraButton.setEnabled(false);
 						}
 						break;
-					case COLOR_PICK_HOLD_WRONGLY_MODE:
+					case MODE_COLOR_PICK_HOLD_WRONGLY:
 						if (arg0.values[2] > 8.5f) {
 							mColorPickHelpNotifTextView.setVisibility(View.GONE);
-							mColorPickHelpNotifTextView.setText(R.string.color_pick_help_notif);
+							if (!shoeColorPicked) {
+								mColorPickHelpNotifTextView.setText(R.string.color_pick_help_notif_shoe);
+							} else {
+								mColorPickHelpNotifTextView.setText(R.string.color_pick_help_notif_floor);
+							}
 							mColorPickHelpNotifTextView.setTextColor(Color.WHITE);
 							mColorPickHelpNotifTextView.setVisibility(View.VISIBLE);
-							openCvMode = COLOR_PICK_CROSSHAIR_MODE;
+							openCvMode = MODE_COLOR_PICK_CROSSHAIR;
 							mColorPickCameraButton.setEnabled(true);
 						}
 					default:

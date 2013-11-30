@@ -8,6 +8,6 @@
     android:paddingBottom="10dp"
     android:paddingTop="10dp"
     android:singleLine="true"
-    android:text="@string/color_pick_help_notif"
+    android:text="@string/color_pick_help_notif_shoe"
     android:textColor="@color/white" 
     android:animateLayoutChanges="true"/>

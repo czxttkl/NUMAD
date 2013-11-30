@@ -303,9 +303,9 @@ public class MainActivity extends Activity implements OnTouchListener,
 				+ mBlobColorRgba.val[3] + ")");
 
 		mDetector = new ColorDetector(800, 640);
-		mDetector.setHsvColor(mBlobColorHsv);
+		mDetector.setShoeHsvColor(mBlobColorHsv);
 
-		Imgproc.resize(mDetector.getSpectrum(), mSpectrum, SPECTRUM_SIZE);
+//		Imgproc.resize(mDetector.getSpectrum(), mSpectrum, SPECTRUM_SIZE);
 
 		touchedRegionRgba.release();
 		touchedRegionHsv.release();
@@ -320,7 +320,7 @@ public class MainActivity extends Activity implements OnTouchListener,
 		// mSpectrum.cols());
 		// mSpectrum.copyTo(spectrumLabel);
 
-		return Arrays.asList(mDetector.getContours());
+		return mDetector.getShoesContours();
 
 	}
 

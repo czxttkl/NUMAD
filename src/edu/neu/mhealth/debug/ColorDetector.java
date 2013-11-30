@@ -3,6 +3,7 @@ package edu.neu.mhealth.debug;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.opencv.core.Core;
@@ -15,25 +16,33 @@ import org.opencv.imgproc.Imgproc;
 import android.util.Log;
 
 public class ColorDetector {
-	// Minimum contour area in percent for contours filtering
-	private static double mMinContourArea = 0.15;
+	// Maximum contour area in percent for contours filtering
+	private static double mMaxContourArea = 0.15;
 
-	// Lower and Upper bounds for range checking in HSV color space
-	private Scalar mLowerBound;
-	private Scalar mUpperBound;
+	// Lower and Upper bounds for range checking in HSV color space for shoes
+	private Scalar mShoeLowerBound;
+	private Scalar mShoeUpperBound;
+
+	// Lower and Upper bounds for range checking in HSV color space for floor
+	private Scalar mFloorLowerBound;
+	private Scalar mFloorUpperBound;
 
 	// Color radius for range checking in HSV color space
 	private Scalar mColorRadius;
-	private Mat mSpectrum;
-	// private List<MatOfPoint> mContours;
-	private MatOfPoint[] mContours;
+//	private Mat mSpectrum;
+	
+	private MatOfPoint[] mFloorContours;
+	private MatOfPoint[] mShoesContours;
 
 	// Cache
 	Mat mPyrDownMat;
 	Mat mHsvMat;
-	Mat mMask;
-	Mat mDilatedMask;
-	Mat mHierarchy;
+	Mat mShoeMask;
+	Mat mShoeDilatedMask;
+	Mat mShoeHierarchy;
+	Mat mFloorMask;
+	Mat mFloorDilatedMask;
+	Mat mFloorHierarchy;
 
 	// Record screen size
 	int width;
@@ -41,21 +50,27 @@ public class ColorDetector {
 	long screenArea;
 
 	public ColorDetector(int width, int height) {
-		mLowerBound = new Scalar(0);
-		mUpperBound = new Scalar(0);
+		mShoeLowerBound = new Scalar(0);
+		mShoeUpperBound = new Scalar(0);
+		mFloorLowerBound = new Scalar(0);
+		mFloorUpperBound = new Scalar(0);
 
 		// Color radius for range checking in HSV color space
 		mColorRadius = new Scalar(25, 50, 50, 0);
-		mSpectrum = new Mat();
-		// mContours = new ArrayList<MatOfPoint>();
-		mContours = new MatOfPoint[2];
+//		mSpectrum = new Mat();
+		
+		mFloorContours = new MatOfPoint[1];
+		mShoesContours = new MatOfPoint[2];
 
 		// Cache
 		mPyrDownMat = new Mat();
 		mHsvMat = new Mat();
-		mMask = new Mat();
-		mDilatedMask = new Mat();
-		mHierarchy = new Mat();
+		mShoeMask = new Mat();
+		mShoeDilatedMask = new Mat();
+		mShoeHierarchy = new Mat();
+		mFloorMask = new Mat();
+		mFloorDilatedMask = new Mat();
+		mFloorHierarchy = new Mat();
 
 		this.width = width;
 		this.height = height;
@@ -66,52 +81,68 @@ public class ColorDetector {
 		mColorRadius = radius;
 	}
 
-	public void setHsvColor(Scalar hsvColor) {
-		double minH = (hsvColor.val[0] >= mColorRadius.val[0]) ? hsvColor.val[0] - mColorRadius.val[0] : 0;
-		double maxH = (hsvColor.val[0] + mColorRadius.val[0] <= 255) ? hsvColor.val[0] + mColorRadius.val[0] : 255;
+	public void setFloorHsvColor(Scalar floorHsvColor) {
+		double minH = (floorHsvColor.val[0] >= mColorRadius.val[0]) ? floorHsvColor.val[0] - mColorRadius.val[0] : 0;
+		double maxH = (floorHsvColor.val[0] + mColorRadius.val[0] <= 255) ? floorHsvColor.val[0] + mColorRadius.val[0] : 255;
+		
+		mFloorLowerBound.val[0] = minH;
+		mFloorUpperBound.val[0] = maxH;
 
-		mLowerBound.val[0] = minH;
-		mUpperBound.val[0] = maxH;
+		mFloorLowerBound.val[1] = floorHsvColor.val[1] - mColorRadius.val[1];
+		mFloorUpperBound.val[1] = floorHsvColor.val[1] + mColorRadius.val[1];
 
-		mLowerBound.val[1] = hsvColor.val[1] - mColorRadius.val[1];
-		mUpperBound.val[1] = hsvColor.val[1] + mColorRadius.val[1];
+		mFloorLowerBound.val[2] = floorHsvColor.val[2] - mColorRadius.val[2];
+		mFloorUpperBound.val[2] = floorHsvColor.val[2] + mColorRadius.val[2];
 
-		mLowerBound.val[2] = hsvColor.val[2] - mColorRadius.val[2];
-		mUpperBound.val[2] = hsvColor.val[2] + mColorRadius.val[2];
+		mFloorLowerBound.val[3] = 0;
+		mFloorUpperBound.val[3] = 255;
+	}
+	
+	public void setShoeHsvColor(Scalar shoeHsvColor) {
+		double minH = (shoeHsvColor.val[0] >= mColorRadius.val[0]) ? shoeHsvColor.val[0] - mColorRadius.val[0] : 0;
+		double maxH = (shoeHsvColor.val[0] + mColorRadius.val[0] <= 255) ? shoeHsvColor.val[0] + mColorRadius.val[0] : 255;
 
-		mLowerBound.val[3] = 0;
-		mUpperBound.val[3] = 255;
+		mShoeLowerBound.val[0] = minH;
+		mShoeUpperBound.val[0] = maxH;
 
-		Mat spectrumHsv = new Mat(1, (int) (maxH - minH), CvType.CV_8UC3);
+		mShoeLowerBound.val[1] = shoeHsvColor.val[1] - mColorRadius.val[1];
+		mShoeUpperBound.val[1] = shoeHsvColor.val[1] + mColorRadius.val[1];
 
-		for (int j = 0; j < maxH - minH; j++) {
-			byte[] tmp = { (byte) (minH + j), (byte) 255, (byte) 255 };
-			spectrumHsv.put(0, j, tmp);
-		}
+		mShoeLowerBound.val[2] = shoeHsvColor.val[2] - mColorRadius.val[2];
+		mShoeUpperBound.val[2] = shoeHsvColor.val[2] + mColorRadius.val[2];
 
-		Imgproc.cvtColor(spectrumHsv, mSpectrum, Imgproc.COLOR_HSV2RGB_FULL, 4);
+		mShoeLowerBound.val[3] = 0;
+		mShoeUpperBound.val[3] = 255;
+
+		// Mat spectrumHsv = new Mat(1, (int) (maxH - minH), CvType.CV_8UC3);
+		//
+		// for (int j = 0; j < maxH - minH; j++) {
+		// byte[] tmp = { (byte) (minH + j), (byte) 255, (byte) 255 };
+		// spectrumHsv.put(0, j, tmp);
+		// }
+		//
+		// Imgproc.cvtColor(spectrumHsv, mSpectrum, Imgproc.COLOR_HSV2RGB_FULL,
+		// 4);
 	}
 
-	public Mat getSpectrum() {
-		return mSpectrum;
-	}
+//	public Mat getSpectrum() {
+//		return mSpectrum;
+//	}
 
 	public void setMinContourArea(double area) {
-		mMinContourArea = area;
+		mMaxContourArea = area;
 	}
 
 	public void process(Mat rgbaImage, int openCvMode) {
+		// Find max contour area
+		double maxArea = 1;
+		double secondMaxArea = 0;
+		List<MatOfPoint> shoesContours;
+		
 		Imgproc.pyrDown(rgbaImage, mPyrDownMat);
 		// Imgproc.pyrDown(mPyrDownMat, mPyrDownMat);
 
 		Imgproc.cvtColor(mPyrDownMat, mHsvMat, Imgproc.COLOR_RGB2HSV_FULL);
-
-		Core.inRange(mHsvMat, mLowerBound, mUpperBound, mMask);
-		Imgproc.dilate(mMask, mDilatedMask, new Mat());
-
-		List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
-
-		Imgproc.findContours(mDilatedMask, contours, mHierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
 
 		// Iterator<MatOfPoint> each = contours.iterator();
 		// while (each.hasNext()) {
@@ -120,34 +151,95 @@ public class ColorDetector {
 		// if (area > maxArea)
 		// maxArea = area;
 		// }
+		switch (openCvMode) {
+		case CameraActivity.MODE_FLOOR_COLOR_PICKED:
+			List<MatOfPoint> mContours = new ArrayList<MatOfPoint>();
+			Core.inRange(mHsvMat, mFloorLowerBound, mFloorUpperBound, mFloorMask);
+			Imgproc.dilate(mFloorMask, mFloorDilatedMask, new Mat());
+			Imgproc.findContours(mFloorDilatedMask, mContours, mFloorHierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+		
+			for (MatOfPoint mContour : mContours) {
+				double area = Imgproc.contourArea(mContour);
+				if (area > maxArea) {
+					maxArea = area;
+					Core.multiply(mContour, new Scalar(2, 2), mContour);
+					mFloorContours[0] = mContour;
+				}
+			}
+			break;
 
-		Arrays.fill(mContours, null);
-		// Find max contour area
-		double maxArea = 1;
-		double secondMaxArea = 0;
+		case CameraActivity.MODE_SHOE_COLOR_PICKED:
+			
+			Core.inRange(mHsvMat, mShoeLowerBound, mShoeUpperBound, mShoeMask);
+			Imgproc.dilate(mShoeMask, mShoeDilatedMask, new Mat());
 
-		for (MatOfPoint mContour : contours) {
-			double area = Imgproc.contourArea(mContour);
-			Log.d("mDebug", "czx contour area:" + area);
+			shoesContours = new ArrayList<MatOfPoint>();
 
-			// Fake area if it is too large
-			if (openCvMode == CameraActivity.TUTORIAL_1_MODE) {
-				if (area > screenArea * mMinContourArea)
+			Imgproc.findContours(mShoeDilatedMask, shoesContours, mShoeHierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+		
+			Arrays.fill(mShoesContours, null);
+			
+			for (MatOfPoint mContour : shoesContours) {
+				double area = Imgproc.contourArea(mContour);
+				// Log.d("mDebug", "czx contour area:" + area);
+				// Fake area if it is too large
+				if (openCvMode == CameraActivity.MODE_TUTORIAL_1) {
+					if (area > screenArea * mMaxContourArea)
+						continue;
+				}
+
+				if (area > maxArea) {
+					maxArea = area;
+					Core.multiply(mContour, new Scalar(2, 2), mContour);
+					mShoesContours[0] = mContour;
 					continue;
+				}
+				if (area > secondMaxArea) {
+					secondMaxArea = area;
+					Core.multiply(mContour, new Scalar(2, 2), mContour);
+					mShoesContours[1] = mContour;
+					continue;
+				}
 			}
 
-			if (area > maxArea) {
-				maxArea = area;
-				Core.multiply(mContour, new Scalar(2, 2), mContour);
-				mContours[0] = mContour;
-				continue;
+			break;
+
+		case CameraActivity.MODE_TUTORIAL_1:
+
+			Core.inRange(mHsvMat, mShoeLowerBound, mShoeUpperBound, mShoeMask);
+			Imgproc.dilate(mShoeMask, mShoeDilatedMask, new Mat());
+
+			shoesContours = new ArrayList<MatOfPoint>();
+
+			Imgproc.findContours(mShoeDilatedMask, shoesContours, mShoeHierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+		
+			Arrays.fill(mShoesContours, null);
+			Arrays.fill(mShoesContours, null);
+			for (MatOfPoint mshoesContour : shoesContours) {
+				double area = Imgproc.contourArea(mshoesContour);
+				// Log.d("mDebug", "czx contour area:" + area);
+				// Fake area if it is too large
+				if (openCvMode == CameraActivity.MODE_TUTORIAL_1) {
+					if (area > screenArea * mMaxContourArea)
+						continue;
+				}
+
+				if (area > maxArea) {
+					maxArea = area;
+					Core.multiply(mshoesContour, new Scalar(2, 2), mshoesContour);
+					mShoesContours[0] = mshoesContour;
+					continue;
+				}
+				if (area > secondMaxArea) {
+					secondMaxArea = area;
+					Core.multiply(mshoesContour, new Scalar(2, 2), mshoesContour);
+					mShoesContours[1] = mshoesContour;
+					continue;
+				}
 			}
-			if (area > secondMaxArea) {
-				secondMaxArea = area;
-				Core.multiply(mContour, new Scalar(2, 2), mContour);
-				mContours[1] = mContour;
-				continue;
-			}
+			break;
+		default:
+
 		}
 		// // Filter contours by area and resize to fit the original image size
 		// mContours.clear();
@@ -162,7 +254,11 @@ public class ColorDetector {
 	}
 
 	// public List<MatOfPoint> getContours() {
-	public MatOfPoint[] getContours() {
-		return mContours;
+	public List<MatOfPoint> getShoesContours() {
+		return new LinkedList<MatOfPoint>(Arrays.asList(mShoesContours));
+	}
+	
+	public List<MatOfPoint> getFloorContours() {
+		return Arrays.asList(mFloorContours);
 	}
 }

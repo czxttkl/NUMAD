@@ -14,11 +14,19 @@
         android:visibility="gone" />
     
     <ViewStub
-        android:id="@+id/overlay_color_pick_confirm_button"
+        android:id="@+id/overlay_color_pick_confirm_button1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout="@layout/color_pick_help_confirm_butt"
+        android:layout="@layout/color_pick_help_confirm_butt1"
+        android:visibility="gone" />
+    
+     <ViewStub
+        android:id="@+id/overlay_color_pick_confirm_button2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout="@layout/color_pick_help_confirm_butt2"
         android:visibility="gone" />
 
     <LinearLayout
