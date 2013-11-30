@@ -100,7 +100,7 @@ public class ColorDetector {
 
     public void process(Mat rgbaImage) {
         Imgproc.pyrDown(rgbaImage, mPyrDownMat);
-//        Imgproc.pyrDown(mPyrDownMat, mPyrDownMat);
+        Imgproc.pyrDown(mPyrDownMat, mPyrDownMat);
 
         Imgproc.cvtColor(mPyrDownMat, mHsvMat, Imgproc.COLOR_RGB2HSV_FULL);
 
@@ -129,7 +129,7 @@ public class ColorDetector {
         	Log.d("mDebug", "czx contour area:" + area);
         	if (area > maxArea) {
         		maxArea = area;
-        		Core.multiply(mContour, new Scalar(2,2), mContour);
+        		Core.multiply(mContour, new Scalar(4,4), mContour);
         		mContours[0] = mContour;
         		continue;
         	}
@@ -140,8 +140,6 @@ public class ColorDetector {
         		continue;
         	}
         }
-        
-//        if mContours
 //        // Filter contours by area and resize to fit the original image size
 //        mContours.clear();
 //        each = contours.iterator();
