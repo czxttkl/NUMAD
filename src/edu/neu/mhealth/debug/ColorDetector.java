@@ -1,6 +1,5 @@
 package edu.neu.mhealth.debug;
 
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -16,144 +15,154 @@ import org.opencv.imgproc.Imgproc;
 import android.util.Log;
 
 public class ColorDetector {
-    // Minimum contour area in percent for contours filtering
-    private static double mMinContourArea = 0.1;
-    
-    // Lower and Upper bounds for range checking in HSV color space
-    private Scalar mLowerBound;
-    private Scalar mUpperBound;
+	// Minimum contour area in percent for contours filtering
+	private static double mMinContourArea = 0.15;
 
-    // Color radius for range checking in HSV color space
-    private Scalar mColorRadius;
-    private Mat mSpectrum;
-//    private List<MatOfPoint> mContours;
-    private MatOfPoint[] mContours;
-    
-    // Cache
-    Mat mPyrDownMat;
-    Mat mHsvMat;
-    Mat mMask;
-    Mat mDilatedMask;
-    Mat mHierarchy;
+	// Lower and Upper bounds for range checking in HSV color space
+	private Scalar mLowerBound;
+	private Scalar mUpperBound;
 
-    // Record screen size
-    int width;
-    int height;
-    
-    public ColorDetector(int width, int height) {
-        mLowerBound = new Scalar(0);
-        mUpperBound = new Scalar(0);
+	// Color radius for range checking in HSV color space
+	private Scalar mColorRadius;
+	private Mat mSpectrum;
+	// private List<MatOfPoint> mContours;
+	private MatOfPoint[] mContours;
 
-        // Color radius for range checking in HSV color space
-        mColorRadius = new Scalar(25,50,50,0);
-        mSpectrum = new Mat();
-//        mContours = new ArrayList<MatOfPoint>();
-        mContours = new MatOfPoint[2];
-        
-        // Cache
-        mPyrDownMat = new Mat();
-        mHsvMat = new Mat();
-        mMask = new Mat();
-        mDilatedMask = new Mat();
-        mHierarchy = new Mat();
-        
-        this.width = width;
-        this.height = height;
-    }
-    public void setColorRadius(Scalar radius) {
-        mColorRadius = radius;
-    }
+	// Cache
+	Mat mPyrDownMat;
+	Mat mHsvMat;
+	Mat mMask;
+	Mat mDilatedMask;
+	Mat mHierarchy;
 
-    public void setHsvColor(Scalar hsvColor) {
-        double minH = (hsvColor.val[0] >= mColorRadius.val[0]) ? hsvColor.val[0]-mColorRadius.val[0] : 0;
-        double maxH = (hsvColor.val[0]+mColorRadius.val[0] <= 255) ? hsvColor.val[0]+mColorRadius.val[0] : 255;
+	// Record screen size
+	int width;
+	int height;
+	long screenArea;
 
-        mLowerBound.val[0] = minH;
-        mUpperBound.val[0] = maxH;
+	public ColorDetector(int width, int height) {
+		mLowerBound = new Scalar(0);
+		mUpperBound = new Scalar(0);
 
-        mLowerBound.val[1] = hsvColor.val[1] - mColorRadius.val[1];
-        mUpperBound.val[1] = hsvColor.val[1] + mColorRadius.val[1];
+		// Color radius for range checking in HSV color space
+		mColorRadius = new Scalar(25, 50, 50, 0);
+		mSpectrum = new Mat();
+		// mContours = new ArrayList<MatOfPoint>();
+		mContours = new MatOfPoint[2];
 
-        mLowerBound.val[2] = hsvColor.val[2] - mColorRadius.val[2];
-        mUpperBound.val[2] = hsvColor.val[2] + mColorRadius.val[2];
+		// Cache
+		mPyrDownMat = new Mat();
+		mHsvMat = new Mat();
+		mMask = new Mat();
+		mDilatedMask = new Mat();
+		mHierarchy = new Mat();
 
-        mLowerBound.val[3] = 0;
-        mUpperBound.val[3] = 255;
+		this.width = width;
+		this.height = height;
+		screenArea = width * height;
+	}
 
-        Mat spectrumHsv = new Mat(1, (int)(maxH-minH), CvType.CV_8UC3);
+	public void setColorRadius(Scalar radius) {
+		mColorRadius = radius;
+	}
 
-        for (int j = 0; j < maxH-minH; j++) {
-            byte[] tmp = {(byte)(minH+j), (byte)255, (byte)255};
-            spectrumHsv.put(0, j, tmp);
-        }
+	public void setHsvColor(Scalar hsvColor) {
+		double minH = (hsvColor.val[0] >= mColorRadius.val[0]) ? hsvColor.val[0] - mColorRadius.val[0] : 0;
+		double maxH = (hsvColor.val[0] + mColorRadius.val[0] <= 255) ? hsvColor.val[0] + mColorRadius.val[0] : 255;
 
-        Imgproc.cvtColor(spectrumHsv, mSpectrum, Imgproc.COLOR_HSV2RGB_FULL, 4);
-    }
+		mLowerBound.val[0] = minH;
+		mUpperBound.val[0] = maxH;
 
-    public Mat getSpectrum() {
-        return mSpectrum;
-    }
+		mLowerBound.val[1] = hsvColor.val[1] - mColorRadius.val[1];
+		mUpperBound.val[1] = hsvColor.val[1] + mColorRadius.val[1];
 
-    public void setMinContourArea(double area) {
-        mMinContourArea = area;
-    }
+		mLowerBound.val[2] = hsvColor.val[2] - mColorRadius.val[2];
+		mUpperBound.val[2] = hsvColor.val[2] + mColorRadius.val[2];
 
-    public void process(Mat rgbaImage) {
-        Imgproc.pyrDown(rgbaImage, mPyrDownMat);
-        Imgproc.pyrDown(mPyrDownMat, mPyrDownMat);
+		mLowerBound.val[3] = 0;
+		mUpperBound.val[3] = 255;
 
-        Imgproc.cvtColor(mPyrDownMat, mHsvMat, Imgproc.COLOR_RGB2HSV_FULL);
+		Mat spectrumHsv = new Mat(1, (int) (maxH - minH), CvType.CV_8UC3);
 
-        Core.inRange(mHsvMat, mLowerBound, mUpperBound, mMask);
-        Imgproc.dilate(mMask, mDilatedMask, new Mat());
+		for (int j = 0; j < maxH - minH; j++) {
+			byte[] tmp = { (byte) (minH + j), (byte) 255, (byte) 255 };
+			spectrumHsv.put(0, j, tmp);
+		}
 
-        List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
+		Imgproc.cvtColor(spectrumHsv, mSpectrum, Imgproc.COLOR_HSV2RGB_FULL, 4);
+	}
 
-        Imgproc.findContours(mDilatedMask, contours, mHierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+	public Mat getSpectrum() {
+		return mSpectrum;
+	}
 
-//        Iterator<MatOfPoint> each = contours.iterator();
-//        while (each.hasNext()) {
-//            MatOfPoint wrapper = each.next();
-//            double area = Imgproc.contourArea(wrapper);
-//            if (area > maxArea)
-//                maxArea = area;
-//        }
-        
-        Arrays.fill(mContours, null);
-        // Find max contour area
-        double maxArea = 1;
-        double secondMaxArea = 0; 
-        
-        for (MatOfPoint mContour : contours) {
-        	double area = Imgproc.contourArea(mContour);
-        	Log.d("mDebug", "czx contour area:" + area);
-        	if (area > maxArea) {
-        		maxArea = area;
-        		Core.multiply(mContour, new Scalar(4,4), mContour);
-        		mContours[0] = mContour;
-        		continue;
-        	}
-        	if (area > secondMaxArea) {
-        		secondMaxArea = area;
-        		Core.multiply(mContour, new Scalar(4,4), mContour);
-        		mContours[1] = mContour;
-        		continue;
-        	}
-        }
-//        // Filter contours by area and resize to fit the original image size
-//        mContours.clear();
-//        each = contours.iterator();
-//        while (each.hasNext()) {
-//            MatOfPoint contour = each.next();
-//            if (Imgproc.contourArea(contour) > mMinContourArea*maxArea) {
-//                Core.multiply(contour, new Scalar(4,4), contour);
-//                mContours.add(contour);
-//            }
-//        }
-    }
+	public void setMinContourArea(double area) {
+		mMinContourArea = area;
+	}
 
-//    public List<MatOfPoint> getContours() {
-    public MatOfPoint[] getContours() {
-        return mContours;
-    }
+	public void process(Mat rgbaImage, int openCvMode) {
+		Imgproc.pyrDown(rgbaImage, mPyrDownMat);
+		// Imgproc.pyrDown(mPyrDownMat, mPyrDownMat);
+
+		Imgproc.cvtColor(mPyrDownMat, mHsvMat, Imgproc.COLOR_RGB2HSV_FULL);
+
+		Core.inRange(mHsvMat, mLowerBound, mUpperBound, mMask);
+		Imgproc.dilate(mMask, mDilatedMask, new Mat());
+
+		List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
+
+		Imgproc.findContours(mDilatedMask, contours, mHierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+
+		// Iterator<MatOfPoint> each = contours.iterator();
+		// while (each.hasNext()) {
+		// MatOfPoint wrapper = each.next();
+		// double area = Imgproc.contourArea(wrapper);
+		// if (area > maxArea)
+		// maxArea = area;
+		// }
+
+		Arrays.fill(mContours, null);
+		// Find max contour area
+		double maxArea = 1;
+		double secondMaxArea = 0;
+
+		for (MatOfPoint mContour : contours) {
+			double area = Imgproc.contourArea(mContour);
+			Log.d("mDebug", "czx contour area:" + area);
+
+			// Fake area if it is too large
+			if (openCvMode == CameraActivity.TUTORIAL_1_MODE) {
+				if (area > screenArea * mMinContourArea)
+					continue;
+			}
+
+			if (area > maxArea) {
+				maxArea = area;
+				Core.multiply(mContour, new Scalar(2, 2), mContour);
+				mContours[0] = mContour;
+				continue;
+			}
+			if (area > secondMaxArea) {
+				secondMaxArea = area;
+				Core.multiply(mContour, new Scalar(2, 2), mContour);
+				mContours[1] = mContour;
+				continue;
+			}
+		}
+		// // Filter contours by area and resize to fit the original image size
+		// mContours.clear();
+		// each = contours.iterator();
+		// while (each.hasNext()) {
+		// MatOfPoint contour = each.next();
+		// if (Imgproc.contourArea(contour) > mMinContourArea*maxArea) {
+		// Core.multiply(contour, new Scalar(4,4), contour);
+		// mContours.add(contour);
+		// }
+		// }
+	}
+
+	// public List<MatOfPoint> getContours() {
+	public MatOfPoint[] getContours() {
+		return mContours;
+	}
 }

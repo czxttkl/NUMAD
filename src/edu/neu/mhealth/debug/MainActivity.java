@@ -310,7 +310,7 @@ public class MainActivity extends Activity implements OnTouchListener,
 		touchedRegionRgba.release();
 		touchedRegionHsv.release();
 
-		mDetector.process(mRgba);
+		mDetector.process(mRgba, 111);
 		
 
 		// Mat colorLabel = mRgba.submat(4, 68, 4, 68);

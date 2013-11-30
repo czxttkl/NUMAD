@@ -353,10 +353,10 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	private Scalar mColorPickRgba;
 	private Scalar mColorPickHsv;
 	int openCvMode;
-	private final int COLOR_PICK_CROSSHAIR_MODE = 123;
-	private final int COLOR_PICK_PICK_MODE = 124;
-	private final int COLOR_PICK_HOLD_WRONGLY_MODE = 125;
-	private final int TUTORIAL_1_MODE = 126;
+	public static final int COLOR_PICK_CROSSHAIR_MODE = 123;
+	public static final int COLOR_PICK_PICK_MODE = 124;
+	public static final int COLOR_PICK_HOLD_WRONGLY_MODE = 125;
+	public static final int TUTORIAL_1_MODE = 126;
 	Rect colorPickArea;
 	ColorDetector mColorBlobDetector;
 	List<MatOfPoint> detectedContours;
@@ -412,7 +412,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 			break;
 
 		case COLOR_PICK_PICK_MODE:
-			mColorBlobDetector.process(mRgba);
+			mColorBlobDetector.process(mRgba, openCvMode);
 			detectedContours = new LinkedList<MatOfPoint>(Arrays.asList(mColorBlobDetector.getContours()));
 			// Log.e(TAG, "Contours count: " + contours.size());
 			if (detectedContours == null)
@@ -427,29 +427,12 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 			break;
 
 		case TUTORIAL_1_MODE:
-//			mColorBlobDetector.process(mRgba);
-//			detectedContours = new LinkedList<MatOfPoint>(Arrays.asList(mColorBlobDetector.getContours()));
-//			if (detectedContours == null)
-//				return mRgba;
-//			detectedContours.removeAll(Collections.singleton(null));
-//			setRendererContourMassCenter();
-
-			Mat circles = new Mat();
-			Imgproc.HoughCircles(mGray, circles, Imgproc.CV_HOUGH_GRADIENT, 2.0d, screenOpenCvWidth / 8);
-			Log.d(TAG, "ggg circle cols:" + circles.cols());
-			if (circles.cols() > 0) {
-				for (int x = 0; x < circles.cols(); x++) {
-					double vCircle[] = circles.get(0, x);
-					if (vCircle == null)
-						break;
-					org.opencv.core.Point pt = new org.opencv.core.Point(Math.round(vCircle[0]), Math.round(vCircle[1]));
-					int radius = (int) Math.round(vCircle[2]);
-
-					// draw the found circle
-					Core.circle(mRgba, pt, radius, new Scalar(0, 255, 0), 5);
-					Core.circle(mRgba, pt, 3, new Scalar(0, 0, 255), 5);
-				}
-			}
+			mColorBlobDetector.process(mRgba, openCvMode);
+			detectedContours = new LinkedList<MatOfPoint>(Arrays.asList(mColorBlobDetector.getContours()));
+			if (detectedContours == null)
+				return mRgba;
+			detectedContours.removeAll(Collections.singleton(null));
+			setRendererContourMassCenter();
 			break;
 
 		default:
