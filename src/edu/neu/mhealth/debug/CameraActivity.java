@@ -2,6 +2,8 @@ package edu.neu.mhealth.debug;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.opencv.android.BaseLoaderCallback;
@@ -373,7 +375,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		colorPickArea.y = height / 2 - 5;
 		colorPickArea.width = 10;
 		colorPickArea.height = 10;
-		mColorBlobDetector = new ColorDetector();
+		mColorBlobDetector = new ColorDetector(width, height);
 	}
 
 	@Override
@@ -405,8 +407,11 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 			
 		case COLOR_PICK_PICK_MODE:
 			mColorBlobDetector.process(mRgba);
-            detectedContours = mColorBlobDetector.getContours();
+            detectedContours = new LinkedList<MatOfPoint>(Arrays.asList(mColorBlobDetector.getContours()));
 //            Log.e(TAG, "Contours count: " + contours.size());
+            if (detectedContours == null)
+            	return mRgba;
+            detectedContours.removeAll(Collections.singleton(null));
             Imgproc.drawContours(mRgba, detectedContours, -1, redColor, 6);
 			break;
 			
@@ -417,7 +422,10 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 			
 		case TUTORIAL_1_MODE:
 			mColorBlobDetector.process(mRgba);
-            detectedContours = mColorBlobDetector.getContours();
+			detectedContours = new LinkedList<MatOfPoint>(Arrays.asList(mColorBlobDetector.getContours()));
+            if (detectedContours == null)
+            	return mRgba;
+            detectedContours.removeAll(Collections.singleton(null));
             setRendererContourMassCenter();
 			break;
 			

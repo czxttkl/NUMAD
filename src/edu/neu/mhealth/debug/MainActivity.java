@@ -1,5 +1,6 @@
 package edu.neu.mhealth.debug;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.opencv.android.BaseLoaderCallback;
@@ -301,7 +302,7 @@ public class MainActivity extends Activity implements OnTouchListener,
 				+ mBlobColorRgba.val[1] + ", " + mBlobColorRgba.val[2] + ", "
 				+ mBlobColorRgba.val[3] + ")");
 
-		mDetector = new ColorDetector();
+		mDetector = new ColorDetector(800, 640);
 		mDetector.setHsvColor(mBlobColorHsv);
 
 		Imgproc.resize(mDetector.getSpectrum(), mSpectrum, SPECTRUM_SIZE);
@@ -319,7 +320,7 @@ public class MainActivity extends Activity implements OnTouchListener,
 		// mSpectrum.cols());
 		// mSpectrum.copyTo(spectrumLabel);
 
-		return mDetector.getContours();
+		return Arrays.asList(mDetector.getContours());
 
 	}
 

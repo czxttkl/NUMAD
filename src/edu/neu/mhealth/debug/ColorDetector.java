@@ -2,6 +2,7 @@ package edu.neu.mhealth.debug;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -11,6 +12,8 @@ import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
+
+import android.util.Log;
 
 public class ColorDetector {
     // Minimum contour area in percent for contours filtering
@@ -23,8 +26,9 @@ public class ColorDetector {
     // Color radius for range checking in HSV color space
     private Scalar mColorRadius;
     private Mat mSpectrum;
-    private List<MatOfPoint> mContours;
-
+//    private List<MatOfPoint> mContours;
+    private MatOfPoint[] mContours;
+    
     // Cache
     Mat mPyrDownMat;
     Mat mHsvMat;
@@ -32,21 +36,29 @@ public class ColorDetector {
     Mat mDilatedMask;
     Mat mHierarchy;
 
-    public ColorDetector() {
+    // Record screen size
+    int width;
+    int height;
+    
+    public ColorDetector(int width, int height) {
         mLowerBound = new Scalar(0);
         mUpperBound = new Scalar(0);
 
         // Color radius for range checking in HSV color space
         mColorRadius = new Scalar(25,50,50,0);
         mSpectrum = new Mat();
-        mContours = new ArrayList<MatOfPoint>();
-
+//        mContours = new ArrayList<MatOfPoint>();
+        mContours = new MatOfPoint[2];
+        
         // Cache
         mPyrDownMat = new Mat();
         mHsvMat = new Mat();
         mMask = new Mat();
         mDilatedMask = new Mat();
         mHierarchy = new Mat();
+        
+        this.width = width;
+        this.height = height;
     }
     public void setColorRadius(Scalar radius) {
         mColorRadius = radius;
@@ -99,29 +111,49 @@ public class ColorDetector {
 
         Imgproc.findContours(mDilatedMask, contours, mHierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
 
+//        Iterator<MatOfPoint> each = contours.iterator();
+//        while (each.hasNext()) {
+//            MatOfPoint wrapper = each.next();
+//            double area = Imgproc.contourArea(wrapper);
+//            if (area > maxArea)
+//                maxArea = area;
+//        }
+        
+        Arrays.fill(mContours, null);
         // Find max contour area
-        double maxArea = 0;
-        Iterator<MatOfPoint> each = contours.iterator();
-        while (each.hasNext()) {
-            MatOfPoint wrapper = each.next();
-            double area = Imgproc.contourArea(wrapper);
-            if (area > maxArea)
-                maxArea = area;
+        double maxArea = 1;
+        double secondMaxArea = 0; 
+        
+        for (MatOfPoint mContour : contours) {
+        	double area = Imgproc.contourArea(mContour);
+        	Log.d("mDebug", "czx contour area:" + area);
+        	if (area > maxArea) {
+        		maxArea = area;
+        		Core.multiply(mContour, new Scalar(4,4), mContour);
+        		mContours[0] = mContour;
+        		continue;
+        	}
+        	if (area > secondMaxArea) {
+        		secondMaxArea = area;
+        		Core.multiply(mContour, new Scalar(4,4), mContour);
+        		mContours[1] = mContour;
+        		continue;
+        	}
         }
-
-        // Filter contours by area and resize to fit the original image size
-        mContours.clear();
-        each = contours.iterator();
-        while (each.hasNext()) {
-            MatOfPoint contour = each.next();
-            if (Imgproc.contourArea(contour) > mMinContourArea*maxArea) {
-                Core.multiply(contour, new Scalar(4,4), contour);
-                mContours.add(contour);
-            }
-        }
+//        // Filter contours by area and resize to fit the original image size
+//        mContours.clear();
+//        each = contours.iterator();
+//        while (each.hasNext()) {
+//            MatOfPoint contour = each.next();
+//            if (Imgproc.contourArea(contour) > mMinContourArea*maxArea) {
+//                Core.multiply(contour, new Scalar(4,4), contour);
+//                mContours.add(contour);
+//            }
+//        }
     }
 
-    public List<MatOfPoint> getContours() {
+//    public List<MatOfPoint> getContours() {
+    public MatOfPoint[] getContours() {
         return mContours;
     }
 }
