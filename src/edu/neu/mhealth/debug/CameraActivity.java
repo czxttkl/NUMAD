@@ -64,30 +64,35 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	/* Basic Variables */
 	/** Debug Tag */
 	private final String TAG = Global.APP_LOG_TAG;
-	/** The game activity's framelayout. Use this to handle adding/removingsurfaceviews */
+	/**
+	 * The game activity's framelayout. Use this to handle
+	 * adding/removingsurfaceviews
+	 */
 	FrameLayout mFrameLayout;
-	
-	/** The layout for color picking. Including instructions and confirm buttons. */
+
+	/**
+	 * The layout for color picking. Including instructions and confirm buttons.
+	 */
 	RelativeLayout mColorPickLayout;
-	
+
 	/** Used for semi-transparent black background */
 	ImageView mMainMenuBackground;
-	
+
 	/** The "Debug" title appearing on the main menu, inflated by main_menu.xml */
 	ImageView mMainMenuTitle;
-	
+
 	/** Hold the buttons in the main menu screen */
 	View mMainMenuButtonListView;
-	
+
 	/** The whole about screen view. It will be inflated by about_screen.xml */
 	View mAboutView;
-	
+
 	/** The text in the about screen */
 	TextView mAboutText;
-	
+
 	/** Used for semi-transparent black background */
 	Drawable blackBackground;
-	
+
 	/** Screen width in pixels */
 	public int screenPixelWidth;
 
@@ -96,10 +101,10 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 
 	/** Screen width in opencv rows */
 	public int screenOpenCvWidth;
-	
+
 	/** Screen height in opencv rows */
 	public int screenOpenCvHeight;
-	
+
 	/* OpenCv Variables */
 	private CameraBridgeViewBase mOpenCvCameraView;
 	private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
@@ -191,8 +196,8 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		mFrameLayout.removeView(mMainMenuTitle);
 		mFrameLayout.removeView(mMainMenuButtonListView);
 		mFrameLayout.removeView(mMainMenuBackground);
-		
-		//OpenGL shouldn't render anything right after clicking start game.
+
+		// OpenGL shouldn't render anything right after clicking start game.
 		mGLSurfaceView.mRenderer.openGlMode = mGLSurfaceView.mRenderer.MODE_DEFAULT;
 
 		// Inflates the Overlay Layout to be displayed above the Camera View
@@ -212,7 +217,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 
 		// Gets a reference to the help notification viewstub
 		mColorPickHelpNotif = mColorPickLayout.findViewById(R.id.overlay_color_pick_help);
-		
+
 		// Gets a reference to the color pick confirm buttons viewstub
 		mColorPickHelpConfirmButt = mColorPickLayout.findViewById(R.id.overlay_color_pick_confirm_button);
 
@@ -293,14 +298,14 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		mColorPickHelpConfirmButt.setVisibility(View.GONE);
 		openCvMode = COLOR_PICK_CROSSHAIR_MODE;
 	}
-	
+
 	/** Color pick confirm ok button clicked */
 	public void onClickColorPickConfirmOk(View v) {
 		mFrameLayout.removeView(mColorPickLayout);
 		openCvMode = TUTORIAL_1_MODE;
 		mGLSurfaceView.mRenderer.openGlMode = mGLSurfaceView.mRenderer.MODE_TUTORIAL_1;
 	}
-	
+
 	/** Initialize Color Pick Add mode views */
 	private void initializeInstructionMode() {
 		// Shows the bottom bar with the new Target Button
@@ -321,13 +326,14 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		mColorPickCloseButton.setVisibility(View.VISIBLE);
 
 		// Gets a reference to the help notification textview
-		mColorPickHelpNotifTextView = (TextView)mColorPickLayout.findViewById(R.id.color_pick_help_notif_text);
-		
+		mColorPickHelpNotifTextView = (TextView) mColorPickLayout.findViewById(R.id.color_pick_help_notif_text);
+
 		// Set background to transparent
 		blackBackground.setAlpha(0);
 		mColorPickLayout.setBackgroundDrawable(blackBackground);
-		
-		//Set opencvmode to crosshair mode, so opencv will draw a crosshair in the center of image
+
+		// Set opencvmode to crosshair mode, so opencv will draw a crosshair in
+		// the center of image
 		openCvMode = COLOR_PICK_CROSSHAIR_MODE;
 	}
 
@@ -359,7 +365,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	public void onCameraViewStarted(int width, int height) {
 		screenOpenCvWidth = width;
 		screenOpenCvHeight = height;
-		
+
 		mGray = new Mat();
 		mRgba = new Mat();
 		colorPickAreaHsv = new Mat();
@@ -389,7 +395,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		mGray = inputFrame.gray();
 		mRgba = inputFrame.rgba();
 		switch (openCvMode) {
-		
+
 		case COLOR_PICK_CROSSHAIR_MODE:
 			Mat colorPickAreaRgba = mRgba.submat(colorPickArea);
 			Imgproc.cvtColor(colorPickAreaRgba, colorPickAreaHsv, Imgproc.COLOR_RGB2HSV_FULL);
@@ -404,31 +410,48 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 			Core.line(mRgba, crosshairHeftmost, crosshairRightmost, blueColor, 10);
 			Core.line(mRgba, crosshairUpmost, crosshairDownmost, blueColor, 10);
 			break;
-			
+
 		case COLOR_PICK_PICK_MODE:
 			mColorBlobDetector.process(mRgba);
-            detectedContours = new LinkedList<MatOfPoint>(Arrays.asList(mColorBlobDetector.getContours()));
-//            Log.e(TAG, "Contours count: " + contours.size());
-            if (detectedContours == null)
-            	return mRgba;
-            detectedContours.removeAll(Collections.singleton(null));
-            Imgproc.drawContours(mRgba, detectedContours, -1, redColor, 6);
+			detectedContours = new LinkedList<MatOfPoint>(Arrays.asList(mColorBlobDetector.getContours()));
+			// Log.e(TAG, "Contours count: " + contours.size());
+			if (detectedContours == null)
+				return mRgba;
+			detectedContours.removeAll(Collections.singleton(null));
+			Imgproc.drawContours(mRgba, detectedContours, -1, redColor, 6);
 			break;
-			
+
 		case COLOR_PICK_HOLD_WRONGLY_MODE:
 			Core.line(mRgba, crosshairHeftmost, crosshairRightmost, grayColor, 10);
 			Core.line(mRgba, crosshairUpmost, crosshairDownmost, grayColor, 10);
 			break;
-			
+
 		case TUTORIAL_1_MODE:
-			mColorBlobDetector.process(mRgba);
-			detectedContours = new LinkedList<MatOfPoint>(Arrays.asList(mColorBlobDetector.getContours()));
-            if (detectedContours == null)
-            	return mRgba;
-            detectedContours.removeAll(Collections.singleton(null));
-            setRendererContourMassCenter();
+//			mColorBlobDetector.process(mRgba);
+//			detectedContours = new LinkedList<MatOfPoint>(Arrays.asList(mColorBlobDetector.getContours()));
+//			if (detectedContours == null)
+//				return mRgba;
+//			detectedContours.removeAll(Collections.singleton(null));
+//			setRendererContourMassCenter();
+
+			Mat circles = new Mat();
+			Imgproc.HoughCircles(mGray, circles, Imgproc.CV_HOUGH_GRADIENT, 2.0d, screenOpenCvWidth / 8);
+			Log.d(TAG, "ggg circle cols:" + circles.cols());
+			if (circles.cols() > 0) {
+				for (int x = 0; x < circles.cols(); x++) {
+					double vCircle[] = circles.get(0, x);
+					if (vCircle == null)
+						break;
+					org.opencv.core.Point pt = new org.opencv.core.Point(Math.round(vCircle[0]), Math.round(vCircle[1]));
+					int radius = (int) Math.round(vCircle[2]);
+
+					// draw the found circle
+					Core.circle(mRgba, pt, radius, new Scalar(0, 255, 0), 5);
+					Core.circle(mRgba, pt, 3, new Scalar(0, 0, 255), 5);
+				}
+			}
 			break;
-			
+
 		default:
 			// Do no process here
 		}
@@ -443,7 +466,10 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		return new Scalar(pointMatRgba.get(0, 0));
 	}
 
-	/** This method is called in opencv so that we could know the location of shoes*/
+	/**
+	 * This method is called in opencv so that we could know the location of
+	 * shoes
+	 */
 	private void setRendererContourMassCenter() {
 		List<Moments> mu = new ArrayList<Moments>(detectedContours.size());
 		List<OpenGLFire> mFireList = new ArrayList<OpenGLFire>(detectedContours.size());
@@ -451,16 +477,17 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 			Moments detectedMoment = Imgproc.moments(detectedContours.get(i), false);
 			mu.add(detectedMoment);
 			double ratioX = detectedMoment.get_m10() / (detectedMoment.get_m00() * screenOpenCvWidth);
-			//Reverse the y axis because opencv uses y-down-axis while opengl uses y-up-axis
-	        double ratioY = 1 - detectedMoment.get_m01() / (detectedMoment.get_m00() * screenOpenCvHeight);
-	        int x = (int)ratioX * screenOpenCvWidth;
-	        int y = (int)ratioY * screenOpenCvHeight;
+			// Reverse the y axis because opencv uses y-down-axis while opengl
+			// uses y-up-axis
+			double ratioY = 1 - detectedMoment.get_m01() / (detectedMoment.get_m00() * screenOpenCvHeight);
+			int x = (int) ratioX * screenOpenCvWidth;
+			int y = (int) ratioY * screenOpenCvHeight;
 			Core.circle(mRgba, new org.opencv.core.Point(x, y), 4, redColor);
-	        mFireList.add(new OpenGLFire(ratioX, ratioY));
+			mFireList.add(new OpenGLFire(ratioX, ratioY));
 		}
 		mGLSurfaceView.mRenderer.mFireList = mFireList;
 	}
-	
+
 	/**
 	 * Save/Restore States
 	 */
@@ -529,8 +556,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 
 		LayoutInflater layoutInflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
 		mMainMenuButtonListView = layoutInflater.inflate(R.layout.main_menu, null);
-		FrameLayout.LayoutParams lp1 = new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT,
-				LayoutParams.WRAP_CONTENT);
+		FrameLayout.LayoutParams lp1 = new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
 		lp1.setMargins(0, 300, 0, 0);
 		mMainMenuButtonListView.setLayoutParams(lp1);
 		mFrameLayout.addView(mMainMenuButtonListView);
@@ -612,7 +638,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 				// - speedY * SPEED_CONSTANT;
 			} else {
 				if (Sensor.TYPE_ACCELEROMETER == arg0.sensor.getType()) {
-//					Log.d(TAG, "accelerometer z:" + arg0.values[2]);
+					// Log.d(TAG, "accelerometer z:" + arg0.values[2]);
 					switch (openCvMode) {
 					case COLOR_PICK_CROSSHAIR_MODE:
 						if (arg0.values[2] < 8.5f) {
@@ -634,7 +660,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 							mColorPickCameraButton.setEnabled(true);
 						}
 					default:
-						//Do nothing
+						// Do nothing
 					}
 				}
 			}
@@ -661,9 +687,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 					}
 
 					// need to slow down if the distance is short
-					float mDirectionNew = normalizeDegree(mDirection
-							+ ((to - mDirection) * mInterpolator
-									.getInterpolation(Math.abs(distance) > MAX_ROATE_DEGREE ? 0.4f : 0.3f)));
+					float mDirectionNew = normalizeDegree(mDirection + ((to - mDirection) * mInterpolator.getInterpolation(Math.abs(distance) > MAX_ROATE_DEGREE ? 0.4f : 0.3f)));
 					mDirection = mDirectionNew;
 					updateOpenGLEyeLocation(mDirection);
 				}
@@ -694,32 +718,24 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 			int[] mainMenuButtonLocation = new int[2];
 			buttonLinearLayout.getLocationInWindow(mainMenuButtonLocation);
 			// This means the views haven't been rendered
-			if ((mainMenuTitleLocation[0] == 0 && mainMenuTitleLocation[1] == 0)
-					|| (mainMenuButtonLocation[0] == 0 && mainMenuButtonLocation[1] == 0)
-					|| mGLSurfaceView.mRenderer == null) {
+			if ((mainMenuTitleLocation[0] == 0 && mainMenuTitleLocation[1] == 0) || (mainMenuButtonLocation[0] == 0 && mainMenuButtonLocation[1] == 0) || mGLSurfaceView.mRenderer == null) {
 				mHandler.postDelayed(mMainMenuBorderRunnable, 200);
 				return;
 			}
 			// Convert to y-axis upwards coordinate
 			mainMenuTitleLocation[1] = screenPixelHeight - mainMenuTitleLocation[1];
 			mainMenuButtonLocation[1] = screenPixelHeight - mainMenuButtonLocation[1];
-			Log.d(TAG, "main menu title location:" + mainMenuTitleLocation[0] + "," + mainMenuTitleLocation[1] + ":"
-					+ mainMenuTitleWidth + "," + mainMenuTitleHeight);
-			Log.d(TAG, "main menu button location:" + mainMenuButtonLocation[0] + "," + mainMenuButtonLocation[1] + ":"
-					+ buttonLinearLayoutWidth + "," + buttonLinearLayoutHeight);
+			Log.d(TAG, "main menu title location:" + mainMenuTitleLocation[0] + "," + mainMenuTitleLocation[1] + ":" + mainMenuTitleWidth + "," + mainMenuTitleHeight);
+			Log.d(TAG, "main menu button location:" + mainMenuButtonLocation[0] + "," + mainMenuButtonLocation[1] + ":" + buttonLinearLayoutWidth + "," + buttonLinearLayoutHeight);
 			// Add the title and buttons constraints
 			BorderLine bl1 = new BorderLine(BorderLine.TYPE_UPPER_BOUND, 0, mainMenuTitleLocation[1], 1);
 			BorderLine bl2 = new BorderLine(BorderLine.TYPE_UPPER_BOUND, 0, mainMenuButtonLocation[1], 1);
-			BorderLine bl3 = new BorderLine(BorderLine.TYPE_LOWER_BOUND, 0, mainMenuTitleLocation[1]
-					- mainMenuTitleHeight, 1);
-			BorderLine bl4 = new BorderLine(BorderLine.TYPE_LOWER_BOUND, 0, mainMenuButtonLocation[1]
-					- buttonLinearLayoutHeight, 1);
+			BorderLine bl3 = new BorderLine(BorderLine.TYPE_LOWER_BOUND, 0, mainMenuTitleLocation[1] - mainMenuTitleHeight, 1);
+			BorderLine bl4 = new BorderLine(BorderLine.TYPE_LOWER_BOUND, 0, mainMenuButtonLocation[1] - buttonLinearLayoutHeight, 1);
 			BorderLine bl5 = new BorderLine(BorderLine.TYPE_X_LEFT_BOUND, 1, mainMenuTitleLocation[0], 0);
 			BorderLine bl6 = new BorderLine(BorderLine.TYPE_X_LEFT_BOUND, 1, mainMenuButtonLocation[0], 0);
-			BorderLine bl7 = new BorderLine(BorderLine.TYPE_X_RIGHT_BOUND, 1, mainMenuTitleLocation[0]
-					+ mainMenuTitleWidth, 0);
-			BorderLine bl8 = new BorderLine(BorderLine.TYPE_X_RIGHT_BOUND, 1, mainMenuButtonLocation[0]
-					+ buttonLinearLayoutWidth, 0);
+			BorderLine bl7 = new BorderLine(BorderLine.TYPE_X_RIGHT_BOUND, 1, mainMenuTitleLocation[0] + mainMenuTitleWidth, 0);
+			BorderLine bl8 = new BorderLine(BorderLine.TYPE_X_RIGHT_BOUND, 1, mainMenuButtonLocation[0] + buttonLinearLayoutWidth, 0);
 			// Add the screen constraints
 			BorderLine bl9 = new BorderLine(BorderLine.TYPE_UPPER_BOUND, 0, screenPixelHeight, 1);
 			BorderLine bl10 = new BorderLine(BorderLine.TYPE_LOWER_BOUND, 0, 0, 1);
