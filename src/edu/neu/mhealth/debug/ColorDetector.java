@@ -122,8 +122,8 @@ public class ColorDetector {
 		// Find max contour area
 		double maxArea = 1;
 		double secondMaxArea = 0;
-		List<MatOfPoint> shoesContours;
-		
+		List<MatOfPoint> mShoesContoursList;
+		List<MatOfPoint> mFloorContoursList;
 		Imgproc.pyrDown(rgbaImage, mPyrDownMat);
 		// Imgproc.pyrDown(mPyrDownMat, mPyrDownMat);
 
@@ -138,12 +138,12 @@ public class ColorDetector {
 		// }
 		switch (openCvMode) {
 		case CameraActivity.MODE_FLOOR_COLOR_PICKED:
-			List<MatOfPoint> mContours = new ArrayList<MatOfPoint>();
+			mFloorContoursList = new ArrayList<MatOfPoint>();
 			Core.inRange(mHsvMat, mFloorLowerBound, mFloorUpperBound, mFloorMask);
 			Imgproc.dilate(mFloorMask, mFloorDilatedMask, new Mat());
-			Imgproc.findContours(mFloorDilatedMask, mContours, mFloorHierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+			Imgproc.findContours(mFloorDilatedMask, mFloorContoursList, mFloorHierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
 		
-			for (MatOfPoint mContour : mContours) {
+			for (MatOfPoint mContour : mFloorContoursList) {
 				double area = Imgproc.contourArea(mContour);
 				if (area > maxArea) {
 					maxArea = area;
@@ -158,13 +158,13 @@ public class ColorDetector {
 			Core.inRange(mHsvMat, mShoeLowerBound, mShoeUpperBound, mShoeMask);
 			Imgproc.dilate(mShoeMask, mShoeDilatedMask, new Mat());
 
-			shoesContours = new ArrayList<MatOfPoint>();
+			mShoesContoursList = new ArrayList<MatOfPoint>();
 
-			Imgproc.findContours(mShoeDilatedMask, shoesContours, mShoeHierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+			Imgproc.findContours(mShoeDilatedMask, mShoesContoursList, mShoeHierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
 		
 			Arrays.fill(mShoesContours, null);
 			
-			for (MatOfPoint mContour : shoesContours) {
+			for (MatOfPoint mContour : mShoesContoursList) {
 				double area = Imgproc.contourArea(mContour);
 				// Log.d("mDebug", "czx contour area:" + area);
 				// Fake area if it is too large
@@ -190,24 +190,19 @@ public class ColorDetector {
 			break;
 
 		case CameraActivity.MODE_TUTORIAL_1:
-
+			// Detecting shoes
 			Core.inRange(mHsvMat, mShoeLowerBound, mShoeUpperBound, mShoeMask);
 			Imgproc.dilate(mShoeMask, mShoeDilatedMask, new Mat());
-
-			shoesContours = new ArrayList<MatOfPoint>();
-
-			Imgproc.findContours(mShoeDilatedMask, shoesContours, mShoeHierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
-		
+			mShoesContoursList = new ArrayList<MatOfPoint>();
+			Imgproc.findContours(mShoeDilatedMask, mShoesContoursList, mShoeHierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
 			Arrays.fill(mShoesContours, null);
-			Arrays.fill(mShoesContours, null);
-			for (MatOfPoint mshoesContour : shoesContours) {
+			for (MatOfPoint mshoesContour : mShoesContoursList) {
 				double area = Imgproc.contourArea(mshoesContour);
 				// Fake area if it is too large for sticky notesd
 				if (openCvMode == CameraActivity.MODE_TUTORIAL_1) {
 					if (area > screenArea * mMaxContourArea)
 						continue;
 				}
-
 				if (area > maxArea) {
 					maxArea = area;
 					Core.multiply(mshoesContour, new Scalar(2, 2), mshoesContour);
@@ -221,6 +216,22 @@ public class ColorDetector {
 					continue;
 				}
 			}
+			
+			//Detecting floor
+			mFloorContoursList = new ArrayList<MatOfPoint>();
+			Core.inRange(mHsvMat, mFloorLowerBound, mFloorUpperBound, mFloorMask);
+			Imgproc.dilate(mFloorMask, mFloorDilatedMask, new Mat());
+			Imgproc.findContours(mFloorDilatedMask, mFloorContoursList, mFloorHierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+		
+			for (MatOfPoint mContour : mFloorContoursList) {
+				double area = Imgproc.contourArea(mContour);
+				if (area > maxArea) {
+					maxArea = area;
+					Core.multiply(mContour, new Scalar(2, 2), mContour);
+					mFloorContours[0] = mContour;
+				}
+			}
+			
 			break;
 		default:
 

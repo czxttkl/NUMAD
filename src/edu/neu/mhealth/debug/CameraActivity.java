@@ -420,7 +420,8 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	private boolean floorColorPicked = false;
 	Rect colorPickArea;
 	ColorDetector mColorBlobDetector;
-	List<MatOfPoint> detectedContours;
+	List<MatOfPoint> detectedShoesContours;
+	List<MatOfPoint> detectedFloorContours;
 
 	@Override
 	public void onCameraViewStarted(int width, int height) {
@@ -485,12 +486,12 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 
 		case MODE_SHOE_COLOR_PICKED:
 			mColorBlobDetector.process(mRgba, openCvMode);
-			detectedContours = mColorBlobDetector.getShoesContours();
+			detectedShoesContours = mColorBlobDetector.getShoesContours();
 			// Log.e(TAG, "Contours count: " + contours.size());
-			if (detectedContours == null)
+			if (detectedShoesContours == null)
 				return mRgba;
-			detectedContours.removeAll(Collections.singleton(null));
-			Imgproc.drawContours(mRgba, detectedContours, -1, redColor, 6);
+			detectedShoesContours.removeAll(Collections.singleton(null));
+			Imgproc.drawContours(mRgba, detectedShoesContours, -1, redColor, 6);
 			break;
 
 		case MODE_COLOR_PICK_HOLD_WRONGLY:
@@ -500,19 +501,23 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 
 		case MODE_FLOOR_COLOR_PICKED:
 			mColorBlobDetector.process(mRgba, openCvMode);
-			detectedContours = mColorBlobDetector.getFloorContours();
-			if (detectedContours == null)
+			detectedFloorContours = mColorBlobDetector.getFloorContours();
+			if (detectedFloorContours == null)
 				return mRgba;
-			detectedContours.removeAll(Collections.singleton(null));
-			Imgproc.drawContours(mRgba, detectedContours, -1, redColor, 4);
+			detectedFloorContours.removeAll(Collections.singleton(null));
+			Imgproc.drawContours(mRgba, detectedFloorContours, -1, redColor, 4);
 
 		case MODE_TUTORIAL_1:
 			mColorBlobDetector.process(mRgba, openCvMode);
-			detectedContours = mColorBlobDetector.getShoesContours();
-			if (detectedContours == null)
-				return mRgba;
-			detectedContours.removeAll(Collections.singleton(null));
+			detectedShoesContours = mColorBlobDetector.getShoesContours();
+//			if (detectedShoesContours == null)
+//				return mRgba;
+			detectedShoesContours.removeAll(Collections.singleton(null));
 			setRendererContourMassCenter();
+			
+			detectedFloorContours = mColorBlobDetector.getFloorContours();
+			detectedFloorContours.removeAll(Collections.singleton(null));
+			Imgproc.drawContours(mRgba, detectedFloorContours, -1, redColor, 4);
 			break;
 
 		default:
@@ -534,10 +539,10 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	 * shoes
 	 */
 	private void setRendererContourMassCenter() {
-		List<Moments> mu = new ArrayList<Moments>(detectedContours.size());
-		List<OpenGLFire> mFireList = new ArrayList<OpenGLFire>(detectedContours.size());
-		for (int i = 0; i < detectedContours.size(); i++) {
-			Moments detectedMoment = Imgproc.moments(detectedContours.get(i), false);
+		List<Moments> mu = new ArrayList<Moments>(detectedShoesContours.size());
+		List<OpenGLFire> mFireList = new ArrayList<OpenGLFire>(detectedShoesContours.size());
+		for (int i = 0; i < detectedShoesContours.size(); i++) {
+			Moments detectedMoment = Imgproc.moments(detectedShoesContours.get(i), false);
 			mu.add(detectedMoment);
 			double ratioX = detectedMoment.get_m10() / (detectedMoment.get_m00() * screenOpenCvWidth);
 			// Reverse the y axis because opencv uses y-down-axis while opengl
