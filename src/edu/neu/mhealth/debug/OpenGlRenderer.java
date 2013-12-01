@@ -10,6 +10,7 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
@@ -202,8 +203,8 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 	// opengl */
 	// private long lastRefreshBugTime = -1;
 
-//	/** To simulate the reality, bug should halt sometimes */
-//	private boolean bugShouldPause = false;
+	// /** To simulate the reality, bug should halt sometimes */
+	// private boolean bugShouldPause = false;
 
 	/** Hold the lines that bugs should be avoided from */
 	public ArrayList<BorderLine> borderLineList;
@@ -418,7 +419,10 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		GLES20.glViewport(0, 0, width, height);
 		screenOpenGLWidth = width;
 		screenOpenGLHeight = height;
-
+		
+		// Set OpenGLBug's scale
+		OpenGLBug.radius = screenOpenGLWidth / 22;
+		
 		eyeX = screenOpenGLWidth / 2;
 		eyeY = screenOpenGLHeight / 2;
 		lookX = screenOpenGLWidth / 2;
@@ -587,7 +591,9 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 
 	/** Draws bugs in mBugList */
 	private void drawBugs() {
-		for (OpenGLBug mOpenGLBug : mBugList) {
+		Iterator<OpenGLBug> mOpenGLBugIterator = mBugList.iterator();
+		while (mOpenGLBugIterator.hasNext()) {
+			OpenGLBug mOpenGLBug = mOpenGLBugIterator.next();
 			// Load the model matrix as identity matrix
 			Matrix.setIdentityM(mModelMatrix, 0);
 
@@ -601,9 +607,9 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 			Matrix.rotateM(mModelMatrix, 0, 90, -1.0f, 0.0f, 0.0f);
 
 			// The original 3d obj model is too small. So we scale it by
-			// screenWidth/11
-			// times.
+			// screenWidth/11 times. That's also why we set OpenGLBug.radius to screenOpenGLWidth/22
 			Matrix.scaleM(mModelMatrix, 0, screenOpenGLWidth / 11.0f, screenOpenGLWidth / 11.0f, 100f);
+			
 			// Pass in the position information
 			mBugPositions.position(0);
 			GLES20.glVertexAttribPointer(mBugPositionHandle, mPositionDataSize, GLES20.GL_FLOAT, false, 0, mBugPositions);
@@ -654,6 +660,11 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 
 			// Rerfresh the bug status
 			mOpenGLBug = refreshBug(mOpenGLBug);
+			
+			// If the bug is marked as "shouldBeRemoved", it should be removed from ArrayList
+			if (mOpenGLBug.shouldBeRemoved) {
+				mOpenGLBugIterator.remove();
+			}
 		}
 	}
 
@@ -767,7 +778,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 	/** Determine the bug's head rotation */
 	private float headRotate(int speedX, int speedY) {
 		float rotateDegree = 0;
-		rotateDegree = (float) Math.toDegrees(Math.atan(Math.abs(speedY / speedX)));
+		rotateDegree = (float) Math.toDegrees(Math.atan(Math.abs((double)speedY / speedX)));
 		if (speedX > 0 && speedY < 0) {
 			rotateDegree = 90 + rotateDegree;
 		}
@@ -800,14 +811,14 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 			tmpX = bug.x + bug.speedX + OpenGLBug.relativeSpeedX;
 			tmpY = bug.y + bug.speedY + OpenGLBug.relativeSpeedY;
 
-			if (bug.bugShouldPause) {
+			if (bug.shouldPause) {
 				if (System.currentTimeMillis() - bug.lastRefreshTime > 2000) {
-					bug.bugShouldPause = false;
+					bug.shouldPause = false;
 				}
 				return bug;
 			}
 			if (rd.nextInt(100) > 98) {
-				bug.bugShouldPause = true;
+				bug.shouldPause = true;
 				return bug;
 			}
 
@@ -827,9 +838,49 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		case MODE_TUTORIAL_1:
 			tmpX = bug.x + bug.speedX + OpenGLBug.relativeSpeedX;
 			tmpY = bug.y + bug.speedY + OpenGLBug.relativeSpeedY;
-			bug.x = tmpX;
-			bug.y = tmpY;
-			bug.lastRefreshTime = System.currentTimeMillis();
+
+			// If the bug runs out of the boundary. we remove it
+			if (tmpX > screenOpenGLWidth * 2 || tmpX < -screenOpenGLWidth || tmpY > 2 * screenOpenGLHeight || tmpY < -screenOpenGLHeight) {
+				// Mark the bug shouldBeRemoved
+				bug.shouldBeRemoved = true;
+			} else {
+				// If the bug runs out of the screen, we generate a new one
+				if (tmpX > screenOpenGLWidth || tmpX < 0 || tmpY > screenOpenGLHeight || tmpY < 0) {
+					generateTutorial1Bug();
+				} else {
+					// If the bug is still in the screen
+				}
+				
+				if (bug.bouncing) {
+					bug.bounceStepCounter++;
+					// If bounce step counter hits OpenGLBug.BOUNCING_STEP, we clear the bouncing information.
+					// We wouldn't update its (x,y) info. However we would keep its (speedX, speedY)info because that matters with head rotation 
+					if (bug.bounceStepCounter == OpenGLBug.BOUNCING_STEP) {
+						bug.bouncing = false;
+						bug.bounceStepCounter = 0;
+						bug.shouldPause = true;
+					}
+				}
+				
+				// We need to update the bug if it is in the valid region and shouldPause==false.
+				if (!bug.shouldPause) {
+					bug.x = tmpX;
+					bug.y = tmpY;
+					bug.lastRefreshTime = System.currentTimeMillis();
+				}
+			}
+
+//			if (bug.bugShouldPause) {
+//				if (System.currentTimeMillis() - bug.lastRefreshTime > 2000) {
+//					bug.bugShouldPause = false;
+//				}
+//				return bug;
+//			}
+//			if (rd.nextInt(100) > 98) {
+//				bug.bugShouldPause = true;
+//				return bug;
+//			}
+
 			break;
 		default:
 
@@ -864,19 +915,19 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		// either 0+radius OR screenwidht-radius
 		int randomHeight = randInt(OpenGLBug.radius, screenOpenGLHeight / 2);
 		int randomWidth;
-		if (rd.nextInt(2) == 0)
+		if (rd.nextInt(2) == 0) {
 			randomWidth = OpenGLBug.radius;
-		else
+		} else {
 			randomWidth = screenOpenGLWidth - OpenGLBug.radius;
-
+		}
 		// Make sure that abs(speedX) and abs(speedY) is at least 1
 		int[] destination = findBugNextDest();
 		int xDiff = destination[0] - randomWidth;
 		int yDiff = destination[1] - randomHeight;
-		int speedX = xDiff > 50 ? xDiff / 50 : xDiff / Math.abs(xDiff);
-		int speedY = yDiff > 50 ? yDiff / 50 : yDiff / Math.abs(yDiff);
+		int speedX = xDiff > OpenGLBug.BOUNCING_STEP ? xDiff / OpenGLBug.BOUNCING_STEP : xDiff / Math.abs(xDiff);
+		int speedY = yDiff > OpenGLBug.BOUNCING_STEP ? yDiff / OpenGLBug.BOUNCING_STEP : yDiff / Math.abs(yDiff);
 
-		OpenGLBug tutorial1Bug = new OpenGLBug(randomWidth, randomHeight, speedX, speedY);
+		OpenGLBug tutorial1Bug = new OpenGLBug(randomWidth, randomHeight, speedX, speedY, true, destination[0], destination[1], 0);
 		mBugList.add(tutorial1Bug);
 	}
 
