@@ -27,6 +27,7 @@ import edu.neu.mhealth.debug.helper.AccEventListener;
 import edu.neu.mhealth.debug.helper.Bug;
 import edu.neu.mhealth.debug.helper.BugManager;
 import edu.neu.mhealth.debug.helper.JumpBug;
+import edu.neu.mhealth.debug.helper.MotionEventListener;
 import edu.neu.mhealth.debug.helper.MovingAverage;
 
 import android.app.Activity;
@@ -124,6 +125,9 @@ public class MainActivity extends Activity implements OnTouchListener,
 	private Sensor sensorACC;
 	private AccEventListener accEventListener;
 	
+	// for direction / motion detection
+	private MotionEventListener motionEventListener;
+	
 
 	private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
 		@Override
@@ -209,10 +213,15 @@ public class MainActivity extends Activity implements OnTouchListener,
 	@Override
 	public void onResume() {
 		super.onResume();
+		
 		sensorACC = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
 		accEventListener = new AccEventListener(this.getApplicationContext());
 		jumpBug = new JumpBug(getApplicationContext());
 		accEventListener.addObserver(jumpBug);
+		
+		motionEventListener = new MotionEventListener();
+		motionEventListener.addObserver(jumpBug);
+		
 		OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_3, this,
 				mLoaderCallback);
 	}
@@ -412,7 +421,8 @@ public class MainActivity extends Activity implements OnTouchListener,
 			
 			int dis_X = filterX.getValue();
 			int dis_Y = filterY.getValue();
-
+			
+			motionEventListener.notifyMotion(dis_X, dis_Y);
 
 //			Log.e(TAG, "distance offset: "+ dis_X + " " + dis_Y);
 			

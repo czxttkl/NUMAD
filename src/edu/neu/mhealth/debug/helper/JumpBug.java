@@ -17,6 +17,13 @@ public class JumpBug extends Bug implements Observer{
 	@Override
 	public void update(Observable observable, Object data) {
 		// TODO Auto-generated method stub
-		Log.i(TAG, "I get the jumping notification");
+		if (observable instanceof MotionEventListener) {
+			MotionMetrics motion = (MotionMetrics)data;
+			Log.i(TAG, "current motion: " + motion.getMotionX() + "  " + motion.getMotionY());
+		}
+		
+		if (observable instanceof AccEventListener) {
+			Log.i(TAG, "I get the jumping notification");
+		}
 	}
 }
