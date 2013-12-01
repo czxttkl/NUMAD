@@ -19,7 +19,7 @@ public class OpenGLBug {
 	/** Vertical speed of the bug*/
 	public int speedY = 0;
 	
-	/** Indicate whether this bug should halt for the reality simulation reason. */
+	/** Indicate whether this bug should halt for the reality simulation reason or other reasons. */
 	public boolean shouldPause;
 	
 	/** Horizontal relative speed of the bug with users' movement */
@@ -44,7 +44,7 @@ public class OpenGLBug {
 	public int bounceDestY;
 	
 	/** The bouncing steps counter. Used for split bouncing animations */
-	public int bounceStepCounter;
+	public int bounceStepCounter = 0;
 	
 //	/** Indicate whether this bug should be removed. (e.g. it runs out of the boundary) */
 //	public boolean shouldBeRemoved = false;
@@ -57,6 +57,15 @@ public class OpenGLBug {
 	
 	/** Indicate the type of the bug */
 	public int type;
+	
+	/** Indicate whether the bug is burning */
+	public boolean burning = false;
+	
+	/** Burning steps. Used for split the rotation and other burning animations */
+	public final static int BURNING_STEP = 50;
+	
+	/** The burning steps counter. Used for split burning animations */
+	public int burningStepCounter = 0;
 	
 	public OpenGLBug(int type, int x, int y, int speedX, int speedY, float scaleRatio) {
 		this.type = type;

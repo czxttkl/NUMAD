@@ -869,6 +869,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 			if (isBugOutOfBoundary(tmpX, tmpY)) {
 				// Mark the bug shouldBeRemoved
 				mOpenGLBugIterator.remove();
+				return bug;
 			} else {
 				// If the bug runs out of the screen, we generate a new one
 				if (isBugOutOfScreen(tmpX, tmpY)) {
@@ -877,14 +878,27 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 						mOpenGLBugIterator.add(mTutorial1Bug);
 					}
 				} else {
-					// If the bug is still in the screen
-					int distFromBugToFire = calculateDistFromBugToFire(tmpX, tmpY);
-					if (distFromBugToFire < OpenGLBug.radius * 2) {
-						Log.d(TAG, "czx openglbug radius:" + OpenGLBug.radius + " dist:" + distFromBugToFire);
-						updateScore(bug.type);
+					// If the bug is still in the screen AND it is not burning
+					if (!bug.burning) {
+						int distFromBugToFire = calculateDistFromBugToFire(tmpX, tmpY);
+						if (distFromBugToFire < OpenGLBug.radius * 2) {
+							Log.d(TAG, "czx openglbug radius:" + OpenGLBug.radius + " dist:" + distFromBugToFire);
+							bug.burning = true;
+							bug.shouldPause = true;
+							updateScore(bug.type);
+						}
 					}
 				}
-
+				
+				// If the bug is burning to the end, remove it
+				if (bug.burning) {
+					bug.burningStepCounter++;
+					if (bug.burningStepCounter == OpenGLBug.BURNING_STEP) {
+						mOpenGLBugIterator.remove();
+						return bug;
+					}
+				}
+				
 				if (bug.bouncing) {
 					bug.bounceStepCounter++;
 					// If bounce step counter hits OpenGLBug.BOUNCING_STEP, we
@@ -901,23 +915,17 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 
 				// We need to update the bug if it is in the valid region and
 				// shouldPause==false.
-				// if (!bug.shouldPause) {
-				bug.x = tmpX;
-				bug.y = tmpY;
-				// }
-				bug.lastRefreshTime = System.currentTimeMillis();
-			}
+				if (!bug.shouldPause) {
+					bug.x = tmpX;
+					bug.y = tmpY;
+					bug.lastRefreshTime = System.currentTimeMillis();
+				} else {
+					if (!bug.burning && System.currentTimeMillis() - bug.lastRefreshTime > rd.nextInt(2000)) {
+						bug.shouldPause = false;
+					}
+				}
 
-			// if (bug.bugShouldPause) {
-			// if (System.currentTimeMillis() - bug.lastRefreshTime > 2000) {
-			// bug.bugShouldPause = false;
-			// }
-			// return bug;
-			// }
-			// if (rd.nextInt(100) > 98) {
-			// bug.bugShouldPause = true;
-			// return bug;
-			// }
+			}
 
 			break;
 		default:
