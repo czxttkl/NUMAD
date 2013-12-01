@@ -43,8 +43,11 @@ public class OpenGLBug {
 	/** The bouncing steps counter. Used for split bouncing animations */
 	public int bounceStepCounter;
 	
-	/** Indicate whether this bug should be removed. (e.g. it runs out of the boundary) */
-	public boolean shouldBeRemoved = false;
+//	/** Indicate whether this bug should be removed. (e.g. it runs out of the boundary) */
+//	public boolean shouldBeRemoved = false;
+	
+	/** Indicate whether another bug is generated because this bug runs out of the screen */
+	public boolean addAnotherBug = false;
 	
 	public OpenGLBug(int x, int y, int speedX, int speedY) {
 		this.x = x;

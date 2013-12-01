@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -197,7 +198,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 	private int screenOpenGLHeight;
 
 	/** Hold all the bugs that should be counted and calculated in an arraylist */
-	private ArrayList<OpenGLBug> mBugList = new ArrayList<OpenGLBug>();
+	private List<OpenGLBug> mBugList = new ArrayList<OpenGLBug>();
 
 	// /** Record the last time we update the speed/position of the bug in
 	// opengl */
@@ -591,9 +592,10 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 
 	/** Draws bugs in mBugList */
 	private void drawBugs() {
-		Iterator<OpenGLBug> mOpenGLBugIterator = mBugList.iterator();
-		while (mOpenGLBugIterator.hasNext()) {
-			OpenGLBug mOpenGLBug = mOpenGLBugIterator.next();
+		ListIterator<OpenGLBug> mOpenGLBugListIterator = mBugList.listIterator();
+		while (mOpenGLBugListIterator.hasNext()) {
+			OpenGLBug mOpenGLBug = mOpenGLBugListIterator.next();
+			
 			// Load the model matrix as identity matrix
 			Matrix.setIdentityM(mModelMatrix, 0);
 
@@ -659,13 +661,20 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 			GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 5580);
 
 			// Rerfresh the bug status
-			mOpenGLBug = refreshBug(mOpenGLBug, mOpenGLBugIterator);
+			mOpenGLBug = refreshBug(mOpenGLBug, mOpenGLBugListIterator);
 			
 //			// If the bug is marked as "shouldBeRemoved", it should be removed from ArrayList
 //			if (mOpenGLBug.shouldBeRemoved) {
 //				mOpenGLBugIterator.remove();
 //			}
 		}
+		
+//		Iterator<OpenGLBug> mOpenGLBugIterator = mBugList.iterator();
+//		while (mOpenGLBugIterator.hasNext() ) {
+//			OpenGLBug mOpenGLBug = mOpenGLBugIterator.next();
+//			mOpenGLBugIterator.remo
+//		}
+//		
 	}
 
 	/**
@@ -796,7 +805,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		return rotateDegree;
 	}
 
-	private OpenGLBug refreshBug(OpenGLBug bug, Iterator<OpenGLBug> mOpenGLBugIterator) {
+	private OpenGLBug refreshBug(OpenGLBug bug, ListIterator<OpenGLBug> mOpenGLBugIterator) {
 		// That means CameraActivity hasn't initialized the border lines.
 		// if (borderLineList == null)
 		// return bug;
@@ -846,7 +855,11 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 			} else {
 				// If the bug runs out of the screen, we generate a new one
 				if (tmpX > screenOpenGLWidth || tmpX < 0 || tmpY > screenOpenGLHeight || tmpY < 0) {
-					OpenGLBug mTutorial1Bug = generateTutorial1Bug();
+					if (!bug.addAnotherBug) {
+						OpenGLBug mTutorial1Bug = generateTutorial1Bug();
+						mOpenGLBugIterator.add(mTutorial1Bug);
+						bug.addAnotherBug = true;
+					}
 				} else {
 					// If the bug is still in the screen
 				}
