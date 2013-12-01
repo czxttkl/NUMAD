@@ -266,19 +266,14 @@ public class MainActivity extends Activity implements OnTouchListener,
 
 	public boolean onTouch(View v, MotionEvent event) {
 
-		// int x = (int)event.getX() - xOffset;
-		// int y = (int)event.getY() - yOffset;
-
 		Log.e(TAG, "touch coordinate: " + event.getX() + "  " + event.getY());
 
 		int x = configureView.getFloorPosition().x;
 		int y = configureView.getFloorPosition().y;
 
-		// Log.i(TAG, "Touch image coordinates: (" + x + ", " + y + ")");
-
 		mIsColorSelected = true;
 
-		return false; // don't need subsequent touch events
+		return false; 
 	}
 
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
@@ -290,9 +285,6 @@ public class MainActivity extends Activity implements OnTouchListener,
 
 		xOffset = (mOpenCvCameraView.getWidth() - cols) / 2;
 		yOffset = (mOpenCvCameraView.getHeight() - rows) / 2;
-
-		// Log.e(TAG, "bug position: " + bug1.getPosition().x + "   " +
-		// bug1.getPosition().y);
 
 		bug1.setLimit(mOpenCvCameraView.getWidth(),
 				mOpenCvCameraView.getHeight());
@@ -310,20 +302,17 @@ public class MainActivity extends Activity implements OnTouchListener,
 		sensorManager.registerListener(accEventListener, sensorACC, SensorManager.SENSOR_DELAY_FASTEST);	
 
 		if (mIsColorSelected) {
-			
-
+	
 			int x = configureView.getFloorPosition().x - xOffset;
 			int y = configureView.getFloorPosition().y - yOffset;
 			Log.i(TAG, "Touch image coordinates: (" + x + ", " + y + ")");
 			contourFloor = findObjectAt(x, y);
-
 			Imgproc.drawContours(mRgba, contourFloor, -1, CONTOUR_COLOR);
 
 			x = configureView.getShoesPosition().x - xOffset;
 			y = configureView.getShoesPosition().y - yOffset;
 
 			contourShoe = findObjectAt(x, y);
-
 			Imgproc.drawContours(mRgba, contourShoe, -1, CONTOUR_COLOR);
 
 			configureView.disableDrawing();
@@ -343,7 +332,6 @@ public class MainActivity extends Activity implements OnTouchListener,
 
 			bugShoeCollisionCheck();
 		}
-		 
 
 		Rect optFlowRect = new Rect();
 		optFlowRect.x = screenWidth / 2 - squareMetric / 2;
@@ -351,7 +339,6 @@ public class MainActivity extends Activity implements OnTouchListener,
 		optFlowRect.width = squareMetric;
 		optFlowRect.height = squareMetric;
 
-//		Log.e(TAG, "optical location:" + optFlowRect.x + " " + optFlowRect.y);
 		optFlowMatRgba = mRgba.submat(optFlowRect);
 
 		if (mMOP2PtsPrev.rows() == 0) {
@@ -422,9 +409,9 @@ public class MainActivity extends Activity implements OnTouchListener,
 			int dis_X = filterX.getValue();
 			int dis_Y = filterY.getValue();
 			
-			motionEventListener.notifyMotion(dis_X, dis_Y);
+//			motionEventListener.notifyMotion(dis_X, dis_Y);
 
-//			Log.e(TAG, "distance offset: "+ dis_X + " " + dis_Y);
+			Log.e(TAG, "distance motion: "+ dis_X + " " + dis_Y);
 			
 			if (dis_X >= motionThX && dis_Y >= motionThY) {
 //				Log.e(TAG, "direction assigned: forward left");
@@ -442,7 +429,6 @@ public class MainActivity extends Activity implements OnTouchListener,
 			}
 		}
 		
-
 		return mRgba;
 	}
 
