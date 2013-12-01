@@ -5,6 +5,8 @@
  */
 package edu.neu.mhealth.debug.helper;
 
+import java.util.Observable;
+
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -12,26 +14,26 @@ import android.hardware.SensorEventListener;
 import android.util.Log;
 import android.widget.Toast;
 
-public class AccEventListener implements SensorEventListener {
+public class AccEventListener extends Observable implements SensorEventListener {
 	
 	private static final String TAG = "AccEventListener";
     private static final float ALPHA = 0.8f;
     
-    private static final int status_invalid = -1;
-    private static final int status_initial = 0;
-    private static final int status_first = 1;
-    private static final int status_second = 2;
-    private static final int status_third = 3;
-    private static final int status_forth = 4;    
-    private static final int status_fifth = 5;
+    private static final int state_invalid = -1;
+    private static final int state_initial = 0;
+    private static final int state_first = 1;
+    private static final int state_second = 2;
+    private static final int state_third = 3;
+    private static final int state_forth = 4;    
+    private static final int state_fifth = 5;
     
     private Context mContext;
-    private int status;
+    private int state;
     private float[] gravity;
 
     public AccEventListener(Context context) {
         gravity = new float[3];
-        status = status_invalid;
+        state = state_invalid;
         mContext = context;
     }
     
@@ -47,47 +49,50 @@ public class AccEventListener implements SensorEventListener {
 		float[] values = event.values.clone();
 		values = highPass(values[0], values[1], values[2]);
 		
-		Log.e(TAG, "z axis value: " + values[2]);
-		if (status == status_invalid) {
+//		Log.e(TAG, "z axis value: " + values[2]);
+		if (state == state_invalid) {
 			if (values[2] < 1 && values[2] > -1) {
-				status = status_initial;
+				state = state_initial;
 			}
 		}
-		if (status == status_initial) {
+		if (state == state_initial) {
 			if (values[2] < -2 && values[2] > -4) {
-				status = status_first;
+				state = state_first;
 			}
 		}
 		
-		if (status == status_first) {
+		if (state == state_first) {
 			if (values[2] < 6 && values[2] > 4) {
-				status = status_second;
+				state = state_second;
 			}
 		}
 
-		if (status == status_second) {
+		if (state == state_second) {
 			if (values[2] < -7 && values[2] > -10) {
-				status = status_third;
+				state = state_third;
 			}
 		}
 
-		if (status == status_third) {
+		if (state == state_third) {
 			if (values[2] < 6 && values[2] > 4) {
-				status = status_forth;
+				state = state_forth;
 			}
 		}
 
-		if (status == status_forth) {
-			if (values[2] < 1 && values[2] > -1) {
-				status = status_fifth;
+		if (state == state_forth) {
+			if (values[2] < 2 && values[2] > -2) {
+				state = state_fifth;
 			}
 		}
 
-		if (status == status_fifth) {
-			
-		}
+		if (state == state_fifth) {
+			Log.e(TAG, "should be notified!");
+			setChanged();
+			notifyObservers();
+			state = state_invalid;
+		}		
 		
-		Log.i(TAG, "current status:---------- " + status);
+//		Log.i(TAG, "current state: " + state);
 	}
 	
     /**
