@@ -3,13 +3,13 @@ package edu.neu.mhealth.debug.opengl;
 public class OpenGLFire {
 	/**
 	 * Because the units of width are different between OpenCV and OpenGL, we
-	 * record ratio for the position according to the screen
+	 * record ratio for the position according to the screen (OpenGL coordinate)
 	 */
 	public double ratioX;
 
 	/**
 	 * Because the units of height are different between OpenCV and OpenGL, we
-	 * record ratio for the position according to the screen
+	 * record ratio for the position according to the screen (OpenGL coordinate)
 	 */
 	public double ratioY;
 

@@ -49,10 +49,17 @@ public class OpenGLBug {
 //	/** Indicate whether this bug should be removed. (e.g. it runs out of the boundary) */
 //	public boolean shouldBeRemoved = false;
 	
-	/** Indicate whether another bug is generated because this bug runs out of the screen */
-	public boolean addAnotherBug = false;
+//	/** Indicate whether another bug is generated because this bug runs out of the screen */
+//	public boolean addAnotherBug = false;
+	public final static int TYPE_MENUBUG = 332;
+	public final static int TYPE_FIREBUG = 333;
+	public final static int TYPE_DODGEBUG = 334;
 	
-	public OpenGLBug(int x, int y, int speedX, int speedY, float scaleRatio) {
+	/** Indicate the type of the bug */
+	public int type;
+	
+	public OpenGLBug(int type, int x, int y, int speedX, int speedY, float scaleRatio) {
+		this.type = type;
 		this.x = x;
 		this.y = y;
 		this.speedX = speedX;
@@ -60,7 +67,8 @@ public class OpenGLBug {
 		this.scaleRatio = scaleRatio;
 	}
 	
-	public OpenGLBug(int x, int y, int speedX, int speedY, float scaleRatio, boolean bouncing, int bounceDestX, int bounceDestY, int bounceStepCounter) {
+	public OpenGLBug(int type, int x, int y, int speedX, int speedY, float scaleRatio, boolean bouncing, int bounceDestX, int bounceDestY, int bounceStepCounter) {
+		this.type = type;
 		this.x = x;
 		this.y = y;
 		this.speedX = speedX;
