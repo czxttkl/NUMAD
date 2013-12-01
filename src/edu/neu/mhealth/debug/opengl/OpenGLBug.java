@@ -16,11 +16,14 @@ public class OpenGLBug {
 	/** Vertical speed of the bug*/
 	public int speedY = 0;
 	
+	/** Indicate whether this bug should halt for the reality simulation reason. */
+	public boolean bugShouldPause;
+	
 	/** Horizontal relative speed of the bug with users' movement */
-	public int relativeSpeedX = 0;
+	public static int relativeSpeedX = 0;
 	
 	/** Vertical relative speed of the bug with users' movement */
-	public int relativeSpeedY = 0;
+	public static int relativeSpeedY = 0;
 	
 	/** Last time we change the bug */
 	public long lastRefreshTime = 0;

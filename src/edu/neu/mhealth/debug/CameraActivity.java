@@ -439,8 +439,8 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		screenOpenCvWidth = width;
 		screenOpenCvHeight = height;
 		// We assume screenPixel dimensions are the same with opengl coordinate
-		openCVGLRatioX = screenOpenCvWidth / screenPixelWidth;
-		openCVGLRatioY = screenOpenCvHeight / screenPixelHeight;
+		openCVGLRatioX = (double)screenOpenCvWidth / screenPixelWidth;
+		openCVGLRatioY = (double)screenOpenCvHeight / screenPixelHeight;
 
 		mGray = new Mat();
 		mRgba = new Mat();
@@ -561,34 +561,41 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		do {
 			// We assume that the screenPixelWidth is the same with the opengl
 			// coordinate
-			int minX = (int) (OpenGLBug.radius * openCVGLRatioX);
-			int maxX = (int) ((screenPixelWidth - OpenGLBug.radius) * openCVGLRatioX);
+			int minX = screenOpenCvWidth / 4;
+			int maxX = 3 * screenOpenCvWidth / 4;
 			randomWidth = mGLSurfaceView.mRenderer.randInt(minX, maxX);
 
-			// We assume that the screenPixelHeight is the same with the opengl
-			// coordinate
-			int minY = screenOpenCvHeight - (int) (screenPixelHeight / 2 * openCVGLRatioY);
-			int maxY = screenOpenCvHeight - (int) (screenPixelHeight * openCVGLRatioY);
+			// We only find the destination in the upper part of the frame
+			int minY = (int) (0 + OpenGLBug.radius * openCVGLRatioY);
+			int maxY = 2 * screenOpenCvHeight / 3;
 			randomHeight = mGLSurfaceView.mRenderer.randInt(minY, maxY);
 
-			org.opencv.core.Point pt = new org.opencv.core.Point(randomWidth, randomHeight);
-			MatOfPoint2f detectedFloorContour2f = new MatOfPoint2f();
-			detectedFloorContours.get(0).convertTo(detectedFloorContour2f, CvType.CV_32FC2);
-
+			Log.d(TAG, "czxt generate random width&height:" + randomWidth + "," + randomHeight + "   minX,maxX:" + minX + "," + maxX);
 			// +1: outside the contour -1: inside the contour 0:lies on the
 			// edge;
-			result = (int) Imgproc.pointPolygonTest(detectedFloorContour2f, pt, false);
+			result = ifPointIsInFloor(randomWidth, randomHeight);
 		} while (result != 1);
 
 		// Convert coordinates between opencv and opengl
-		double resultDestX = (double) (randomWidth / screenOpenCvWidth);
+		double resultDestX = (double) randomWidth / screenOpenCvWidth;
 		// Revert y-axis ratio between opencv and opengl
-		double resultDestY = 1 - (double) (randomHeight / screenOpenCvHeight);
+		double resultDestY = 1 - (double) randomHeight / screenOpenCvHeight;
 		Log.d(TAG, "finddesti:" + resultDestX + "," + resultDestY);
 		double[] resultArray = { resultDestX, resultDestY };
 		return resultArray;
 	}
 
+	/** Return if the point is in the floor's contour 
+	 * +1: outside the contour -1: inside the contour 0:lies on the edge;
+	 * @param openCvWidth The width in the opencv screen
+	 * @param openCvHeight The height in the opencv screen*/
+	public int ifPointIsInFloor(int openCvWidth, int openCvHeight) {
+		org.opencv.core.Point pt = new org.opencv.core.Point(openCvWidth, openCvHeight);
+		MatOfPoint2f detectedFloorContour2f = new MatOfPoint2f();
+		detectedFloorContours.get(0).convertTo(detectedFloorContour2f, CvType.CV_32FC2);
+		int result = (int) Imgproc.pointPolygonTest(detectedFloorContour2f, pt, false);
+		return result;
+	}
 	/**
 	 * This method is called in opencv so that we could know the location of
 	 * shoes
