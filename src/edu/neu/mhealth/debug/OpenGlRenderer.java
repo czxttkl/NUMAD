@@ -659,12 +659,12 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 			GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 5580);
 
 			// Rerfresh the bug status
-			mOpenGLBug = refreshBug(mOpenGLBug);
+			mOpenGLBug = refreshBug(mOpenGLBug, mOpenGLBugIterator);
 			
-			// If the bug is marked as "shouldBeRemoved", it should be removed from ArrayList
-			if (mOpenGLBug.shouldBeRemoved) {
-				mOpenGLBugIterator.remove();
-			}
+//			// If the bug is marked as "shouldBeRemoved", it should be removed from ArrayList
+//			if (mOpenGLBug.shouldBeRemoved) {
+//				mOpenGLBugIterator.remove();
+//			}
 		}
 	}
 
@@ -796,7 +796,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		return rotateDegree;
 	}
 
-	private OpenGLBug refreshBug(OpenGLBug bug) {
+	private OpenGLBug refreshBug(OpenGLBug bug, Iterator<OpenGLBug> mOpenGLBugIterator) {
 		// That means CameraActivity hasn't initialized the border lines.
 		// if (borderLineList == null)
 		// return bug;
@@ -842,11 +842,11 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 			// If the bug runs out of the boundary. we remove it
 			if (tmpX > screenOpenGLWidth * 2 || tmpX < -screenOpenGLWidth || tmpY > 2 * screenOpenGLHeight || tmpY < -screenOpenGLHeight) {
 				// Mark the bug shouldBeRemoved
-				bug.shouldBeRemoved = true;
+				mOpenGLBugIterator.remove();
 			} else {
 				// If the bug runs out of the screen, we generate a new one
 				if (tmpX > screenOpenGLWidth || tmpX < 0 || tmpY > screenOpenGLHeight || tmpY < 0) {
-					generateTutorial1Bug();
+					OpenGLBug mTutorial1Bug = generateTutorial1Bug();
 				} else {
 					// If the bug is still in the screen
 				}
@@ -863,11 +863,11 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 				}
 				
 				// We need to update the bug if it is in the valid region and shouldPause==false.
-				if (!bug.shouldPause) {
+//				if (!bug.shouldPause) {
 					bug.x = tmpX;
 					bug.y = tmpY;
+//				}
 					bug.lastRefreshTime = System.currentTimeMillis();
-				}
 			}
 
 //			if (bug.bugShouldPause) {
@@ -910,7 +910,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 	}
 
 	/** Generate one tutorial 1 bug */
-	private void generateTutorial1Bug() {
+	private OpenGLBug generateTutorial1Bug() {
 		// bugs will show up from left or right flank side. So the width is
 		// either 0+radius OR screenwidht-radius
 		int randomHeight = randInt(OpenGLBug.radius, screenOpenGLHeight / 2);
@@ -928,13 +928,14 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		int speedY = yDiff > OpenGLBug.BOUNCING_STEP ? yDiff / OpenGLBug.BOUNCING_STEP : yDiff / Math.abs(yDiff);
 
 		OpenGLBug tutorial1Bug = new OpenGLBug(randomWidth, randomHeight, speedX, speedY, true, destination[0], destination[1], 0);
-		mBugList.add(tutorial1Bug);
+		return tutorial1Bug;
 	}
 
 	/** In the tutorial 1, there is only one bug. */
 	public void prepareForTutorial1() {
 		mBugList.clear();
-		generateTutorial1Bug();
+		OpenGLBug mTutorial1Bug = generateTutorial1Bug();
+		mBugList.add(mTutorial1Bug);
 	}
 
 	/** Return the bug's next destination (in opengl coordinate) */
