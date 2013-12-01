@@ -31,6 +31,7 @@ import edu.neu.mhealth.debug.opengl.OpenGLFire;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
+import android.hardware.Camera.Size;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -474,6 +475,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
 		mGray = inputFrame.gray();
 		mRgba = inputFrame.rgba();
+//		Log.d(TAG, "resolution real:" + mRgba.cols() + ":" + mRgba.rows());
 		switch (openCvMode) {
 
 		case MODE_COLOR_PICK_CROSSHAIR:
@@ -661,6 +663,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	private void restoreOrCreateJavaCameraView() {
 		mOpenCvCameraView = new CameraView(this);
 		mOpenCvCameraView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+		mOpenCvCameraView.setMaxFrameSize(500, 500);
 		mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
 		mOpenCvCameraView.setCvCameraViewListener(this);
 		mOpenCvCameraView.enableFpsMeter();
