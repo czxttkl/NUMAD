@@ -890,11 +890,15 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 					}
 				}
 				
-				// If the bug is burning to the end, remove it
+				// If the bug is burning to the end, remove it and also add a new bug
 				if (bug.burning) {
 					bug.burningStepCounter++;
 					if (bug.burningStepCounter == OpenGLBug.BURNING_STEP) {
 						mOpenGLBugIterator.remove();
+						if (mBugList.size() < 3) {
+							OpenGLBug mTutorial1Bug = generateTutorial1Bug();
+							mOpenGLBugIterator.add(mTutorial1Bug);
+						}
 						return bug;
 					}
 				}
@@ -920,7 +924,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 					bug.y = tmpY;
 					bug.lastRefreshTime = System.currentTimeMillis();
 				} else {
-					if (!bug.burning && System.currentTimeMillis() - bug.lastRefreshTime > rd.nextInt(2000)) {
+					if (!bug.burning && System.currentTimeMillis() - bug.lastRefreshTime > rd.nextInt(10000)) {
 						bug.shouldPause = false;
 					}
 				}
@@ -1027,6 +1031,16 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 			return false;
 	}
 
+	private void updateScore(int bugType) {
+		switch(bugType) {
+		case OpenGLBug.TYPE_FIREBUG:
+			mCameraActivityInstance.updateScore(1);
+			break;
+		default:
+			break;
+		}
+	}
+	
 	/** generate an integer between a range */
 	public int randInt(int min, int max) {
 		// nextInt is normally exclusive of the top value,
@@ -1034,5 +1048,10 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		int randomNum = rd.nextInt((max - min) + 1) + min;
 
 		return randomNum;
+	}
+	
+	/** Determine whether the bug is burned */
+	private int calculateDistFromBugToFire(int tmpX, int tmpY) {
+		return 1000;
 	}
 }

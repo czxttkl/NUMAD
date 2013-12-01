@@ -71,6 +71,10 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	 * The game activity's framelayout. Use this to handle
 	 * adding/removingsurfaceviews
 	 */
+	
+	/** Record how many bugs the user has killed */
+	public int score = 0;
+	
 	FrameLayout mFrameLayout;
 
 	/**
@@ -830,7 +834,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	};
 
 	/**
-	 * This runnable will be run until Main Menu Title
+	 * This runnable will be run until Main Menu Title is rendered.
 	 */
 	protected Runnable mMainMenuBorderRunnable = new Runnable() {
 		@Override
@@ -896,6 +900,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		return (degree + 720) % 360;
 	}
 
+	/** Calculate the average value of a float array */
 	private float average(float[] array) {
 		float sum = 0;
 		for (float i : array) {
@@ -929,5 +934,17 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		screenPixelWidth = size.x;
 		screenPixelHeight = size.y;
 	}
+	
+	/** Update the score and also call updateScoreUI to update the UI */
+	public void updateScore(int diff) {
+		score = score + diff;
+		updateScoreUI();
+	}
+	
+	/** Update the score UI */
+	private void updateScoreUI() {
+		
+	}
+	
 
 }
