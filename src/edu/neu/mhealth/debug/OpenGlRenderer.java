@@ -534,6 +534,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 			// Draw bugs
 			drawBugs();
 
+			Log.d(TAG, "czx mBugList size : " + mBugList.size());
 			break;
 
 		default:
@@ -787,7 +788,18 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 	/** Determine the bug's head rotation */
 	private float headRotate(int speedX, int speedY) {
 		float rotateDegree = 0;
-		rotateDegree = (float) Math.toDegrees(Math.atan(Math.abs((double)speedY / speedX)));
+		double rotateRadian;
+		if (speedX == 0) {
+			if (speedY < 0) 
+				rotateRadian = 0;
+			else
+				rotateRadian = Math.PI / 2;
+		} else {
+			rotateRadian = Math.atan(Math.abs((double)speedY / speedX));
+		}
+		
+		rotateDegree = (float) (Math.toDegrees(rotateRadian));
+		
 		if (speedX > 0 && speedY < 0) {
 			rotateDegree = 90 + rotateDegree;
 		}
@@ -937,8 +949,20 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		int[] destination = findBugNextDest();
 		int xDiff = destination[0] - randomWidth;
 		int yDiff = destination[1] - randomHeight;
-		int speedX = xDiff > OpenGLBug.BOUNCING_STEP ? xDiff / OpenGLBug.BOUNCING_STEP : xDiff / Math.abs(xDiff);
-		int speedY = yDiff > OpenGLBug.BOUNCING_STEP ? yDiff / OpenGLBug.BOUNCING_STEP : yDiff / Math.abs(yDiff);
+		int speedX;
+		int speedY;
+		
+		if (xDiff == 0) {
+			speedX = 0;
+		} else {
+			speedX = xDiff > OpenGLBug.BOUNCING_STEP ? xDiff / OpenGLBug.BOUNCING_STEP : xDiff / Math.abs(xDiff);
+		}
+		
+		if (yDiff == 0) {
+			speedY = 0;
+		} else {
+			speedY = yDiff > OpenGLBug.BOUNCING_STEP ? yDiff / OpenGLBug.BOUNCING_STEP : yDiff / Math.abs(yDiff);
+		}
 
 		OpenGLBug tutorial1Bug = new OpenGLBug(randomWidth, randomHeight, speedX, speedY, true, destination[0], destination[1], 0);
 		return tutorial1Bug;
