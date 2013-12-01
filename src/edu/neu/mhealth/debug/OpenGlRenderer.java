@@ -537,7 +537,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 			// Draw bugs
 			drawBugs();
 
-			Log.d(TAG, "czx mBugList size : " + mBugList.size());
+//			Log.d(TAG, "czx mBugList size : " + mBugList.size());
 			break;
 
 		default:
@@ -870,10 +870,11 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 			} else {
 				// If the bug runs out of the screen, we generate a new one
 				if (tmpX > screenOpenGLWidth || tmpX < 0 || tmpY > screenOpenGLHeight || tmpY < 0) {
-					if (!bug.addAnotherBug) {
+//					if (!bug.addAnotherBug) {
+					if (mBugList.size() < 3) {
 						OpenGLBug mTutorial1Bug = generateTutorial1Bug();
 						mOpenGLBugIterator.add(mTutorial1Bug);
-						bug.addAnotherBug = true;
+//						bug.addAnotherBug = true;
 					}
 				} else {
 					// If the bug is still in the screen
