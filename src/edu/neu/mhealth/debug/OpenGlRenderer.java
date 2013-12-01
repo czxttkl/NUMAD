@@ -44,6 +44,9 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 
 	private final Context mActivityContext;
 	private final CameraActivity mCameraActivityInstance;
+	
+	/** The default scale ratio for 3d model */
+	private final float SCALE_RATIO = 12.0f;
 
 	/**
 	 * Store the model matrix. This matrix is used to move models from object
@@ -422,7 +425,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		screenOpenGLHeight = height;
 		
 		// Set OpenGLBug's scale
-		OpenGLBug.radius = screenOpenGLWidth / 22;
+		OpenGLBug.radius = (int) (screenOpenGLWidth / (SCALE_RATIO * 2));
 		
 		eyeX = screenOpenGLWidth / 2;
 		eyeY = screenOpenGLHeight / 2;
@@ -610,8 +613,8 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 			Matrix.rotateM(mModelMatrix, 0, 90, -1.0f, 0.0f, 0.0f);
 
 			// The original 3d obj model is too small. So we scale it by
-			// screenWidth/11 times. That's also why we set OpenGLBug.radius to screenOpenGLWidth/22
-			Matrix.scaleM(mModelMatrix, 0, screenOpenGLWidth / 11.0f, screenOpenGLWidth / 11.0f, 100f);
+			// screenWidth/SCALE_RATIO times. That's also why we set OpenGLBug.radius to screenOpenGLWidth/(SCALE_RATIO * 2)
+			Matrix.scaleM(mModelMatrix, 0, screenOpenGLWidth / mOpenGLBug.scaleRatio, screenOpenGLWidth / mOpenGLBug.scaleRatio, 100f);
 			
 			// Pass in the position information
 			mBugPositions.position(0);
@@ -707,9 +710,9 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 			Matrix.translateM(mModelMatrix, 0, (float) mOpenGLFire.ratioX * screenOpenGLWidth, (float) mOpenGLFire.ratioY * screenOpenGLHeight, -500.0f);
 
 			// The original coordinate model is too small. So we scale it by
-			// screenWidth/11
+			// screenWidth/SCALE_RATIO
 			// times.
-			Matrix.scaleM(mModelMatrix, 0, screenOpenGLWidth / 11.0f, screenOpenGLWidth / 11.0f, 100f);
+			Matrix.scaleM(mModelMatrix, 0, screenOpenGLWidth / SCALE_RATIO, screenOpenGLWidth / SCALE_RATIO, 100f);
 
 			// Pass in the position information
 			mFirePositions.position(0);
@@ -929,7 +932,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 	private void generateMainMenuBug() {
 		if (mBugList.size() == 0) {
 			int randomHeight = rd.nextInt(screenOpenGLHeight / 3);
-			OpenGLBug menuBug = new OpenGLBug(screenOpenGLWidth - OpenGLBug.radius, screenOpenGLHeight / 4 + randomHeight, -1, 1);
+			OpenGLBug menuBug = new OpenGLBug(screenOpenGLWidth - OpenGLBug.radius, screenOpenGLHeight / 4 + randomHeight, -1, 1, SCALE_RATIO);
 			mBugList.add(menuBug);
 		}
 	}
@@ -964,7 +967,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 			speedY = yDiff > OpenGLBug.BOUNCING_STEP ? yDiff / OpenGLBug.BOUNCING_STEP : yDiff / Math.abs(yDiff);
 		}
 
-		OpenGLBug tutorial1Bug = new OpenGLBug(randomWidth, randomHeight, speedX, speedY, true, destination[0], destination[1], 0);
+		OpenGLBug tutorial1Bug = new OpenGLBug(randomWidth, randomHeight, speedX, speedY, SCALE_RATIO, true, destination[0], destination[1], 0);
 		return tutorial1Bug;
 	}
 

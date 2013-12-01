@@ -4,6 +4,9 @@ public class OpenGLBug {
 	/** The radius of the square occupied by the bug (in pixels) */
 	public static int radius = 50; 
 	
+	/** The scale ratio for opengl scale method*/
+	public float scaleRatio;
+	
 	/** The x coordinate of the bug's position in the screen*/
 	public int x = 0;
 	
@@ -49,18 +52,20 @@ public class OpenGLBug {
 	/** Indicate whether another bug is generated because this bug runs out of the screen */
 	public boolean addAnotherBug = false;
 	
-	public OpenGLBug(int x, int y, int speedX, int speedY) {
+	public OpenGLBug(int x, int y, int speedX, int speedY, float scaleRatio) {
 		this.x = x;
 		this.y = y;
 		this.speedX = speedX;
 		this.speedY = speedY;
+		this.scaleRatio = scaleRatio;
 	}
 	
-	public OpenGLBug(int x, int y, int speedX, int speedY, boolean bouncing, int bounceDestX, int bounceDestY, int bounceStepCounter) {
+	public OpenGLBug(int x, int y, int speedX, int speedY, float scaleRatio, boolean bouncing, int bounceDestX, int bounceDestY, int bounceStepCounter) {
 		this.x = x;
 		this.y = y;
 		this.speedX = speedX;
 		this.speedY = speedY;
+		this.scaleRatio = scaleRatio;
 		this.bouncing = bouncing;
 		this.bounceDestX = bounceDestX;
 		this.bounceDestY = bounceDestY;

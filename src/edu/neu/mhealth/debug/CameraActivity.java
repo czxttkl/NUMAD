@@ -570,7 +570,6 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 			int maxY = 2 * screenOpenCvHeight / 3;
 			randomHeight = mGLSurfaceView.mRenderer.randInt(minY, maxY);
 
-			Log.d(TAG, "czxt generate random width&height:" + randomWidth + "," + randomHeight + "   minX,maxX:" + minX + "," + maxX);
 			// +1: outside the contour -1: inside the contour 0:lies on the
 			// edge;
 			result = ifPointIsInFloor(randomWidth, randomHeight);
