@@ -520,7 +520,8 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 				return mRgba;
 			detectedFloorContours.removeAll(Collections.singleton(null));
 			Imgproc.drawContours(mRgba, detectedFloorContours, -1, redColor, 4);
-
+			break;
+			
 		case MODE_TUTORIAL_1:
 			mColorBlobDetector.process(mRgba, openCvMode);
 			detectedShoesContours = mColorBlobDetector.getShoesContours();
