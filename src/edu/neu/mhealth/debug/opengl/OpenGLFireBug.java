@@ -66,9 +66,10 @@ public class OpenGLFireBug extends OpenGLBug {
 					// If the bug is not burned by the fire and not
 					// bouncing, we check if it is in the floor contour
 					if (!bouncing) {
+						int distanceToContour = OpenGLBugManager.distToContour(x, y);
 						// If currently the bug is not in the floor, it
 						// should bounce
-						if (!OpenGLBugManager.isPointInFloor(x + polarityX * OpenGLBug.radius, y + polarityY * OpenGLBug.radius)) {
+						if(distanceToContour < OpenGLBug.radius) {
 							bouncing = true;
 							bounceStepCounter = 0;
 							int[] destination = OpenGLBugManager.findBugNextDest();
@@ -77,20 +78,18 @@ public class OpenGLFireBug extends OpenGLBug {
 							speedY = speed[1];
 							tmpX = x + speedX + OpenGLBug.relativeSpeedX;
 							tmpY = y + speedY + OpenGLBug.relativeSpeedY;
-						} else {
-							// If currently the bug is in the floor, but
-							// next time it will jump out of floor, it
-							// should return
-							if (!OpenGLBugManager.isPointInFloor(tmpX + 2 * polarityX * OpenGLBug.radius, tmpY + 2 * polarityY * OpenGLBug.radius)) {
-								speedX = speedX / 2 + 1;
-								speedY = speedY / 2 + 1;
-								tmpX = x + speedX + OpenGLBug.relativeSpeedX;
-								tmpY = y + speedY + OpenGLBug.relativeSpeedY;
-							}
 						}
+						// If the bug is approaching to the edges.
+						if(distanceToContour < 2 * OpenGLBug.radius && distanceToContour >= OpenGLBug.radius) {
+							speedX = speedX / 2 + polarityX;
+							speedY = speedY / 2 + polarityY;
+							tmpX = x + speedX + OpenGLBug.relativeSpeedX;
+							tmpY = y + speedY + OpenGLBug.relativeSpeedY;
+						}
+						
 					}
 				}
-			}
+			} // if it is not burning
 		}
 
 		

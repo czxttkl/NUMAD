@@ -105,6 +105,9 @@ public class OpenGLBugManager {
 			speedY = Math.abs(yDiff) > OpenGLBug.BOUNCING_STEP ? yDiff / OpenGLBug.BOUNCING_STEP : yDiff / Math.abs(yDiff);
 		}
 		int[] speed = { speedX, speedY };
+		
+		speed = limitSpeed(speed);
+		
 		return speed;
 	}
 
@@ -155,7 +158,14 @@ public class OpenGLBugManager {
 		else
 			return false;
 	}
-
+	
+	public static int distToContour(int openGlX, int openGlY) {
+		int openCvX = (int) (openGlX * mCameraActivityInstance.openCVGLRatioX);
+		int openCvY = mCameraActivityInstance.screenOpenCvHeight - (int) (openGlY * mCameraActivityInstance.openCVGLRatioY);
+		int result = mCameraActivityInstance.isPointInFloor(openCvX, openCvY, true);
+		return result;
+	}
+	
 	public static ListIterator<OpenGLBug> getListIterator() {
 		return mBugList.listIterator();
 	}
@@ -166,5 +176,13 @@ public class OpenGLBugManager {
 
 	public static void updateScore(int score) {
 		mCameraActivityInstance.updateScore(1);
+	}
+	
+	public static int[] limitSpeed(int[] speed) {
+		if (speed[0] > 10 || speed[1] > 10) { 
+			speed[0] = speed[0] / 2;
+			speed[1] = speed[1] / 2;
+		}
+		return speed;
 	}
 }

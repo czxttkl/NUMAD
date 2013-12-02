@@ -598,10 +598,25 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	 *            The height in the opencv screen
 	 */
 	public int isPointInFloor(int openCvWidth, int openCvHeight) {
+		return isPointInFloor(openCvWidth, openCvHeight, false);
+	}
+	
+	/**
+	 * Return if the point is in the floor's contour >0: inside the contour <0:
+	 * outside the contour 0:lies on the edge;
+	 * 
+	 * @param openCvWidth
+	 *            The width in the opencv screen
+	 * @param openCvHeight
+	 *            The height in the opencv screen
+	 * @param calculateDist
+	 * 			  If we need to calculate the distance           
+	 */
+	public int isPointInFloor(int openCvWidth, int openCvHeight, boolean calculateDist) {
 		org.opencv.core.Point pt = new org.opencv.core.Point(openCvWidth, openCvHeight);
 		MatOfPoint2f detectedFloorContour2f = new MatOfPoint2f();
 		detectedFloorContours.get(0).convertTo(detectedFloorContour2f, CvType.CV_32FC2);
-		int result = (int) Imgproc.pointPolygonTest(detectedFloorContour2f, pt, false);
+		int result = (int) Imgproc.pointPolygonTest(detectedFloorContour2f, pt, calculateDist);
 		return result;
 	}
 
