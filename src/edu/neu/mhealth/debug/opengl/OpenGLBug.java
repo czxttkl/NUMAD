@@ -1,6 +1,12 @@
 package edu.neu.mhealth.debug.opengl;
 
-public class OpenGLBug {
+import java.util.ListIterator;
+import java.util.Random;
+
+import edu.neu.mhealth.debug.OpenGLRenderer;
+
+public abstract class OpenGLBug {
+	
 	/** The radius of the square occupied by the bug (in pixels) */
 	public static int radius = 50; 
 	
@@ -67,8 +73,7 @@ public class OpenGLBug {
 	/** The burning steps counter. Used for split burning animations */
 	public int burningStepCounter = 0;
 	
-	public OpenGLBug(int type, int x, int y, int speedX, int speedY, float scaleRatio) {
-		this.type = type;
+	public OpenGLBug(int x, int y, int speedX, int speedY, float scaleRatio) {
 		this.x = x;
 		this.y = y;
 		this.speedX = speedX;
@@ -76,8 +81,7 @@ public class OpenGLBug {
 		this.scaleRatio = scaleRatio;
 	}
 	
-	public OpenGLBug(int type, int x, int y, int speedX, int speedY, float scaleRatio, boolean bouncing, int bounceDestX, int bounceDestY, int bounceStepCounter) {
-		this.type = type;
+	public OpenGLBug(int x, int y, int speedX, int speedY, float scaleRatio, boolean bouncing, int bounceDestX, int bounceDestY, int bounceStepCounter) {
 		this.x = x;
 		this.y = y;
 		this.speedX = speedX;
@@ -88,4 +92,8 @@ public class OpenGLBug {
 		this.bounceDestY = bounceDestY;
 		this.bounceStepCounter = bounceStepCounter;
 	}
+	
+	public abstract void refresh(ListIterator<OpenGLBug> listIterator);
+	
+	
 }

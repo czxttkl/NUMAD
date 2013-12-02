@@ -31,6 +31,7 @@ import com.learnopengles.android.common.ShaderHelper;
 import com.learnopengles.android.common.TextureHelper;
 
 import edu.neu.mhealth.debug.opengl.OpenGLBug;
+import edu.neu.mhealth.debug.opengl.OpenGLBugManager;
 import edu.neu.mhealth.debug.opengl.OpenGLFire;
 
 /**
@@ -38,7 +39,7 @@ import edu.neu.mhealth.debug.opengl.OpenGLFire;
  * passed in is unused for OpenGL ES 2.0 renderers -- the static class GLES20 is
  * used instead.
  */
-public class OpenGlRenderer implements GLSurfaceView.Renderer {
+public class OpenGLRenderer implements GLSurfaceView.Renderer {
 	/** Used for debug logs. */
 	private static final String TAG = "mDebug";
 
@@ -46,7 +47,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 	private final CameraActivity mCameraActivityInstance;
 
 	/** The default scale ratio for 3d model */
-	private final float SCALE_RATIO = 12.0f;
+	public final static float SCALE_RATIO = 12.0f;
 
 	/**
 	 * Store the model matrix. This matrix is used to move models from object
@@ -192,19 +193,16 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 	private int mFireTextureDataHandle5;
 
 	/** Hold all the fire flames that should be rendered */
-	public List<OpenGLFire> mFireList = new ArrayList<OpenGLFire>();
+	public static List<OpenGLFire> mFireList = new ArrayList<OpenGLFire>();
 
 	/** Random instance */
 	public Random rd;
 
 	/** The width of screen, in pixels */
-	private int screenOpenGLWidth;
+	public static int screenOpenGLWidth;
 
 	/** The height of screen, in pixels */
-	private int screenOpenGLHeight;
-
-	/** Hold all the bugs that should be counted and calculated in an arraylist */
-	private List<OpenGLBug> mBugList = new ArrayList<OpenGLBug>();
+	public static int screenOpenGLHeight;
 
 	// /** Record the last time we update the speed/position of the bug in
 	// opengl */
@@ -212,14 +210,15 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 
 	// /** To simulate the reality, bug should halt sometimes */
 	// private boolean bugShouldPause = false;
-
-	/** Hold the lines that bugs should be avoided from */
-	public ArrayList<BorderLine> borderLineList;
+	//
+	// /** Hold the lines that bugs should be avoided from */
+	// public ArrayList<BorderLine> borderLineList;
 
 	/** Initialize the model data */
-	public OpenGlRenderer(final Context activityContext) {
+	public OpenGLRenderer(final Context activityContext) {
 		this.mActivityContext = activityContext;
 		this.mCameraActivityInstance = (CameraActivity) mActivityContext;
+		OpenGLBugManager.setCameraActivityInstance(mCameraActivityInstance);
 		// Initialize the buffers.
 		int i = 0;
 		BufferedReader buff;
@@ -458,10 +457,6 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 	/** This indicates which mode the game is now at */
 	public int openGlMode = 0;
 
-	public final int MODE_MAIN_MENU = 1;
-	public final int MODE_TUTORIAL_1 = 2;
-	public final int MODE_DEFAULT = 0;
-
 	@Override
 	public void onDrawFrame(GL10 glUnused) {
 		// Clear background to transparency
@@ -472,106 +467,33 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		// Calculate rotate degree for some use
 		// float angleInDegrees = (360.0f / 10000.0f) * ((int) now);
 
-		switch (openGlMode) {
+		// Set our per-vertex bug program.
+		GLES20.glUseProgram(mBugProgramHandle);
 
-		// Main Menu mode
-		case MODE_MAIN_MENU:
-			// Set our per-vertex bug program.
-			GLES20.glUseProgram(mBugProgramHandle);
+		// Load the res handles that will be used in drawing bugs.
+		loadOpenGLBugResHandles(mBugProgramHandle);
 
-			// Load the res handles that will be used in drawing bugs.
-			loadOpenGLBugResHandles(mBugProgramHandle);
+		// Draw bugs
+		drawBugs();
 
-			// Tell the texture uniform sampler to use this texture in the
-			// shader by binding to texture unit 0.
-			GLES20.glUniform1i(mTextureUniformHandle, 0);
+		// Set our per-vertex fire program.
+		GLES20.glUseProgram(mFireProgramHandle);
 
-			// We only want one bug in the main menu
-			prepareMainMenuBug();
+		// Load the res handles that will be used in drawing fire.
+		loadOpenGLFireResHandles(mFireProgramHandle);
 
-			// Draw bugs
-			drawBugs();
+		// Calculate which fire texture should be binded.
+		int fireTextureNum = fireDrawCount / 10 + 1;
+		fireDrawCount++;
+		if (fireDrawCount > 49)
+			fireDrawCount = 1;
 
-			// Draw a point to indicate the light.
-			GLES20.glUseProgram(mLightProgramHandle);
+		// Tell the texture uniform sampler to use this texture in the
+		// shader by binding to texture unit fireTextureNum.
+		GLES20.glUniform1i(mTextureUniformHandle, fireTextureNum);
 
-			// // Draw light
-			// Matrix.setIdentityM(mLightModelMatrix, 0);
-			// Matrix.multiplyMV(mLightPosInEyeSpace, 0, mViewMatrix, 0,
-			// mLightPosInWorldSpace, 0);
-			// Matrix.multiplyMV(mLightPosInWorldSpace, 0, mLightModelMatrix, 0,
-			// mLightPosInModelSpace, 0);
-			// drawLight();
-			break;
-
-		// Tutorial 1 mode
-		case MODE_TUTORIAL_1:
-			// if (mFireList.size() == 0)
-			// return;
-
-			// Set our per-vertex fire program.
-			GLES20.glUseProgram(mFireProgramHandle);
-
-			// Load the res handles that will be used in drawing fire.
-			loadOpenGLFireResHandles(mFireProgramHandle);
-
-			// Calculate which fire texture should be binded.
-			int fireTextureNum = fireDrawCount / 10 + 1;
-			fireDrawCount++;
-			if (fireDrawCount > 49)
-				fireDrawCount = 1;
-
-			// Tell the texture uniform sampler to use this texture in the
-			// shader by binding to texture unit fireTextureNum.
-			GLES20.glUniform1i(mTextureUniformHandle, fireTextureNum);
-
-			// Draw fires
-			drawFires();
-
-			// Set our per-vertex bug program.
-			GLES20.glUseProgram(mBugProgramHandle);
-
-			// Load the res handles that will be used in drawing bugs.
-			loadOpenGLBugResHandles(mBugProgramHandle);
-
-			// Draw bugs
-			drawBugs();
-
-			// Log.d(TAG, "czx mBugList size : " + mBugList.size());
-			break;
-
-		default:
-			// Don't render anything
-		}
-
-		// upX = (float)
-		// (Math.abs(Math.tan(Math.toRadians(globalRotateDegree)))) ;
-		//
-		// if (globalRotateDegree >= 180 && globalRotateDegree <360) {
-		// upX = - upX;
-		// }
-		//
-		// if (globalRotateDegree >=90 && globalRotateDegree <270) {
-		// upY = -1.0f;
-		// } else {
-		// upY = 1.0f;
-		// }
-
-		// switch(fire) {
-		// case 1:
-		// GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mTextureDataHandle);
-		// break;
-		// case 2:
-		// GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mTextureDataHandle1);
-		// break;
-		// case 3:
-		// GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mTextureDataHandle2);
-		// break;
-		// }
-		// fire = (fire + 1) % 3;
-
-		// Calculate position of the light. Rotate and then push into th
-		// distance.
+		// Draw fires
+		drawFires();
 
 	}
 
@@ -596,7 +518,8 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 
 	/** Draws bugs in mBugList */
 	private void drawBugs() {
-		ListIterator<OpenGLBug> mOpenGLBugListIterator = mBugList.listIterator();
+		ListIterator<OpenGLBug> mOpenGLBugListIterator = OpenGLBugManager.getListIterator();
+
 		while (mOpenGLBugListIterator.hasNext()) {
 			OpenGLBug mOpenGLBug = mOpenGLBugListIterator.next();
 
@@ -677,21 +600,9 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 			GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 5580);
 
 			// Rerfresh the bug status
-			mOpenGLBug = refreshBug(mOpenGLBug, mOpenGLBugListIterator);
-
-			// // If the bug is marked as "shouldBeRemoved", it should be
-			// removed from ArrayList
-			// if (mOpenGLBug.shouldBeRemoved) {
-			// mOpenGLBugIterator.remove();
-			// }
+			mOpenGLBug.refresh(mOpenGLBugListIterator);
 		}
 
-		// Iterator<OpenGLBug> mOpenGLBugIterator = mBugList.iterator();
-		// while (mOpenGLBugIterator.hasNext() ) {
-		// OpenGLBug mOpenGLBug = mOpenGLBugIterator.next();
-		// mOpenGLBugIterator.remo
-		// }
-		//
 	}
 
 	/**
@@ -790,7 +701,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		} else {
 			rotateRadian = Math.atan(Math.abs((double) speedY / speedX));
 		}
-		
+
 		rotateDegree = (float) (Math.toDegrees(rotateRadian));
 
 		if (speedX > 0 && speedY <= 0) {
@@ -810,303 +721,4 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		return rotateDegree;
 	}
 
-	private OpenGLBug refreshBug(OpenGLBug bug, ListIterator<OpenGLBug> mOpenGLBugIterator) {
-		// That means CameraActivity hasn't initialized the border lines.
-		// if (borderLineList == null)
-		// return bug;
-		int polarityX;
-		int polarityY;
-		int tmpX;
-		int tmpY;
-		switch (openGlMode) {
-		case MODE_MAIN_MENU:
-			polarityX = bug.speedX >= 0 ? 1 : -1;
-			polarityY = bug.speedY >= 0 ? 1 : -1;
-			tmpX = bug.x + bug.speedX + OpenGLBug.relativeSpeedX;
-			tmpY = bug.y + bug.speedY + OpenGLBug.relativeSpeedY;
-
-			if (bug.shouldPause) {
-				if (System.currentTimeMillis() - bug.lastRefreshTime > 2000) {
-					bug.shouldPause = false;
-				}
-				return bug;
-			}
-			if (rd.nextInt(100) > 98) {
-				bug.shouldPause = true;
-				return bug;
-			}
-
-			if (tmpX + polarityX * OpenGLBug.radius > screenOpenGLWidth || tmpX + polarityX * OpenGLBug.radius < 0) {
-				bug.speedX = -bug.speedX;
-				tmpX = bug.x;
-			}
-			if (tmpY + polarityY * OpenGLBug.radius > screenOpenGLHeight || tmpY + polarityY * OpenGLBug.radius < 0) {
-				bug.speedY = -bug.speedY;
-				tmpY = bug.y;
-			}
-
-			bug.x = tmpX;
-			bug.y = tmpY;
-			bug.lastRefreshTime = System.currentTimeMillis();
-			break;
-		case MODE_TUTORIAL_1:
-			polarityX = bug.speedX >= 0 ? 1 : -1;
-			polarityY = bug.speedY >= 0 ? 1 : -1;
-			tmpX = bug.x + bug.speedX + OpenGLBug.relativeSpeedX;
-			tmpY = bug.y + bug.speedY + OpenGLBug.relativeSpeedY;
-
-			// If the bug runs out of the boundary. we remove it
-			if (isBugOutOfBoundary(tmpX, tmpY)) {
-				// Mark the bug shouldBeRemoved
-				mOpenGLBugIterator.remove();
-				return bug;
-			}
-			// If the bug runs out of the screen, we generate a new one
-			if (isBugOutOfScreen(bug.x, bug.y)) {
-				if (mBugList.size() < 3) {
-					OpenGLBug mTutorial1Bug = generateTutorial1Bug();
-					mOpenGLBugIterator.add(mTutorial1Bug);
-				}
-			} else {
-				// If the bug is still in the screen AND it is not burning and
-				// bouncing
-				if (!bug.burning) {
-					if (ifFireHitsBug(tmpX, tmpY)) {
-						// Log.d(TAG, "czx openglbug radius:" +
-						// OpenGLBug.radius + " dist:" + distFromBugToFire);
-						bug.burning = true;
-						bug.shouldPause = true;
-						updateScore(bug.type);
-					} else {
-						// If the bug is not burned by the fire and not
-						// bouncing, we check if it is in the floor contour
-						if (!bug.bouncing) {
-							// If currently the bug is not in the floor, it
-							// should bounce
-							if (!isPointInFloor(bug.x + polarityX * OpenGLBug.radius, bug.y + polarityY * OpenGLBug.radius)) {
-								bug.bouncing = true;
-								bug.bounceStepCounter = 0;
-								int[] destination = findBugNextDest();
-								int[] speed = calculateSpeedTowardsDest(destination[0], destination[1], bug.x, bug.y);
-								bug.speedX = speed[0];
-								bug.speedY = speed[1];
-								tmpX = bug.x + bug.speedX + OpenGLBug.relativeSpeedX;
-								tmpY = bug.y + bug.speedY + OpenGLBug.relativeSpeedY;
-							} else {
-								// If currently the bug is in the floor, but
-								// next time it will jump out of floor, it
-								// should return
-								if (!isPointInFloor(tmpX + 2 * polarityX * OpenGLBug.radius, tmpY + 2 * polarityY * OpenGLBug.radius)) {
-									bug.speedX = bug.speedX / 2 + 1;
-									bug.speedY = bug.speedY / 2 + 1;
-									Log.d(TAG, "speedX, speedY:" + bug.speedX + "," + bug.speedY);
-									tmpX = bug.x + bug.speedX + OpenGLBug.relativeSpeedX;
-									tmpY = bug.y + bug.speedY + OpenGLBug.relativeSpeedY;
-								}
-							}
-						}
-					}
-				}
-			}
-
-			// If the bug is burning to the end, remove it and also add a
-			// new bug
-			if (bug.burning) {
-				bug.burningStepCounter++;
-				if (bug.burningStepCounter == OpenGLBug.BURNING_STEP) {
-					mOpenGLBugIterator.remove();
-					if (mBugList.size() < 3) {
-						OpenGLBug mTutorial1Bug = generateTutorial1Bug();
-						mOpenGLBugIterator.add(mTutorial1Bug);
-					}
-					return bug;
-				}
-			}
-
-			if (bug.bouncing) {
-				bug.bounceStepCounter++;
-				// If bounce step counter hits OpenGLBug.BOUNCING_STEP, we
-				// clear the bouncing information.
-				// We wouldn't update its (x,y) info. However we would keep
-				// its (speedX, speedY)info because that matters with head
-				// rotation
-				if (bug.bounceStepCounter == OpenGLBug.BOUNCING_STEP) {
-					bug.bouncing = false;
-					bug.bounceStepCounter = 0;
-					bug.shouldPause = true;
-				}
-			}
-
-			// We need to update the bug if it is in the valid region and
-			// shouldPause==false.
-			if (!bug.shouldPause) {
-				bug.x = tmpX;
-				bug.y = tmpY;
-				bug.lastRefreshTime = System.currentTimeMillis();
-				if (!bug.bouncing && rd.nextInt(100) > 98) {
-					bug.shouldPause = true;
-				}
-			} else {
-				// Make the bug move if it halts for a while
-				if (!bug.burning && System.currentTimeMillis() - bug.lastRefreshTime > rd.nextInt(3000)) {
-					bug.shouldPause = false;
-				}
-			}
-
-			break;
-		default:
-
-		}
-		return bug;
-	}
-
-	/**
-	 * In the main menu, there is only one bug. This method will either return a
-	 * bug that has been created in mBugList, or create a new bug in mListBug if
-	 * it is empty or has more than one bug in it.
-	 */
-	private void prepareMainMenuBug() {
-		if (mBugList.size() != 1) {
-			mBugList.clear();
-			generateMainMenuBug();
-		}
-	}
-
-	/** Generate one main menu bug if necessary */
-	private void generateMainMenuBug() {
-		if (mBugList.size() == 0) {
-			int randomHeight = rd.nextInt(screenOpenGLHeight / 3);
-			OpenGLBug menuBug = new OpenGLBug(OpenGLBug.TYPE_MENUBUG, screenOpenGLWidth - OpenGLBug.radius, screenOpenGLHeight / 4 + randomHeight, -1, 1, SCALE_RATIO);
-			mBugList.add(menuBug);
-		}
-	}
-
-	/** Generate one tutorial 1 bug */
-	private OpenGLBug generateTutorial1Bug() {
-		// bugs will show up from left or right flank side. So the width is
-		// either 0+radius OR screenwidht-radius
-		int randomWidth;
-		if (rd.nextInt(2) == 0) {
-			randomWidth = OpenGLBug.radius;
-		} else {
-			randomWidth = screenOpenGLWidth - OpenGLBug.radius;
-		}
-		int randomHeight = randInt(OpenGLBug.radius, screenOpenGLHeight / 2);
-
-		int[] destination = findBugNextDest();
-		int[] speed = calculateSpeedTowardsDest(destination[0], destination[1], randomWidth, randomHeight);
-
-		OpenGLBug tutorial1Bug = new OpenGLBug(OpenGLBug.TYPE_FIREBUG, randomWidth, randomHeight, speed[0], speed[1], SCALE_RATIO, true, destination[0], destination[1], 0);
-
-		return tutorial1Bug;
-	}
-
-	/** In the tutorial 1, there is only one bug. */
-	public void prepareForTutorial1() {
-		mBugList.clear();
-		OpenGLBug mTutorial1Bug = generateTutorial1Bug();
-		mBugList.add(mTutorial1Bug);
-	}
-
-	/**
-	 * Determine the speed towards the target destination. It makes sure that
-	 * abs(speedX) and abs(speedY) is at least 1
-	 */
-	public int[] calculateSpeedTowardsDest(int destX, int destY, int x, int y) {
-		int speedX;
-		int speedY;
-
-		int xDiff = destX - x;
-		int yDiff = destY - y;
-		if (xDiff == 0) {
-			speedX = 0;
-		} else {
-			speedX = Math.abs(xDiff) > OpenGLBug.BOUNCING_STEP ? xDiff / OpenGLBug.BOUNCING_STEP : xDiff / Math.abs(xDiff);
-		}
-
-		if (yDiff == 0) {
-			speedY = 0;
-		} else {
-			speedY = Math.abs(yDiff) > OpenGLBug.BOUNCING_STEP ? yDiff / OpenGLBug.BOUNCING_STEP : yDiff / Math.abs(yDiff);
-		}
-		int[] speed = { speedX, speedY };
-		return speed;
-	}
-
-	/** Return the bug's next destination (in opengl coordinate) */
-	private int[] findBugNextDest() {
-		double[] resultArray = mCameraActivityInstance.findBugNextDest();
-		int[] destination = new int[2];
-		destination[0] = (int) (screenOpenGLWidth * resultArray[0]);
-		destination[1] = (int) (screenOpenGLHeight * resultArray[1]);
-		Log.d(TAG, "finddesti:" + destination[0] + "," + destination[1]);
-		return destination;
-	}
-
-	/**
-	 * Check if the bug is now out of the rectangle(-screenOpenGLWidth,
-	 * 2*screenOpenGLHeight, 3*screenOpenGLWidth, 3*screenOpenGLHeight)
-	 */
-	private boolean isBugOutOfBoundary(int tmpX, int tmpY) {
-		if (tmpX > screenOpenGLWidth * 2 || tmpX < -screenOpenGLWidth || tmpY > 2 * screenOpenGLHeight || tmpY < -screenOpenGLHeight)
-			return true;
-		else
-			return false;
-	}
-
-	/**
-	 * Check if the bug is out of the rectangle(0, screenOpenGLHeight,
-	 * screenOpenGLWidth, screenOpenGLHeight)
-	 */
-	private boolean isBugOutOfScreen(int tmpX, int tmpY) {
-		if (tmpX > screenOpenGLWidth || tmpX < 0 || tmpY > screenOpenGLHeight || tmpY < 0)
-			return true;
-		else
-			return false;
-	}
-
-	private void updateScore(int bugType) {
-		switch (bugType) {
-		case OpenGLBug.TYPE_FIREBUG:
-			mCameraActivityInstance.updateScore(1);
-			break;
-		default:
-			break;
-		}
-	}
-
-	/** generate an integer between a range */
-	public int randInt(int min, int max) {
-		// nextInt is normally exclusive of the top value,
-		// so add 1 to make it inclusive
-		int randomNum = rd.nextInt((max - min) + 1) + min;
-
-		return randomNum;
-	}
-
-	/**
-	 * Determine whether the bug is burned by return the max distance between
-	 * the bug and two fire flames
-	 */
-	private boolean ifFireHitsBug(int tmpX, int tmpY) {
-		for (OpenGLFire mOpenGLFire : mFireList) {
-			long xDiff = tmpX - (int) (mOpenGLFire.ratioX * screenOpenGLWidth);
-			long yDiff = tmpY - (int) (mOpenGLFire.ratioY * screenOpenGLHeight);
-			double distance = Math.sqrt(xDiff * xDiff + yDiff * yDiff);
-			if (distance < 3 * OpenGLBug.radius) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private boolean isPointInFloor(int openGlX, int openGlY) {
-		int openCvX = (int) (openGlX * mCameraActivityInstance.openCVGLRatioX);
-		int openCvY = mCameraActivityInstance.screenOpenCvHeight - (int) (openGlY * mCameraActivityInstance.openCVGLRatioY);
-		int result = mCameraActivityInstance.isPointInFloor(openCvX, openCvY);
-		if (result == 1)
-			return true;
-		else
-			return false;
-	}
 }

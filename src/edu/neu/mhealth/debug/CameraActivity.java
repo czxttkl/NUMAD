@@ -27,6 +27,7 @@ import org.opencv.imgproc.Moments;
 import edu.neu.mhealth.debug.helper.Global;
 import edu.neu.mhealth.debug.helper.InitRenderTask;
 import edu.neu.mhealth.debug.opengl.OpenGLBug;
+import edu.neu.mhealth.debug.opengl.OpenGLBugManager;
 import edu.neu.mhealth.debug.opengl.OpenGLFire;
 import android.graphics.Color;
 import android.graphics.Point;
@@ -206,7 +207,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		mFrameLayout.removeView(mMainMenuBackground);
 
 		// OpenGL shouldn't render anything right after clicking start game.
-		mGLSurfaceView.mRenderer.openGlMode = mGLSurfaceView.mRenderer.MODE_DEFAULT;
+		OpenGLBugManager.setMode(OpenGLBugManager.MODE_DEFAULT);
 
 		// Inflates the Overlay Layout to be displayed above the Camera View
 		LayoutInflater layoutInflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
@@ -319,7 +320,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		// mColorPickNewTargetButton.setEnabled(true);
 		mFrameLayout.removeView(mColorPickLayout);
 		restoreOrCreateMainMenu();
-		mGLSurfaceView.mRenderer.openGlMode = mGLSurfaceView.mRenderer.MODE_MAIN_MENU;
+		OpenGLBugManager.setMode(OpenGLBugManager.MODE_MAIN_MENU);
 	}
 
 	/** Shoe color pick confirm cancel button clicked */
@@ -358,8 +359,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	public void onClickFloorColorPickConfirmOk(View v) {
 		mFrameLayout.removeView(mColorPickLayout);
 		openCvMode = MODE_TUTORIAL_1;
-		mGLSurfaceView.mRenderer.prepareForTutorial1();
-		mGLSurfaceView.mRenderer.openGlMode = mGLSurfaceView.mRenderer.MODE_TUTORIAL_1;
+		OpenGLBugManager.setMode(OpenGLBugManager.MODE_TUTORIAL_1);
 	}
 
 	/** Initialize Color Pick Add mode views */
@@ -566,12 +566,12 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 			// coordinate
 			int minX = screenOpenCvWidth / 4;
 			int maxX = 3 * screenOpenCvWidth / 4;
-			randomWidth = mGLSurfaceView.mRenderer.randInt(minX, maxX);
+			randomWidth = Global.randInt(minX, maxX);
 
 			// We only find the destination in the upper part of the frame
 			int minY = (int) (0 + OpenGLBug.radius * openCVGLRatioY);
 			int maxY = 2 * screenOpenCvHeight / 3;
-			randomHeight = mGLSurfaceView.mRenderer.randInt(minY, maxY);
+			randomHeight = Global.randInt(minY, maxY);
 
 			// +1: outside the contour -1: inside the contour 0:lies on the
 			// edge;
@@ -650,7 +650,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	 */
 	public void restoreOrCreateGLSurfaceView2() {
 		if (mGLSurfaceView != null) {
-			mGLSurfaceView.mRenderer.openGlMode = mGLSurfaceView.mRenderer.MODE_MAIN_MENU;
+			OpenGLBugManager.setMode(OpenGLBugManager.MODE_MAIN_MENU);
 			mFrameLayout.addView(mGLSurfaceView);
 			mGLSurfaceView.setZOrderMediaOverlay(true);
 			mGLSurfaceView.setZOrderOnTop(true);
