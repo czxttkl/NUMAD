@@ -175,7 +175,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 
 	/** This is a handle to our bug's texture data. */
 	private int mBugBouncingTextureDataHandle;
-	
+
 	/** This is a handle to our fire's texture data 1. */
 	private int mFireTextureDataHandle1;
 
@@ -603,12 +603,12 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 			// Tell the texture uniform sampler to use this texture in the
 			// shader by binding to texture unit 0.
 			GLES20.glUniform1i(mTextureUniformHandle, 0);
-//			// If the bug is boucing, we should let it be blue.
-//			if (!mOpenGLBug.bouncing) {
-//			} else {
-//				GLES20.glUniform1i(mTextureUniformHandle, 6);
-//			}
-			
+			// // If the bug is boucing, we should let it be blue.
+			// if (!mOpenGLBug.bouncing) {
+			// } else {
+			// GLES20.glUniform1i(mTextureUniformHandle, 6);
+			// }
+
 			// Load the model matrix as identity matrix
 			Matrix.setIdentityM(mModelMatrix, 0);
 
@@ -858,75 +858,103 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 				// Mark the bug shouldBeRemoved
 				mOpenGLBugIterator.remove();
 				return bug;
+			}
+			// If the bug runs out of the screen, we generate a new one
+			if (isBugOutOfScreen(bug.x, bug.y)) {
+				if (mBugList.size() < 3) {
+					OpenGLBug mTutorial1Bug = generateTutorial1Bug();
+					mOpenGLBugIterator.add(mTutorial1Bug);
+				}
 			} else {
-				// If the bug runs out of the screen, we generate a new one
-				if (isBugOutOfScreen(tmpX, tmpY)) {
-					if (mBugList.size() < 3) {
-						OpenGLBug mTutorial1Bug = generateTutorial1Bug();
-						mOpenGLBugIterator.add(mTutorial1Bug);
-					}
-				} else {
-					// If the bug is still in the screen AND it is not burning and bouncing
-					if (!bug.burning) {
-						if (ifFireHitsBug(tmpX, tmpY)) {
-							// Log.d(TAG, "czx openglbug radius:" +
-							// OpenGLBug.radius + " dist:" + distFromBugToFire);
-							bug.burning = true;
-							bug.shouldPause = true;
-							updateScore(bug.type);
-						} else {
-							// If the bug is not burned by the fire and not bouncing, we check if it is in the floor contour
-							if (!bug.bouncing) {
-								if (isPointInFloor(tmpX, tmpY)) {
-									bug.bouncing = true;
-									bug.bounceStepCounter = 0;
+				// If the bug is still in the screen AND it is not burning and
+				// bouncing
+				if (!bug.burning) {
+					if (ifFireHitsBug(tmpX, tmpY)) {
+						// Log.d(TAG, "czx openglbug radius:" +
+						// OpenGLBug.radius + " dist:" + distFromBugToFire);
+						bug.burning = true;
+						bug.shouldPause = true;
+						updateScore(bug.type);
+					} else {
+						// If the bug is not burned by the fire and not
+						// bouncing, we check if it is in the floor contour
+						if (!bug.bouncing) {
+							// If currently the bug is not in the floor, it
+							// should bounce
+							if (!isPointInFloor(bug.x, bug.y)) {
+								bug.bouncing = true;
+								bug.bounceStepCounter = 0;
+								int[] destination = findBugNextDest();
+								int[] speed = calculateSpeedTowardsDest(destination[0], destination[1], bug.x, bug.y);
+								bug.speedX = speed[0];
+								bug.speedY = speed[1];
+								tmpX = bug.x + bug.speedX + OpenGLBug.relativeSpeedX;
+								tmpY = bug.y + bug.speedY + OpenGLBug.relativeSpeedY;
+							} else {
+								// If currently the bug is in the floor, but
+								// next time it will jump out of floor, it
+								// should return
+								if (!isPointInFloor(tmpX, tmpY)) {
+									int[] destination = findBugNextDest();
+									int[] speed = calculateSpeedTowardsDest(destination[0], destination[1], bug.x, bug.y);
+									bug.speedX = speed[0];
+									bug.speedY = speed[1];
+									tmpX = bug.x + bug.speedX + OpenGLBug.relativeSpeedX;
+									tmpY = bug.y + bug.speedY + OpenGLBug.relativeSpeedY;
+									bug.shouldPause = true;
+									// int tmpSpeedX = bug.speedX;
+									// bug.speedX = bug.speedY;
+									// bug.speedY = -tmpSpeedX;
+									// tmpX = bug.x + bug.speedX +
+									// OpenGLBug.relativeSpeedX;
+									// tmpY = bug.y + bug.speedY +
+									// OpenGLBug.relativeSpeedY;
 								}
 							}
 						}
 					}
 				}
+			}
 
-				// If the bug is burning to the end, remove it and also add a
-				// new bug
-				if (bug.burning) {
-					bug.burningStepCounter++;
-					if (bug.burningStepCounter == OpenGLBug.BURNING_STEP) {
-						mOpenGLBugIterator.remove();
-						if (mBugList.size() < 3) {
-							OpenGLBug mTutorial1Bug = generateTutorial1Bug();
-							mOpenGLBugIterator.add(mTutorial1Bug);
-						}
-						return bug;
+			// If the bug is burning to the end, remove it and also add a
+			// new bug
+			if (bug.burning) {
+				bug.burningStepCounter++;
+				if (bug.burningStepCounter == OpenGLBug.BURNING_STEP) {
+					mOpenGLBugIterator.remove();
+					if (mBugList.size() < 3) {
+						OpenGLBug mTutorial1Bug = generateTutorial1Bug();
+						mOpenGLBugIterator.add(mTutorial1Bug);
 					}
+					return bug;
 				}
+			}
 
-				if (bug.bouncing) {
-					bug.bounceStepCounter++;
-					// If bounce step counter hits OpenGLBug.BOUNCING_STEP, we
-					// clear the bouncing information.
-					// We wouldn't update its (x,y) info. However we would keep
-					// its (speedX, speedY)info because that matters with head
-					// rotation
-					if (bug.bounceStepCounter == OpenGLBug.BOUNCING_STEP) {
-						bug.bouncing = false;
-						bug.bounceStepCounter = 0;
-						bug.shouldPause = true;
-					}
+			if (bug.bouncing) {
+				bug.bounceStepCounter++;
+				// If bounce step counter hits OpenGLBug.BOUNCING_STEP, we
+				// clear the bouncing information.
+				// We wouldn't update its (x,y) info. However we would keep
+				// its (speedX, speedY)info because that matters with head
+				// rotation
+				if (bug.bounceStepCounter == OpenGLBug.BOUNCING_STEP) {
+					bug.bouncing = false;
+					bug.bounceStepCounter = 0;
+					bug.shouldPause = true;
 				}
+			}
 
-				// We need to update the bug if it is in the valid region and
-				// shouldPause==false.
-				if (!bug.shouldPause) {
-					bug.x = tmpX;
-					bug.y = tmpY;
-					bug.lastRefreshTime = System.currentTimeMillis();
-				} else {
-					// Make the bug move if it halts for a while
-					if (!bug.burning && System.currentTimeMillis() - bug.lastRefreshTime > rd.nextInt(10000)) {
-						bug.shouldPause = false;
-					}
+			// We need to update the bug if it is in the valid region and
+			// shouldPause==false.
+			if (!bug.shouldPause) {
+				bug.x = tmpX;
+				bug.y = tmpY;
+				bug.lastRefreshTime = System.currentTimeMillis();
+			} else {
+				// Make the bug move if it halts for a while
+				if (!bug.burning && System.currentTimeMillis() - bug.lastRefreshTime > rd.nextInt(10000)) {
+					bug.shouldPause = false;
 				}
-
 			}
 
 			break;
@@ -968,12 +996,12 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 			randomWidth = screenOpenGLWidth - OpenGLBug.radius;
 		}
 		int randomHeight = randInt(OpenGLBug.radius, screenOpenGLHeight / 2);
-		
+
 		int[] destination = findBugNextDest();
 		int[] speed = calculateSpeedTowardsDest(destination[0], destination[1], randomWidth, randomHeight);
-		
+
 		OpenGLBug tutorial1Bug = new OpenGLBug(OpenGLBug.TYPE_FIREBUG, randomWidth, randomHeight, speed[0], speed[1], SCALE_RATIO, true, destination[0], destination[1], 0);
-		
+
 		return tutorial1Bug;
 	}
 
@@ -984,7 +1012,10 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		mBugList.add(mTutorial1Bug);
 	}
 
-	/** Determine the speed towards the target destination. It makes sure that abs(speedX) and abs(speedY) is at least 1 */
+	/**
+	 * Determine the speed towards the target destination. It makes sure that
+	 * abs(speedX) and abs(speedY) is at least 1
+	 */
 	public int[] calculateSpeedTowardsDest(int destX, int destY, int x, int y) {
 		int speedX;
 		int speedY;
@@ -1002,11 +1033,10 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		} else {
 			speedY = Math.abs(yDiff) > OpenGLBug.BOUNCING_STEP ? yDiff / OpenGLBug.BOUNCING_STEP : yDiff / Math.abs(yDiff);
 		}
-		int[] speed = {speedX, speedY};
+		int[] speed = { speedX, speedY };
 		return speed;
 	}
-	
-	
+
 	/** Return the bug's next destination (in opengl coordinate) */
 	private int[] findBugNextDest() {
 		double[] resultArray = mCameraActivityInstance.findBugNextDest();
@@ -1072,5 +1102,15 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 			}
 		}
 		return false;
+	}
+
+	private boolean isPointInFloor(int openGlX, int openGlY) {
+		int openCvX = (int) (openGlX * mCameraActivityInstance.openCVGLRatioX);
+		int openCvY = mCameraActivityInstance.screenOpenCvHeight - (int) (openGlY * mCameraActivityInstance.openCVGLRatioY);
+		int result = mCameraActivityInstance.isPointInFloor(openCvX, openCvY);
+		if (result == 1)
+			return true;
+		else
+			return false;
 	}
 }

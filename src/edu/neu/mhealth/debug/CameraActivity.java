@@ -588,8 +588,8 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	}
 
 	/**
-	 * Return if the point is in the floor's contour +1: outside the contour -1:
-	 * inside the contour 0:lies on the edge;
+	 * Return if the point is in the floor's contour +1: inside the contour -1:
+	 * outside the contour 0:lies on the edge;
 	 * 
 	 * @param openCvWidth
 	 *            The width in the opencv screen
