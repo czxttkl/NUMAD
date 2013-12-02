@@ -43,8 +43,8 @@ public class OpenGLBugManager {
 	public static void generateMainMenuBug() {
 		if (mBugList.size() != 1) {
 			mBugList.clear();
-			int randomHeight = Global.rd.nextInt(OpenGLRenderer.screenOpenGLHeight / 3);
-			OpenGLMainMenuBug menuBug = new OpenGLMainMenuBug(OpenGLRenderer.screenOpenGLWidth - OpenGLBug.radius, OpenGLRenderer.screenOpenGLHeight / 4 + randomHeight, -1, 1,
+			int randomHeight = Global.rd.nextInt(mCameraActivityInstance.screenPixelHeight / 3);
+			OpenGLMainMenuBug menuBug = new OpenGLMainMenuBug(mCameraActivityInstance.screenPixelWidth - OpenGLBug.radius, mCameraActivityInstance.screenPixelHeight / 4 + randomHeight, -1, 1,
 					OpenGLRenderer.SCALE_RATIO);
 			mBugList.add(menuBug);
 		}

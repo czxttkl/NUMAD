@@ -328,7 +328,6 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		mColorPickBottomBar.setVisibility(View.VISIBLE);
 		mColorPickHelpNotifTextView.setVisibility(View.GONE);
 		mColorPickHelpNotifTextView.setText(R.string.color_pick_help_notif_shoe);
-		mColorPickHelpNotifTextView.setTextColor(Color.WHITE);
 		mColorPickHelpNotifTextView.setVisibility(View.VISIBLE);
 		mColorPickHelpConfirmButt1.setVisibility(View.GONE);
 		openCvMode = MODE_COLOR_PICK_CROSSHAIR;
@@ -340,6 +339,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	public void onClickShoeColorPickConfirmOk(View v) {
 		openCvMode = MODE_COLOR_PICK_CROSSHAIR;
 		mColorPickHelpConfirmButt1.setVisibility(View.GONE);
+		
 		// To enter the ColorPickCameraMode
 		initializeColorPickCameraMode();
 	}
@@ -623,7 +623,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 			Core.circle(mRgba, new org.opencv.core.Point(x, y), 4, redColor);
 			mFireList.add(new OpenGLFire(ratioX, ratioY));
 		}
-		mGLSurfaceView.mRenderer.mFireList = mFireList;
+		OpenGLRenderer.mFireList = mFireList;
 	}
 
 	/**
