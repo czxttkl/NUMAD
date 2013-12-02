@@ -783,23 +783,23 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		float rotateDegree = 0;
 		double rotateRadian;
 		if (speedX == 0) {
-			if (speedY < 0)
+			if (speedY >= 0)
 				rotateRadian = 0;
 			else
-				rotateRadian = Math.PI / 2;
+				rotateRadian = Math.PI;
 		} else {
 			rotateRadian = Math.atan(Math.abs((double) speedY / speedX));
 		}
-
+		
 		rotateDegree = (float) (Math.toDegrees(rotateRadian));
 
-		if (speedX > 0 && speedY < 0) {
+		if (speedX > 0 && speedY <= 0) {
 			rotateDegree = 90 + rotateDegree;
 		}
 		if (speedX > 0 && speedY > 0) {
 			rotateDegree = 90 - rotateDegree;
 		}
-		if (speedX < 0 && speedY < 0) {
+		if (speedX < 0 && speedY <= 0) {
 			rotateDegree = 90 + rotateDegree;
 			rotateDegree = -rotateDegree;
 		}
@@ -897,20 +897,11 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 								// next time it will jump out of floor, it
 								// should return
 								if (!isPointInFloor(tmpX + 2 * polarityX * OpenGLBug.radius, tmpY + 2 * polarityY * OpenGLBug.radius)) {
-//									int[] destination = findBugNextDest();
-//									int[] speed = calculateSpeedTowardsDest(destination[0], destination[1], bug.x, bug.y);
 									bug.speedX = bug.speedX / 2 + 1;
 									bug.speedY = bug.speedY / 2 + 1;
+									Log.d(TAG, "speedX, speedY:" + bug.speedX + "," + bug.speedY);
 									tmpX = bug.x + bug.speedX + OpenGLBug.relativeSpeedX;
 									tmpY = bug.y + bug.speedY + OpenGLBug.relativeSpeedY;
-//									bug.shouldPause = true;
-									// int tmpSpeedX = bug.speedX;
-									// bug.speedX = bug.speedY;
-									// bug.speedY = -tmpSpeedX;
-									// tmpX = bug.x + bug.speedX +
-									// OpenGLBug.relativeSpeedX;
-									// tmpY = bug.y + bug.speedY +
-									// OpenGLBug.relativeSpeedY;
 								}
 							}
 						}
