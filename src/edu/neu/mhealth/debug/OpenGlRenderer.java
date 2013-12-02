@@ -173,6 +173,12 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 	/** This is a handle to our bug's texture data. */
 	private int mBugTextureDataHandle;
 
+	/** This is a handle to our bug's bouncing texture data. */
+	private int mBugBouncingTextureDataHandle;
+
+	/** This is a handle to our bug's burning texture data. */
+	private int mBugBurningTextureDataHandle;
+
 	/** This is a handle to our fire's texture data 1. */
 	private int mFireTextureDataHandle1;
 
@@ -386,6 +392,8 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 
 		// Load the bug's texture
 		mBugTextureDataHandle = TextureHelper.loadTexture(mActivityContext, R.drawable.ladybug, GLES20.GL_TEXTURE0);
+		mBugBouncingTextureDataHandle = TextureHelper.loadTexture(mActivityContext, R.drawable.bouncing, GLES20.GL_TEXTURE6);
+		mBugBurningTextureDataHandle = TextureHelper.loadTexture(mActivityContext, R.drawable.burning, GLES20.GL_TEXTURE7);
 
 		// Define a simple shader program for our point.
 		final String pointVertexShader = RawResourceReader.readTextFileFromRawResource(mActivityContext, R.raw.point_vertex_shader);
@@ -445,8 +453,8 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 	}
 
 	public volatile float globalRotateDegree = 0;
-//	public float distanceX;
-//	public float distanceY;
+	// public float distanceX;
+	// public float distanceY;
 
 	/** This variable will be incremented every frame. */
 	public int fireDrawCount = 1;
@@ -530,10 +538,6 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 			// Load the res handles that will be used in drawing bugs.
 			loadOpenGLBugResHandles(mBugProgramHandle);
 
-			// Tell the texture uniform sampler to use this texture in the
-			// shader by binding to texture unit 0.
-			GLES20.glUniform1i(mTextureUniformHandle, 0);
-
 			// Draw bugs
 			drawBugs();
 
@@ -600,6 +604,16 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		while (mOpenGLBugListIterator.hasNext()) {
 			OpenGLBug mOpenGLBug = mOpenGLBugListIterator.next();
 
+			// If the bug is boucing, we should let it be blue.
+			if (mOpenGLBug.bouncing) {
+				GLES20.glUniform1i(mTextureUniformHandle, 6);
+			} else {
+				// Tell the texture uniform sampler to use this texture in the
+				// shader by binding to texture unit 0.
+				if (!mOpenGLBug.burning)
+					GLES20.glUniform1i(mTextureUniformHandle, 0);
+			}
+
 			// Load the model matrix as identity matrix
 			Matrix.setIdentityM(mModelMatrix, 0);
 
@@ -635,12 +649,14 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 
 			GLES20.glEnableVertexAttribArray(mBugNormalHandle);
 
-			// Pass in the texture coordinate information
-			mBugTextureCoordinates.position(0);
-			GLES20.glVertexAttribPointer(mBugTextureCoordinateHandle, mTextureCoordinateDataSize, GLES20.GL_FLOAT, false, 0, mBugTextureCoordinates);
-
-			GLES20.glEnableVertexAttribArray(mBugTextureCoordinateHandle);
-
+			// When bug is burning, we don't load texture coordinates. That's an effect to simulate bug burning.
+			if (!mOpenGLBug.burning) {
+				// Pass in the texture coordinate information
+				mBugTextureCoordinates.position(0);
+				GLES20.glVertexAttribPointer(mBugTextureCoordinateHandle, mTextureCoordinateDataSize, GLES20.GL_FLOAT, false, 0, mBugTextureCoordinates);
+				GLES20.glEnableVertexAttribArray(mBugTextureCoordinateHandle);
+			}
+			
 			// This multiplies the view matrix by the model matrix, and stores
 			// the
 			// result in the MVP matrix
@@ -766,29 +782,6 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		}
 	}
 
-	/**
-	 * Draws a point representing the position of the light.
-	 */
-	private void drawLight() {
-		final int pointMVPMatrixHandle = GLES20.glGetUniformLocation(mLightProgramHandle, "u_MVPMatrix");
-		final int pointPositionHandle = GLES20.glGetAttribLocation(mLightProgramHandle, "a_Position");
-
-		// Pass in the position.
-		GLES20.glVertexAttrib3f(pointPositionHandle, mLightPosInModelSpace[0], mLightPosInModelSpace[1], mLightPosInModelSpace[2]);
-
-		// Since we are not using a buffer object, disable vertex arrays for
-		// this attribute.
-		GLES20.glDisableVertexAttribArray(pointPositionHandle);
-
-		// Pass in the transformation matrix.
-		Matrix.multiplyMM(mMVPMatrix, 0, mViewMatrix, 0, mLightModelMatrix, 0);
-		Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mMVPMatrix, 0);
-		GLES20.glUniformMatrix4fv(pointMVPMatrixHandle, 1, false, mMVPMatrix, 0);
-
-		// Draw the point.
-		GLES20.glDrawArrays(GLES20.GL_POINTS, 0, 1);
-	}
-
 	/* Bug rendering */
 	/** Determine the bug's head rotation */
 	private float headRotate(int speedX, int speedY) {
@@ -881,15 +874,17 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 					// If the bug is still in the screen AND it is not burning
 					if (!bug.burning) {
 						if (ifFireHitsBug(tmpX, tmpY)) {
-//							Log.d(TAG, "czx openglbug radius:" + OpenGLBug.radius + " dist:" + distFromBugToFire);
+							// Log.d(TAG, "czx openglbug radius:" +
+							// OpenGLBug.radius + " dist:" + distFromBugToFire);
 							bug.burning = true;
 							bug.shouldPause = true;
 							updateScore(bug.type);
 						}
 					}
 				}
-				
-				// If the bug is burning to the end, remove it and also add a new bug
+
+				// If the bug is burning to the end, remove it and also add a
+				// new bug
 				if (bug.burning) {
 					bug.burningStepCounter++;
 					if (bug.burningStepCounter == OpenGLBug.BURNING_STEP) {
@@ -901,7 +896,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 						return bug;
 					}
 				}
-				
+
 				if (bug.bouncing) {
 					bug.bounceStepCounter++;
 					// If bounce step counter hits OpenGLBug.BOUNCING_STEP, we
@@ -1032,7 +1027,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 	}
 
 	private void updateScore(int bugType) {
-		switch(bugType) {
+		switch (bugType) {
 		case OpenGLBug.TYPE_FIREBUG:
 			mCameraActivityInstance.updateScore(1);
 			break;
@@ -1040,7 +1035,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 			break;
 		}
 	}
-	
+
 	/** generate an integer between a range */
 	public int randInt(int min, int max) {
 		// nextInt is normally exclusive of the top value,
@@ -1049,15 +1044,17 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 
 		return randomNum;
 	}
-	
-	/** Determine whether the bug is burned by return the max distance between the bug and two fire flames */
+
+	/**
+	 * Determine whether the bug is burned by return the max distance between
+	 * the bug and two fire flames
+	 */
 	private boolean ifFireHitsBug(int tmpX, int tmpY) {
 		for (OpenGLFire mOpenGLFire : mFireList) {
-			long xDiff = tmpX - (int)(mOpenGLFire.ratioX * screenOpenGLWidth);
-			long yDiff = tmpY - (int)(mOpenGLFire.ratioY * screenOpenGLHeight);
+			long xDiff = tmpX - (int) (mOpenGLFire.ratioX * screenOpenGLWidth);
+			long yDiff = tmpY - (int) (mOpenGLFire.ratioY * screenOpenGLHeight);
 			double distance = Math.sqrt(xDiff * xDiff + yDiff * yDiff);
-			if (distance < 4 * OpenGLBug.radius) {
-				Log.d(TAG, "czx hits:" + distance);
+			if (distance < 3 * OpenGLBug.radius) {
 				return true;
 			}
 		}
