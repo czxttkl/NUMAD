@@ -414,6 +414,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	org.opencv.core.Point crosshairRightmost;
 	org.opencv.core.Point crosshairUpmost;
 	org.opencv.core.Point crosshairDownmost;
+	org.opencv.core.Point destinationTarget;
 	private Scalar mShoeColorPickRgba;
 	private Scalar mShoeColorPickHsv;
 	private Scalar mFloorColorPickRgba;
@@ -531,6 +532,9 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 			detectedFloorContours = mColorBlobDetector.getFloorContours();
 			detectedFloorContours.removeAll(Collections.singleton(null));
 			Imgproc.drawContours(mRgba, detectedFloorContours, -1, redColor, 4);
+			if (destinationTarget != null)
+				Core.circle(mRgba, destinationTarget, 10, redColor, -1);
+			
 			break;
 
 		default:
@@ -574,11 +578,11 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 			result = ifPointIsInFloor(randomWidth, randomHeight);
 		} while (result != 1);
 
+		destinationTarget = new org.opencv.core.Point(randomWidth, randomHeight);
 		// Convert coordinates between opencv and opengl
 		double resultDestX = (double) randomWidth / screenOpenCvWidth;
 		// Revert y-axis ratio between opencv and opengl
 		double resultDestY = 1 - (double) randomHeight / screenOpenCvHeight;
-		Log.d(TAG, "finddesti:" + resultDestX + "," + resultDestY);
 		double[] resultArray = { resultDestX, resultDestY };
 		return resultArray;
 	}
@@ -662,7 +666,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	private void restoreOrCreateJavaCameraView() {
 		mOpenCvCameraView = new CameraView(this);
 		mOpenCvCameraView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
-		mOpenCvCameraView.setMaxFrameSize(300, 300);
+		mOpenCvCameraView.setMaxFrameSize(800, 800);
 		mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
 		mOpenCvCameraView.setCvCameraViewListener(this);
 		mOpenCvCameraView.enableFpsMeter();

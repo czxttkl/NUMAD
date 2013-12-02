@@ -979,13 +979,13 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		if (xDiff == 0) {
 			speedX = 0;
 		} else {
-			speedX = xDiff > OpenGLBug.BOUNCING_STEP ? xDiff / OpenGLBug.BOUNCING_STEP : xDiff / Math.abs(xDiff);
+			speedX = Math.abs(xDiff) > OpenGLBug.BOUNCING_STEP ? xDiff / OpenGLBug.BOUNCING_STEP : xDiff / Math.abs(xDiff);
 		}
 
 		if (yDiff == 0) {
 			speedY = 0;
 		} else {
-			speedY = yDiff > OpenGLBug.BOUNCING_STEP ? yDiff / OpenGLBug.BOUNCING_STEP : yDiff / Math.abs(yDiff);
+			speedY = Math.abs(yDiff) > OpenGLBug.BOUNCING_STEP ? yDiff / OpenGLBug.BOUNCING_STEP : yDiff / Math.abs(yDiff);
 		}
 
 		OpenGLBug tutorial1Bug = new OpenGLBug(OpenGLBug.TYPE_FIREBUG, randomWidth, randomHeight, speedX, speedY, SCALE_RATIO, true, destination[0], destination[1], 0);
@@ -1005,6 +1005,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		int[] destination = new int[2];
 		destination[0] = (int) (screenOpenGLWidth * resultArray[0]);
 		destination[1] = (int) (screenOpenGLHeight * resultArray[1]);
+		Log.d(TAG, "finddesti:" + destination[0] + "," + destination[1]);
 		return destination;
 	}
 
