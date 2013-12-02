@@ -173,12 +173,9 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 	/** This is a handle to our bug's texture data. */
 	private int mBugTextureDataHandle;
 
-	/** This is a handle to our bug's bouncing texture data. */
+	/** This is a handle to our bug's texture data. */
 	private int mBugBouncingTextureDataHandle;
-
-	/** This is a handle to our bug's burning texture data. */
-	private int mBugBurningTextureDataHandle;
-
+	
 	/** This is a handle to our fire's texture data 1. */
 	private int mFireTextureDataHandle1;
 
@@ -392,8 +389,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 
 		// Load the bug's texture
 		mBugTextureDataHandle = TextureHelper.loadTexture(mActivityContext, R.drawable.ladybug, GLES20.GL_TEXTURE0);
-		mBugBouncingTextureDataHandle = TextureHelper.loadTexture(mActivityContext, R.drawable.bouncing, GLES20.GL_TEXTURE6);
-		mBugBurningTextureDataHandle = TextureHelper.loadTexture(mActivityContext, R.drawable.burning, GLES20.GL_TEXTURE7);
+		mBugTextureDataHandle = TextureHelper.loadTexture(mActivityContext, R.drawable.bouncing, GLES20.GL_TEXTURE6);
 
 		// Define a simple shader program for our point.
 		final String pointVertexShader = RawResourceReader.readTextFileFromRawResource(mActivityContext, R.raw.point_vertex_shader);
@@ -604,16 +600,15 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		while (mOpenGLBugListIterator.hasNext()) {
 			OpenGLBug mOpenGLBug = mOpenGLBugListIterator.next();
 
-			// If the bug is boucing, we should let it be blue.
-			if (mOpenGLBug.bouncing) {
-				GLES20.glUniform1i(mTextureUniformHandle, 6);
-			} else {
-				// Tell the texture uniform sampler to use this texture in the
-				// shader by binding to texture unit 0.
-				if (!mOpenGLBug.burning)
-					GLES20.glUniform1i(mTextureUniformHandle, 0);
-			}
-
+			// Tell the texture uniform sampler to use this texture in the
+			// shader by binding to texture unit 0.
+			GLES20.glUniform1i(mTextureUniformHandle, 0);
+//			// If the bug is boucing, we should let it be blue.
+//			if (!mOpenGLBug.bouncing) {
+//			} else {
+//				GLES20.glUniform1i(mTextureUniformHandle, 6);
+//			}
+			
 			// Load the model matrix as identity matrix
 			Matrix.setIdentityM(mModelMatrix, 0);
 
@@ -649,14 +644,14 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 
 			GLES20.glEnableVertexAttribArray(mBugNormalHandle);
 
-			// When bug is burning, we don't load texture coordinates. That's an effect to simulate bug burning.
+			// If bug is burning, make it black!
 			if (!mOpenGLBug.burning) {
 				// Pass in the texture coordinate information
 				mBugTextureCoordinates.position(0);
 				GLES20.glVertexAttribPointer(mBugTextureCoordinateHandle, mTextureCoordinateDataSize, GLES20.GL_FLOAT, false, 0, mBugTextureCoordinates);
 				GLES20.glEnableVertexAttribArray(mBugTextureCoordinateHandle);
 			}
-			
+
 			// This multiplies the view matrix by the model matrix, and stores
 			// the
 			// result in the MVP matrix
@@ -871,7 +866,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 						mOpenGLBugIterator.add(mTutorial1Bug);
 					}
 				} else {
-					// If the bug is still in the screen AND it is not burning
+					// If the bug is still in the screen AND it is not burning and bouncing
 					if (!bug.burning) {
 						if (ifFireHitsBug(tmpX, tmpY)) {
 							// Log.d(TAG, "czx openglbug radius:" +
@@ -879,6 +874,14 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 							bug.burning = true;
 							bug.shouldPause = true;
 							updateScore(bug.type);
+						} else {
+							// If the bug is not burned by the fire and not bouncing, we check if it is in the floor contour
+							if (!bug.bouncing) {
+								if (isPointInFloor(tmpX, tmpY)) {
+									bug.bouncing = true;
+									bug.bounceStepCounter = 0;
+								}
+							}
 						}
 					}
 				}
@@ -918,6 +921,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 					bug.y = tmpY;
 					bug.lastRefreshTime = System.currentTimeMillis();
 				} else {
+					// Make the bug move if it halts for a while
 					if (!bug.burning && System.currentTimeMillis() - bug.lastRefreshTime > rd.nextInt(10000)) {
 						bug.shouldPause = false;
 					}
@@ -957,20 +961,36 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 	private OpenGLBug generateTutorial1Bug() {
 		// bugs will show up from left or right flank side. So the width is
 		// either 0+radius OR screenwidht-radius
-		int randomHeight = randInt(OpenGLBug.radius, screenOpenGLHeight / 2);
 		int randomWidth;
 		if (rd.nextInt(2) == 0) {
 			randomWidth = OpenGLBug.radius;
 		} else {
 			randomWidth = screenOpenGLWidth - OpenGLBug.radius;
 		}
-		// Make sure that abs(speedX) and abs(speedY) is at least 1
+		int randomHeight = randInt(OpenGLBug.radius, screenOpenGLHeight / 2);
+		
 		int[] destination = findBugNextDest();
-		int xDiff = destination[0] - randomWidth;
-		int yDiff = destination[1] - randomHeight;
+		int[] speed = calculateSpeedTowardsDest(destination[0], destination[1], randomWidth, randomHeight);
+		
+		OpenGLBug tutorial1Bug = new OpenGLBug(OpenGLBug.TYPE_FIREBUG, randomWidth, randomHeight, speed[0], speed[1], SCALE_RATIO, true, destination[0], destination[1], 0);
+		
+		return tutorial1Bug;
+	}
+
+	/** In the tutorial 1, there is only one bug. */
+	public void prepareForTutorial1() {
+		mBugList.clear();
+		OpenGLBug mTutorial1Bug = generateTutorial1Bug();
+		mBugList.add(mTutorial1Bug);
+	}
+
+	/** Determine the speed towards the target destination. It makes sure that abs(speedX) and abs(speedY) is at least 1 */
+	public int[] calculateSpeedTowardsDest(int destX, int destY, int x, int y) {
 		int speedX;
 		int speedY;
 
+		int xDiff = destX - x;
+		int yDiff = destY - y;
 		if (xDiff == 0) {
 			speedX = 0;
 		} else {
@@ -982,18 +1002,11 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 		} else {
 			speedY = Math.abs(yDiff) > OpenGLBug.BOUNCING_STEP ? yDiff / OpenGLBug.BOUNCING_STEP : yDiff / Math.abs(yDiff);
 		}
-
-		OpenGLBug tutorial1Bug = new OpenGLBug(OpenGLBug.TYPE_FIREBUG, randomWidth, randomHeight, speedX, speedY, SCALE_RATIO, true, destination[0], destination[1], 0);
-		return tutorial1Bug;
+		int[] speed = {speedX, speedY};
+		return speed;
 	}
-
-	/** In the tutorial 1, there is only one bug. */
-	public void prepareForTutorial1() {
-		mBugList.clear();
-		OpenGLBug mTutorial1Bug = generateTutorial1Bug();
-		mBugList.add(mTutorial1Bug);
-	}
-
+	
+	
 	/** Return the bug's next destination (in opengl coordinate) */
 	private int[] findBugNextDest() {
 		double[] resultArray = mCameraActivityInstance.findBugNextDest();

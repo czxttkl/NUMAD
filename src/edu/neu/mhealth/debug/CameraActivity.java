@@ -575,7 +575,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 
 			// +1: outside the contour -1: inside the contour 0:lies on the
 			// edge;
-			result = ifPointIsInFloor(randomWidth, randomHeight);
+			result = isPointInFloor(randomWidth, randomHeight);
 		} while (result != 1);
 
 		destinationTarget = new org.opencv.core.Point(randomWidth, randomHeight);
@@ -596,7 +596,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	 * @param openCvHeight
 	 *            The height in the opencv screen
 	 */
-	public int ifPointIsInFloor(int openCvWidth, int openCvHeight) {
+	public int isPointInFloor(int openCvWidth, int openCvHeight) {
 		org.opencv.core.Point pt = new org.opencv.core.Point(openCvWidth, openCvHeight);
 		MatOfPoint2f detectedFloorContour2f = new MatOfPoint2f();
 		detectedFloorContours.get(0).convertTo(detectedFloorContour2f, CvType.CV_32FC2);
