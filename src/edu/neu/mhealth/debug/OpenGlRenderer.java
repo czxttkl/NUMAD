@@ -850,6 +850,8 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 			bug.lastRefreshTime = System.currentTimeMillis();
 			break;
 		case MODE_TUTORIAL_1:
+			polarityX = bug.speedX >= 0 ? 1 : -1;
+			polarityY = bug.speedY >= 0 ? 1 : -1;
 			tmpX = bug.x + bug.speedX + OpenGLBug.relativeSpeedX;
 			tmpY = bug.y + bug.speedY + OpenGLBug.relativeSpeedY;
 
@@ -881,7 +883,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 						if (!bug.bouncing) {
 							// If currently the bug is not in the floor, it
 							// should bounce
-							if (!isPointInFloor(bug.x, bug.y)) {
+							if (!isPointInFloor(bug.x + polarityX * OpenGLBug.radius, bug.y + polarityY * OpenGLBug.radius)) {
 								bug.bouncing = true;
 								bug.bounceStepCounter = 0;
 								int[] destination = findBugNextDest();
@@ -894,14 +896,14 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 								// If currently the bug is in the floor, but
 								// next time it will jump out of floor, it
 								// should return
-								if (!isPointInFloor(tmpX, tmpY)) {
-									int[] destination = findBugNextDest();
-									int[] speed = calculateSpeedTowardsDest(destination[0], destination[1], bug.x, bug.y);
-									bug.speedX = speed[0];
-									bug.speedY = speed[1];
+								if (!isPointInFloor(tmpX + 2 * polarityX * OpenGLBug.radius, tmpY + 2 * polarityY * OpenGLBug.radius)) {
+//									int[] destination = findBugNextDest();
+//									int[] speed = calculateSpeedTowardsDest(destination[0], destination[1], bug.x, bug.y);
+									bug.speedX = bug.speedX / 2 + 1;
+									bug.speedY = bug.speedY / 2 + 1;
 									tmpX = bug.x + bug.speedX + OpenGLBug.relativeSpeedX;
 									tmpY = bug.y + bug.speedY + OpenGLBug.relativeSpeedY;
-									bug.shouldPause = true;
+//									bug.shouldPause = true;
 									// int tmpSpeedX = bug.speedX;
 									// bug.speedX = bug.speedY;
 									// bug.speedY = -tmpSpeedX;
@@ -950,9 +952,12 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 				bug.x = tmpX;
 				bug.y = tmpY;
 				bug.lastRefreshTime = System.currentTimeMillis();
+				if (!bug.bouncing && rd.nextInt(100) > 98) {
+					bug.shouldPause = true;
+				}
 			} else {
 				// Make the bug move if it halts for a while
-				if (!bug.burning && System.currentTimeMillis() - bug.lastRefreshTime > rd.nextInt(10000)) {
+				if (!bug.burning && System.currentTimeMillis() - bug.lastRefreshTime > rd.nextInt(3000)) {
 					bug.shouldPause = false;
 				}
 			}
