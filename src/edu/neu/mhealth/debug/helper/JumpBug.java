@@ -33,7 +33,7 @@ public class JumpBug extends Bug implements Observer{
 		/// if game mode changed
 		if (observable instanceof ModeManager.ModeEventListener) {
 			Integer gameMode = (Integer)data;
-			Log.e(TAG, "the current game mode: " + gameMode.intValue());
+//			Log.e(TAG, "the current game mode: " + gameMode.intValue());
 		}
 	}
 }

@@ -47,6 +47,7 @@ import android.graphics.Camera;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
+import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
@@ -70,7 +71,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class MainActivity extends Activity implements OnTouchListener,
-		CvCameraViewListener2 {
+		CvCameraViewListener2, SensorEventListener {
 	
 	private static final String TAG = "OCVSample::Activity";
 	
@@ -82,8 +83,8 @@ public class MainActivity extends Activity implements OnTouchListener,
 	View mColorPickHelpConfirmButt1;
 	View mColorPickHelpConfirmButt2;
 	View mColorPickCloseButton;
-	View mColorPickCameraButton;
-	TextView mColorPickHelpNotifTextView;
+	public View mColorPickCameraButton;
+	public TextView mColorPickHelpNotifTextView;
 	
 	RelativeLayout mColorPickLayout;
 	ImageView mMainMenuBackground;
@@ -106,7 +107,7 @@ public class MainActivity extends Activity implements OnTouchListener,
 	private List<android.hardware.Camera.Size> resolutions;
 	
 	/// For Game Flow Control
-	private boolean shoeColorPicked = false;
+	public boolean shoeColorPicked = false;
 	private boolean floorColorPicked = false;
 	
 	Mat colorPickAreaHsv;
@@ -192,9 +193,10 @@ public class MainActivity extends Activity implements OnTouchListener,
 	private static final int motionThX = 100;
 	private static final int motionThY = 100;
 	
-	/// For jumping detection
+	/// For jumping detection and tilt detection
 	private SensorManager sensorManager;
-	private Sensor sensorACC;
+	private Sensor sensorLinearAcc;
+	private Sensor sensorAcc;
 	private AccEventListener accEventListener;
 	
 	/// For direction / motion detection
@@ -265,9 +267,11 @@ public class MainActivity extends Activity implements OnTouchListener,
 		
 		jumpBug = new JumpBug(getApplicationContext());
 		
-		sensorACC = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
-		accEventListener = new AccEventListener(this.getApplicationContext());
-		sensorManager.registerListener(accEventListener, sensorACC, SensorManager.SENSOR_DELAY_FASTEST);	
+		sensorLinearAcc = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
+		sensorAcc = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+		accEventListener = new AccEventListener(this);
+		sensorManager.registerListener(accEventListener, sensorLinearAcc, SensorManager.SENSOR_DELAY_FASTEST);	
+		sensorManager.registerListener(this, sensorAcc, SensorManager.SENSOR_DELAY_FASTEST);
 		accEventListener.addObserver(jumpBug);
 
 		motionEventListener = new MotionEventListener();
@@ -882,5 +886,47 @@ public class MainActivity extends Activity implements OnTouchListener,
 		mFrameLayout.removeView(mColorPickLayout);
 		ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_TUTORIAL_1);
 		OpenGLBugManager.setMode(OpenGLBugManager.MODE_TUTORIAL_1);
+	}
+
+	@Override
+	public void onSensorChanged(SensorEvent event) {
+		// TODO Auto-generated method stub
+		if (Sensor.TYPE_ACCELEROMETER == event.sensor.getType()) {
+			// Log.d(TAG, "accelerometer z:" + arg0.values[2]);
+			int gameMode = ModeManager.getModeManager().getCurrentMode();
+			switch (gameMode) {
+			case ModeManager.MODE_COLOR_PICK_CROSSHAIR:
+				if (event.values[2] < 8.5f) {
+					mColorPickHelpNotifTextView.setVisibility(View.GONE);
+					mColorPickHelpNotifTextView.setText(R.string.color_pick_help_notif_horizon);
+					mColorPickHelpNotifTextView.setTextColor(Color.RED);
+					mColorPickHelpNotifTextView.setVisibility(View.VISIBLE);
+					ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_COLOR_PICK_HOLD_WRONGLY);
+					mColorPickCameraButton.setEnabled(false);
+				}
+				break;
+			case ModeManager.MODE_COLOR_PICK_HOLD_WRONGLY:
+				if (event.values[2] > 8.5f) {
+					mColorPickHelpNotifTextView.setVisibility(View.GONE);
+					if (!shoeColorPicked) {
+						mColorPickHelpNotifTextView.setText(R.string.color_pick_help_notif_shoe);
+					} else {
+						mColorPickHelpNotifTextView.setText(R.string.color_pick_help_notif_floor);
+					}
+					mColorPickHelpNotifTextView.setTextColor(Color.WHITE);
+					mColorPickHelpNotifTextView.setVisibility(View.VISIBLE);
+					ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_COLOR_PICK_CROSSHAIR);
+					mColorPickCameraButton.setEnabled(true);
+				}
+			default:
+				// Do nothing
+			}
+		}
+	}
+
+	@Override
+	public void onAccuracyChanged(Sensor sensor, int accuracy) {
+		// TODO Auto-generated method stub
+		
 	}
 }
