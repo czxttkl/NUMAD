@@ -20,5 +20,6 @@
     <string name="color_pick_help_notif_confirm_floor">Does our contour wrap and only wrap the floor?</string>
     <string name="tutorial_instruction_ok">\u0020\u0020OK, Start\u0020\u0020</string>
     <string name="tutorial1_instruction">You are endowed with killing flames\n
-                                         Burn three bugs consecutively</string>
+                                         Burn three bugs consecutively \n
+                                         to show your power</string>
 </resources>
