@@ -16,7 +16,7 @@ public class ModeManager {
 	public static final int MODE_TUTORIAL_1 = 127;
 	
 	private static ModeManager modeManager;
-	private static ModeEventListener eventListener;
+	private ModeEventListener eventListener;
 	private int currentMode;
 	private int previousMode;
 	
