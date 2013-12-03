@@ -10,6 +10,9 @@ public abstract class OpenGLBug {
 	/** The radius of the square occupied by the bug (in pixels) */
 	public static int radius = 50; 
 	
+	/** Set the thresholdHeight that bug could get out from the screen*/
+	public static int thresHeight;
+	
 	/** The scale ratio for opengl scale method*/
 	public float scaleRatio;
 	

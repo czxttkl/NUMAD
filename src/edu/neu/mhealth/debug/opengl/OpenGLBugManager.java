@@ -185,4 +185,21 @@ public class OpenGLBugManager {
 		}
 		return speed;
 	}
+	
+	public static int getOpenCvWidth() {
+		return mCameraActivityInstance.screenOpenCvWidth;
+	}
+	
+	public static int getOpenCvHeight() {
+		return mCameraActivityInstance.screenOpenCvHeight;
+	}
+	
+	public static int getOpenGlWidth() {
+		return mCameraActivityInstance.screenPixelWidth;
+	}
+	
+	public static int getOpenGlHeight() {
+		return mCameraActivityInstance.screenPixelHeight;
+	}
+	
 }

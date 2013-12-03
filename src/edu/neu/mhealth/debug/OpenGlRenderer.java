@@ -429,7 +429,9 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer {
 
 		// Set OpenGLBug's scale
 		OpenGLBug.radius = (int) (screenOpenGLWidth / (SCALE_RATIO * 2));
-
+		// Set the thresholdHeight that bug could get out from the screen
+		OpenGLBug.thresHeight = OpenGLBugManager.getOpenGlHeight() - 2 * OpenGLBug.radius;
+		
 		eyeX = screenOpenGLWidth / 2;
 		eyeY = screenOpenGLHeight / 2;
 		lookX = screenOpenGLWidth / 2;
