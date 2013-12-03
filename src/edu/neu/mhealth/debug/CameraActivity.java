@@ -360,11 +360,16 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	public void onClickFloorColorPickConfirmOk(View v) {
 		mFrameLayout.removeView(mColorPickLayout);
 		openCvMode = MODE_TUTORIAL_1;
-		OpenGLBugManager.setMode(OpenGLBugManager.MODE_TUTORIAL_1);
-		
 		mHandler.postDelayed(mTutorial1InstructionUpdator, 2000);
 	}
 
+	/** remove itself and set openglbugmanager mode */
+	public void onClickTutorial1InstructionOk(View v) {
+		mFrameLayout.removeView(mTutorial1InstructionLayout);
+		OpenGLBugManager.setMode(OpenGLBugManager.MODE_TUTORIAL_1);
+		openCvMode = MODE_TUTORIAL_1;
+	}
+	
 	/** Initialize Color Pick Add mode views */
 	private void initializeInstructionMode() {
 		// Shows the bottom bar with the new Target Button
@@ -829,6 +834,12 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
     		mTutorial1InstructionLayout.setBackgroundDrawable(blackBackground);
 
     		mFrameLayout.addView(mTutorial1InstructionLayout);
+    		
+    		// Set mode to default
+    		openCvMode = 0;
+    		
+    		// Clear fire list to prevent fire rendering
+    		OpenGLRenderer.mFireList.clear();
         }
 	};
 }
