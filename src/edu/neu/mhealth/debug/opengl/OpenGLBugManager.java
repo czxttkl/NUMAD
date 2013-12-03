@@ -152,7 +152,7 @@ public class OpenGLBugManager {
 
 	public static boolean isPointInFloor(int openGlX, int openGlY) {
 		int openCvX = (int) (openGlX * mCameraActivityInstance.openCVGLRatioX);
-		int openCvY = mCameraActivityInstance.screenOpenGLHeight - (int) (openGlY * mCameraActivityInstance.openCVGLRatioY);
+		int openCvY = mCameraActivityInstance.imageOpenCvHeight - (int) (openGlY * mCameraActivityInstance.openCVGLRatioY);
 		int result = mCameraActivityInstance.isPointInFloor(openCvX, openCvY);
 		if (result == 1)
 			return true;
@@ -162,8 +162,8 @@ public class OpenGLBugManager {
 	
 	public static int distToContour(int openGlX, int openGlY) {
 		int openCvX = (int) (openGlX * mCameraActivityInstance.openCVGLRatioX);
-		int openCvY = mCameraActivityInstance.screenOpenGLHeight - (int) (openGlY * mCameraActivityInstance.openCVGLRatioY);
-		int result = mCameraActivityInstance.isPointInFloor(openCvX, openCvY);
+		int openCvY = mCameraActivityInstance.imageOpenCvHeight - (int) (openGlY * mCameraActivityInstance.openCVGLRatioY);
+		int result = mCameraActivityInstance.isPointInFloor(openCvX, openCvY, true);
 		return result;
 	}
 	
@@ -188,19 +188,19 @@ public class OpenGLBugManager {
 	}
 	
 	public static int getOpenCvWidth() {
-		return mCameraActivityInstance.screenOpenGLWidth;
+		return mCameraActivityInstance.imageOpenCvWidth;
 	}
 	
 	public static int getOpenCvHeight() {
-		return mCameraActivityInstance.screenOpenGLHeight;
+		return mCameraActivityInstance.imageOpenCvHeight;
 	}
 	
 	public static int getOpenGlWidth() {
-		return mCameraActivityInstance.screenOpenGLWidth;
+		return mCameraActivityInstance.imageOpenCvWidth;
 	}
 	
 	public static int getOpenGlHeight() {
-		return mCameraActivityInstance.screenOpenGLHeight;
+		return mCameraActivityInstance.imageOpenCvHeight;
 	}
 	
 }

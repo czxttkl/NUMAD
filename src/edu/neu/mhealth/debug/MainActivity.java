@@ -133,7 +133,7 @@ public class MainActivity extends Activity implements OnTouchListener,
 	private Size SPECTRUM_SIZE;
 	private Scalar CONTOUR_COLOR;
 
-	private CameraView mOpenCvCameraView;
+	private CameraBridgeViewBase mOpenCvCameraView;
 	private ConfigureView configureView;
 	private JumpBug jumpBug;
 	private int initalX = 0;
@@ -145,8 +145,8 @@ public class MainActivity extends Activity implements OnTouchListener,
 	public int screenOpenGLWidth;
 	public int screenOpenGLHeight;
 
-	private int imageOpenCvWidth;
-	private int imageOpenCvHeight;
+	public int imageOpenCvWidth;
+	public int imageOpenCvHeight;
 	
 	public double openCVGLRatioX;
 	public double openCVGLRatioY;
@@ -601,7 +601,7 @@ public class MainActivity extends Activity implements OnTouchListener,
 	private void restoreOrCreateJavaCameraView() {
 		mOpenCvCameraView = new CameraView(this);
 		mOpenCvCameraView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
-		mOpenCvCameraView.setMaxFrameSize(800, 800);
+//		mOpenCvCameraView.setMaxFrameSize(500, 500);
 		mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
 		mOpenCvCameraView.setCvCameraViewListener(this);
 		mOpenCvCameraView.enableFpsMeter();
@@ -687,13 +687,21 @@ public class MainActivity extends Activity implements OnTouchListener,
 	}
 
 	public int isPointInFloor(int openCvWidth, int openCvHeight) {
-		org.opencv.core.Point pt = new org.opencv.core.Point(openCvWidth, openCvHeight);
+		return isPointInFloor(openCvWidth, openCvHeight, false);
+	}
+
+	public int isPointInFloor(int openCvWidth, int openCvHeight,
+			boolean calculateDist) {
+		org.opencv.core.Point pt = new org.opencv.core.Point(openCvWidth,
+				openCvHeight);
 		MatOfPoint2f detectedFloorContour2f = new MatOfPoint2f();
-		detectedFloorContours.get(0).convertTo(detectedFloorContour2f, CvType.CV_32FC2);
-		int result = (int) Imgproc.pointPolygonTest(detectedFloorContour2f, pt, false);
+		detectedFloorContours.get(0).convertTo(detectedFloorContour2f,
+				CvType.CV_32FC2);
+		int result = (int) Imgproc.pointPolygonTest(detectedFloorContour2f, pt,
+				calculateDist);
 		return result;
 	}
-	
+
 	public void updateScore(int diff) {
 		score = score + diff;
 		updateScoreUI();
@@ -714,7 +722,7 @@ public class MainActivity extends Activity implements OnTouchListener,
 			Core.circle(mRgba, new org.opencv.core.Point(x, y), 4, colorRed);
 			mFireList.add(new OpenGLFire(ratioX, ratioY));
 		}
-		mGLSurfaceView.mRenderer.mFireList = mFireList;
+		OpenGLRenderer.mFireList = mFireList;
 	}
 	
 	public void onClickAboutStartButton(View v) {
