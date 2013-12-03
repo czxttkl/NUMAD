@@ -23,7 +23,7 @@ public class JumpBug extends Bug implements Observer{
 		}
 		
 		if (observable instanceof AccEventListener) {
-			Log.i(TAG, "I get the jumping notification");
+			Log.e(TAG, "I get the jumping notification");
 		}
 	}
 }

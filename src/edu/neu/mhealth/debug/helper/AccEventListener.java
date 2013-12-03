@@ -7,6 +7,7 @@ package edu.neu.mhealth.debug.helper;
 
 import java.util.Observable;
 
+import android.R.integer;
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -27,18 +28,21 @@ public class AccEventListener extends Observable implements SensorEventListener 
     private static final int state_forth = 4;    
     private static final int state_fifth = 5;
     
+    private static final long timeDifference = 1000000000;
+    
     private Context mContext;
-    private int state;
+    private int currState;
+    private int prevState;
     private float[] gravity;
-    private long lastTime;
-    private long currTime;
+    private long lastUpdateTime;
+    private long currUpdateTime;
 
     public AccEventListener(Context context) {
         gravity = new float[3];
-        state = state_invalid;
+        currState = state_invalid;
         mContext = context;
-        lastTime = -1;
-        currTime = -1;
+        lastUpdateTime = -1;
+        currUpdateTime = -1;
     }
     
 	@Override
@@ -53,58 +57,71 @@ public class AccEventListener extends Observable implements SensorEventListener 
 		float[] values = event.values.clone();
 		values = highPass(values[0], values[1], values[2]);
 		
-		if (lastTime == -1) {
-			lastTime = event.timestamp;
-		}
-		
-		if (currTime == -1) {
-			currTime = event.timestamp;
-		}
-		
-//		Log.e(TAG, "z axis value: " + values[2]);
-		if (state == state_invalid) {
+		if (currState == state_invalid) {
 			if (values[2] < 1 && values[2] > -1) {
-				state = state_initial;
+				currState = state_initial;
+				lastUpdateTime = event.timestamp;
 			}
 		}
-		if (state == state_initial) {
+		if (currState == state_initial) {
 			if (values[2] < -2 && values[2] > -4) {
-				state = state_first;
+				currState = state_first;
+				lastUpdateTime = event.timestamp;
 			}
 		}
 		
-		if (state == state_first) {
-			if (values[2] < 6 && values[2] > 4) {
-				state = state_second;
+		if (currState == state_first) {
+			if ((event.timestamp - lastUpdateTime) > timeDifference) {
+				currState = state_invalid;
+			}
+			else if (values[2] < 6 && values[2] > 4) {
+//				Log.e(TAG, "time for first: " + (event.timestamp - lastUpdateTime));
+					currState = state_second;
+					lastUpdateTime = event.timestamp;
 			}
 		}
 
-		if (state == state_second) {
-			if (values[2] < -7 && values[2] > -10) {
-				state = state_third;
+		if (currState == state_second) {
+			if ((event.timestamp - lastUpdateTime) > timeDifference) {
+				currState = state_invalid;
+			}
+			else if (values[2] < -7 && values[2] > -10) {
+//				Log.e(TAG, "time for second: " + (event.timestamp - lastUpdateTime));
+					currState = state_third;
+					lastUpdateTime = event.timestamp;
 			}
 		}
 
-		if (state == state_third) {
-			if (values[2] < 6 && values[2] > 4) {
-				state = state_forth;
+		if (currState == state_third) {
+			if ((event.timestamp - lastUpdateTime) > timeDifference) {
+				currState = state_invalid;
+			}
+			else if (values[2] < 6 && values[2] > 4) {
+//				Log.e(TAG, "time for third: " + (event.timestamp - lastUpdateTime));
+					currState = state_forth;
+					lastUpdateTime = event.timestamp;
 			}
 		}
 
-		if (state == state_forth) {
-			if (values[2] < 2 && values[2] > -2) {
-				state = state_fifth;
+		if (currState == state_forth) {
+			if ((event.timestamp - lastUpdateTime) > timeDifference) {
+				currState = state_invalid;
+			}
+			else if (values[2] < 2 && values[2] > -2) {
+//				Log.e(TAG, "time for forth: " + (event.timestamp - lastUpdateTime));
+					currState = state_fifth;
+					lastUpdateTime = event.timestamp;
 			}
 		}
 
-		if (state == state_fifth) {
+		if (currState == state_fifth) {
 			Log.e(TAG, "should be notified!");
 			setChanged();
 			notifyObservers();
-			state = state_invalid;
+			currState = state_invalid;
 		}		
 		
-//		Log.i(TAG, "current state: " + state);
+		Log.i(TAG, "current state: " + currState);
 	}
 	
     /**
