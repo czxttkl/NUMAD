@@ -319,7 +319,7 @@ public class MainActivity extends Activity implements OnTouchListener,
 
 		colorRed = new Scalar(255, 0, 0);
 		colorGreen = new Scalar(0, 255, 0);
-		colorBlue = new Scalar(0, 0, 255);
+		colorBlue = new Scalar(51, 181, 229);
 		colorWhite = new Scalar(255, 255, 255);
 		colorGray = new Scalar(192, 192, 192);
 
@@ -334,7 +334,6 @@ public class MainActivity extends Activity implements OnTouchListener,
 		colorPickArea.width = 10;
 		colorPickArea.height = 10;
 		mColorBlobDetector = new ColorDetector(width, height);
-
 	}
 
 	public void onCameraViewStopped() {
@@ -409,6 +408,7 @@ public class MainActivity extends Activity implements OnTouchListener,
 				return mRgba;
 			detectedFloorContours.removeAll(Collections.singleton(null));
 			Imgproc.drawContours(mRgba, detectedFloorContours, -1, colorRed, 4);
+			break;
 
 		case ModeManager.MODE_TUTORIAL_1:
 			mColorBlobDetector.process(mRgba);
