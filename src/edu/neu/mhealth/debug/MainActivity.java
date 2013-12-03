@@ -294,8 +294,8 @@ public class MainActivity extends Activity implements OnTouchListener,
 		imageOpenCvWidth = width;
 		imageOpenCvHeight = height;
 		
-		openCVGLRatioX = (double) screenOpenGLWidth / imageOpenCvWidth;
-		openCVGLRatioY = (double) screenOpenGLHeight / imageOpenCvHeight;
+		openCVGLRatioX = (double) imageOpenCvWidth / screenOpenGLWidth;
+		openCVGLRatioY = (double) imageOpenCvHeight / screenOpenGLHeight;
 		
 		mRgba = new Mat(height, width, CvType.CV_8UC4);
 		mGray = new Mat(height, width, CvType.CV_8UC1);
@@ -705,12 +705,12 @@ public class MainActivity extends Activity implements OnTouchListener,
 		for (int i = 0; i < detectedShoesContours.size(); i++) {
 			Moments detectedMoment = Imgproc.moments(detectedShoesContours.get(i), false);
 			mu.add(detectedMoment);
-			double ratioX = detectedMoment.get_m10() / (detectedMoment.get_m00() * screenOpenGLWidth);
+			double ratioX = detectedMoment.get_m10() / (detectedMoment.get_m00() * imageOpenCvWidth);
 			// Reverse the y axis because opencv uses y-down-axis while opengl
 			// uses y-up-axis
-			double ratioY = 1 - detectedMoment.get_m01() / (detectedMoment.get_m00() * screenOpenGLHeight);
-			int x = (int) ratioX * screenOpenGLWidth;
-			int y = (int) ratioY * screenOpenGLHeight;
+			double ratioY = 1 - detectedMoment.get_m01() / (detectedMoment.get_m00() * imageOpenCvHeight);
+			int x = (int) ratioX * imageOpenCvWidth;
+			int y = (int) ratioY * imageOpenCvHeight;
 			Core.circle(mRgba, new org.opencv.core.Point(x, y), 4, colorRed);
 			mFireList.add(new OpenGLFire(ratioX, ratioY));
 		}
