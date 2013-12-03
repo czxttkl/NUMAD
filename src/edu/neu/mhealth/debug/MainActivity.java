@@ -106,7 +106,6 @@ public class MainActivity extends Activity implements OnTouchListener,
 	private List<android.hardware.Camera.Size> resolutions;
 	
 	/// For Game Flow Control
-
 	private boolean shoeColorPicked = false;
 	private boolean floorColorPicked = false;
 	
@@ -135,8 +134,6 @@ public class MainActivity extends Activity implements OnTouchListener,
 
 	private CameraView mOpenCvCameraView;
 	private ConfigureView configureView;
-	private BugManager bugManager;
-	private Bug bug1;
 	private JumpBug jumpBug;
 	private int initalX = 0;
 	private int initalY = 0;
@@ -266,14 +263,17 @@ public class MainActivity extends Activity implements OnTouchListener,
 	public void onResume() {
 		super.onResume();
 		
+		jumpBug = new JumpBug(getApplicationContext());
+		
 		sensorACC = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
 		accEventListener = new AccEventListener(this.getApplicationContext());
-		jumpBug = new JumpBug(getApplicationContext());
-		accEventListener.addObserver(jumpBug);
 		sensorManager.registerListener(accEventListener, sensorACC, SensorManager.SENSOR_DELAY_FASTEST);	
+		accEventListener.addObserver(jumpBug);
 
 		motionEventListener = new MotionEventListener();
 		motionEventListener.addObserver(jumpBug);
+		
+		ModeManager.getModeManager().addObserver(jumpBug);
 		
 		OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_3, this,
 				mLoaderCallback);
