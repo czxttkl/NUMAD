@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/color_pick_overlay"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:animateLayoutChanges="true" >
+
+    <ViewStub
+        android:id="@+id/overlay_color_pick_help"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout="@layout/color_pick_help_notif"
+        android:visibility="gone" />
+    
+    <ViewStub
+        android:id="@+id/overlay_color_pick_confirm_button1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout="@layout/color_pick_help_confirm_butt1"
+        android:visibility="gone" />
+    
+     <ViewStub
+        android:id="@+id/overlay_color_pick_confirm_button2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout="@layout/color_pick_help_confirm_butt2"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:id="@+id/bottom_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignParentRight="true"
+        android:background="@color/overlay_bottom_bar_background"
+        android:gravity="bottom"
+        android:orientation="vertical"
+        android:visibility="visible"
+        android:weightSum="1" 
+        android:animateLayoutChanges="true">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_weight="0"
+            android:background="@color/overlay_bottom_bar_separators" />
+
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_gravity="center"
+            android:layout_weight="0.5"
+            android:gravity="center" 
+            android:animateLayoutChanges="true">
+
+            <ImageButton
+                android:id="@+id/camera_button"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:background="@null"
+                android:onClick="onClickColorPickCameraButton"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:src="@drawable/camera_button_background" />
+
+            <!-- <ImageButton
+                android:id="@+id/new_target_button"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:background="@null"
+                android:onClick="onClickColorPickAddButton"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
+                android:src="@drawable/close_button_background" /> -->
+        </FrameLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_weight="0"
+            android:background="@color/overlay_bottom_bar_separators" />
+
+        <Button
+            android:id="@+id/close_button"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_weight="0.25"
+            android:background="@null"
+            android:onClick="onClickColorPickCameraClose"
+            android:text="Cancel"
+            android:textColor="@color/white"
+            android:textSize="@dimen/cancel_text" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="1dp"
+        android:layout_height="match_parent"
+        android:layout_toLeftOf="@id/bottom_bar"
+        android:background="@color/overlay_bottom_bar_separators" />
+
+    <ViewStub
+        android:id="@+id/instructions"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout="@layout/color_pick_instructions_overlay"
+        android:visibility="gone" />
+
+</RelativeLayout>

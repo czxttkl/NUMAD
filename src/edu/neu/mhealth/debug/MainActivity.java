@@ -1,5 +1,7 @@
 package edu.neu.mhealth.debug;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.opencv.android.BaseLoaderCallback;
@@ -21,25 +23,39 @@ import org.opencv.core.Size;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.imgproc.Moments;
 import org.opencv.video.Video;
 
 import edu.neu.mhealth.debug.helper.AccEventListener;
 import edu.neu.mhealth.debug.helper.Bug;
 import edu.neu.mhealth.debug.helper.BugManager;
+import edu.neu.mhealth.debug.helper.Global;
+import edu.neu.mhealth.debug.helper.InitRenderTask;
 import edu.neu.mhealth.debug.helper.JumpBug;
+import edu.neu.mhealth.debug.helper.ModeManager;
 import edu.neu.mhealth.debug.helper.MotionEventListener;
 import edu.neu.mhealth.debug.helper.MovingAverage;
+import edu.neu.mhealth.debug.opengl.OpenGLBug;
+import edu.neu.mhealth.debug.opengl.OpenGLBugManager;
+import edu.neu.mhealth.debug.opengl.OpenGLFire;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Camera;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
 import android.view.View;
@@ -49,14 +65,62 @@ import android.view.WindowManager;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 public class MainActivity extends Activity implements OnTouchListener,
 		CvCameraViewListener2 {
+	
 	private static final String TAG = "OCVSample::Activity";
+	
+	/// Layout	
+	private FrameLayout mFrameLayout;
+	View mColorPickBottomBar;
+	View mColorPickInstructionsView;
+	View mColorPickHelpNotif;
+	View mColorPickHelpConfirmButt1;
+	View mColorPickHelpConfirmButt2;
+	View mColorPickCloseButton;
+	View mColorPickCameraButton;
+	TextView mColorPickHelpNotifTextView;
+	
+	RelativeLayout mColorPickLayout;
+	ImageView mMainMenuBackground;
+	ImageView mMainMenuTitle;
+	View mMainMenuButtonListView;
+	View mAboutView;
+	TextView mAboutText;
+	
+	Drawable blackBackground;
+	
+	public int score = 0;
+
+	
+	/// OpenGL
+	public MyGLSurfaceView mGLSurfaceView;
+	protected final Handler mHandler = new Handler();
+
 	
 	/// OpenCV basic
 	private List<android.hardware.Camera.Size> resolutions;
+	
+	/// For Game Flow Control
+
+	private boolean shoeColorPicked = false;
+	private boolean floorColorPicked = false;
+	
+	Mat colorPickAreaHsv;
+	org.opencv.core.Point crosshairHeftmost;
+	org.opencv.core.Point crosshairRightmost;
+	org.opencv.core.Point crosshairUpmost;
+	org.opencv.core.Point crosshairDownmost;
+	org.opencv.core.Point destinationTarget;
+	private Scalar mShoeColorPickRgba;
+	private Scalar mShoeColorPickHsv;
+	private Scalar mFloorColorPickRgba;
+	private Scalar mFloorColorPickHsv;
+	
 	/// For color detection
 	private boolean mIsColorSelected = false;
 	private Mat mRgba;
@@ -80,19 +144,27 @@ public class MainActivity extends Activity implements OnTouchListener,
 	private int xOffset = 0;
 	private int yOffset = 0;
 
-	private int screenWidth;
-	private int screenHeight;
+	public int screenWidth;
+	public int screenHeight;
 
 	private int imageWidth;
 	private int imageHeight;
+	
+	public double openCVGLRatioX;
+	public double openCVGLRatioY;
 	
 	private Scalar colorGreen;
 	private Scalar colorRed;
 	private Scalar colorBlue;
 	private Scalar colorWhite;
+	private Scalar colorGray;
+	
+	Rect colorPickArea;
+	ColorDetector mColorBlobDetector;
+	List<MatOfPoint> detectedShoesContours;
+	List<MatOfPoint> detectedFloorContours;
 
 	/// For optical flow
-
 	private List<MatOfPoint> contourFloor;
 	private List<MatOfPoint> contourShoe;
 
@@ -138,8 +210,10 @@ public class MainActivity extends Activity implements OnTouchListener,
 			switch (status) {
 			case LoaderCallbackInterface.SUCCESS: {
 				Log.i(TAG, "OpenCV loaded successfully");
-				mOpenCvCameraView.enableView();
-				mOpenCvCameraView.setOnTouchListener(MainActivity.this);
+				
+				restoreOrCreateJavaCameraView();
+				restoreOrCreateGLSurfaceView();
+				restoreOrCreateAboutScreen();
 			}
 				break;
 			default: {
@@ -168,36 +242,14 @@ public class MainActivity extends Activity implements OnTouchListener,
 		screenHeight = metrics.heightPixels;
 		screenWidth = metrics.widthPixels;
 
-		FrameLayout layout = new FrameLayout(this);
-
-		mOpenCvCameraView = new CameraView(this);
-		mOpenCvCameraView.setLayoutParams(new LayoutParams(
-				LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
-		mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
-		mOpenCvCameraView.setCvCameraViewListener(this);
-		mOpenCvCameraView.enableFpsMeter();
+		mFrameLayout = new FrameLayout(this);
+		setContentView(mFrameLayout);
 		
-		configureView = new ConfigureView(this, screenWidth, screenHeight);
+		initBlackBackground();
 
-		bug1 = new Bug(this, 20, 30);
-		bug1.setImageDrawable(getResources().getDrawable(R.drawable.bug));
-
-		bugManager = BugManager.getBugManager();
-		bugManager.addBug(bug1);
-
-		layout.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,
-				LayoutParams.FILL_PARENT));
-		layout.addView(mOpenCvCameraView);
-		layout.addView(configureView);
-		// layout.addView(bug1);
-
-		setContentView(layout);
 		filterX = new MovingAverage(5);
 		filterY = new MovingAverage(5);
-
-		Log.e(TAG, "screen size: " + screenHeight + " " + screenWidth);
-		Log.e(TAG, "camera size: " + mOpenCvCameraView.getHeight() + " " + mOpenCvCameraView.getWidth());
-		
+	
 		sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
 	}
@@ -218,7 +270,8 @@ public class MainActivity extends Activity implements OnTouchListener,
 		accEventListener = new AccEventListener(this.getApplicationContext());
 		jumpBug = new JumpBug(getApplicationContext());
 		accEventListener.addObserver(jumpBug);
-		
+		sensorManager.registerListener(accEventListener, sensorACC, SensorManager.SENSOR_DELAY_FASTEST);	
+
 		motionEventListener = new MotionEventListener();
 		motionEventListener.addObserver(jumpBug);
 		
@@ -233,6 +286,13 @@ public class MainActivity extends Activity implements OnTouchListener,
 	}
 
 	public void onCameraViewStarted(int width, int height) {
+		
+		imageWidth = width;
+		imageHeight = height;
+		
+		openCVGLRatioX = (double) screenWidth / imageWidth;
+		openCVGLRatioY = (double) screenHeight / imageHeight;
+		
 		mRgba = new Mat(height, width, CvType.CV_8UC4);
 		mGray = new Mat(height, width, CvType.CV_8UC1);
 		mSpectrum = new Mat();
@@ -257,13 +317,20 @@ public class MainActivity extends Activity implements OnTouchListener,
 		colorGreen = new Scalar(0, 255, 0);
 		colorBlue = new Scalar(0, 0, 255);
 		colorWhite = new Scalar(255, 255, 255);
-		
-		resolutions = mOpenCvCameraView.getResolutionList();
-//		for (android.hardware.Camera.Size resolution : resolutions) {
-//			Log.i(TAG, "supported size: " + resolution.width + "  " + resolution.height);
-//		}
-		mOpenCvCameraView.setResolution(resolutions.get(5));
-		
+		colorGray = new Scalar(192, 192, 192);
+
+		colorPickAreaHsv = new Mat();
+		crosshairHeftmost = new org.opencv.core.Point(width / 2 - 50, height / 2);
+		crosshairRightmost = new org.opencv.core.Point(width / 2 + 50, height / 2);
+		crosshairUpmost = new org.opencv.core.Point(width / 2, height / 2 - 50);
+		crosshairDownmost = new org.opencv.core.Point(width / 2, height / 2 + 50);
+		colorPickArea = new Rect();
+		colorPickArea.x = width / 2 - 5;
+		colorPickArea.y = height / 2 - 5;
+		colorPickArea.width = 10;
+		colorPickArea.height = 10;
+		mColorBlobDetector = new ColorDetector(width, height);
+
 	}
 
 	public void onCameraViewStopped() {
@@ -278,70 +345,88 @@ public class MainActivity extends Activity implements OnTouchListener,
 		int x = configureView.getFloorPosition().x;
 		int y = configureView.getFloorPosition().y;
 
-		mIsColorSelected = true;
-
 		return false; 
 	}
 
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
 		mRgba = inputFrame.rgba();
 		mGray = inputFrame.gray();
-	
-		imageWidth = mRgba.cols();
-		imageHeight = mRgba.rows();
 
 		xOffset = (mOpenCvCameraView.getWidth() - imageWidth) / 2;
 		yOffset = (mOpenCvCameraView.getHeight() - imageHeight) / 2;
-
-		bug1.setLimit(mOpenCvCameraView.getWidth(),
-				mOpenCvCameraView.getHeight());
-		bug1.setOffset(xOffset, yOffset);
 		
-//		Log.i(TAG, "viewport size: " + mOpenCvCameraView.getWidth() + " " + mOpenCvCameraView.getHeight());
-//		Log.i(TAG, "Image size : " + mRgba.rows() + " "  + mRgba.cols());
+		int gameMode = ModeManager.getModeManager().getCurrentMode();
+		switch (gameMode) {
+		case ModeManager.MODE_COLOR_PICK_CROSSHAIR:
+			Mat colorPickAreaRgba = mRgba.submat(colorPickArea);
+			Imgproc.cvtColor(colorPickAreaRgba, colorPickAreaHsv, Imgproc.COLOR_RGB2HSV_FULL);
+			int pointCount = colorPickArea.width * colorPickArea.height;
 
-		this.runOnUiThread(new Runnable() {
-
-			@Override
-			public void run() {
-				// TODO Auto-generated method stub
-				configureView.invalidate();
+			// Pick shoes' color
+			if (!shoeColorPicked) {
+				// Calculate average color of shoes' color pick region
+				mShoeColorPickHsv = Core.sumElems(colorPickAreaHsv);
+				for (int i = 0; i < mShoeColorPickHsv.val.length; i++)
+					mShoeColorPickHsv.val[i] /= pointCount;
+				mShoeColorPickRgba = converScalarHsv2Rgba(mShoeColorPickHsv);
+				Mat colorLabel = mRgba.submat(44, 108, 8, 72);
+				colorLabel.setTo(mShoeColorPickRgba);
+			} else {
+				mFloorColorPickHsv = Core.sumElems(colorPickAreaHsv);
+				for (int i = 0; i < mFloorColorPickHsv.val.length; i++)
+					mFloorColorPickHsv.val[i] /= pointCount;
+				mFloorColorPickRgba = converScalarHsv2Rgba(mFloorColorPickHsv);
+				Mat colorLabel = mRgba.submat(44, 108, 8, 72);
+				colorLabel.setTo(mFloorColorPickRgba);
 			}
-		});
-		
-		sensorManager.registerListener(accEventListener, sensorACC, SensorManager.SENSOR_DELAY_FASTEST);	
+			Core.line(mRgba, crosshairHeftmost, crosshairRightmost, colorBlue, 10);
+			Core.line(mRgba, crosshairUpmost, crosshairDownmost, colorBlue, 10);
+			break;
 
-		if (mIsColorSelected) {
-	
-			int x = configureView.getFloorPosition().x - xOffset;
-			int y = configureView.getFloorPosition().y - yOffset;
-			Log.i(TAG, "Touch image coordinates: (" + x + ", " + y + ")");
-			contourFloor = findObjectAt(x, y);
-			Imgproc.drawContours(mRgba, contourFloor, -1, CONTOUR_COLOR);
+		case ModeManager.MODE_SHOE_COLOR_PICKED:
+			mColorBlobDetector.process(mRgba);
+			detectedShoesContours = mColorBlobDetector.getShoesContours();
+			// Log.e(TAG, "Contours count: " + contours.size());
+			if (detectedShoesContours == null)
+				return mRgba;
+			detectedShoesContours.removeAll(Collections.singleton(null));
+			Imgproc.drawContours(mRgba, detectedShoesContours, -1, colorRed, 6);
+			break;
 
-			x = configureView.getShoesPosition().x - xOffset;
-			y = configureView.getShoesPosition().y - yOffset;
+		case ModeManager.MODE_COLOR_PICK_HOLD_WRONGLY:
+			Core.line(mRgba, crosshairHeftmost, crosshairRightmost, colorGray, 10);
+			Core.line(mRgba, crosshairUpmost, crosshairDownmost, colorGray, 10);
+			break;
 
-			contourShoe = findObjectAt(x, y);
-			Imgproc.drawContours(mRgba, contourShoe, -1, CONTOUR_COLOR);
+		case ModeManager.MODE_FLOOR_COLOR_PICKED:
+			mColorBlobDetector.process(mRgba);
+			detectedFloorContours = mColorBlobDetector.getFloorContours();
+			if (detectedFloorContours == null)
+				return mRgba;
+			detectedFloorContours.removeAll(Collections.singleton(null));
+			Imgproc.drawContours(mRgba, detectedFloorContours, -1, colorRed, 4);
 
-			configureView.disableDrawing();
+		case ModeManager.MODE_TUTORIAL_1:
+			mColorBlobDetector.process(mRgba);
+			detectedShoesContours = mColorBlobDetector.getShoesContours();
+			// if (detectedShoesContours == null)
+			// return mRgba;
+			detectedShoesContours.removeAll(Collections.singleton(null));
+			setRendererContourMassCenter();
 
-			steps++;
-			if (steps > 10) {
-				this.runOnUiThread(new Runnable() {
+			detectedFloorContours = mColorBlobDetector.getFloorContours();
+			detectedFloorContours.removeAll(Collections.singleton(null));
+			Imgproc.drawContours(mRgba, detectedFloorContours, -1, colorRed, 4);
+			if (destinationTarget != null)
+				Core.circle(mRgba, destinationTarget, 10, colorRed, -1);
+			
+			break;
 
-					@Override
-					public void run() {
-						bugManager.moveBugs();
-					}
-				});
-
-				steps = 0;
-			}
-
-			bugShoeCollisionCheck();
+		default:
+			break;
 		}
+
+		
 
 		Rect optFlowRect = new Rect();
 		optFlowRect.x = imageWidth / 2 - squareMetric / 2;
@@ -419,24 +504,7 @@ public class MainActivity extends Activity implements OnTouchListener,
 			int dis_X = filterX.getValue();
 			int dis_Y = filterY.getValue();
 			
-//			motionEventListener.notifyMotion(dis_X, dis_Y);
-
-			Log.e(TAG, "distance motion: "+ dis_X + " " + dis_Y);
-			
-			if (dis_X >= motionThX && dis_Y >= motionThY) {
-//				Log.e(TAG, "direction assigned: forward left");
-			}
-
-			if (dis_X <= (-1*motionThX) && dis_Y <= (-1*motionThY)) {
-//				Log.e(TAG, "direction assigned: backward right");
-			}
-
-			if (dis_X >= motionThX & dis_Y <= (-1*motionThY)) {
-//				Log.e(TAG, "direction assigned: backward left");
-			}
-			if (dis_X <= (-1*motionThX) & dis_Y >= motionThY) {
-//				Log.e(TAG, "direction assigned: forward right");
-			}
+			motionEventListener.notifyMotion(dis_X, dis_Y);
 		}
 		
 		return mRgba;
@@ -450,93 +518,369 @@ public class MainActivity extends Activity implements OnTouchListener,
 
 		return new Scalar(pointMatRgba.get(0, 0));
 	}
+	
+	/** Initialize blackbackground drawable resource */
+	private void initBlackBackground() {
+		Resources res = getResources();
+		blackBackground = res.getDrawable(R.drawable.black_bg);
+	}
+	
+	/** Initialize Color Pick Add mode views */
+	private void initializeInstructionMode() {
+		// Shows the bottom bar with the new Target Button
+		mColorPickBottomBar.setVisibility(View.GONE);
+		// Hides the target build controls
+		mColorPickHelpNotif.setVisibility(View.GONE);
+		mColorPickCameraButton.setVisibility(View.GONE);
+		mColorPickCloseButton.setVisibility(View.GONE);
+		mColorPickInstructionsView.setVisibility(View.VISIBLE);
+	}
+	
+	/** Initialize Color Pick Camera mode views */
+	private void initializeColorPickCameraMode() {
+		// Shows the bottom bar with the Build target options
+		mColorPickHelpNotif.setVisibility(View.VISIBLE);
+		mColorPickBottomBar.setVisibility(View.VISIBLE);
+		mColorPickCameraButton.setVisibility(View.VISIBLE);
+		mColorPickCloseButton.setVisibility(View.VISIBLE);
 
-	private List<MatOfPoint> findObjectAt(int x, int y) {
+		// Gets a reference to the help notification textview
+		mColorPickHelpNotifTextView = (TextView) mColorPickLayout.findViewById(R.id.color_pick_help_notif_text);
 
-		int cols = mRgba.cols();
-		int rows = mRgba.rows();
+		// If shoes' color hasn't been picked, show color_pick_help_notif_shoe
+		if (!shoeColorPicked) {
+			mColorPickHelpNotifTextView.setText(R.string.color_pick_help_notif_shoe);
+		} else {
+			// If shoes' color has been picked, show color_pick_help_notif_floor
+			mColorPickHelpNotifTextView.setText(R.string.color_pick_help_notif_floor);
+		}
 
-		Log.i(TAG, "Cols and rows: (" + cols + ", " + rows + ")");
+		// Set background to transparent
+		blackBackground.setAlpha(0);
+		mColorPickLayout.setBackgroundDrawable(blackBackground);
 
-		if ((x < 0) || (y < 0))
-			return null;
-		if (x > cols)
-			x = cols;
-		if (y > rows)
-			y = rows;
+		// Set opencvmode to crosshair mode, so opencv will draw a crosshair in
+		// the center of image
+		ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_COLOR_PICK_CROSSHAIR);
+	}
+	
+	/**
+	 * Restore or create SurfaceView for bugs. This method is called after
+	 * OpenCV library is loaded successfully and must be called after
+	 * restoreOrCreateJavaCameraView is called so that CameraView would not
+	 * overlap GLSurfaceView.
+	 */
+	private void restoreOrCreateGLSurfaceView() {
+		mGLSurfaceView = new MyGLSurfaceView(this);
+		new InitRenderTask(this).execute();
+	}
 
-		Rect touchedRect = new Rect();
+	/**
+	 * This method is executed after init render work, genrated from
+	 * restoreOrCreateGLSurfaceView, has been done.
+	 */
+	public void restoreOrCreateGLSurfaceView2() {
+		if (mGLSurfaceView != null) {
+			OpenGLBugManager.setMode(OpenGLBugManager.MODE_MAIN_MENU);
+			mFrameLayout.addView(mGLSurfaceView);
+			mGLSurfaceView.setZOrderMediaOverlay(true);
+			mGLSurfaceView.setZOrderOnTop(true);
+		}
+	}
 
-		touchedRect.x = (x > 4) ? x - 4 : 0;
-		touchedRect.y = (y > 4) ? y - 4 : 0;
+	/**
+	 * Restore or create SurfaceView for opencv CameraView. This method is
+	 * called after OpenCV library is loaded successfully and must be called
+	 * before restoreOrCreateGLSurfaceView is called so that CameraView would
+	 * not overlap GLSurfaceView.
+	 */
+	private void restoreOrCreateJavaCameraView() {
+		mOpenCvCameraView = new CameraView(this);
+		mOpenCvCameraView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+		mOpenCvCameraView.setMaxFrameSize(800, 800);
+		mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
+		mOpenCvCameraView.setCvCameraViewListener(this);
+		mOpenCvCameraView.enableFpsMeter();
+		mFrameLayout.addView(mOpenCvCameraView);
+		mOpenCvCameraView.enableView();
+	}
 
-		touchedRect.width = (x + 4 < cols) ? x + 4 - touchedRect.x : cols
-				- touchedRect.x;
-		touchedRect.height = (y + 4 < rows) ? y + 4 - touchedRect.y : rows
-				- touchedRect.y;
+	/**
+	 * Restore or create Main Menu button/title view. This method is called
+	 * after clicking start button in about screen.
+	 */
+	@SuppressLint("NewApi")
+	private void restoreOrCreateMainMenu() {
+		mMainMenuBackground = new ImageView(this);
+		mMainMenuBackground.setImageResource(R.drawable.black_bg);
+		mMainMenuBackground.setAlpha(0f);
+		mMainMenuBackground.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+		mMainMenuBackground.setScaleType(ImageView.ScaleType.FIT_XY);
+		mFrameLayout.addView(mMainMenuBackground);
 
-		Mat touchedRegionRgba = mRgba.submat(touchedRect);
+		mMainMenuTitle = new ImageView(this);
+		mMainMenuTitle.setImageResource(R.drawable.main_menu_title2);
+		FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(screenWidth / 3, screenWidth / 8);
+		lp.setMargins(screenWidth / 5, screenHeight / 10, 0, 1);
+		mMainMenuTitle.setLayoutParams(lp);
+		mFrameLayout.addView(mMainMenuTitle);
 
-		Mat touchedRegionHsv = new Mat();
-		Imgproc.cvtColor(touchedRegionRgba, touchedRegionHsv,
-				Imgproc.COLOR_RGB2HSV_FULL);
+		LayoutInflater layoutInflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+		mMainMenuButtonListView = layoutInflater.inflate(R.layout.main_menu, null);
+		FrameLayout.LayoutParams lp1 = new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+		lp1.setMargins(0, 300, 0, 0);
+		mMainMenuButtonListView.setLayoutParams(lp1);
+		mFrameLayout.addView(mMainMenuButtonListView);
+	}
 
-		// Calculate average color of touched region
-		mBlobColorHsv = Core.sumElems(touchedRegionHsv);
-		int pointCount = touchedRect.width * touchedRect.height;
-		for (int i = 0; i < mBlobColorHsv.val.length; i++)
-			mBlobColorHsv.val[i] /= pointCount;
+	/**
+	 * Restore or create about screen. (including adding text from strings.xml)
+	 */
+	private void restoreOrCreateAboutScreen() {
+		LayoutInflater layoutInflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+		mAboutView = layoutInflater.inflate(R.layout.about_screen, null);
+		Resources res = getResources();
+		Drawable background = res.getDrawable(R.drawable.black_bg);
+		background.setAlpha(200);
+		mAboutView.setBackgroundDrawable(background);
+		mFrameLayout.addView(mAboutView);
 
-		mBlobColorRgba = converScalarHsv2Rgba(mBlobColorHsv);
+		mAboutText = (TextView) findViewById(R.id.about_text);
+		mAboutText.setText(Html.fromHtml(getString(R.string.about_text)));
+		mAboutText.setMovementMethod(LinkMovementMethod.getInstance());
+		// Setups the link color
+		mAboutText.setLinkTextColor(getResources().getColor(R.color.holo_light_blue));
+	}
+	
+	public double[] findBugNextDest() {
+		int randomWidth;
+		int randomHeight;
+		int result;
+		do {
+			// We assume that the screenPixelWidth is the same with the opengl
+			// coordinate
+			int minX = imageWidth / 4;
+			int maxX = 3 * imageWidth / 4;
+			randomWidth = Global.randInt(minX, maxX);
 
-//		Log.i(TAG, "Touched rgba color: (" + mBlobColorRgba.val[0] + ", "
-//				+ mBlobColorRgba.val[1] + ", " + mBlobColorRgba.val[2] + ", "
-//				+ mBlobColorRgba.val[3] + ")");
+			// We only find the destination in the upper part of the frame
+			int minY = (int) (0 + OpenGLBug.radius * openCVGLRatioY);
+			int maxY = 2 * imageHeight / 3;
+			randomHeight = Global.randInt(minY, maxY);
 
-		mDetector = new ColorDetector();
-		mDetector.setHsvColor(mBlobColorHsv);
+			// +1: outside the contour -1: inside the contour 0:lies on the
+			// edge;
+			result = isPointInFloor(randomWidth, randomHeight);
+		} while (result != 1);
 
-		Imgproc.resize(mDetector.getSpectrum(), mSpectrum, SPECTRUM_SIZE);
+		destinationTarget = new org.opencv.core.Point(randomWidth, randomHeight);
+		// Convert coordinates between opencv and opengl
+		double resultDestX = (double) randomWidth / imageWidth;
+		// Revert y-axis ratio between opencv and opengl
+		double resultDestY = 1 - (double) randomHeight / imageHeight;
+		double[] resultArray = { resultDestX, resultDestY };
+		return resultArray;
+	}
 
-		touchedRegionRgba.release();
-		touchedRegionHsv.release();
-
-		mDetector.process(mRgba);
-
-		// Mat colorLabel = mRgba.submat(4, 68, 4, 68);
-		// colorLabel.setTo(mBlobColorRgba);
-		//
-		// Mat spectrumLabel = mRgba.submat(4, 4 + mSpectrum.rows(), 70, 70 +
-		// mSpectrum.cols());
-		// mSpectrum.copyTo(spectrumLabel);
-
-		return mDetector.getContours();
+	public int isPointInFloor(int openCvWidth, int openCvHeight) {
+		org.opencv.core.Point pt = new org.opencv.core.Point(openCvWidth, openCvHeight);
+		MatOfPoint2f detectedFloorContour2f = new MatOfPoint2f();
+		detectedFloorContours.get(0).convertTo(detectedFloorContour2f, CvType.CV_32FC2);
+		int result = (int) Imgproc.pointPolygonTest(detectedFloorContour2f, pt, false);
+		return result;
+	}
+	
+	public void updateScore(int diff) {
+		score = score + diff;
+		updateScoreUI();
+	}
+	
+	private void setRendererContourMassCenter() {
+		List<Moments> mu = new ArrayList<Moments>(detectedShoesContours.size());
+		List<OpenGLFire> mFireList = new ArrayList<OpenGLFire>(detectedShoesContours.size());
+		for (int i = 0; i < detectedShoesContours.size(); i++) {
+			Moments detectedMoment = Imgproc.moments(detectedShoesContours.get(i), false);
+			mu.add(detectedMoment);
+			double ratioX = detectedMoment.get_m10() / (detectedMoment.get_m00() * screenWidth);
+			// Reverse the y axis because opencv uses y-down-axis while opengl
+			// uses y-up-axis
+			double ratioY = 1 - detectedMoment.get_m01() / (detectedMoment.get_m00() * screenHeight);
+			int x = (int) ratioX * screenWidth;
+			int y = (int) ratioY * screenHeight;
+			Core.circle(mRgba, new org.opencv.core.Point(x, y), 4, colorRed);
+			mFireList.add(new OpenGLFire(ratioX, ratioY));
+		}
+		mGLSurfaceView.mRenderer.mFireList = mFireList;
+	}
+	
+	public void onClickAboutStartButton(View v) {
+		mFrameLayout.removeView(mAboutView);
+		restoreOrCreateMainMenu();
+	}
+	
+	private void updateScoreUI() {
 
 	}
 
-	private void bugShoeCollisionCheck() {
+	public void onClickMainMenuStartGame(View v) {
+		mFrameLayout.removeView(mMainMenuTitle);
+		mFrameLayout.removeView(mMainMenuButtonListView);
+		mFrameLayout.removeView(mMainMenuBackground);
 
-		Log.e(TAG,
-				"bug position: " + bug1.getPosition().x + "   "
-						+ bug1.getPosition().y);
+		// OpenGL shouldn't render anything right after clicking start game.
+		OpenGLBugManager.setMode(OpenGLBugManager.MODE_DEFAULT);
 
-		if (contourShoe.size() > 0) {
-			MatOfPoint2f shoeContour2f = new MatOfPoint2f();
-			contourShoe.get(0).convertTo(shoeContour2f, CvType.CV_32FC2);
-			double bugDistToShoe = Imgproc.pointPolygonTest(shoeContour2f,
-					bug1.getPosition(), true);
-			Log.e(TAG, "bug distance to shoe: " + bugDistToShoe
-					+ " contour num: " + contourShoe.size());
+		// Inflates the Overlay Layout to be displayed above the Camera View
+		LayoutInflater layoutInflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+		mColorPickLayout = (RelativeLayout) layoutInflater.inflate(R.layout.color_pick_overlay, null, false);
+
+		// Set background to semi-transparent black
+		blackBackground.setAlpha(200);
+		mColorPickLayout.setBackgroundDrawable(blackBackground);
+
+		mFrameLayout.addView(mColorPickLayout);
+		// Gets a reference to the bottom navigation bar
+		mColorPickBottomBar = mColorPickLayout.findViewById(R.id.bottom_bar);
+
+		// Gets a reference to the instructions view
+		mColorPickInstructionsView = mColorPickLayout.findViewById(R.id.instructions);
+
+		// Gets a reference to the help notification viewstub
+		mColorPickHelpNotif = mColorPickLayout.findViewById(R.id.overlay_color_pick_help);
+
+		// Gets a reference to the color pick confirm buttons1 viewstub (shoe
+		// color pick confirm buttons)
+		mColorPickHelpConfirmButt1 = mColorPickLayout.findViewById(R.id.overlay_color_pick_confirm_button1);
+
+		// Gets a reference to the color pick confirm buttons2 viewstub (floor
+		// color pick confirm buttons)
+		mColorPickHelpConfirmButt2 = mColorPickLayout.findViewById(R.id.overlay_color_pick_confirm_button2);
+
+		// Gets a reference to the CloseBuildTargetMode button
+		mColorPickCloseButton = mColorPickLayout.findViewById(R.id.close_button);
+
+		// Gets a reference to the Camera button
+		mColorPickCameraButton = mColorPickLayout.findViewById(R.id.camera_button);
+
+		initializeInstructionMode();
+	}
+
+	public void onClickMainMenuExit(View v) {
+		finish();
+	}
+
+	public void onClickMainMenuSettings(View v) {
+
+	}
+
+	/**
+	 * Button Camera clicked. Marker's color is picked after this method is
+	 * called.
+	 */
+	public void onClickColorPickCameraButton(View v) {
+		if (!shoeColorPicked) {
+			shoeColorPicked = true;
+			mColorBlobDetector.setShoeHsvColor(mShoeColorPickHsv);
+			ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_SHOE_COLOR_PICKED);
+			mColorPickHelpNotifTextView.setVisibility(View.GONE);
+			mColorPickHelpNotifTextView.setText(R.string.color_pick_help_notif_confirm_shoe);
+			mColorPickHelpNotifTextView.setTextColor(Color.WHITE);
+			mColorPickHelpNotifTextView.setVisibility(View.VISIBLE);
+			mColorPickHelpConfirmButt1.setVisibility(View.VISIBLE);
+			mColorPickBottomBar.setVisibility(View.GONE);
+		} else {
+			floorColorPicked = true;
+			mColorBlobDetector.setFloorHsvColor(mFloorColorPickHsv);
+			ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_FLOOR_COLOR_PICKED);
+			mColorPickHelpNotifTextView.setVisibility(View.GONE);
+			mColorPickHelpNotifTextView.setText(R.string.color_pick_help_notif_confirm_floor);
+			mColorPickHelpNotifTextView.setTextColor(Color.WHITE);
+			mColorPickHelpNotifTextView.setVisibility(View.VISIBLE);
+			mColorPickHelpConfirmButt2.setVisibility(View.VISIBLE);
+			mColorPickBottomBar.setVisibility(View.GONE);
 		}
 
-		if (contourFloor.size() > 0) {
-			MatOfPoint2f floorContour2f = new MatOfPoint2f();
-			contourFloor.get(0).convertTo(floorContour2f, CvType.CV_32FC2);
-			double bugDistToFloor = Imgproc.pointPolygonTest(floorContour2f,
-					bug1.getPosition(), true);
-			Log.e(TAG, "bug distance to floor: " + bugDistToFloor
-					+ " contour num: " + contourFloor.size());
-		}
+	}
 
+	/** Button Close/Cancel clicked in the process of color picking */
+	public void onClickColorPickCameraClose(View v) {
+		// Set background to semi-transparent black
+		blackBackground.setAlpha(200);
+		mColorPickLayout.setBackgroundDrawable(blackBackground);
+
+		// Goes back to the Color Pick Add rMode
+		initializeInstructionMode();
+
+		// Set mode to default
+		ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_INITIAL);
+
+		// Set not picked shoes&floors' color yet
+		shoeColorPicked = false;
+		floorColorPicked = false;
+	}
+
+	/** Button Add clicked - This will cause the instruction interfaces shows. */
+	public void onClickColorPickAddButton(View v) {
+		// Shows the instructions view and returns
+		mColorPickInstructionsView.setVisibility(View.VISIBLE);
+	}
+
+	/** Instructions button OK clicked */
+	public void onClickInstructionsOnOk(View v) {
+		// Hides the instructions view
+		mColorPickInstructionsView.setVisibility(View.GONE);
+		// To enter the ColorPickCameraMode
+		initializeColorPickCameraMode();
+	}
+
+	/** Instructions button Cancel clicked */
+	public void onClickInstructionsOnCancel(View v) {
+		// Hides the instructions view without
+		// updating the instructions flag
+		// mColorPickInstructionsView.setVisibility(View.GONE);
+		// mColorPickNewTargetButton.setEnabled(true);
+		mFrameLayout.removeView(mColorPickLayout);
+		restoreOrCreateMainMenu();
+		OpenGLBugManager.setMode(OpenGLBugManager.MODE_MAIN_MENU);
+	}
+
+	/** Shoe color pick confirm cancel button clicked */
+	public void onClickShoeColorPickConfirmCancel(View v) {
+		mColorPickBottomBar.setVisibility(View.VISIBLE);
+		mColorPickHelpNotifTextView.setVisibility(View.GONE);
+		mColorPickHelpNotifTextView.setText(R.string.color_pick_help_notif_shoe);
+		mColorPickHelpNotifTextView.setTextColor(Color.WHITE);
+		mColorPickHelpNotifTextView.setVisibility(View.VISIBLE);
+		mColorPickHelpConfirmButt1.setVisibility(View.GONE);
+		ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_COLOR_PICK_CROSSHAIR);
+
+		// Set not picked shoes' color yet
+		shoeColorPicked = false;
+	}
+
+	/** Shoe color pick confirm ok button clicked */
+	public void onClickShoeColorPickConfirmOk(View v) {
+		ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_COLOR_PICK_CROSSHAIR);
+		mColorPickHelpConfirmButt1.setVisibility(View.GONE);
+		// To enter the ColorPickCameraMode
+		initializeColorPickCameraMode();
+	}
+
+	/** Floor color pick confirm cancel button clicked */
+	public void onClickFloorColorPickConfirmCancel(View v) {
+		mColorPickBottomBar.setVisibility(View.VISIBLE);
+		mColorPickHelpNotifTextView.setVisibility(View.GONE);
+		mColorPickHelpNotifTextView.setText(R.string.color_pick_help_notif_floor);
+		mColorPickHelpNotifTextView.setTextColor(Color.WHITE);
+		mColorPickHelpNotifTextView.setVisibility(View.VISIBLE);
+		mColorPickHelpConfirmButt2.setVisibility(View.GONE);
+		ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_COLOR_PICK_CROSSHAIR);
+	}
+
+	/** Floor color pick confirm ok button clicked */
+	public void onClickFloorColorPickConfirmOk(View v) {
+		mFrameLayout.removeView(mColorPickLayout);
+		ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_TUTORIAL_1);
+		OpenGLBugManager.setMode(OpenGLBugManager.MODE_TUTORIAL_1);
 	}
 }

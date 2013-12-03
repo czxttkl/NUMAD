@@ -30,11 +30,15 @@ public class AccEventListener extends Observable implements SensorEventListener 
     private Context mContext;
     private int state;
     private float[] gravity;
+    private long lastTime;
+    private long currTime;
 
     public AccEventListener(Context context) {
         gravity = new float[3];
         state = state_invalid;
         mContext = context;
+        lastTime = -1;
+        currTime = -1;
     }
     
 	@Override
@@ -48,6 +52,14 @@ public class AccEventListener extends Observable implements SensorEventListener 
 		// TODO Auto-generated method stub
 		float[] values = event.values.clone();
 		values = highPass(values[0], values[1], values[2]);
+		
+		if (lastTime == -1) {
+			lastTime = event.timestamp;
+		}
+		
+		if (currTime == -1) {
+			currTime = event.timestamp;
+		}
 		
 //		Log.e(TAG, "z axis value: " + values[2]);
 		if (state == state_invalid) {
