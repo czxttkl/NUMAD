@@ -57,7 +57,7 @@ public class ModeManager {
 		eventListener.addObserver(ob);
 	}
 	
-	public class ModeEventListener extends Observable {
+	protected class ModeEventListener extends Observable {
 		
 		public void notifyModeUpdate(int currentMode) {
 			setChanged();

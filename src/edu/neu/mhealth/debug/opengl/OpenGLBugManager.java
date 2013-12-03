@@ -44,8 +44,8 @@ public class OpenGLBugManager {
 	public static void generateMainMenuBug() {
 		if (mBugList.size() != 1) {
 			mBugList.clear();
-			int randomHeight = Global.rd.nextInt(mCameraActivityInstance.screenHeight / 3);
-			OpenGLMainMenuBug menuBug = new OpenGLMainMenuBug(mCameraActivityInstance.screenWidth - OpenGLBug.radius, mCameraActivityInstance.screenHeight / 4 + randomHeight, -1, 1,
+			int randomHeight = Global.rd.nextInt(mCameraActivityInstance.screenOpenGLHeight / 3);
+			OpenGLMainMenuBug menuBug = new OpenGLMainMenuBug(mCameraActivityInstance.screenOpenGLWidth - OpenGLBug.radius, mCameraActivityInstance.screenOpenGLHeight / 4 + randomHeight, -1, 1,
 					OpenGLRenderer.SCALE_RATIO);
 			mBugList.add(menuBug);
 		}
@@ -152,7 +152,7 @@ public class OpenGLBugManager {
 
 	public static boolean isPointInFloor(int openGlX, int openGlY) {
 		int openCvX = (int) (openGlX * mCameraActivityInstance.openCVGLRatioX);
-		int openCvY = mCameraActivityInstance.screenHeight - (int) (openGlY * mCameraActivityInstance.openCVGLRatioY);
+		int openCvY = mCameraActivityInstance.screenOpenGLHeight - (int) (openGlY * mCameraActivityInstance.openCVGLRatioY);
 		int result = mCameraActivityInstance.isPointInFloor(openCvX, openCvY);
 		if (result == 1)
 			return true;
@@ -162,7 +162,7 @@ public class OpenGLBugManager {
 	
 	public static int distToContour(int openGlX, int openGlY) {
 		int openCvX = (int) (openGlX * mCameraActivityInstance.openCVGLRatioX);
-		int openCvY = mCameraActivityInstance.screenHeight - (int) (openGlY * mCameraActivityInstance.openCVGLRatioY);
+		int openCvY = mCameraActivityInstance.screenOpenGLHeight - (int) (openGlY * mCameraActivityInstance.openCVGLRatioY);
 		int result = mCameraActivityInstance.isPointInFloor(openCvX, openCvY);
 		return result;
 	}
@@ -188,19 +188,19 @@ public class OpenGLBugManager {
 	}
 	
 	public static int getOpenCvWidth() {
-		return mCameraActivityInstance.screenWidth;
+		return mCameraActivityInstance.screenOpenGLWidth;
 	}
 	
 	public static int getOpenCvHeight() {
-		return mCameraActivityInstance.screenHeight;
+		return mCameraActivityInstance.screenOpenGLHeight;
 	}
 	
 	public static int getOpenGlWidth() {
-		return mCameraActivityInstance.screenWidth;
+		return mCameraActivityInstance.screenOpenGLWidth;
 	}
 	
 	public static int getOpenGlHeight() {
-		return mCameraActivityInstance.screenHeight;
+		return mCameraActivityInstance.screenOpenGLHeight;
 	}
 	
 }

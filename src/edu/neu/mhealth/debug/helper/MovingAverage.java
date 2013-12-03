@@ -1,7 +1,10 @@
 package edu.neu.mhealth.debug.helper;
 
+import android.util.Log;
+
 public class MovingAverage {
 
+	private static final String TAG = "MovingAverage";
 	private int circularBuffer[];
 	private int avg;
 	private int circularIndex;
@@ -19,7 +22,8 @@ public class MovingAverage {
 		for (int i = 0; i < circularBuffer.length; i++) {
 			stringBuilder.append(circularBuffer[i] + " ");
 		}
-		System.out.println("distance " + stringBuilder);
+		System.out.println("Value before average:  " + stringBuilder);
+		Log.e(TAG, "Value after average: " + avg);
 		return avg;
 	}
 

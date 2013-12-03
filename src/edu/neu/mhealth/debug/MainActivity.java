@@ -73,7 +73,7 @@ import android.widget.TextView;
 public class MainActivity extends Activity implements OnTouchListener,
 		CvCameraViewListener2, SensorEventListener {
 	
-	private static final String TAG = "OCVSample::Activity";
+	private static final String TAG = "MainActivity";
 	
 	/// Layout	
 	private FrameLayout mFrameLayout;
@@ -142,11 +142,11 @@ public class MainActivity extends Activity implements OnTouchListener,
 	private int xOffset = 0;
 	private int yOffset = 0;
 
-	public int screenWidth;
-	public int screenHeight;
+	public int screenOpenGLWidth;
+	public int screenOpenGLHeight;
 
-	private int imageWidth;
-	private int imageHeight;
+	private int imageOpenCvWidth;
+	private int imageOpenCvHeight;
 	
 	public double openCVGLRatioX;
 	public double openCVGLRatioY;
@@ -238,8 +238,8 @@ public class MainActivity extends Activity implements OnTouchListener,
 		DisplayMetrics metrics = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
-		screenHeight = metrics.heightPixels;
-		screenWidth = metrics.widthPixels;
+		screenOpenGLHeight = metrics.heightPixels;
+		screenOpenGLWidth = metrics.widthPixels;
 
 		mFrameLayout = new FrameLayout(this);
 		setContentView(mFrameLayout);
@@ -291,11 +291,11 @@ public class MainActivity extends Activity implements OnTouchListener,
 
 	public void onCameraViewStarted(int width, int height) {
 		
-		imageWidth = width;
-		imageHeight = height;
+		imageOpenCvWidth = width;
+		imageOpenCvHeight = height;
 		
-		openCVGLRatioX = (double) screenWidth / imageWidth;
-		openCVGLRatioY = (double) screenHeight / imageHeight;
+		openCVGLRatioX = (double) screenOpenGLWidth / imageOpenCvWidth;
+		openCVGLRatioY = (double) screenOpenGLHeight / imageOpenCvHeight;
 		
 		mRgba = new Mat(height, width, CvType.CV_8UC4);
 		mGray = new Mat(height, width, CvType.CV_8UC1);
@@ -356,8 +356,8 @@ public class MainActivity extends Activity implements OnTouchListener,
 		mRgba = inputFrame.rgba();
 		mGray = inputFrame.gray();
 
-		xOffset = (mOpenCvCameraView.getWidth() - imageWidth) / 2;
-		yOffset = (mOpenCvCameraView.getHeight() - imageHeight) / 2;
+		xOffset = (mOpenCvCameraView.getWidth() - imageOpenCvWidth) / 2;
+		yOffset = (mOpenCvCameraView.getHeight() - imageOpenCvHeight) / 2;
 		
 		int gameMode = ModeManager.getModeManager().getCurrentMode();
 		switch (gameMode) {
@@ -433,8 +433,8 @@ public class MainActivity extends Activity implements OnTouchListener,
 		
 
 		Rect optFlowRect = new Rect();
-		optFlowRect.x = imageWidth / 2 - squareMetric / 2;
-		optFlowRect.y = imageHeight / 2 - squareMetric / 2;
+		optFlowRect.x = imageOpenCvWidth / 2 - squareMetric / 2;
+		optFlowRect.y = imageOpenCvHeight / 2 - squareMetric / 2;
 		optFlowRect.width = squareMetric;
 		optFlowRect.height = squareMetric;
 
@@ -624,8 +624,8 @@ public class MainActivity extends Activity implements OnTouchListener,
 
 		mMainMenuTitle = new ImageView(this);
 		mMainMenuTitle.setImageResource(R.drawable.main_menu_title2);
-		FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(screenWidth / 3, screenWidth / 8);
-		lp.setMargins(screenWidth / 5, screenHeight / 10, 0, 1);
+		FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(screenOpenGLWidth / 3, screenOpenGLWidth / 8);
+		lp.setMargins(screenOpenGLWidth / 5, screenOpenGLHeight / 10, 0, 1);
 		mMainMenuTitle.setLayoutParams(lp);
 		mFrameLayout.addView(mMainMenuTitle);
 
@@ -663,13 +663,13 @@ public class MainActivity extends Activity implements OnTouchListener,
 		do {
 			// We assume that the screenPixelWidth is the same with the opengl
 			// coordinate
-			int minX = imageWidth / 4;
-			int maxX = 3 * imageWidth / 4;
+			int minX = imageOpenCvWidth / 4;
+			int maxX = 3 * imageOpenCvWidth / 4;
 			randomWidth = Global.randInt(minX, maxX);
 
 			// We only find the destination in the upper part of the frame
 			int minY = (int) (0 + OpenGLBug.radius * openCVGLRatioY);
-			int maxY = 2 * imageHeight / 3;
+			int maxY = 2 * imageOpenCvHeight / 3;
 			randomHeight = Global.randInt(minY, maxY);
 
 			// +1: outside the contour -1: inside the contour 0:lies on the
@@ -679,9 +679,9 @@ public class MainActivity extends Activity implements OnTouchListener,
 
 		destinationTarget = new org.opencv.core.Point(randomWidth, randomHeight);
 		// Convert coordinates between opencv and opengl
-		double resultDestX = (double) randomWidth / imageWidth;
+		double resultDestX = (double) randomWidth / imageOpenCvWidth;
 		// Revert y-axis ratio between opencv and opengl
-		double resultDestY = 1 - (double) randomHeight / imageHeight;
+		double resultDestY = 1 - (double) randomHeight / imageOpenCvHeight;
 		double[] resultArray = { resultDestX, resultDestY };
 		return resultArray;
 	}
@@ -705,12 +705,12 @@ public class MainActivity extends Activity implements OnTouchListener,
 		for (int i = 0; i < detectedShoesContours.size(); i++) {
 			Moments detectedMoment = Imgproc.moments(detectedShoesContours.get(i), false);
 			mu.add(detectedMoment);
-			double ratioX = detectedMoment.get_m10() / (detectedMoment.get_m00() * screenWidth);
+			double ratioX = detectedMoment.get_m10() / (detectedMoment.get_m00() * screenOpenGLWidth);
 			// Reverse the y axis because opencv uses y-down-axis while opengl
 			// uses y-up-axis
-			double ratioY = 1 - detectedMoment.get_m01() / (detectedMoment.get_m00() * screenHeight);
-			int x = (int) ratioX * screenWidth;
-			int y = (int) ratioY * screenHeight;
+			double ratioY = 1 - detectedMoment.get_m01() / (detectedMoment.get_m00() * screenOpenGLHeight);
+			int x = (int) ratioX * screenOpenGLWidth;
+			int y = (int) ratioY * screenOpenGLHeight;
 			Core.circle(mRgba, new org.opencv.core.Point(x, y), 4, colorRed);
 			mFireList.add(new OpenGLFire(ratioX, ratioY));
 		}

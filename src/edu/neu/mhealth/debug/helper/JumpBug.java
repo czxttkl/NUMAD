@@ -22,7 +22,6 @@ public class JumpBug extends Bug implements Observer{
 		/// if phone moves
 		if (observable instanceof MotionEventListener) {
 			MotionMetrics motion = (MotionMetrics)data;
-			Log.i(TAG, "current motion: " + motion.getMotionX() + "  " + motion.getMotionY());
 		}
 		
 		/// if user jumps
@@ -33,7 +32,6 @@ public class JumpBug extends Bug implements Observer{
 		/// if game mode changed
 		if (observable instanceof ModeManager.ModeEventListener) {
 			Integer gameMode = (Integer)data;
-//			Log.e(TAG, "the current game mode: " + gameMode.intValue());
 		}
 	}
 }
