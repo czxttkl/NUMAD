@@ -70,8 +70,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	/** Debug Tag */
 	private final String TAG = Global.APP_LOG_TAG;
 	/**
-	 * The game activity's framelayout. Use this to handle
-	 * adding/removingsurfaceviews
+	 * The game activity's framelayout. Use this to handle adding/removingsurfaceviews
 	 */
 
 	/** Record how many bugs the user has killed */
@@ -84,6 +83,9 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	 */
 	RelativeLayout mColorPickLayout;
 
+	/** The layout for tutorial 1 instruction */
+	RelativeLayout mTutorial1InstructionLayout;
+	
 	/** Used for semi-transparent black background */
 	ImageView mMainMenuBackground;
 
@@ -253,8 +255,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	}
 
 	/**
-	 * Button Camera clicked. Marker's color is picked after this method is
-	 * called.
+	 * Button Camera clicked. Marker's color is picked after this method is called.
 	 */
 	public void onClickColorPickCameraButton(View v) {
 		if (!shoeColorPicked) {
@@ -339,7 +340,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	public void onClickShoeColorPickConfirmOk(View v) {
 		openCvMode = MODE_COLOR_PICK_CROSSHAIR;
 		mColorPickHelpConfirmButt1.setVisibility(View.GONE);
-		
+
 		// To enter the ColorPickCameraMode
 		initializeColorPickCameraMode();
 	}
@@ -360,6 +361,8 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 		mFrameLayout.removeView(mColorPickLayout);
 		openCvMode = MODE_TUTORIAL_1;
 		OpenGLBugManager.setMode(OpenGLBugManager.MODE_TUTORIAL_1);
+		
+		mHandler.postDelayed(mTutorial1InstructionUpdator, 2000);
 	}
 
 	/** Initialize Color Pick Add mode views */
@@ -521,7 +524,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 			detectedFloorContours.removeAll(Collections.singleton(null));
 			Imgproc.drawContours(mRgba, detectedFloorContours, -1, redColor, 4);
 			break;
-			
+
 		case MODE_TUTORIAL_1:
 			mColorBlobDetector.process(mRgba, openCvMode);
 			detectedShoesContours = mColorBlobDetector.getShoesContours();
@@ -535,7 +538,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 			Imgproc.drawContours(mRgba, detectedFloorContours, -1, redColor, 4);
 			if (destinationTarget != null)
 				Core.circle(mRgba, destinationTarget, 10, redColor, -1);
-			
+
 			break;
 
 		default:
@@ -553,10 +556,8 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	}
 
 	/**
-	 * Determine the bug's next destination that it should bounce to. This
-	 * method will return a double array. array[0] is the x-axis ratio of
-	 * destination. array[1] is the y-axis ratio of destination. The ratio is
-	 * according to the opengl coordinate.
+	 * Determine the bug's next destination that it should bounce to. This method will return a double array. array[0] is the x-axis ratio of destination. array[1] is the y-axis ratio of destination.
+	 * The ratio is according to the opengl coordinate.
 	 */
 	public double[] findBugNextDest() {
 		int randomWidth;
@@ -589,8 +590,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	}
 
 	/**
-	 * Return if the point is in the floor's contour +1: inside the contour -1:
-	 * outside the contour 0:lies on the edge;
+	 * Return if the point is in the floor's contour +1: inside the contour -1: outside the contour 0:lies on the edge;
 	 * 
 	 * @param openCvWidth
 	 *            The width in the opencv screen
@@ -600,17 +600,16 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	public int isPointInFloor(int openCvWidth, int openCvHeight) {
 		return isPointInFloor(openCvWidth, openCvHeight, false);
 	}
-	
+
 	/**
-	 * Return if the point is in the floor's contour >0: inside the contour <0:
-	 * outside the contour 0:lies on the edge;
+	 * Return if the point is in the floor's contour >0: inside the contour <0: outside the contour 0:lies on the edge;
 	 * 
 	 * @param openCvWidth
 	 *            The width in the opencv screen
 	 * @param openCvHeight
 	 *            The height in the opencv screen
 	 * @param calculateDist
-	 * 			  If we need to calculate the distance           
+	 *            If we need to calculate the distance
 	 */
 	public int isPointInFloor(int openCvWidth, int openCvHeight, boolean calculateDist) {
 		org.opencv.core.Point pt = new org.opencv.core.Point(openCvWidth, openCvHeight);
@@ -621,8 +620,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	}
 
 	/**
-	 * This method is called in opencv so that we could know the location of
-	 * shoes
+	 * This method is called in opencv so that we could know the location of shoes
 	 */
 	private void setRendererContourMassCenter() {
 		List<Moments> mu = new ArrayList<Moments>(detectedShoesContours.size());
@@ -650,10 +648,8 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	}
 
 	/**
-	 * Restore or create SurfaceView for bugs. This method is called after
-	 * OpenCV library is loaded successfully and must be called after
-	 * restoreOrCreateJavaCameraView is called so that CameraView would not
-	 * overlap GLSurfaceView.
+	 * Restore or create SurfaceView for bugs. This method is called after OpenCV library is loaded successfully and must be called after restoreOrCreateJavaCameraView is called so that CameraView
+	 * would not overlap GLSurfaceView.
 	 */
 	private void restoreOrCreateGLSurfaceView() {
 		mGLSurfaceView = new MyGLSurfaceView(this);
@@ -661,8 +657,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	}
 
 	/**
-	 * This method is executed after init render work, genrated from
-	 * restoreOrCreateGLSurfaceView, has been done.
+	 * This method is executed after init render work, genrated from restoreOrCreateGLSurfaceView, has been done.
 	 */
 	public void restoreOrCreateGLSurfaceView2() {
 		if (mGLSurfaceView != null) {
@@ -674,10 +669,8 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	}
 
 	/**
-	 * Restore or create SurfaceView for opencv CameraView. This method is
-	 * called after OpenCV library is loaded successfully and must be called
-	 * before restoreOrCreateGLSurfaceView is called so that CameraView would
-	 * not overlap GLSurfaceView.
+	 * Restore or create SurfaceView for opencv CameraView. This method is called after OpenCV library is loaded successfully and must be called before restoreOrCreateGLSurfaceView is called so that
+	 * CameraView would not overlap GLSurfaceView.
 	 */
 	private void restoreOrCreateJavaCameraView() {
 		mOpenCvCameraView = new CameraView(this);
@@ -691,8 +684,7 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 	}
 
 	/**
-	 * Restore or create Main Menu button/title view. This method is called
-	 * after clicking start button in about screen.
+	 * Restore or create Main Menu button/title view. This method is called after clicking start button in about screen.
 	 */
 	private void restoreOrCreateMainMenu() {
 		mMainMenuBackground = new ImageView(this);
@@ -824,4 +816,19 @@ public class CameraActivity extends Activity implements CvCameraViewListener2, S
 
 	}
 
+	/** Update tutorial 1 instruction */
+	protected Runnable mTutorial1InstructionUpdator = new Runnable() {
+        @Override
+        public void run() {
+        	// Inflates the Overlay Layout to be displayed above the Camera View
+    		LayoutInflater layoutInflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+    		mTutorial1InstructionLayout = (RelativeLayout) layoutInflater.inflate(R.layout.tutorial1_instruction, null, false);
+
+    		// Set background to semi-transparent black
+    		blackBackground.setAlpha(200);
+    		mTutorial1InstructionLayout.setBackgroundDrawable(blackBackground);
+
+    		mFrameLayout.addView(mTutorial1InstructionLayout);
+        }
+	};
 }
