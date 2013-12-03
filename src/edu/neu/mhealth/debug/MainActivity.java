@@ -96,6 +96,8 @@ public class MainActivity extends Activity implements OnTouchListener,
 	Drawable blackBackground;
 	
 	public int score = 0;
+	
+	RelativeLayout mTutorial1InstructionLayout;
 
 	
 	/// OpenGL
@@ -425,7 +427,11 @@ public class MainActivity extends Activity implements OnTouchListener,
 				Core.circle(mRgba, destinationTarget, 10, colorRed, -1);
 			
 			break;
-
+		case ModeManager.MODE_INITIAL:
+			Log.e(TAG, "initial mode");
+			Log.e(TAG, "current list size: " + OpenGLRenderer.mFireList.size());
+			break;
+			
 		default:
 			break;
 		}
@@ -708,21 +714,29 @@ public class MainActivity extends Activity implements OnTouchListener,
 	}
 	
 	private void setRendererContourMassCenter() {
-		List<Moments> mu = new ArrayList<Moments>(detectedShoesContours.size());
-		List<OpenGLFire> mFireList = new ArrayList<OpenGLFire>(detectedShoesContours.size());
-		for (int i = 0; i < detectedShoesContours.size(); i++) {
-			Moments detectedMoment = Imgproc.moments(detectedShoesContours.get(i), false);
-			mu.add(detectedMoment);
-			double ratioX = detectedMoment.get_m10() / (detectedMoment.get_m00() * imageOpenCvWidth);
-			// Reverse the y axis because opencv uses y-down-axis while opengl
-			// uses y-up-axis
-			double ratioY = 1 - detectedMoment.get_m01() / (detectedMoment.get_m00() * imageOpenCvHeight);
-			int x = (int) ratioX * imageOpenCvWidth;
-			int y = (int) ratioY * imageOpenCvHeight;
-			Core.circle(mRgba, new org.opencv.core.Point(x, y), 4, colorRed);
-			mFireList.add(new OpenGLFire(ratioX, ratioY));
+		if (ModeManager.getModeManager().getCurrentMode() != ModeManager.MODE_INITIAL) {
+			List<Moments> mu = new ArrayList<Moments>(
+					detectedShoesContours.size());
+			List<OpenGLFire> mFireList = new ArrayList<OpenGLFire>(
+					detectedShoesContours.size());
+			for (int i = 0; i < detectedShoesContours.size(); i++) {
+				Moments detectedMoment = Imgproc.moments(
+						detectedShoesContours.get(i), false);
+				mu.add(detectedMoment);
+				double ratioX = detectedMoment.get_m10()
+						/ (detectedMoment.get_m00() * imageOpenCvWidth);
+				// Reverse the y axis because opencv uses y-down-axis while
+				// opengl
+				// uses y-up-axis
+				double ratioY = 1 - detectedMoment.get_m01()
+						/ (detectedMoment.get_m00() * imageOpenCvHeight);
+				int x = (int) ratioX * imageOpenCvWidth;
+				int y = (int) ratioY * imageOpenCvHeight;
+				Core.circle(mRgba, new org.opencv.core.Point(x, y), 4, colorRed);
+				mFireList.add(new OpenGLFire(ratioX, ratioY));
+			}
+			OpenGLRenderer.mFireList = mFireList;
 		}
-		OpenGLRenderer.mFireList = mFireList;
 	}
 	
 	public void onClickAboutStartButton(View v) {
@@ -893,8 +907,38 @@ public class MainActivity extends Activity implements OnTouchListener,
 	public void onClickFloorColorPickConfirmOk(View v) {
 		mFrameLayout.removeView(mColorPickLayout);
 		ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_TUTORIAL_1);
-		OpenGLBugManager.setMode(OpenGLBugManager.MODE_TUTORIAL_1);
+		
+		mHandler.postDelayed(mTutorial1InstructionUpdator, 2000);
 	}
+	
+	public void onClickTutorial1InstructionOk(View v) {
+        mFrameLayout.removeView(mTutorial1InstructionLayout);
+        OpenGLBugManager.setMode(OpenGLBugManager.MODE_TUTORIAL_1);
+        ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_TUTORIAL_1);
+	}
+
+	protected Runnable mTutorial1InstructionUpdator = new Runnable() {
+		@Override
+		public void run() {
+			// Inflates the Overlay Layout to be displayed above the Camera View
+			LayoutInflater layoutInflater = (LayoutInflater) getBaseContext()
+					.getSystemService(LAYOUT_INFLATER_SERVICE);
+			mTutorial1InstructionLayout = (RelativeLayout) layoutInflater
+					.inflate(R.layout.tutorial1_instruction, null, false);
+
+			// Set background to semi-transparent black
+			blackBackground.setAlpha(200);
+			mTutorial1InstructionLayout.setBackgroundDrawable(blackBackground);
+
+			mFrameLayout.addView(mTutorial1InstructionLayout);
+
+			// Set mode to default
+			ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_INITIAL);
+			// Clear fire list to prevent fire rendering
+			OpenGLRenderer.mFireList.clear();
+		}
+	};
+        
 
 	@Override
 	public void onSensorChanged(SensorEvent event) {
@@ -937,4 +981,6 @@ public class MainActivity extends Activity implements OnTouchListener,
 		// TODO Auto-generated method stub
 		
 	}
+	
+	
 }
