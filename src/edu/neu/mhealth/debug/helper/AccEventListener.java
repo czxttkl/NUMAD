@@ -121,7 +121,7 @@ public class AccEventListener extends Observable implements SensorEventListener 
 			currState = state_invalid;
 		}		
 		
-		Log.i(TAG, "current state: " + currState);
+//		Log.i(TAG, "current state: " + currState);
 	}
 	
     /**

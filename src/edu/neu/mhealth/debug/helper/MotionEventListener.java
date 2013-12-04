@@ -10,7 +10,7 @@ public class MotionEventListener extends Observable {
 		motion = new MotionMetrics(0, 0);
 	}
 	
-	public void notifyMotion(int x, int y) {
+	public void notifyMotion(float x, float y) {
 		motion.setMotionX(x);
 		motion.setMotionY(y);
 		setChanged();

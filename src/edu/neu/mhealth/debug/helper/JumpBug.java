@@ -22,6 +22,7 @@ public class JumpBug extends Bug implements Observer{
 		/// if phone moves
 		if (observable instanceof MotionEventListener) {
 			MotionMetrics motion = (MotionMetrics)data;
+//			Log.e(TAG, "motion info: " + motion.getMotionX() + " "  + motion.getMotionY());
 		}
 		
 		/// if user jumps

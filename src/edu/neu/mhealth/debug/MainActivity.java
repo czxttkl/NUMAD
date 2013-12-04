@@ -511,8 +511,8 @@ public class MainActivity extends Activity implements OnTouchListener,
 			filterX.pushValue((int)dis_X_uf);
 			filterY.pushValue((int)dis_Y_uf);
 			
-			int dis_X = filterX.getValue();
-			int dis_Y = filterY.getValue();
+			float dis_X = filterX.getValue();
+			float dis_Y = filterY.getValue();
 			
 			motionEventListener.notifyMotion(dis_X, dis_Y);
 		}

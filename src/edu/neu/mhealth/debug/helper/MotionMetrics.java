@@ -1,27 +1,27 @@
 package edu.neu.mhealth.debug.helper;
 
 public class MotionMetrics {
-	private int motionX;
-	private int motionY;
+	private float motionX;
+	private float motionY;
 	
-	public MotionMetrics(int x, int y) {
+	public MotionMetrics(float x, float y) {
 		motionX = x;
 		motionY = y;
 	}
 
-	public int getMotionX() {
+	public float getMotionX() {
 		return motionX;
 	}
 
-	public void setMotionX(int motionX) {
+	public void setMotionX(float motionX) {
 		this.motionX = motionX;
 	}
 
-	public int getMotionY() {
+	public float getMotionY() {
 		return motionY;
 	}
 
-	public void setMotionY(int motionY) {
+	public void setMotionY(float motionY) {
 		this.motionY = motionY;
 	}
 }
