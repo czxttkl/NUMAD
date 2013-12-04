@@ -3,19 +3,21 @@ package edu.neu.mhealth.debug.opengl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Observable;
+import java.util.Observer;
 
 import android.util.Log;
 import edu.neu.mhealth.debug.CameraActivity;
 import edu.neu.mhealth.debug.MainActivity;
 import edu.neu.mhealth.debug.OpenGLRenderer;
+import edu.neu.mhealth.debug.helper.AccEventListener;
 import edu.neu.mhealth.debug.helper.Global;
+import edu.neu.mhealth.debug.helper.ModeManager;
+import edu.neu.mhealth.debug.helper.MotionEventListener;
+import edu.neu.mhealth.debug.helper.MotionMetrics;
 
-public class OpenGLBugManager {
+public class OpenGLBugManager implements Observer{
 
-	public final static int MODE_MAIN_MENU = 1;
-	public final static int MODE_TUTORIAL_1 = 2;
-	public final static int MODE_DEFAULT = 0;
-	
 	private static MainActivity mCameraActivityInstance;
 
 	/** Hold all the bugs that should be counted and calculated in an arraylist */
@@ -27,13 +29,15 @@ public class OpenGLBugManager {
 
 	public static void setMode(int mode) {
 		switch(mode) {
-		case MODE_MAIN_MENU:
+		case ModeManager.MODE_MAIN_MENU:
 			OpenGLBugManager.generateMainMenuBug();
 			break;
-		case MODE_TUTORIAL_1:
+		case ModeManager.MODE_TUTORIAL_1:
 			 mBugList.clear();
              OpenGLBug mTutorial1Bug = generateTutorial1Bug();
              mBugList.add(mTutorial1Bug);
+			break;
+		case ModeManager.MODE_TUTORIAL_2:
 			break;
 		default:
 			OpenGLBugManager.clearList();
@@ -201,6 +205,15 @@ public class OpenGLBugManager {
 	
 	public static int getOpenGlHeight() {
 		return mCameraActivityInstance.imageOpenCvHeight;
+	}
+
+	@Override
+	public void update(Observable observable, Object data) {
+		/// if game mode changed
+		if (observable instanceof ModeManager.ModeEventListener) {
+			Integer gameMode = (Integer)data;
+			setMode(gameMode);
+		}
 	}
 	
 }

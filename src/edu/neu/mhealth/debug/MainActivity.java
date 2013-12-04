@@ -98,6 +98,8 @@ public class MainActivity extends Activity implements OnTouchListener,
 	public int score = 0;
 	
 	RelativeLayout mTutorial1InstructionLayout;
+	RelativeLayout mTutorial2InstructionLayout;
+	RelativeLayout mTutorial3InstructionLayout;
 
 	
 	/// OpenGL
@@ -427,10 +429,6 @@ public class MainActivity extends Activity implements OnTouchListener,
 				Core.circle(mRgba, destinationTarget, 10, colorRed, -1);
 			
 			break;
-		case ModeManager.MODE_INITIAL:
-			Log.e(TAG, "initial mode");
-			Log.e(TAG, "current list size: " + OpenGLRenderer.mFireList.size());
-			break;
 			
 		default:
 			break;
@@ -591,7 +589,7 @@ public class MainActivity extends Activity implements OnTouchListener,
 	 */
 	public void restoreOrCreateGLSurfaceView2() {
 		if (mGLSurfaceView != null) {
-			OpenGLBugManager.setMode(OpenGLBugManager.MODE_MAIN_MENU);
+			ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_MAIN_MENU);
 			mFrameLayout.addView(mGLSurfaceView);
 			mGLSurfaceView.setZOrderMediaOverlay(true);
 			mGLSurfaceView.setZOrderOnTop(true);
@@ -711,6 +709,17 @@ public class MainActivity extends Activity implements OnTouchListener,
 	public void updateScore(int diff) {
 		score = score + diff;
 		updateScoreUI();
+		int gameMode = ModeManager.getModeManager().getCurrentMode();
+		switch(gameMode) {
+		case ModeManager.MODE_TUTORIAL_1:
+			if (score > 5) {
+				
+			}
+			break;
+		default:
+			break;
+		}
+		
 	}
 	
 	private void setRendererContourMassCenter() {
@@ -754,7 +763,7 @@ public class MainActivity extends Activity implements OnTouchListener,
 		mFrameLayout.removeView(mMainMenuBackground);
 
 		// OpenGL shouldn't render anything right after clicking start game.
-		OpenGLBugManager.setMode(OpenGLBugManager.MODE_DEFAULT);
+		ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_INITIAL);
 
 		// Inflates the Overlay Layout to be displayed above the Camera View
 		LayoutInflater layoutInflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
@@ -867,7 +876,7 @@ public class MainActivity extends Activity implements OnTouchListener,
 		// mColorPickNewTargetButton.setEnabled(true);
 		mFrameLayout.removeView(mColorPickLayout);
 		restoreOrCreateMainMenu();
-		OpenGLBugManager.setMode(OpenGLBugManager.MODE_MAIN_MENU);
+		ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_MAIN_MENU);
 	}
 
 	/** Shoe color pick confirm cancel button clicked */
@@ -907,14 +916,17 @@ public class MainActivity extends Activity implements OnTouchListener,
 	public void onClickFloorColorPickConfirmOk(View v) {
 		mFrameLayout.removeView(mColorPickLayout);
 		ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_TUTORIAL_1);
-		
 		mHandler.postDelayed(mTutorial1InstructionUpdator, 2000);
 	}
 	
 	public void onClickTutorial1InstructionOk(View v) {
         mFrameLayout.removeView(mTutorial1InstructionLayout);
-        OpenGLBugManager.setMode(OpenGLBugManager.MODE_TUTORIAL_1);
         ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_TUTORIAL_1);
+	}
+	
+	public void onClickTutorial2InstructionOk(View v) {
+		mFrameLayout.removeView(mTutorial2InstructionLayout);
+		ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_TUTORIAL_2);
 	}
 
 	protected Runnable mTutorial1InstructionUpdator = new Runnable() {
@@ -939,6 +951,27 @@ public class MainActivity extends Activity implements OnTouchListener,
 		}
 	};
         
+	protected Runnable mTutorial2InstructionUpdator = new Runnable() {
+		@Override
+		public void run() {
+			// Inflates the Overlay Layout to be displayed above the Camera View
+			LayoutInflater layoutInflater = (LayoutInflater) getBaseContext()
+					.getSystemService(LAYOUT_INFLATER_SERVICE);
+			mTutorial2InstructionLayout = (RelativeLayout) layoutInflater
+					.inflate(R.layout.tutorial2_instruction, null, false);
+
+			// Set background to semi-transparent black
+			blackBackground.setAlpha(200);
+			mTutorial1InstructionLayout.setBackgroundDrawable(blackBackground);
+
+			mFrameLayout.addView(mTutorial2InstructionLayout);
+
+			// Set mode to default
+			ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_INITIAL);
+			// Clear fire list to prevent fire rendering
+			OpenGLRenderer.mFireList.clear();
+		}
+	};
 
 	@Override
 	public void onSensorChanged(SensorEvent event) {

@@ -388,7 +388,7 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer {
 
 		// Load the bug's texture
 		mBugTextureDataHandle = TextureHelper.loadTexture(mActivityContext, R.drawable.ladybug, GLES20.GL_TEXTURE0);
-		mBugTextureDataHandle = TextureHelper.loadTexture(mActivityContext, R.drawable.bouncing, GLES20.GL_TEXTURE6);
+		mBugTextureDataHandle = TextureHelper.loadTexture(mActivityContext, R.drawable.burning, GLES20.GL_TEXTURE6);
 
 		// Define a simple shader program for our point.
 		final String pointVertexShader = RawResourceReader.readTextFileFromRawResource(mActivityContext, R.raw.point_vertex_shader);
@@ -530,7 +530,11 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer {
 
 			// Tell the texture uniform sampler to use this texture in the
 			// shader by binding to texture unit 0.
-			GLES20.glUniform1i(mTextureUniformHandle, 0);
+			if (mOpenGLBug.burning) {
+				GLES20.glUniform1i(mTextureUniformHandle, 6);
+			} else {
+				GLES20.glUniform1i(mTextureUniformHandle, 0);
+			}
 			// // If the bug is boucing, we should let it be blue.
 			// if (!mOpenGLBug.bouncing) {
 			// } else {

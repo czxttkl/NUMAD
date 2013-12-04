@@ -9,11 +9,14 @@ public class ModeManager {
 
 	private static final String TAG = "ModeManager";
 	public static final int MODE_INITIAL = 0;
+	public static final int MODE_MAIN_MENU = 122;
 	public static final int MODE_COLOR_PICK_CROSSHAIR = 123;
 	public static final int MODE_SHOE_COLOR_PICKED = 124;
 	public static final int MODE_COLOR_PICK_HOLD_WRONGLY = 125;
 	public static final int MODE_FLOOR_COLOR_PICKED = 126;
 	public static final int MODE_TUTORIAL_1 = 127;
+	public static final int MODE_TUTORIAL_2 = 128;
+	public static final int MODE_TUTORIAL_3 = 129;
 	
 	private static ModeManager modeManager;
 	private ModeEventListener eventListener;
@@ -57,7 +60,7 @@ public class ModeManager {
 		eventListener.addObserver(ob);
 	}
 	
-	protected class ModeEventListener extends Observable {
+	public class ModeEventListener extends Observable {
 		
 		public void notifyModeUpdate(int currentMode) {
 			setChanged();
