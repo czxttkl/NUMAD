@@ -120,7 +120,12 @@ public class ColorDetector {
 		mMaxContourArea = area;
 	}
 
-	public void process(Mat rgbaImage) {
+	/**
+	 * @param rgbaImage
+	 * @param detectFloor whether it should detect floor color
+	 * @param detectShoe  whether it should detect shoe color
+	 */
+	public void process(Mat rgbaImage, boolean detectFloor, boolean detectShoe) {
 		// Find max contour area
 		double maxArea = 1;
 		double secondMaxArea = 0;
@@ -138,9 +143,7 @@ public class ColorDetector {
 		// if (area > maxArea)
 		// maxArea = area;
 		// }
-		int openCvMode = ModeManager.getModeManager().getCurrentMode();
-		switch (openCvMode) {
-		case ModeManager.MODE_FLOOR_COLOR_PICKED:
+		if (detectFloor) {
 			mFloorContoursList = new ArrayList<MatOfPoint>();
 			Core.inRange(mHsvMat, mFloorLowerBound, mFloorUpperBound, mFloorMask);
 			Imgproc.dilate(mFloorMask, mFloorDilatedMask, new Mat());
@@ -154,10 +157,9 @@ public class ColorDetector {
 					mFloorContours[0] = mContour;
 				}
 			}
-			break;
-
-		case ModeManager.MODE_SHOE_COLOR_PICKED:
-			
+		}
+		
+		if (detectShoe) {
 			Core.inRange(mHsvMat, mShoeLowerBound, mShoeUpperBound, mShoeMask);
 			Imgproc.dilate(mShoeMask, mShoeDilatedMask, new Mat());
 
@@ -171,10 +173,8 @@ public class ColorDetector {
 				double area = Imgproc.contourArea(mContour);
 				// Log.d("mDebug", "czx contour area:" + area);
 				// Fake area if it is too large
-				if (openCvMode == ModeManager.MODE_TUTORIAL_1) {
-					if (area > screenArea * mMaxContourArea)
+				if (area > screenArea * mMaxContourArea)
 						continue;
-				}
 
 				if (area > maxArea) {
 					maxArea = area;
@@ -189,66 +189,119 @@ public class ColorDetector {
 					continue;
 				}
 			}
-
-			break;
-
-		case ModeManager.MODE_TUTORIAL_1:
-			// Detecting shoes
-			Core.inRange(mHsvMat, mShoeLowerBound, mShoeUpperBound, mShoeMask);
-			Imgproc.dilate(mShoeMask, mShoeDilatedMask, new Mat());
-			mShoesContoursList = new ArrayList<MatOfPoint>();
-			Imgproc.findContours(mShoeDilatedMask, mShoesContoursList, mShoeHierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
-			Arrays.fill(mShoesContours, null);
-			for (MatOfPoint mshoesContour : mShoesContoursList) {
-				double area = Imgproc.contourArea(mshoesContour);
-				// Fake area if it is too large for sticky notesd
-				if (openCvMode == ModeManager.MODE_TUTORIAL_1) {
-					if (area > screenArea * mMaxContourArea)
-						continue;
-				}
-				if (area > maxArea) {
-					maxArea = area;
-					Core.multiply(mshoesContour, new Scalar(2, 2), mshoesContour);
-					mShoesContours[0] = mshoesContour;
-					continue;
-				}
-				if (area > secondMaxArea) {
-					secondMaxArea = area;
-					Core.multiply(mshoesContour, new Scalar(2, 2), mshoesContour);
-					mShoesContours[1] = mshoesContour;
-					continue;
-				}
-			}
-			
-			//Detecting floor
-			mFloorContoursList = new ArrayList<MatOfPoint>();
-			Core.inRange(mHsvMat, mFloorLowerBound, mFloorUpperBound, mFloorMask);
-			Imgproc.dilate(mFloorMask, mFloorDilatedMask, new Mat());
-			Imgproc.findContours(mFloorDilatedMask, mFloorContoursList, mFloorHierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
-		
-			for (MatOfPoint mContour : mFloorContoursList) {
-				double area = Imgproc.contourArea(mContour);
-				if (area > maxArea) {
-					maxArea = area;
-					Core.multiply(mContour, new Scalar(2, 2), mContour);
-					mFloorContours[0] = mContour;
-				}
-			}
-			
-			break;
-		default:
-
 		}
-		// // Filter contours by area and resize to fit the original image size
-		// mContours.clear();
-		// each = contours.iterator();
-		// while (each.hasNext()) {
-		// MatOfPoint contour = each.next();
-		// if (Imgproc.contourArea(contour) > mMinContourArea*maxArea) {
-		// Core.multiply(contour, new Scalar(4,4), contour);
-		// mContours.add(contour);
-		// }
-		// }
+//		int openCvMode = ModeManager.getModeManager().getCurrentMode();
+//		switch (openCvMode) {
+//		case ModeManager.MODE_FLOOR_COLOR_PICKED:
+//			mFloorContoursList = new ArrayList<MatOfPoint>();
+//			Core.inRange(mHsvMat, mFloorLowerBound, mFloorUpperBound, mFloorMask);
+//			Imgproc.dilate(mFloorMask, mFloorDilatedMask, new Mat());
+//			Imgproc.findContours(mFloorDilatedMask, mFloorContoursList, mFloorHierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+//		
+//			for (MatOfPoint mContour : mFloorContoursList) {
+//				double area = Imgproc.contourArea(mContour);
+//				if (area > maxArea) {
+//					maxArea = area;
+//					Core.multiply(mContour, new Scalar(2, 2), mContour);
+//					mFloorContours[0] = mContour;
+//				}
+//			}
+//			break;
+//
+//		case ModeManager.MODE_SHOE_COLOR_PICKED:
+//			
+//			Core.inRange(mHsvMat, mShoeLowerBound, mShoeUpperBound, mShoeMask);
+//			Imgproc.dilate(mShoeMask, mShoeDilatedMask, new Mat());
+//
+//			mShoesContoursList = new ArrayList<MatOfPoint>();
+//
+//			Imgproc.findContours(mShoeDilatedMask, mShoesContoursList, mShoeHierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+//		
+//			Arrays.fill(mShoesContours, null);
+//			
+//			for (MatOfPoint mContour : mShoesContoursList) {
+//				double area = Imgproc.contourArea(mContour);
+//				// Log.d("mDebug", "czx contour area:" + area);
+//				// Fake area if it is too large
+//				if (openCvMode == ModeManager.MODE_TUTORIAL_1) {
+//					if (area > screenArea * mMaxContourArea)
+//						continue;
+//				}
+//
+//				if (area > maxArea) {
+//					maxArea = area;
+//					Core.multiply(mContour, new Scalar(2, 2), mContour);
+//					mShoesContours[0] = mContour;
+//					continue;
+//				}
+//				if (area > secondMaxArea) {
+//					secondMaxArea = area;
+//					Core.multiply(mContour, new Scalar(2, 2), mContour);
+//					mShoesContours[1] = mContour;
+//					continue;
+//				}
+//			}
+//
+//			break;
+//
+//		case ModeManager.MODE_TUTORIAL_1:
+//		case ModeManager.MODE_TUTORIAL_2:
+//			// Detecting shoes
+//			Core.inRange(mHsvMat, mShoeLowerBound, mShoeUpperBound, mShoeMask);
+//			Imgproc.dilate(mShoeMask, mShoeDilatedMask, new Mat());
+//			mShoesContoursList = new ArrayList<MatOfPoint>();
+//			Imgproc.findContours(mShoeDilatedMask, mShoesContoursList, mShoeHierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+//			Arrays.fill(mShoesContours, null);
+//			for (MatOfPoint mshoesContour : mShoesContoursList) {
+//				double area = Imgproc.contourArea(mshoesContour);
+//				// Fake area if it is too large for sticky notesd
+//				if (openCvMode == ModeManager.MODE_TUTORIAL_1) {
+//					if (area > screenArea * mMaxContourArea)
+//						continue;
+//				}
+//				if (area > maxArea) {
+//					maxArea = area;
+//					Core.multiply(mshoesContour, new Scalar(2, 2), mshoesContour);
+//					mShoesContours[0] = mshoesContour;
+//					continue;
+//				}
+//				if (area > secondMaxArea) {
+//					secondMaxArea = area;
+//					Core.multiply(mshoesContour, new Scalar(2, 2), mshoesContour);
+//					mShoesContours[1] = mshoesContour;
+//					continue;
+//				}
+//			}
+//			
+//			//Detecting floor
+//			mFloorContoursList = new ArrayList<MatOfPoint>();
+//			Core.inRange(mHsvMat, mFloorLowerBound, mFloorUpperBound, mFloorMask);
+//			Imgproc.dilate(mFloorMask, mFloorDilatedMask, new Mat());
+//			Imgproc.findContours(mFloorDilatedMask, mFloorContoursList, mFloorHierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+//		
+//			for (MatOfPoint mContour : mFloorContoursList) {
+//				double area = Imgproc.contourArea(mContour);
+//				if (area > maxArea) {
+//					maxArea = area;
+//					Core.multiply(mContour, new Scalar(2, 2), mContour);
+//					mFloorContours[0] = mContour;
+//				}
+//			}
+//			
+//			break;
+//		default:
+//
+//		}
+//		// // Filter contours by area and resize to fit the original image size
+//		// mContours.clear();
+//		// each = contours.iterator();
+//		// while (each.hasNext()) {
+//		// MatOfPoint contour = each.next();
+//		// if (Imgproc.contourArea(contour) > mMinContourArea*maxArea) {
+//		// Core.multiply(contour, new Scalar(4,4), contour);
+//		// mContours.add(contour);
+//		// }
+//		// }
 	}
 
 	// public List<MatOfPoint> getContours() {

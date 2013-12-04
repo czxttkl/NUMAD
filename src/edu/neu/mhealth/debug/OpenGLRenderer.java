@@ -218,7 +218,7 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer {
 	public OpenGLRenderer(final Context activityContext) {
 		this.mActivityContext = activityContext;
 		this.mCameraActivityInstance = (MainActivity) mActivityContext;
-		OpenGLBugManager.setCameraActivityInstance(mCameraActivityInstance);
+		OpenGLBugManager.getOpenGLBugManager().setCameraActivityInstance(mCameraActivityInstance);
 		// Initialize the buffers.
 		int i = 0;
 		BufferedReader buff;
@@ -430,9 +430,9 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer {
 		// Set OpenGLBug's scale
 		OpenGLBug.radius = (int) (screenOpenGLWidth / (SCALE_RATIO * 2));
 		// Set the thresholdHeight that bug could get out from the screen
-		OpenGLBug.thresHeight1 = OpenGLBugManager.getOpenGlHeight() - 2 * OpenGLBug.radius;
+		OpenGLBug.thresHeight1 = OpenGLBugManager.getOpenGLBugManager().getOpenGlHeight() - 2 * OpenGLBug.radius;
 		OpenGLBug.thresHeight2 =  2 * OpenGLBug.radius;
-		OpenGLBug.thresWidth1 = OpenGLBugManager.getOpenGlWidth() - 2 * OpenGLBug.radius;
+		OpenGLBug.thresWidth1 = OpenGLBugManager.getOpenGLBugManager().getOpenGlWidth() - 2 * OpenGLBug.radius;
 		OpenGLBug.thresWidth2 = 2 * OpenGLBug.radius;
 		
 		eyeX = screenOpenGLWidth / 2;
@@ -523,7 +523,7 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer {
 
 	/** Draws bugs in mBugList */
 	private void drawBugs() {
-		ListIterator<OpenGLBug> mOpenGLBugListIterator = OpenGLBugManager.getListIterator();
+		ListIterator<OpenGLBug> mOpenGLBugListIterator = OpenGLBugManager.getOpenGLBugManager().getListIterator();
 
 		while (mOpenGLBugListIterator.hasNext()) {
 			OpenGLBug mOpenGLBug = mOpenGLBugListIterator.next();

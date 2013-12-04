@@ -39,8 +39,8 @@ public class OpenGLFireBug extends OpenGLBug {
 			burningStepCounter++;
 			if (burningStepCounter == OpenGLBug.BURNING_STEP) {
 				mOpenGLBugIterator.remove();
-				if (OpenGLBugManager.getBugListSize() < 3) {
-					OpenGLBug mTutorial1Bug = OpenGLBugManager.generateTutorial1Bug();
+				if (OpenGLBugManager.getOpenGLBugManager().getBugListSize() < 4) {
+					OpenGLBug mTutorial1Bug = OpenGLBugManager.getOpenGLBugManager().generateFireBug();
 					mOpenGLBugIterator.add(mTutorial1Bug);
 				}
 				return;
@@ -49,8 +49,8 @@ public class OpenGLFireBug extends OpenGLBug {
 
 		// If the bug runs out of the screen, we generate a new one
 		if (OpenGLBugManager.isBugOutOfScreen(x, y)) {
-			if (OpenGLBugManager.getBugListSize() < 3) {
-				OpenGLFireBug mTutorial1Bug = OpenGLBugManager.generateTutorial1Bug();
+			if (OpenGLBugManager.getOpenGLBugManager().getBugListSize() < 4) {
+				OpenGLFireBug mTutorial1Bug = OpenGLBugManager.getOpenGLBugManager().generateFireBug();
 				mOpenGLBugIterator.add(mTutorial1Bug);
 			}
 		} else {
@@ -59,11 +59,11 @@ public class OpenGLFireBug extends OpenGLBug {
 				if (OpenGLBugManager.ifFireHitsBug(tmpX, tmpY)) {
 					burning = true;
 					shouldPause = true;
-					OpenGLBugManager.updateScore(1);
+					OpenGLBugManager.getOpenGLBugManager().updateScore(1);
 				} else {
 					// If the bug is not burned by the fire and not bouncing, we check if it is in the floor contour
 					if (!bouncing) {
-						int distanceToContour = OpenGLBugManager.distToContour(x, y);
+						int distanceToContour = OpenGLBugManager.getOpenGLBugManager().distToContour(x, y);
 //						Log.d(Global.APP_LOG_TAG, "radius:" + OpenGLBug.radius + " thresHeight:" + thresHeight + "now y:" + y + " distanceToContour:" + distanceToContour);
 
 						// The bug could get out of the screen
@@ -74,7 +74,7 @@ public class OpenGLFireBug extends OpenGLBug {
 							if (distanceToContour < 0) {
 								bouncing = true;
 								bounceStepCounter = 0;
-								int[] destination = OpenGLBugManager.findBugNextDest();
+								int[] destination = OpenGLBugManager.getOpenGLBugManager().findBugNextDest();
 								int[] speed = OpenGLBugManager.calculateSpeedTowardsDest(destination[0], destination[1], x, y);
 								speedX = speed[0];
 								speedY = speed[1];
@@ -84,7 +84,7 @@ public class OpenGLFireBug extends OpenGLBug {
 
 							// If the bug is in the floor, but it needs to return
 							if (distanceToContour < OpenGLBug.radius && distanceToContour >= 0) {
-								int[] destination = OpenGLBugManager.findBugNextDest();
+								int[] destination = OpenGLBugManager.getOpenGLBugManager().findBugNextDest();
 								int[] speed = OpenGLBugManager.calculateSpeedTowardsDest(destination[0], destination[1], x, y);
 								speedX = speed[0];
 								speedY = speed[1];

@@ -6,6 +6,7 @@ import java.util.ListIterator;
 import java.util.Observable;
 import java.util.Observer;
 
+import android.R.integer;
 import android.util.Log;
 import edu.neu.mhealth.debug.CameraActivity;
 import edu.neu.mhealth.debug.MainActivity;
@@ -16,36 +17,54 @@ import edu.neu.mhealth.debug.helper.ModeManager;
 import edu.neu.mhealth.debug.helper.MotionEventListener;
 import edu.neu.mhealth.debug.helper.MotionMetrics;
 
-public class OpenGLBugManager implements Observer{
+public class OpenGLBugManager implements Observer {
 
-	private static MainActivity mCameraActivityInstance;
+	private MainActivity mCameraActivityInstance;
 
 	/** Hold all the bugs that should be counted and calculated in an arraylist */
-	public static List<OpenGLBug> mBugList = new ArrayList<OpenGLBug>();
+	public List<OpenGLBug> mBugList = new ArrayList<OpenGLBug>();
 
-	public static void setCameraActivityInstance(MainActivity mCameraActivity) {
+	public static OpenGLBugManager mOpenGLBugManager;
+	
+	public static OpenGLBugManager getOpenGLBugManager() {
+		if (mOpenGLBugManager == null) {
+			mOpenGLBugManager = new OpenGLBugManager();
+		}
+		return mOpenGLBugManager;
+	}
+
+	public void setCameraActivityInstance(MainActivity mCameraActivity) {
 		mCameraActivityInstance = mCameraActivity;
 	}
 
-	public static void setMode(int mode) {
-		switch(mode) {
+	public void setMode(int mode) {
+		switch (mode) {
 		case ModeManager.MODE_MAIN_MENU:
-			OpenGLBugManager.generateMainMenuBug();
+			generateMainMenuBug();
 			break;
+			
 		case ModeManager.MODE_TUTORIAL_1:
-			 mBugList.clear();
-             OpenGLBug mTutorial1Bug = generateTutorial1Bug();
-             mBugList.add(mTutorial1Bug);
+			clearList();
+			mBugList.add(generateFireBug());
 			break;
+			
+		case ModeManager.MODE_BEFORE_TUTORIAL_1:
+			clearList();
+			break;
+			
 		case ModeManager.MODE_TUTORIAL_2:
+			clearList();
+			mBugList.add(generateFireBug());
+			mBugList.add(generateFireBug());
 			break;
+			
 		default:
-			OpenGLBugManager.clearList();
+			clearList();
 		}
 	}
-	
+
 	/** Generate one main menu bug if necessary */
-	public static void generateMainMenuBug() {
+	public void generateMainMenuBug() {
 		if (mBugList.size() != 1) {
 			mBugList.clear();
 			int randomHeight = Global.rd.nextInt(mCameraActivityInstance.screenOpenGLHeight / 3);
@@ -55,12 +74,12 @@ public class OpenGLBugManager implements Observer{
 		}
 	}
 
-	public static void clearList() {
+	public void clearList() {
 		mBugList.clear();
 	}
-	
+
 	/** Return the bug's next destination (in opengl coordinate) */
-	public static int[] findBugNextDest() {
+	public int[] findBugNextDest() {
 		double[] resultArray = mCameraActivityInstance.findBugNextDest();
 		int[] destination = new int[2];
 		destination[0] = (int) (OpenGLRenderer.screenOpenGLWidth * resultArray[0]);
@@ -68,8 +87,8 @@ public class OpenGLBugManager implements Observer{
 		return destination;
 	}
 
-	/** Generate one tutorial 1 bug */
-	public static OpenGLFireBug generateTutorial1Bug() {
+	/** Generate one fire bug */
+	public OpenGLFireBug generateFireBug() {
 		// bugs will show up from left or right flank side. So the width is
 		// either 0+radius OR screenwidht-radius
 		int randomWidth;
@@ -89,8 +108,7 @@ public class OpenGLBugManager implements Observer{
 	}
 
 	/**
-	 * Determine the speed towards the target destination. It makes sure that
-	 * abs(speedX) and abs(speedY) is at least 1
+	 * Determine the speed towards the target destination. It makes sure that abs(speedX) and abs(speedY) is at least 1
 	 */
 	public static int[] calculateSpeedTowardsDest(int destX, int destY, int x, int y) {
 		int speedX;
@@ -110,15 +128,14 @@ public class OpenGLBugManager implements Observer{
 			speedY = Math.abs(yDiff) > OpenGLBug.BOUNCING_STEP ? yDiff / OpenGLBug.BOUNCING_STEP : yDiff / Math.abs(yDiff);
 		}
 		int[] speed = { speedX, speedY };
-		
-		speed = limitSpeed(speed);
-		
+
+		speed = limitBoostSpeed(speed);
+
 		return speed;
 	}
 
 	/**
-	 * Check if the bug is now out of the rectangle(-screenOpenGLWidth,
-	 * 2*screenOpenGLHeight, 3*screenOpenGLWidth, 3*screenOpenGLHeight)
+	 * Check if the bug is now out of the rectangle(-screenOpenGLWidth, 2*screenOpenGLHeight, 3*screenOpenGLWidth, 3*screenOpenGLHeight)
 	 */
 	protected static boolean isBugOutOfBoundary(int x, int y) {
 		if (x > OpenGLRenderer.screenOpenGLWidth * 2 || x < -OpenGLRenderer.screenOpenGLWidth || y > 2 * OpenGLRenderer.screenOpenGLHeight || y < -OpenGLRenderer.screenOpenGLHeight)
@@ -128,8 +145,7 @@ public class OpenGLBugManager implements Observer{
 	}
 
 	/**
-	 * Check if the bug is out of the rectangle(0, screenOpenGLHeight,
-	 * screenOpenGLWidth, screenOpenGLHeight)
+	 * Check if the bug is out of the rectangle(0, screenOpenGLHeight, screenOpenGLWidth, screenOpenGLHeight)
 	 */
 	public static boolean isBugOutOfScreen(int x, int y) {
 		if (x > OpenGLRenderer.screenOpenGLWidth || x < 0 || y > OpenGLRenderer.screenOpenGLHeight || y < 0)
@@ -139,8 +155,7 @@ public class OpenGLBugManager implements Observer{
 	}
 
 	/**
-	 * Determine whether the bug is burned by return the max distance between
-	 * the bug and two fire flames
+	 * Determine whether the bug is burned by return the max distance between the bug and two fire flames
 	 */
 	public static boolean ifFireHitsBug(int tmpX, int tmpY) {
 		for (OpenGLFire mOpenGLFire : OpenGLRenderer.mFireList) {
@@ -154,7 +169,7 @@ public class OpenGLBugManager implements Observer{
 		return false;
 	}
 
-	public static boolean isPointInFloor(int openGlX, int openGlY) {
+	public boolean isPointInFloor(int openGlX, int openGlY) {
 		int openCvX = (int) (openGlX * mCameraActivityInstance.openCVGLRatioX);
 		int openCvY = mCameraActivityInstance.imageOpenCvHeight - (int) (openGlY * mCameraActivityInstance.openCVGLRatioY);
 		int result = mCameraActivityInstance.isPointInFloor(openCvX, openCvY);
@@ -163,57 +178,76 @@ public class OpenGLBugManager implements Observer{
 		else
 			return false;
 	}
-	
-	public static int distToContour(int openGlX, int openGlY) {
+
+	public int distToContour(int openGlX, int openGlY) {
 		int openCvX = (int) (openGlX * mCameraActivityInstance.openCVGLRatioX);
 		int openCvY = mCameraActivityInstance.imageOpenCvHeight - (int) (openGlY * mCameraActivityInstance.openCVGLRatioY);
 		int result = mCameraActivityInstance.isPointInFloor(openCvX, openCvY, true);
 		return result;
 	}
-	
-	public static ListIterator<OpenGLBug> getListIterator() {
+
+	public ListIterator<OpenGLBug> getListIterator() {
 		return mBugList.listIterator();
 	}
 
-	public static int getBugListSize() {
+	public int getBugListSize() {
 		return mBugList.size();
 	}
 
-	public static void updateScore(int score) {
+	public void updateScore(int score) {
 		mCameraActivityInstance.updateScore(1);
 	}
-	
-	public static int[] limitSpeed(int[] speed) {
-		if (speed[0] > 10 || speed[1] > 10) { 
-			speed[0] = speed[0] / 2;
-			speed[1] = speed[1] / 2;
+
+	public static int[] limitBoostSpeed(int[] speed) {
+		int gameMode = ModeManager.getModeManager().getCurrentMode();
+		switch (gameMode) {
+		case ModeManager.MODE_TUTORIAL_1:
+			if (Math.abs(speed[0]) > 8 || Math.abs(speed[1]) > 8) {
+				speed[0] = speed[0] / 2;
+				speed[1] = speed[1] / 2;
+			}
+			break;
+
+		case ModeManager.MODE_TUTORIAL_2:
+			if (Math.abs(speed[0] * speed[1]) <= 4) {
+				speed[0] = speed[0] * 2;
+				speed[1] = speed[1] * 2;
+			}
+
+			if (Math.abs(speed[0]) > 10 || Math.abs(speed[1]) > 10) {
+				speed[0] = speed[0] / 2;
+				speed[1] = speed[1] / 2;
+			}
+		default:
+			break;
 		}
+
 		return speed;
 	}
-	
-	public static int getOpenCvWidth() {
+
+	public int getOpenCvWidth() {
 		return mCameraActivityInstance.imageOpenCvWidth;
 	}
-	
-	public static int getOpenCvHeight() {
+
+	public int getOpenCvHeight() {
 		return mCameraActivityInstance.imageOpenCvHeight;
 	}
-	
-	public static int getOpenGlWidth() {
+
+	public int getOpenGlWidth() {
 		return mCameraActivityInstance.imageOpenCvWidth;
 	}
-	
-	public static int getOpenGlHeight() {
+
+	public  int getOpenGlHeight() {
 		return mCameraActivityInstance.imageOpenCvHeight;
 	}
 
 	@Override
 	public void update(Observable observable, Object data) {
-		/// if game mode changed
+		// / if game mode changed
 		if (observable instanceof ModeManager.ModeEventListener) {
-			Integer gameMode = (Integer)data;
+			Integer gameMode = (Integer) data;
 			setMode(gameMode);
 		}
 	}
-	
+
 }

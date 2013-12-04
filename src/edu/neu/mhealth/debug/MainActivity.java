@@ -254,7 +254,6 @@ public class MainActivity extends Activity implements OnTouchListener,
 		filterY = new MovingAverage(5);
 	
 		sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-
 	}
 
 	@Override
@@ -282,6 +281,7 @@ public class MainActivity extends Activity implements OnTouchListener,
 		motionEventListener.addObserver(jumpBug);
 		
 		ModeManager.getModeManager().addObserver(jumpBug);
+		ModeManager.getModeManager().addObserver(OpenGLBugManager.getOpenGLBugManager());
 		
 		OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_3, this,
 				mLoaderCallback);
@@ -391,7 +391,7 @@ public class MainActivity extends Activity implements OnTouchListener,
 			break;
 
 		case ModeManager.MODE_SHOE_COLOR_PICKED:
-			mColorBlobDetector.process(mRgba);
+			mColorBlobDetector.process(mRgba,false, true);
 			detectedShoesContours = mColorBlobDetector.getShoesContours();
 			// Log.e(TAG, "Contours count: " + contours.size());
 			if (detectedShoesContours == null)
@@ -406,7 +406,7 @@ public class MainActivity extends Activity implements OnTouchListener,
 			break;
 
 		case ModeManager.MODE_FLOOR_COLOR_PICKED:
-			mColorBlobDetector.process(mRgba);
+			mColorBlobDetector.process(mRgba, true, false);
 			detectedFloorContours = mColorBlobDetector.getFloorContours();
 			if (detectedFloorContours == null)
 				return mRgba;
@@ -415,7 +415,8 @@ public class MainActivity extends Activity implements OnTouchListener,
 			break;
 
 		case ModeManager.MODE_TUTORIAL_1:
-			mColorBlobDetector.process(mRgba);
+		case ModeManager.MODE_TUTORIAL_2:
+			mColorBlobDetector.process(mRgba, true, true);
 			detectedShoesContours = mColorBlobDetector.getShoesContours();
 			// if (detectedShoesContours == null)
 			// return mRgba;
@@ -430,6 +431,15 @@ public class MainActivity extends Activity implements OnTouchListener,
 			
 			break;
 			
+		case ModeManager.MODE_BEFORE_TUTORIAL_1:
+			mColorBlobDetector.process(mRgba, false, true);
+			detectedShoesContours = mColorBlobDetector.getShoesContours();
+			// if (detectedShoesContours == null)
+			// return mRgba;
+			detectedShoesContours.removeAll(Collections.singleton(null));
+			setRendererContourMassCenter();
+			
+		
 		default:
 			break;
 		}
@@ -708,14 +718,17 @@ public class MainActivity extends Activity implements OnTouchListener,
 
 	public void updateScore(int diff) {
 		score = score + diff;
+		Log.d(TAG, "update score:" + score);
+
 		updateScoreUI();
 		int gameMode = ModeManager.getModeManager().getCurrentMode();
 		switch(gameMode) {
 		case ModeManager.MODE_TUTORIAL_1:
 			if (score > 5) {
-				
+				mHandler.postDelayed(mTutorial2InstructionUpdator, 1000);
 			}
 			break;
+			
 		default:
 			break;
 		}
@@ -915,7 +928,7 @@ public class MainActivity extends Activity implements OnTouchListener,
 	/** Floor color pick confirm ok button clicked */
 	public void onClickFloorColorPickConfirmOk(View v) {
 		mFrameLayout.removeView(mColorPickLayout);
-		ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_TUTORIAL_1);
+		ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_BEFORE_TUTORIAL_1);
 		mHandler.postDelayed(mTutorial1InstructionUpdator, 2000);
 	}
 	
@@ -962,7 +975,7 @@ public class MainActivity extends Activity implements OnTouchListener,
 
 			// Set background to semi-transparent black
 			blackBackground.setAlpha(200);
-			mTutorial1InstructionLayout.setBackgroundDrawable(blackBackground);
+			mTutorial2InstructionLayout.setBackgroundDrawable(blackBackground);
 
 			mFrameLayout.addView(mTutorial2InstructionLayout);
 
