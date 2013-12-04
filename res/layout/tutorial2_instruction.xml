@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
+        android:layout_height="fill_parent"
+        android:id="@+id/tutorial2_layout">
 
           <Button
-              android:id="@+id/startBtn"
+              android:id="@+id/tutorial2_startBtn"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
               android:layout_alignParentBottom="true"
@@ -20,7 +21,7 @@
           <TextView
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
-              android:layout_alignLeft="@+id/startBtn"
+              android:layout_alignLeft="@+id/tutorial2_startBtn"
               android:layout_alignParentTop="true"
               android:layout_marginTop="47dp"
               android:gravity="left"

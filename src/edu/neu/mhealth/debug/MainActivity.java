@@ -70,12 +70,11 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-public class MainActivity extends Activity implements OnTouchListener,
-		CvCameraViewListener2, SensorEventListener {
-	
+public class MainActivity extends Activity implements OnTouchListener, CvCameraViewListener2, SensorEventListener {
+
 	private static final String TAG = "MainActivity";
-	
-	/// Layout	
+
+	// / Layout
 	private FrameLayout mFrameLayout;
 	View mColorPickBottomBar;
 	View mColorPickInstructionsView;
@@ -85,35 +84,34 @@ public class MainActivity extends Activity implements OnTouchListener,
 	View mColorPickCloseButton;
 	public View mColorPickCameraButton;
 	public TextView mColorPickHelpNotifTextView;
-	
+
 	RelativeLayout mColorPickLayout;
 	ImageView mMainMenuBackground;
 	ImageView mMainMenuTitle;
 	View mMainMenuButtonListView;
 	View mAboutView;
 	TextView mAboutText;
-	
+
 	Drawable blackBackground;
-	
+
 	public int score = 0;
-	
+
 	RelativeLayout mTutorial1InstructionLayout;
 	RelativeLayout mTutorial2InstructionLayout;
 	RelativeLayout mTutorial3InstructionLayout;
+	RelativeLayout mGameScoreLayout;
 
-	
-	/// OpenGL
+	// / OpenGL
 	public MyGLSurfaceView mGLSurfaceView;
 	protected final Handler mHandler = new Handler();
 
-	
-	/// OpenCV basic
+	// / OpenCV basic
 	private List<android.hardware.Camera.Size> resolutions;
-	
-	/// For Game Flow Control
+
+	// / For Game Flow Control
 	public boolean shoeColorPicked = false;
 	private boolean floorColorPicked = false;
-	
+
 	Mat colorPickAreaHsv;
 	org.opencv.core.Point crosshairHeftmost;
 	org.opencv.core.Point crosshairRightmost;
@@ -124,8 +122,8 @@ public class MainActivity extends Activity implements OnTouchListener,
 	private Scalar mShoeColorPickHsv;
 	private Scalar mFloorColorPickRgba;
 	private Scalar mFloorColorPickHsv;
-	
-	/// For color detection
+
+	// / For color detection
 	private boolean mIsColorSelected = false;
 	private Mat mRgba;
 	private Mat mGray;
@@ -151,25 +149,24 @@ public class MainActivity extends Activity implements OnTouchListener,
 
 	public int imageOpenCvWidth;
 	public int imageOpenCvHeight;
-	
+
 	public double openCVGLRatioX;
 	public double openCVGLRatioY;
-	
+
 	private Scalar colorGreen;
 	private Scalar colorRed;
 	private Scalar colorBlue;
 	private Scalar colorWhite;
 	private Scalar colorGray;
-	
+
 	Rect colorPickArea;
 	ColorDetector mColorBlobDetector;
 	List<MatOfPoint> detectedShoesContours;
 	List<MatOfPoint> detectedFloorContours;
 
-	/// For optical flow
+	// / For optical flow
 	private List<MatOfPoint> contourFloor;
 	private List<MatOfPoint> contourShoe;
-
 
 	private Mat mOpFlowCurr;
 	private Mat mOpFlowPrev;
@@ -186,26 +183,24 @@ public class MainActivity extends Activity implements OnTouchListener,
 	private MovingAverage filterX;
 	private MovingAverage filterY;
 
-
 	Mat optFlowMatRgba;
 	Mat optFlowMatGray;
 
 	private static final int rectWidth = 500;
 	private static final int rectHeight = 250;
 	private static final int squareMetric = 200;
-	
+
 	private static final int motionThX = 100;
 	private static final int motionThY = 100;
-	
-	/// For jumping detection and tilt detection
+
+	// / For jumping detection and tilt detection
 	private SensorManager sensorManager;
 	private Sensor sensorLinearAcc;
 	private Sensor sensorAcc;
 	private AccEventListener accEventListener;
-	
-	/// For direction / motion detection
+
+	// / For direction / motion detection
 	private MotionEventListener motionEventListener;
-	
 
 	private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
 		@Override
@@ -213,7 +208,7 @@ public class MainActivity extends Activity implements OnTouchListener,
 			switch (status) {
 			case LoaderCallbackInterface.SUCCESS: {
 				Log.i(TAG, "OpenCV loaded successfully");
-				
+
 				restoreOrCreateJavaCameraView();
 				restoreOrCreateGLSurfaceView();
 				restoreOrCreateAboutScreen();
@@ -247,12 +242,12 @@ public class MainActivity extends Activity implements OnTouchListener,
 
 		mFrameLayout = new FrameLayout(this);
 		setContentView(mFrameLayout);
-		
+
 		initBlackBackground();
 
 		filterX = new MovingAverage(5);
 		filterY = new MovingAverage(5);
-	
+
 		sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 	}
 
@@ -267,24 +262,23 @@ public class MainActivity extends Activity implements OnTouchListener,
 	@Override
 	public void onResume() {
 		super.onResume();
-		
+
 		jumpBug = new JumpBug(getApplicationContext());
-		
+
 		sensorLinearAcc = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
 		sensorAcc = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 		accEventListener = new AccEventListener(this);
-		sensorManager.registerListener(accEventListener, sensorLinearAcc, SensorManager.SENSOR_DELAY_FASTEST);	
+		sensorManager.registerListener(accEventListener, sensorLinearAcc, SensorManager.SENSOR_DELAY_FASTEST);
 		sensorManager.registerListener(this, sensorAcc, SensorManager.SENSOR_DELAY_FASTEST);
 		accEventListener.addObserver(jumpBug);
 
 		motionEventListener = new MotionEventListener();
 		motionEventListener.addObserver(jumpBug);
-		
+
 		ModeManager.getModeManager().addObserver(jumpBug);
 		ModeManager.getModeManager().addObserver(OpenGLBugManager.getOpenGLBugManager());
-		
-		OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_3, this,
-				mLoaderCallback);
+
+		OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_3, this, mLoaderCallback);
 	}
 
 	public void onDestroy() {
@@ -294,13 +288,13 @@ public class MainActivity extends Activity implements OnTouchListener,
 	}
 
 	public void onCameraViewStarted(int width, int height) {
-		
+
 		imageOpenCvWidth = width;
 		imageOpenCvHeight = height;
-		
+
 		openCVGLRatioX = (double) imageOpenCvWidth / screenOpenGLWidth;
 		openCVGLRatioY = (double) imageOpenCvHeight / screenOpenGLHeight;
-		
+
 		mRgba = new Mat(height, width, CvType.CV_8UC4);
 		mGray = new Mat(height, width, CvType.CV_8UC1);
 		mSpectrum = new Mat();
@@ -352,7 +346,7 @@ public class MainActivity extends Activity implements OnTouchListener,
 		int x = configureView.getFloorPosition().x;
 		int y = configureView.getFloorPosition().y;
 
-		return false; 
+		return false;
 	}
 
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
@@ -361,7 +355,7 @@ public class MainActivity extends Activity implements OnTouchListener,
 
 		xOffset = (mOpenCvCameraView.getWidth() - imageOpenCvWidth) / 2;
 		yOffset = (mOpenCvCameraView.getHeight() - imageOpenCvHeight) / 2;
-		
+
 		int gameMode = ModeManager.getModeManager().getCurrentMode();
 		switch (gameMode) {
 		case ModeManager.MODE_COLOR_PICK_CROSSHAIR:
@@ -391,7 +385,7 @@ public class MainActivity extends Activity implements OnTouchListener,
 			break;
 
 		case ModeManager.MODE_SHOE_COLOR_PICKED:
-			mColorBlobDetector.process(mRgba,false, true);
+			mColorBlobDetector.process(mRgba, false, true);
 			detectedShoesContours = mColorBlobDetector.getShoesContours();
 			// Log.e(TAG, "Contours count: " + contours.size());
 			if (detectedShoesContours == null)
@@ -428,9 +422,9 @@ public class MainActivity extends Activity implements OnTouchListener,
 			Imgproc.drawContours(mRgba, detectedFloorContours, -1, colorRed, 4);
 			if (destinationTarget != null)
 				Core.circle(mRgba, destinationTarget, 10, colorRed, -1);
-			
+
 			break;
-			
+
 		case ModeManager.MODE_BEFORE_TUTORIAL_1:
 			mColorBlobDetector.process(mRgba, false, true);
 			detectedShoesContours = mColorBlobDetector.getShoesContours();
@@ -438,13 +432,10 @@ public class MainActivity extends Activity implements OnTouchListener,
 			// return mRgba;
 			detectedShoesContours.removeAll(Collections.singleton(null));
 			setRendererContourMassCenter();
-			
-		
+
 		default:
 			break;
 		}
-
-		
 
 		Rect optFlowRect = new Rect();
 		optFlowRect.x = imageOpenCvWidth / 2 - squareMetric / 2;
@@ -455,28 +446,23 @@ public class MainActivity extends Activity implements OnTouchListener,
 		optFlowMatRgba = mRgba.submat(optFlowRect);
 
 		if (mMOP2PtsPrev.rows() == 0) {
-			Imgproc.cvtColor(optFlowMatRgba, mOpFlowCurr,
-					Imgproc.COLOR_RGBA2GRAY);
+			Imgproc.cvtColor(optFlowMatRgba, mOpFlowCurr, Imgproc.COLOR_RGBA2GRAY);
 			mOpFlowCurr.copyTo(mOpFlowPrev);
 
-			Imgproc.goodFeaturesToTrack(mOpFlowPrev, mMOPopFlowPrev, 50, 0.01,
-					20);
+			Imgproc.goodFeaturesToTrack(mOpFlowPrev, mMOPopFlowPrev, 50, 0.01, 20);
 			mMOP2PtsPrev.fromArray(mMOPopFlowPrev.toArray());
 			mMOP2PtsPrev.copyTo(mMOP2PtsSafe);
 		} else {
 
 			mOpFlowCurr.copyTo(mOpFlowPrev);
-			Imgproc.cvtColor(optFlowMatRgba, mOpFlowCurr,
-					Imgproc.COLOR_RGBA2GRAY);
+			Imgproc.cvtColor(optFlowMatRgba, mOpFlowCurr, Imgproc.COLOR_RGBA2GRAY);
 
-			Imgproc.goodFeaturesToTrack(mOpFlowCurr, mMOPopFlowCurr, 50, 0.01,
-					20);
+			Imgproc.goodFeaturesToTrack(mOpFlowCurr, mMOPopFlowCurr, 50, 0.01, 20);
 			mMOP2PtsCurr.fromArray(mMOPopFlowCurr.toArray());
 			mMOP2PtsSafe.copyTo(mMOP2PtsPrev);
 			mMOP2PtsCurr.copyTo(mMOP2PtsSafe);
 
-			Video.calcOpticalFlowPyrLK(mOpFlowPrev, mOpFlowCurr, mMOP2PtsPrev,
-					mMOP2PtsCurr, status, err);
+			Video.calcOpticalFlowPyrLK(mOpFlowPrev, mOpFlowCurr, mMOP2PtsPrev, mMOP2PtsCurr, status, err);
 
 			cornersPrev = mMOP2PtsPrev.toList();
 			cornersCurr = mMOP2PtsCurr.toList();
@@ -502,47 +488,46 @@ public class MainActivity extends Activity implements OnTouchListener,
 					dis_Y_uf += pt.y - pt2.y;
 				}
 			}
-			
-			if ( dis_X_uf > 0 && dis_X_uf < motionThX) {
+
+			if (dis_X_uf > 0 && dis_X_uf < motionThX) {
 				dis_X_uf = 0;
 			}
-			if ( dis_X_uf < 0 && dis_X_uf > (-1*motionThX)) {
+			if (dis_X_uf < 0 && dis_X_uf > (-1 * motionThX)) {
 				dis_X_uf = 0;
 			}
-			if ( dis_Y_uf > 0 && dis_Y_uf < motionThY) {
+			if (dis_Y_uf > 0 && dis_Y_uf < motionThY) {
 				dis_Y_uf = 0;
 			}
-			if ( dis_Y_uf < 0 && dis_Y_uf > (-1*motionThY)) {
+			if (dis_Y_uf < 0 && dis_Y_uf > (-1 * motionThY)) {
 				dis_Y_uf = 0;
 			}
-			
-			filterX.pushValue((int)dis_X_uf);
-			filterY.pushValue((int)dis_Y_uf);
-			
+
+			filterX.pushValue((int) dis_X_uf);
+			filterY.pushValue((int) dis_Y_uf);
+
 			float dis_X = filterX.getValue();
 			float dis_Y = filterY.getValue();
-			
+
 			motionEventListener.notifyMotion(dis_X, dis_Y);
 		}
-		
+
 		return mRgba;
 	}
 
 	private Scalar converScalarHsv2Rgba(Scalar hsvColor) {
 		Mat pointMatRgba = new Mat();
 		Mat pointMatHsv = new Mat(1, 1, CvType.CV_8UC3, hsvColor);
-		Imgproc.cvtColor(pointMatHsv, pointMatRgba, Imgproc.COLOR_HSV2RGB_FULL,
-				4);
+		Imgproc.cvtColor(pointMatHsv, pointMatRgba, Imgproc.COLOR_HSV2RGB_FULL, 4);
 
 		return new Scalar(pointMatRgba.get(0, 0));
 	}
-	
+
 	/** Initialize blackbackground drawable resource */
 	private void initBlackBackground() {
 		Resources res = getResources();
 		blackBackground = res.getDrawable(R.drawable.black_bg);
 	}
-	
+
 	/** Initialize Color Pick Add mode views */
 	private void initializeInstructionMode() {
 		// Shows the bottom bar with the new Target Button
@@ -553,7 +538,7 @@ public class MainActivity extends Activity implements OnTouchListener,
 		mColorPickCloseButton.setVisibility(View.GONE);
 		mColorPickInstructionsView.setVisibility(View.VISIBLE);
 	}
-	
+
 	/** Initialize Color Pick Camera mode views */
 	private void initializeColorPickCameraMode() {
 		// Shows the bottom bar with the Build target options
@@ -575,18 +560,16 @@ public class MainActivity extends Activity implements OnTouchListener,
 
 		// Set background to transparent
 		blackBackground.setAlpha(0);
-		mColorPickLayout.setBackgroundDrawable(blackBackground);
+		mColorPickLayout.setBackground(blackBackground);
 
 		// Set opencvmode to crosshair mode, so opencv will draw a crosshair in
 		// the center of image
 		ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_COLOR_PICK_CROSSHAIR);
 	}
-	
+
 	/**
-	 * Restore or create SurfaceView for bugs. This method is called after
-	 * OpenCV library is loaded successfully and must be called after
-	 * restoreOrCreateJavaCameraView is called so that CameraView would not
-	 * overlap GLSurfaceView.
+	 * Restore or create SurfaceView for bugs. This method is called after OpenCV library is loaded successfully and must be called after restoreOrCreateJavaCameraView is called so that CameraView
+	 * would not overlap GLSurfaceView.
 	 */
 	private void restoreOrCreateGLSurfaceView() {
 		mGLSurfaceView = new MyGLSurfaceView(this);
@@ -594,8 +577,7 @@ public class MainActivity extends Activity implements OnTouchListener,
 	}
 
 	/**
-	 * This method is executed after init render work, genrated from
-	 * restoreOrCreateGLSurfaceView, has been done.
+	 * This method is executed after init render work, genrated from restoreOrCreateGLSurfaceView, has been done.
 	 */
 	public void restoreOrCreateGLSurfaceView2() {
 		if (mGLSurfaceView != null) {
@@ -607,15 +589,13 @@ public class MainActivity extends Activity implements OnTouchListener,
 	}
 
 	/**
-	 * Restore or create SurfaceView for opencv CameraView. This method is
-	 * called after OpenCV library is loaded successfully and must be called
-	 * before restoreOrCreateGLSurfaceView is called so that CameraView would
-	 * not overlap GLSurfaceView.
+	 * Restore or create SurfaceView for opencv CameraView. This method is called after OpenCV library is loaded successfully and must be called before restoreOrCreateGLSurfaceView is called so that
+	 * CameraView would not overlap GLSurfaceView.
 	 */
 	private void restoreOrCreateJavaCameraView() {
 		mOpenCvCameraView = new CameraView(this);
 		mOpenCvCameraView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
-//		mOpenCvCameraView.setMaxFrameSize(500, 500);
+		// mOpenCvCameraView.setMaxFrameSize(500, 500);
 		mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
 		mOpenCvCameraView.setCvCameraViewListener(this);
 		mOpenCvCameraView.enableFpsMeter();
@@ -624,8 +604,7 @@ public class MainActivity extends Activity implements OnTouchListener,
 	}
 
 	/**
-	 * Restore or create Main Menu button/title view. This method is called
-	 * after clicking start button in about screen.
+	 * Restore or create Main Menu button/title view. This method is called after clicking start button in about screen.
 	 */
 	@SuppressLint("NewApi")
 	private void restoreOrCreateMainMenu() {
@@ -660,7 +639,7 @@ public class MainActivity extends Activity implements OnTouchListener,
 		Resources res = getResources();
 		Drawable background = res.getDrawable(R.drawable.black_bg);
 		background.setAlpha(200);
-		mAboutView.setBackgroundDrawable(background);
+		mAboutView.setBackground(background);
 		mFrameLayout.addView(mAboutView);
 
 		mAboutText = (TextView) findViewById(R.id.about_text);
@@ -669,7 +648,7 @@ public class MainActivity extends Activity implements OnTouchListener,
 		// Setups the link color
 		mAboutText.setLinkTextColor(getResources().getColor(R.color.holo_light_blue));
 	}
-	
+
 	public double[] findBugNextDest() {
 		int randomWidth;
 		int randomHeight;
@@ -704,15 +683,11 @@ public class MainActivity extends Activity implements OnTouchListener,
 		return isPointInFloor(openCvWidth, openCvHeight, false);
 	}
 
-	public int isPointInFloor(int openCvWidth, int openCvHeight,
-			boolean calculateDist) {
-		org.opencv.core.Point pt = new org.opencv.core.Point(openCvWidth,
-				openCvHeight);
+	public int isPointInFloor(int openCvWidth, int openCvHeight, boolean calculateDist) {
+		org.opencv.core.Point pt = new org.opencv.core.Point(openCvWidth, openCvHeight);
 		MatOfPoint2f detectedFloorContour2f = new MatOfPoint2f();
-		detectedFloorContours.get(0).convertTo(detectedFloorContour2f,
-				CvType.CV_32FC2);
-		int result = (int) Imgproc.pointPolygonTest(detectedFloorContour2f, pt,
-				calculateDist);
+		detectedFloorContours.get(0).convertTo(detectedFloorContour2f, CvType.CV_32FC2);
+		int result = (int) Imgproc.pointPolygonTest(detectedFloorContour2f, pt, calculateDist);
 		return result;
 	}
 
@@ -722,36 +697,31 @@ public class MainActivity extends Activity implements OnTouchListener,
 
 		updateScoreUI();
 		int gameMode = ModeManager.getModeManager().getCurrentMode();
-		switch(gameMode) {
+		switch (gameMode) {
 		case ModeManager.MODE_TUTORIAL_1:
 			if (score > 5) {
 				mHandler.postDelayed(mTutorial2InstructionUpdator, 1000);
 			}
 			break;
-			
+
 		default:
 			break;
 		}
-		
+
 	}
-	
+
 	private void setRendererContourMassCenter() {
 		if (ModeManager.getModeManager().getCurrentMode() != ModeManager.MODE_INITIAL) {
-			List<Moments> mu = new ArrayList<Moments>(
-					detectedShoesContours.size());
-			List<OpenGLFire> mFireList = new ArrayList<OpenGLFire>(
-					detectedShoesContours.size());
+			List<Moments> mu = new ArrayList<Moments>(detectedShoesContours.size());
+			List<OpenGLFire> mFireList = new ArrayList<OpenGLFire>(detectedShoesContours.size());
 			for (int i = 0; i < detectedShoesContours.size(); i++) {
-				Moments detectedMoment = Imgproc.moments(
-						detectedShoesContours.get(i), false);
+				Moments detectedMoment = Imgproc.moments(detectedShoesContours.get(i), false);
 				mu.add(detectedMoment);
-				double ratioX = detectedMoment.get_m10()
-						/ (detectedMoment.get_m00() * imageOpenCvWidth);
+				double ratioX = detectedMoment.get_m10() / (detectedMoment.get_m00() * imageOpenCvWidth);
 				// Reverse the y axis because opencv uses y-down-axis while
 				// opengl
 				// uses y-up-axis
-				double ratioY = 1 - detectedMoment.get_m01()
-						/ (detectedMoment.get_m00() * imageOpenCvHeight);
+				double ratioY = 1 - detectedMoment.get_m01() / (detectedMoment.get_m00() * imageOpenCvHeight);
 				int x = (int) ratioX * imageOpenCvWidth;
 				int y = (int) ratioY * imageOpenCvHeight;
 				Core.circle(mRgba, new org.opencv.core.Point(x, y), 4, colorRed);
@@ -760,12 +730,12 @@ public class MainActivity extends Activity implements OnTouchListener,
 			OpenGLRenderer.mFireList = mFireList;
 		}
 	}
-	
+
 	public void onClickAboutStartButton(View v) {
 		mFrameLayout.removeView(mAboutView);
 		restoreOrCreateMainMenu();
 	}
-	
+
 	private void updateScoreUI() {
 
 	}
@@ -784,7 +754,7 @@ public class MainActivity extends Activity implements OnTouchListener,
 
 		// Set background to semi-transparent black
 		blackBackground.setAlpha(200);
-		mColorPickLayout.setBackgroundDrawable(blackBackground);
+		mColorPickLayout.setBackground(blackBackground);
 
 		mFrameLayout.addView(mColorPickLayout);
 		// Gets a reference to the bottom navigation bar
@@ -822,8 +792,7 @@ public class MainActivity extends Activity implements OnTouchListener,
 	}
 
 	/**
-	 * Button Camera clicked. Marker's color is picked after this method is
-	 * called.
+	 * Button Camera clicked. Marker's color is picked after this method is called.
 	 */
 	public void onClickColorPickCameraButton(View v) {
 		if (!shoeColorPicked) {
@@ -854,7 +823,7 @@ public class MainActivity extends Activity implements OnTouchListener,
 	public void onClickColorPickCameraClose(View v) {
 		// Set background to semi-transparent black
 		blackBackground.setAlpha(200);
-		mColorPickLayout.setBackgroundDrawable(blackBackground);
+		mColorPickLayout.setBackground(blackBackground);
 
 		// Goes back to the Color Pick Add rMode
 		initializeInstructionMode();
@@ -930,15 +899,33 @@ public class MainActivity extends Activity implements OnTouchListener,
 		mFrameLayout.removeView(mColorPickLayout);
 		ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_BEFORE_TUTORIAL_1);
 		mHandler.postDelayed(mTutorial1InstructionUpdator, 2000);
+		
+		// Inflates the game score layout
+		LayoutInflater layoutInflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+		mGameScoreLayout = (RelativeLayout) layoutInflater.inflate(R.layout.game_score, null, false);
+
+		// Set background to semi-transparent black
+//		blackBackground.setAlpha(0);
+//		mGameScoreLayout.setBackground(blackBackground);
+
+		mFrameLayout.addView(mGameScoreLayout);
 	}
-	
+
 	public void onClickTutorial1InstructionOk(View v) {
-        mFrameLayout.removeView(mTutorial1InstructionLayout);
-        ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_TUTORIAL_1);
+		blackBackground.setAlpha(0);
+		mGameScoreLayout.setBackground(blackBackground);
+		mTutorial1InstructionLayout.setBackground(blackBackground);
+		mFrameLayout.removeView(mTutorial1InstructionLayout);
+		ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_TUTORIAL_1);
 	}
-	
+
 	public void onClickTutorial2InstructionOk(View v) {
+		blackBackground.setAlpha(0);
+		mGameScoreLayout.setBackground(blackBackground);
+		mTutorial2InstructionLayout.setBackground(blackBackground);
+		Log.d(TAG, "mframelayout size before:" + mFrameLayout.getChildCount());
 		mFrameLayout.removeView(mTutorial2InstructionLayout);
+		Log.d(TAG, "mframelayout size:" + mFrameLayout.getChildCount());
 		ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_TUTORIAL_2);
 	}
 
@@ -946,14 +933,12 @@ public class MainActivity extends Activity implements OnTouchListener,
 		@Override
 		public void run() {
 			// Inflates the Overlay Layout to be displayed above the Camera View
-			LayoutInflater layoutInflater = (LayoutInflater) getBaseContext()
-					.getSystemService(LAYOUT_INFLATER_SERVICE);
-			mTutorial1InstructionLayout = (RelativeLayout) layoutInflater
-					.inflate(R.layout.tutorial1_instruction, null, false);
+			LayoutInflater layoutInflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+			mTutorial1InstructionLayout = (RelativeLayout) layoutInflater.inflate(R.layout.tutorial1_instruction, null, false);
 
 			// Set background to semi-transparent black
 			blackBackground.setAlpha(200);
-			mTutorial1InstructionLayout.setBackgroundDrawable(blackBackground);
+			mTutorial1InstructionLayout.setBackground(blackBackground);
 
 			mFrameLayout.addView(mTutorial1InstructionLayout);
 
@@ -963,19 +948,17 @@ public class MainActivity extends Activity implements OnTouchListener,
 			OpenGLRenderer.mFireList.clear();
 		}
 	};
-        
+
 	protected Runnable mTutorial2InstructionUpdator = new Runnable() {
 		@Override
 		public void run() {
 			// Inflates the Overlay Layout to be displayed above the Camera View
-			LayoutInflater layoutInflater = (LayoutInflater) getBaseContext()
-					.getSystemService(LAYOUT_INFLATER_SERVICE);
-			mTutorial2InstructionLayout = (RelativeLayout) layoutInflater
-					.inflate(R.layout.tutorial2_instruction, null, false);
+			LayoutInflater layoutInflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+			mTutorial2InstructionLayout = (RelativeLayout) layoutInflater.inflate(R.layout.tutorial2_instruction, null, false);
 
 			// Set background to semi-transparent black
-			blackBackground.setAlpha(200);
-			mTutorial2InstructionLayout.setBackgroundDrawable(blackBackground);
+//			blackBackground.setAlpha(200);
+			mTutorial2InstructionLayout.setBackground(blackBackground);
 
 			mFrameLayout.addView(mTutorial2InstructionLayout);
 
@@ -1025,8 +1008,7 @@ public class MainActivity extends Activity implements OnTouchListener,
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
 		// TODO Auto-generated method stub
-		
+
 	}
-	
-	
+
 }
