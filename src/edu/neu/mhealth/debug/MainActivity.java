@@ -903,7 +903,6 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 		// Inflates the game score layout
 		LayoutInflater layoutInflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
 		mGameScoreLayout = (RelativeLayout) layoutInflater.inflate(R.layout.game_score, null, false);
-
 		// Set background to semi-transparent black
 //		blackBackground.setAlpha(0);
 //		mGameScoreLayout.setBackground(blackBackground);
@@ -925,6 +924,8 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 		mTutorial2InstructionLayout.setBackground(blackBackground);
 		Log.d(TAG, "mframelayout size before:" + mFrameLayout.getChildCount());
 		mFrameLayout.removeView(mTutorial2InstructionLayout);
+		mFrameLayout.removeView(mGameScoreLayout);
+		mFrameLayout.addView(mGameScoreLayout);
 		Log.d(TAG, "mframelayout size:" + mFrameLayout.getChildCount());
 		ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_TUTORIAL_2);
 	}
@@ -957,7 +958,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 			mTutorial2InstructionLayout = (RelativeLayout) layoutInflater.inflate(R.layout.tutorial2_instruction, null, false);
 
 			// Set background to semi-transparent black
-//			blackBackground.setAlpha(200);
+			blackBackground.setAlpha(200);
 			mTutorial2InstructionLayout.setBackground(blackBackground);
 
 			mFrameLayout.addView(mTutorial2InstructionLayout);

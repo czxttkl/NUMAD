@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="50dp" 
-    android:orientation="horizontal">
+    android:layout_height="40dp" 
+    android:orientation="horizontal"
+    android:layout_margin="105dp">
 
     <ImageView
         android:id="@+id/bug_skeleton"
         android:layout_width="wrap_content"
-        android:layout_height="50dp"
+        android:layout_height="40dp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:layout_marginLeft="16dp"
@@ -16,7 +17,7 @@
     <ImageButton
         android:id="@+id/in_game_settings"
         android:layout_width="wrap_content"
-        android:layout_height="50dp"
+        android:layout_height="40dp"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
         android:layout_marginRight="16dp"
@@ -25,16 +26,18 @@
     <TextView
         android:id="@+id/score_text"
         android:layout_width="wrap_content"
-        android:layout_height="50dp"
+        android:layout_height="40dp"
+        android:padding="10dp"
+        android:paddingRight="20dp"
         android:layout_toRightOf="@+id/bug_skeleton"
         android:text="Medium Text"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <ImageView
-        android:id="@+id/imageView2"
+        android:id="@+id/spray"
         android:layout_width="wrap_content"
-        android:layout_height="50dp"
-        android:layout_alignParentLeft="true"
+        android:layout_height="40dp"
+        android:layout_toRightOf="@+id/score_text"
         android:layout_alignParentTop="true"
         android:src="@drawable/spray" />
 
