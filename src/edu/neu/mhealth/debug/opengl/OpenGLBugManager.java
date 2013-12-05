@@ -194,8 +194,13 @@ public class OpenGLBugManager implements Observer {
 		return mBugList.size();
 	}
 
-	public void updateScore(int score) {
-		mCameraActivityInstance.updateScore(1);
+	public void addScore(int score) {
+		mCameraActivityInstance.runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				mCameraActivityInstance.addScore(1);
+			}
+		});
 	}
 
 	public static int[] limitBoostSpeed(int[] speed) {

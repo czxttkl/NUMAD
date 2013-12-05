@@ -65,7 +65,10 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -91,11 +94,16 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 	View mMainMenuButtonListView;
 	View mAboutView;
 	TextView mAboutText;
-
+	TextView mScoreText;
+	ImageView mSprayImageView;
 	Drawable blackBackground;
 
+	Animation fadeOutAnimation;
+	Animation fadeInAnimation;
+	
 	public int score = 0;
-
+	public int lastTimeUseSprayScore = 0;
+	
 	RelativeLayout mTutorial1InstructionLayout;
 	RelativeLayout mTutorial2InstructionLayout;
 	RelativeLayout mTutorial3InstructionLayout;
@@ -124,7 +132,6 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 	private Scalar mFloorColorPickHsv;
 
 	// / For color detection
-	private boolean mIsColorSelected = false;
 	private Mat mRgba;
 	private Mat mGray;
 	private Mat tempGray;
@@ -132,17 +139,10 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 	private Scalar mBlobColorHsv;
 	private ColorDetector mDetector;
 	private Mat mSpectrum;
-	private Size SPECTRUM_SIZE;
-	private Scalar CONTOUR_COLOR;
 
 	private CameraBridgeViewBase mOpenCvCameraView;
 	private ConfigureView configureView;
 	private JumpBug jumpBug;
-	private int initalX = 0;
-	private int initalY = 0;
-	private int steps = 0;
-	private int xOffset = 0;
-	private int yOffset = 0;
 
 	public int screenOpenGLWidth;
 	public int screenOpenGLHeight;
@@ -236,14 +236,14 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 
 		DisplayMetrics metrics = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(metrics);
-
+		
 		screenOpenGLHeight = metrics.heightPixels;
 		screenOpenGLWidth = metrics.widthPixels;
 
 		mFrameLayout = new FrameLayout(this);
 		setContentView(mFrameLayout);
 
-		initBlackBackground();
+		initResource();
 
 		filterX = new MovingAverage(5);
 		filterY = new MovingAverage(5);
@@ -300,8 +300,6 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 		mSpectrum = new Mat();
 		mBlobColorRgba = new Scalar(255);
 		mBlobColorHsv = new Scalar(255);
-		SPECTRUM_SIZE = new Size(200, 64);
-		CONTOUR_COLOR = new Scalar(255, 0, 0, 255);
 
 		mOpFlowCurr = new Mat();
 		mOpFlowPrev = new Mat();
@@ -352,9 +350,6 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
 		mRgba = inputFrame.rgba();
 		mGray = inputFrame.gray();
-
-		xOffset = (mOpenCvCameraView.getWidth() - imageOpenCvWidth) / 2;
-		yOffset = (mOpenCvCameraView.getHeight() - imageOpenCvHeight) / 2;
 
 		int gameMode = ModeManager.getModeManager().getCurrentMode();
 		switch (gameMode) {
@@ -522,10 +517,15 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 		return new Scalar(pointMatRgba.get(0, 0));
 	}
 
+	
 	/** Initialize blackbackground drawable resource */
-	private void initBlackBackground() {
+	private void initResource() {
 		Resources res = getResources();
 		blackBackground = res.getDrawable(R.drawable.black_bg);
+		fadeOutAnimation = AnimationUtils.loadAnimation(this, R.anim.fade_out);
+		fadeOutAnimation.setFillAfter(true);
+		fadeInAnimation = AnimationUtils.loadAnimation(this, R.anim.fade_in);
+		fadeInAnimation.setFillAfter(true);
 	}
 
 	/** Initialize Color Pick Add mode views */
@@ -691,20 +691,23 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 		return result;
 	}
 
-	public void updateScore(int diff) {
+	public void addScore(int diff) {
 		score = score + diff;
 		Log.d(TAG, "update score:" + score);
 		Log.d(TAG, "gamescorelayout height:" + mGameScoreLayout.getHeight());
 
 		updateScoreUI();
+		updateSpray();
 		int gameMode = ModeManager.getModeManager().getCurrentMode();
 		switch (gameMode) {
 		case ModeManager.MODE_TUTORIAL_1:
-			if (score > 5) {
+			if (score == 5) {
 				mHandler.postDelayed(mTutorial2InstructionUpdator, 1000);
 			}
 			break;
-
+			
+		case ModeManager.MODE_TUTORIAL_2:
+			break;
 		default:
 			break;
 		}
@@ -738,10 +741,21 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 	}
 
 	private void updateScoreUI() {
-
+		mScoreText.setText(String.valueOf(score));
 	}
 
-	public void onClickMainMenuStartGame(View v) {
+	private void updateSpray() {
+		if (score - lastTimeUseSprayScore == 5) {
+			lastTimeUseSprayScore = score;
+			mSprayImageView.setAnimation(fadeInAnimation);
+			mSprayImageView.setEnabled(true);
+			
+			mSprayImageView.setAlpha(1f);
+			Log.d(TAG, "update spray:" + mSprayImageView.getAlpha() + ":" + lastTimeUseSprayScore);
+		}
+	}
+	
+ 	public void onClickMainMenuStartGame(View v) {
 		mFrameLayout.removeView(mMainMenuTitle);
 		mFrameLayout.removeView(mMainMenuButtonListView);
 		mFrameLayout.removeView(mMainMenuBackground);
@@ -904,13 +918,9 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 		// Inflates the game score layout
 		LayoutInflater layoutInflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
 		mGameScoreLayout = (RelativeLayout) layoutInflater.inflate(R.layout.game_score, null, false);
-//		FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-//		lp.setMargins(0, 500, 0, 0);
-		// Set background to semi-transparent black
-//		blackBackground.setAlpha(0);
-//		mGameScoreLayout.setBackground(blackBackground);
-
 		mFrameLayout.addView(mGameScoreLayout);
+		mScoreText = (TextView)findViewById(R.id.score_text);
+		mSprayImageView = (ImageView)findViewById(R.id.spray);
 	}
 
 	public void onClickTutorial1InstructionOk(View v) {
@@ -929,10 +939,14 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 		mFrameLayout.removeView(mTutorial2InstructionLayout);
 		mFrameLayout.removeView(mGameScoreLayout);
 		mFrameLayout.addView(mGameScoreLayout);
-//		Log.d(TAG, "mframelayout size:" + mFrameLayout.getChildCount());
 		ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_TUTORIAL_2);
 	}
 
+	public void onClickUseSpray(View v) {
+		mSprayImageView.startAnimation(fadeOutAnimation);
+		mSprayImageView.setEnabled(false);
+	}
+	
 	protected Runnable mTutorial1InstructionUpdator = new Runnable() {
 		@Override
 		public void run() {
