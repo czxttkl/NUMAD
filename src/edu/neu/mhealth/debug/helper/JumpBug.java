@@ -26,7 +26,7 @@ public class JumpBug extends Bug implements Observer{
 		}
 		
 		/// if user jumps
-		if (observable instanceof AccEventListener) {
+		if (observable instanceof LinearAccEventListener) {
 			Log.e(TAG, "I get the jumping notification");
 		}
 		

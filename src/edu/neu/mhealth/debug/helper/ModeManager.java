@@ -2,7 +2,6 @@ package edu.neu.mhealth.debug.helper;
 
 import java.util.Observable;
 import java.util.Observer;
-
 import android.util.Log;
 
 public class ModeManager {
@@ -70,4 +69,32 @@ public class ModeManager {
 		}
 	}
 
+	public static class AccEventModeManager {
+		public static final int MODE_DEFAULT = 0;
+		public static final int MODE_SPRAY_SHAKE = 1;
+		public static final int MODE_SPRAY_JUMP = 2;
+		public static final int MODE_COLOR_PICK_CROSSHAIR = 3;
+		public static final int MODE_COLOR_PICK_HOLD_WRONGLY = 4;
+		private int mode = 0;
+		public static AccEventModeManager mAccEventModeManager;
+
+		private AccEventModeManager() {
+
+		}
+
+		public static AccEventModeManager getAccEventModeManager() {
+			if (mAccEventModeManager == null) {
+				mAccEventModeManager = new AccEventModeManager();
+			}
+			return mAccEventModeManager;
+		}
+
+		public int getCurrentMode() {
+			return mode;
+		}
+
+		public void setCurrentMode(int newMode) {
+			mode = newMode;
+		}
+	}
 }

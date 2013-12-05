@@ -26,7 +26,7 @@ import org.opencv.imgproc.Imgproc;
 import org.opencv.imgproc.Moments;
 import org.opencv.video.Video;
 
-import edu.neu.mhealth.debug.helper.AccEventListener;
+import edu.neu.mhealth.debug.helper.LinearAccEventListener;
 import edu.neu.mhealth.debug.helper.Bug;
 import edu.neu.mhealth.debug.helper.BugManager;
 import edu.neu.mhealth.debug.helper.Global;
@@ -36,6 +36,7 @@ import edu.neu.mhealth.debug.helper.ModeManager;
 import edu.neu.mhealth.debug.helper.MotionEventListener;
 import edu.neu.mhealth.debug.helper.MovingAverage;
 import edu.neu.mhealth.debug.helper.Prefs;
+import edu.neu.mhealth.debug.helper.ModeManager.AccEventModeManager;
 import edu.neu.mhealth.debug.opengl.OpenGLBug;
 import edu.neu.mhealth.debug.opengl.OpenGLBugManager;
 import edu.neu.mhealth.debug.opengl.OpenGLFire;
@@ -111,6 +112,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 	RelativeLayout mTutorial3InstructionLayout;
 	RelativeLayout mGameScoreLayout;
 	LinearLayout mShakeHelperLayout;
+	LinearLayout mJumpHelperLayout;
 
 	// / OpenGL
 	public MyGLSurfaceView mGLSurfaceView;
@@ -200,7 +202,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 	private SensorManager sensorManager;
 	private Sensor sensorLinearAcc;
 	private Sensor sensorAcc;
-	private AccEventListener accEventListener;
+	private LinearAccEventListener accEventListener;
 
 	// / For direction / motion detection
 	private MotionEventListener motionEventListener;
@@ -270,7 +272,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 
 		sensorLinearAcc = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
 		sensorAcc = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-		accEventListener = new AccEventListener(this);
+		accEventListener = new LinearAccEventListener(this);
 		sensorManager.registerListener(accEventListener, sensorLinearAcc, SensorManager.SENSOR_DELAY_FASTEST);
 		sensorManager.registerListener(this, sensorAcc, SensorManager.SENSOR_DELAY_FASTEST);
 		accEventListener.addObserver(jumpBug);
@@ -568,6 +570,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 		// Set opencvmode to crosshair mode, so opencv will draw a crosshair in
 		// the center of image
 		ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_COLOR_PICK_CROSSHAIR);
+		ModeManager.AccEventModeManager.getAccEventModeManager().setCurrentMode(AccEventModeManager.MODE_COLOR_PICK_CROSSHAIR);
 	}
 
 	/**
@@ -888,14 +891,14 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 		mColorPickHelpNotifTextView.setVisibility(View.VISIBLE);
 		mColorPickHelpConfirmButt1.setVisibility(View.GONE);
 		ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_COLOR_PICK_CROSSHAIR);
-
+		ModeManager.AccEventModeManager.getAccEventModeManager().setCurrentMode(AccEventModeManager.MODE_COLOR_PICK_CROSSHAIR);
+		
 		// Set not picked shoes' color yet
 		shoeColorPicked = false;
 	}
 
 	/** Shoe color pick confirm ok button clicked */
 	public void onClickShoeColorPickConfirmOk(View v) {
-		ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_COLOR_PICK_CROSSHAIR);
 		mColorPickHelpConfirmButt1.setVisibility(View.GONE);
 		// To enter the ColorPickCameraMode
 		initializeColorPickCameraMode();
@@ -910,12 +913,14 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 		mColorPickHelpNotifTextView.setVisibility(View.VISIBLE);
 		mColorPickHelpConfirmButt2.setVisibility(View.GONE);
 		ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_COLOR_PICK_CROSSHAIR);
+		ModeManager.AccEventModeManager.getAccEventModeManager().setCurrentMode(AccEventModeManager.MODE_COLOR_PICK_CROSSHAIR);
 	}
 
 	/** Floor color pick confirm ok button clicked */
 	public void onClickFloorColorPickConfirmOk(View v) {
 		mFrameLayout.removeView(mColorPickLayout);
 		ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_BEFORE_TUTORIAL_1);
+		ModeManager.AccEventModeManager.getAccEventModeManager().setCurrentMode(AccEventModeManager.MODE_DEFAULT);
 		mHandler.postDelayed(mTutorial1InstructionUpdator, 2000);
 		
 		// Inflates the game score layout
@@ -950,8 +955,10 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 			mHandler.postDelayed(mShakeHelperRunnable, 0);
 			Prefs.setSprayTapped(this, true);
 //		}
+		fadeOutAnimation.setDuration(6000);
 		mSprayImageView.startAnimation(fadeOutAnimation);
 		mSprayImageView.setEnabled(false);
+		ModeManager.AccEventModeManager.getAccEventModeManager().setCurrentMode(AccEventModeManager.MODE_SPRAY_SHAKE);
 	}
 	
 	protected Runnable mShakeHelperRunnable = new Runnable() {
@@ -960,8 +967,11 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 			LayoutInflater layoutInflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
 			mShakeHelperLayout = (LinearLayout) layoutInflater.inflate(R.layout.shake_helper, null, false);
 			mFrameLayout.addView(mShakeHelperLayout);
+			ModeManager.AccEventModeManager.getAccEventModeManager().setCurrentMode(AccEventModeManager.MODE_SPRAY_SHAKE);
+
+			fadeOutAnimation.setDuration(3000);
 			mShakeHelperLayout.startAnimation(fadeOutAnimation);
-			mHandler.postDelayed(mShakeHelperRemoverRunnable, 4000);
+			mHandler.postDelayed(mShakeHelperRemoverRunnable, 3000);
 		}
 	};
 	
@@ -969,6 +979,28 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 		@Override
 		public void run() {
 			mFrameLayout.removeView(mShakeHelperLayout);
+			mShakeHelperLayout = null;
+			mHandler.postDelayed(mJumpHelperRunnable, 300);
+		}
+	};
+	
+	protected Runnable mJumpHelperRunnable = new Runnable() {
+		@Override
+		public void run() {
+			ModeManager.AccEventModeManager.getAccEventModeManager().setCurrentMode(AccEventModeManager.MODE_SPRAY_JUMP);
+			LayoutInflater layoutInflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+			mJumpHelperLayout = (LinearLayout) layoutInflater.inflate(R.layout.jump_helper, null, false);
+			mFrameLayout.addView(mJumpHelperLayout);
+			mJumpHelperLayout.startAnimation(fadeOutAnimation);
+			mHandler.postDelayed(mJumpHelperRemoverRunnable, 2000);
+		}
+	};
+	
+	protected Runnable mJumpHelperRemoverRunnable = new Runnable() {
+		@Override
+		public void run() {
+			mFrameLayout.removeView(mJumpHelperLayout);
+			ModeManager.AccEventModeManager.getAccEventModeManager().setCurrentMode(AccEventModeManager.MODE_DEFAULT);
 		}
 	};
 	
@@ -1012,24 +1044,28 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 		}
 	};
 
+	private long lastShakeUpdateTime = -1;
+	private float lastX=-1.0f, lastY=-1.0f, lastZ=-1.0f;
 	@Override
 	public void onSensorChanged(SensorEvent event) {
 		// TODO Auto-generated method stub
 		if (Sensor.TYPE_ACCELEROMETER == event.sensor.getType()) {
 			// Log.d(TAG, "accelerometer z:" + arg0.values[2]);
-			int gameMode = ModeManager.getModeManager().getCurrentMode();
+			int gameMode = ModeManager.AccEventModeManager.getAccEventModeManager().getCurrentMode();
 			switch (gameMode) {
-			case ModeManager.MODE_COLOR_PICK_CROSSHAIR:
+			case AccEventModeManager.MODE_COLOR_PICK_CROSSHAIR:
 				if (event.values[2] < 8.5f) {
 					mColorPickHelpNotifTextView.setVisibility(View.GONE);
 					mColorPickHelpNotifTextView.setText(R.string.color_pick_help_notif_horizon);
 					mColorPickHelpNotifTextView.setTextColor(Color.RED);
 					mColorPickHelpNotifTextView.setVisibility(View.VISIBLE);
+					ModeManager.AccEventModeManager.getAccEventModeManager().setCurrentMode(AccEventModeManager.MODE_COLOR_PICK_HOLD_WRONGLY);
 					ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_COLOR_PICK_HOLD_WRONGLY);
 					mColorPickCameraButton.setEnabled(false);
 				}
 				break;
-			case ModeManager.MODE_COLOR_PICK_HOLD_WRONGLY:
+				
+			case AccEventModeManager.MODE_COLOR_PICK_HOLD_WRONGLY:
 				if (event.values[2] > 8.5f) {
 					mColorPickHelpNotifTextView.setVisibility(View.GONE);
 					if (!shoeColorPicked) {
@@ -1039,9 +1075,44 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 					}
 					mColorPickHelpNotifTextView.setTextColor(Color.WHITE);
 					mColorPickHelpNotifTextView.setVisibility(View.VISIBLE);
+					ModeManager.AccEventModeManager.getAccEventModeManager().setCurrentMode(AccEventModeManager.MODE_COLOR_PICK_CROSSHAIR);
 					ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_COLOR_PICK_CROSSHAIR);
 					mColorPickCameraButton.setEnabled(true);
 				}
+				
+			case AccEventModeManager.MODE_SPRAY_SHAKE:
+				if(lastShakeUpdateTime == -1) {
+					lastShakeUpdateTime = System.currentTimeMillis();
+					float[] xyz = event.values;
+					float x = xyz[0];
+					float y = xyz[1];
+					float z = xyz[2];
+					lastX = x;
+					lastY = y;
+					lastZ = z;
+					return;
+				} else {
+					long currentTime = System.currentTimeMillis();
+					if(currentTime - lastShakeUpdateTime > 500) {
+						long diffTime = currentTime - lastShakeUpdateTime;
+						float[] xyz = event.values;
+						float x = xyz[0];
+						float y = xyz[1];
+						float z = xyz[2];
+						float speed = Math.abs(x + y + z - lastX - lastY - lastZ) / diffTime * 10000;
+//						Log.d("shuffleboard", "shaked:" + speed + " x:" + x + " y:" + y + " z:" + z + " diffTime:" + diffTime);
+						if (speed > 100) {
+							Log.d(Global.APP_LOG_TAG, "one shake");
+							
+						}
+						lastX = x;
+						lastY = y;
+						lastZ = z;
+						lastShakeUpdateTime = currentTime;
+					}
+				}
+				break;
+				
 			default:
 				// Do nothing
 			}

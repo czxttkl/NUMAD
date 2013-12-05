@@ -7,6 +7,8 @@ package edu.neu.mhealth.debug.helper;
 
 import java.util.Observable;
 
+import edu.neu.mhealth.debug.helper.ModeManager.AccEventModeManager;
+
 import android.R.integer;
 import android.content.Context;
 import android.hardware.Sensor;
@@ -15,7 +17,7 @@ import android.hardware.SensorEventListener;
 import android.util.Log;
 import android.widget.Toast;
 
-public class AccEventListener extends Observable implements SensorEventListener {
+public class LinearAccEventListener extends Observable implements SensorEventListener {
 
 	private static final String TAG = "AccEventListener";
 	private static final float ALPHA = 0.8f;
@@ -37,7 +39,7 @@ public class AccEventListener extends Observable implements SensorEventListener 
 	private long lastUpdateTime;
 	private long currUpdateTime;
 
-	public AccEventListener(Context context) {
+	public LinearAccEventListener(Context context) {
 		gravity = new float[3];
 		currState = state_invalid;
 		mContext = context;
@@ -120,9 +122,8 @@ public class AccEventListener extends Observable implements SensorEventListener 
 				currState = state_invalid;
 			}
 			break;
-		case AccEventModeManager.MODE_SPRAY_SHAKE:
 			
-			break;
+		
 		default:
 			// do nothing
 		}
@@ -149,29 +150,4 @@ public class AccEventListener extends Observable implements SensorEventListener 
 		return filteredValues;
 	}
 
-	static class AccEventModeManager {
-		public static final int MODE_SPRAY_SHAKE = 1;
-		public static final int MODE_SPRAY_JUMP = 2;
-		private int mode = 0;
-		public static AccEventModeManager mAccEventModeManager;
-
-		private AccEventModeManager() {
-
-		}
-
-		public static AccEventModeManager getAccEventModeManager() {
-			if (mAccEventModeManager == null) {
-				mAccEventModeManager = new AccEventModeManager();
-			}
-			return mAccEventModeManager;
-		}
-
-		public int getCurrentMode() {
-			return mode;
-		}
-
-		public void setCurrentMode(int newMode) {
-			mode = newMode;
-		}
-	}
 }
