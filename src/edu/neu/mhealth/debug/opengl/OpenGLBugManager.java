@@ -157,10 +157,10 @@ public class OpenGLBugManager implements Observer {
 	/**
 	 * Determine whether the bug is burned by return the max distance between the bug and two fire flames
 	 */
-	public static boolean ifFireHitsBug(int tmpX, int tmpY) {
+	public boolean ifFireHitsBug(int tmpX, int tmpY) {
 		for (OpenGLFire mOpenGLFire : OpenGLRenderer.mFireList) {
-			long xDiff = tmpX - (int) (mOpenGLFire.ratioX * OpenGLRenderer.screenOpenGLWidth);
-			long yDiff = tmpY - (int) (mOpenGLFire.ratioY * OpenGLRenderer.screenOpenGLHeight);
+			long xDiff = tmpX - (int) (mOpenGLFire.ratioX * getOpenGLBugManager().getOpenGlWidth());
+			long yDiff = tmpY - (int) (mOpenGLFire.ratioY * getOpenGLBugManager().getOpenGlHeight());
 			double distance = Math.sqrt(xDiff * xDiff + yDiff * yDiff);
 			if (distance < 3 * OpenGLBug.radius) {
 				return true;
@@ -234,11 +234,11 @@ public class OpenGLBugManager implements Observer {
 	}
 
 	public int getOpenGlWidth() {
-		return mCameraActivityInstance.imageOpenCvWidth;
+		return mCameraActivityInstance.screenOpenGLWidth;
 	}
 
 	public  int getOpenGlHeight() {
-		return mCameraActivityInstance.imageOpenCvHeight;
+		return mCameraActivityInstance.screenOpenGLHeight;
 	}
 
 	@Override

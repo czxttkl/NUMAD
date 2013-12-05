@@ -39,7 +39,7 @@ public class OpenGLFireBug extends OpenGLBug {
 			burningStepCounter++;
 			if (burningStepCounter == OpenGLBug.BURNING_STEP) {
 				mOpenGLBugIterator.remove();
-				if (OpenGLBugManager.getOpenGLBugManager().getBugListSize() < 4) {
+				if (OpenGLBugManager.getOpenGLBugManager().getBugListSize() < 2) {
 					OpenGLBug mTutorial1Bug = OpenGLBugManager.getOpenGLBugManager().generateFireBug();
 					mOpenGLBugIterator.add(mTutorial1Bug);
 				}
@@ -49,14 +49,14 @@ public class OpenGLFireBug extends OpenGLBug {
 
 		// If the bug runs out of the screen, we generate a new one
 		if (OpenGLBugManager.isBugOutOfScreen(x, y)) {
-			if (OpenGLBugManager.getOpenGLBugManager().getBugListSize() < 4) {
+			if (OpenGLBugManager.getOpenGLBugManager().getBugListSize() < 2) {
 				OpenGLFireBug mTutorial1Bug = OpenGLBugManager.getOpenGLBugManager().generateFireBug();
 				mOpenGLBugIterator.add(mTutorial1Bug);
 			}
 		} else {
 			// If the bug is still in the screen AND it is not burning and bouncing
 			if (!burning) {
-				if (OpenGLBugManager.ifFireHitsBug(tmpX, tmpY)) {
+				if (OpenGLBugManager.getOpenGLBugManager().ifFireHitsBug(tmpX, tmpY)) {
 					burning = true;
 					shouldPause = true;
 					OpenGLBugManager.getOpenGLBugManager().updateScore(1);
@@ -64,7 +64,7 @@ public class OpenGLFireBug extends OpenGLBug {
 					// If the bug is not burned by the fire and not bouncing, we check if it is in the floor contour
 					if (!bouncing) {
 						int distanceToContour = OpenGLBugManager.getOpenGLBugManager().distToContour(x, y);
-//						Log.d(Global.APP_LOG_TAG, "radius:" + OpenGLBug.radius + " thresHeight:" + thresHeight + "now y:" + y + " distanceToContour:" + distanceToContour);
+						Log.d(Global.APP_LOG_TAG, "fire hit:y=" + y + "," + x + " thresheight1,thresheigh2,threswidth1,threswidth2:" + thresHeight1 + "," + thresHeight2 + "," + thresWidth1 + "," + thresWidth2);
 
 						// The bug could get out of the screen
 						if (Math.abs(distanceToContour) < OpenGLBug.radius && (y > thresHeight1 || y < thresHeight2 || x > thresWidth1 || x < thresWidth2)) {

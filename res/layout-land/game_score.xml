@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal" >
+
+    <ImageButton
+        android:layout_marginTop="20dp"
+        android:id="@+id/in_game_settings"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginRight="16dp"
+        android:src="@android:drawable/ic_menu_manage" />
+
+    <ImageView
+        android:layout_marginTop="20dp"
+        android:id="@+id/spray"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="24dp"
+        android:layout_toRightOf="@+id/score_text"
+        android:src="@drawable/spray" />
+
+    <ImageView
+        android:layout_marginTop="20dp"
+        android:id="@+id/bug_skeleton"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="20dp"
+        android:src="@drawable/bug_skeleton" />
+
+    <TextView
+        android:layout_marginTop="20dp"
+        android:id="@+id/score_text"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/bug_skeleton"
+        android:padding="10dp"
+        android:paddingRight="20dp"
+        android:text="123"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+</RelativeLayout>
