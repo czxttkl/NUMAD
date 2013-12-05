@@ -116,18 +116,20 @@ public class LinearAccEventListener extends Observable implements SensorEventLis
 			}
 
 			if (currState == state_fifth) {
-				Log.e(TAG, "should be notified!");
+				Log.e(TAG, "linear should be notified!");
 				setChanged();
 				notifyObservers();
 				currState = state_invalid;
 			}
+			
+			Log.d(TAG, "linear value[2]:" + values[2] + " currstate:" + currState + " mode:"+ mode );
+			
 			break;
 			
 		
 		default:
 			// do nothing
 		}
-		Log.d(TAG, "currstate:" + currState + " mode:"+ mode );
 		// Log.i(TAG, "current state: " + currState);
 	}
 
