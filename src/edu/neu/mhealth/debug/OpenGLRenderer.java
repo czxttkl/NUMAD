@@ -35,9 +35,7 @@ import edu.neu.mhealth.debug.opengl.OpenGLBugManager;
 import edu.neu.mhealth.debug.opengl.OpenGLFire;
 
 /**
- * This class implements our custom renderer. Note that the GL10 parameter
- * passed in is unused for OpenGL ES 2.0 renderers -- the static class GLES20 is
- * used instead.
+ * This class implements our custom renderer. Note that the GL10 parameter passed in is unused for OpenGL ES 2.0 renderers -- the static class GLES20 is used instead.
  */
 public class OpenGLRenderer implements GLSurfaceView.Renderer {
 	/** Used for debug logs. */
@@ -50,28 +48,22 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer {
 	public final static float SCALE_RATIO = 12.0f;
 
 	/**
-	 * Store the model matrix. This matrix is used to move models from object
-	 * space (where each model can be thought of being located at the center of
-	 * the universe) to world space.
+	 * Store the model matrix. This matrix is used to move models from object space (where each model can be thought of being located at the center of the universe) to world space.
 	 */
 	private float[] mModelMatrix = new float[16];
 
 	/**
-	 * Store the view matrix. This can be thought of as our camera. This matrix
-	 * transforms world space to eye space; it positions things relative to our
-	 * eye.
+	 * Store the view matrix. This can be thought of as our camera. This matrix transforms world space to eye space; it positions things relative to our eye.
 	 */
 	private float[] mViewMatrix = new float[16];
 
 	/**
-	 * Store the projection matrix. This is used to project the scene onto a 2D
-	 * viewport.
+	 * Store the projection matrix. This is used to project the scene onto a 2D viewport.
 	 */
 	private float[] mProjectionMatrix = new float[16];
 
 	/**
-	 * Allocate storage for the final combined matrix. This will be passed into
-	 * the shader program.
+	 * Allocate storage for the final combined matrix. This will be passed into the shader program.
 	 */
 	private float[] mMVPMatrix = new float[16];
 
@@ -132,21 +124,17 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer {
 	private final int mTextureCoordinateDataSize = 2;
 
 	/**
-	 * Used to hold a light centered on the origin in model space. We need a 4th
-	 * coordinate so we can get translations to work when we multiply this by
-	 * our transformation matrices.
+	 * Used to hold a light centered on the origin in model space. We need a 4th coordinate so we can get translations to work when we multiply this by our transformation matrices.
 	 */
 	private final float[] mLightPosInModelSpace = new float[] { 0.0f, 0.0f, 0.0f, 1.0f };
 
 	/**
-	 * Used to hold the current position of the light in world space (after
-	 * transformation via model matrix).
+	 * Used to hold the current position of the light in world space (after transformation via model matrix).
 	 */
 	private final float[] mLightPosInWorldSpace = new float[4];
 
 	/**
-	 * Used to hold the transformed position of the light in eye space (after
-	 * transformation via modelview matrix)
+	 * Used to hold the transformed position of the light in eye space (after transformation via modelview matrix)
 	 */
 	private final float[] mLightPosInEyeSpace = new float[4];
 
@@ -171,13 +159,13 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer {
 	/** This will be used to pass in fire model texture coordinate information. */
 	private int mFireTextureCoordinateHandle;
 
-	/** This is a handle to our fire bug's texture data. It is binded to GLES20.GL_TEXTURE0*/
+	/** This is a handle to our fire bug's texture data. It is binded to GLES20.GL_TEXTURE0 */
 	private int mBugFireTextureDataHandle;
 
-	/** This is a handle to our bug's burning texture data. It is binded to GLES20.GL_TEXTURE6*/
+	/** This is a handle to our bug's burning texture data. It is binded to GLES20.GL_TEXTURE6 */
 	private int mBugBurningTextureDataHandle;
-	
-	/** This is a handle to our bug's burning texture data. It is binded to GLES20.GL_TEXTURE7*/
+
+	/** This is a handle to our bug's burning texture data. It is binded to GLES20.GL_TEXTURE7 */
 	private int mBugFreezingTextureDataHandle;
 
 	/** This is a handle to our fire's texture data 1. */
@@ -393,7 +381,7 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer {
 		mBugFireTextureDataHandle = TextureHelper.loadTexture(mActivityContext, R.drawable.ladybug_fire, GLES20.GL_TEXTURE0);
 		mBugBurningTextureDataHandle = TextureHelper.loadTexture(mActivityContext, R.drawable.burning, GLES20.GL_TEXTURE6);
 		mBugFreezingTextureDataHandle = TextureHelper.loadTexture(mActivityContext, R.drawable.ladybug_frozen, GLES20.GL_TEXTURE7);
-		
+
 		// Define a simple shader program for our point.
 		final String pointVertexShader = RawResourceReader.readTextFileFromRawResource(mActivityContext, R.raw.point_vertex_shader);
 		final String pointFragmentShader = RawResourceReader.readTextFileFromRawResource(mActivityContext, R.raw.point_fragment_shader);
@@ -435,10 +423,10 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer {
 		OpenGLBug.radius = (int) (screenOpenGLWidth / (SCALE_RATIO * 2));
 		// Set the thresholdHeight that bug could get out from the screen
 		OpenGLBug.thresHeight1 = OpenGLBugManager.getOpenGLBugManager().getOpenGlHeight() - 2 * OpenGLBug.radius;
-		OpenGLBug.thresHeight2 =  2 * OpenGLBug.radius;
+		OpenGLBug.thresHeight2 = 2 * OpenGLBug.radius;
 		OpenGLBug.thresWidth1 = OpenGLBugManager.getOpenGLBugManager().getOpenGlWidth() - 2 * OpenGLBug.radius;
 		OpenGLBug.thresWidth2 = 2 * OpenGLBug.radius;
-		
+
 		eyeX = screenOpenGLWidth / 2;
 		eyeY = screenOpenGLHeight / 2;
 		lookX = screenOpenGLWidth / 2;
@@ -536,10 +524,12 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer {
 			// shader by binding to texture unit 0.
 			if (mOpenGLBug.burning) {
 				GLES20.glUniform1i(mTextureUniformHandle, 6);
-			} if (mOpenGLBug.freezing) {
-				GLES20.glUniform1i(mTextureUniformHandle, 7);
 			} else {
-				GLES20.glUniform1i(mTextureUniformHandle, 0);
+				if (mOpenGLBug.freezing) {
+					GLES20.glUniform1i(mTextureUniformHandle, 7);
+				} else {
+					GLES20.glUniform1i(mTextureUniformHandle, 0);
+				}
 			}
 			// // If the bug is boucing, we should let it be blue.
 			// if (!mOpenGLBug.bouncing) {
