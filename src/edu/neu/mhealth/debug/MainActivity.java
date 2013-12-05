@@ -145,7 +145,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 	private ColorDetector mDetector;
 	private Mat mSpectrum;
 
-	private CameraBridgeViewBase mOpenCvCameraView;
+	private CameraView mOpenCvCameraView;
 	private ConfigureView configureView;
 	private JumpBug jumpBug;
 
@@ -164,7 +164,8 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 	private Scalar colorWhite;
 	private Scalar colorGray;
 
-	Rect colorPickArea;
+	Rect colorPickAreaShoe;
+	Rect colorPickAreaFloor;
 	ColorDetector mColorBlobDetector;
 	List<MatOfPoint> detectedShoesContours;
 	List<MatOfPoint> detectedFloorContours;
@@ -254,6 +255,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 		filterY = new MovingAverage(5);
 
 		sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+		
 	}
 
 	@Override
@@ -330,11 +332,19 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 		crosshairRightmost = new org.opencv.core.Point(width / 2 + 50, height / 2);
 		crosshairUpmost = new org.opencv.core.Point(width / 2, height / 2 - 50);
 		crosshairDownmost = new org.opencv.core.Point(width / 2, height / 2 + 50);
-		colorPickArea = new Rect();
-		colorPickArea.x = width / 2 - 5;
-		colorPickArea.y = height / 2 - 5;
-		colorPickArea.width = 10;
-		colorPickArea.height = 10;
+		
+		colorPickAreaShoe = new Rect();
+		colorPickAreaShoe.x = width / 2 - 5;
+		colorPickAreaShoe.y = height / 2 - 5;
+		colorPickAreaShoe.width = 10;
+		colorPickAreaShoe.height = 10;
+		
+		colorPickAreaFloor = new Rect();
+		colorPickAreaFloor.x = width / 2 - 75;
+		colorPickAreaFloor.y = height / 2 - 75;
+		colorPickAreaFloor.width = 150;
+		colorPickAreaFloor.height = 150;
+		
 		mColorBlobDetector = new ColorDetector(width, height);
 	}
 
@@ -360,12 +370,13 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 		int gameMode = ModeManager.getModeManager().getCurrentMode();
 		switch (gameMode) {
 		case ModeManager.MODE_COLOR_PICK_CROSSHAIR:
-			Mat colorPickAreaRgba = mRgba.submat(colorPickArea);
-			Imgproc.cvtColor(colorPickAreaRgba, colorPickAreaHsv, Imgproc.COLOR_RGB2HSV_FULL);
-			int pointCount = colorPickArea.width * colorPickArea.height;
 
 			// Pick shoes' color
 			if (!shoeColorPicked) {
+				Mat colorPickAreaRgba = mRgba.submat(colorPickAreaShoe);
+				Imgproc.cvtColor(colorPickAreaRgba, colorPickAreaHsv, Imgproc.COLOR_RGB2HSV_FULL);
+				int pointCount = colorPickAreaShoe.width * colorPickAreaShoe.height;
+
 				// Calculate average color of shoes' color pick region
 				mShoeColorPickHsv = Core.sumElems(colorPickAreaHsv);
 				for (int i = 0; i < mShoeColorPickHsv.val.length; i++)
@@ -374,6 +385,10 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 				Mat colorLabel = mRgba.submat(44, 108, 8, 72);
 				colorLabel.setTo(mShoeColorPickRgba);
 			} else {
+				Mat colorPickAreaRgba = mRgba.submat(colorPickAreaFloor);
+				Imgproc.cvtColor(colorPickAreaRgba, colorPickAreaHsv, Imgproc.COLOR_RGB2HSV_FULL);
+				int pointCount = colorPickAreaFloor.width * colorPickAreaFloor.height;
+
 				mFloorColorPickHsv = Core.sumElems(colorPickAreaHsv);
 				for (int i = 0; i < mFloorColorPickHsv.val.length; i++)
 					mFloorColorPickHsv.val[i] /= pointCount;
