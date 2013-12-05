@@ -85,6 +85,8 @@ public abstract class OpenGLBug {
 	/** The burning steps counter. Used for split burning animations */
 	public int burningStepCounter = 0;
 	
+	public boolean freezing = false;
+	
 	public OpenGLBug(int x, int y, int speedX, int speedY, float scaleRatio) {
 		this.x = x;
 		this.y = y;

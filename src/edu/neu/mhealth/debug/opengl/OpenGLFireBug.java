@@ -7,7 +7,6 @@ import edu.neu.mhealth.debug.helper.Global;
 import android.util.Log;
 
 public class OpenGLFireBug extends OpenGLBug {
-	public boolean freezing = false;
 	
 	public OpenGLFireBug(int x, int y, int speedX, int speedY, float scaleRatio) {
 		super(x, y, speedX, speedY, scaleRatio);
@@ -53,7 +52,7 @@ public class OpenGLFireBug extends OpenGLBug {
 		}
 
 		// If the bug runs out of the screen, we generate a new one
-		if (OpenGLBugManager.isBugOutOfScreen(x, y)) {
+		if (OpenGLBugManager.getOpenGLBugManager().isBugOutOfScreen(x, y)) {
 			if (OpenGLBugManager.getOpenGLBugManager().getBugListSize() < 2) {
 				OpenGLFireBug mTutorial1Bug = OpenGLBugManager.getOpenGLBugManager().generateFireBug();
 				mOpenGLBugIterator.add(mTutorial1Bug);

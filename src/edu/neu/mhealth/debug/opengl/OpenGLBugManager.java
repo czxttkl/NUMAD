@@ -25,7 +25,7 @@ public class OpenGLBugManager implements Observer {
 	public List<OpenGLBug> mBugList = new ArrayList<OpenGLBug>();
 
 	public static OpenGLBugManager mOpenGLBugManager;
-	
+
 	public static OpenGLBugManager getOpenGLBugManager() {
 		if (mOpenGLBugManager == null) {
 			mOpenGLBugManager = new OpenGLBugManager();
@@ -42,22 +42,22 @@ public class OpenGLBugManager implements Observer {
 		case ModeManager.MODE_MAIN_MENU:
 			generateMainMenuBug();
 			break;
-			
+
 		case ModeManager.MODE_TUTORIAL_1:
 			clearList();
 			mBugList.add(generateFireBug());
 			break;
-			
+
 		case ModeManager.MODE_BEFORE_TUTORIAL_1:
 			clearList();
 			break;
-			
+
 		case ModeManager.MODE_TUTORIAL_2:
 			clearList();
 			mBugList.add(generateFireBug());
 			mBugList.add(generateFireBug());
 			break;
-			
+
 		default:
 			clearList();
 		}
@@ -147,8 +147,8 @@ public class OpenGLBugManager implements Observer {
 	/**
 	 * Check if the bug is out of the rectangle(0, screenOpenGLHeight, screenOpenGLWidth, screenOpenGLHeight)
 	 */
-	public static boolean isBugOutOfScreen(int x, int y) {
-		if (x > OpenGLRenderer.screenOpenGLWidth || x < 0 || y > OpenGLRenderer.screenOpenGLHeight || y < 0)
+	public boolean isBugOutOfScreen(int x, int y) {
+		if (x > getOpenGlWidth() || x < 0 || y > getOpenGlHeight() || y < 0)
 			return true;
 		else
 			return false;
@@ -230,6 +230,31 @@ public class OpenGLBugManager implements Observer {
 		return speed;
 	}
 
+	public void freezeBug() {
+		int randomNum = Global.rd.nextInt(mBugList.size());
+		OpenGLBug mOpenGLBug = mBugList.get(randomNum);
+		mOpenGLBug.freezing = true;
+	}
+
+	public void unfreezeBugs() {
+		for (OpenGLBug mOpenGLBug : mBugList) {
+			if (mOpenGLBug.freezing) {
+				mOpenGLBug.freezing = false;
+			}
+		}
+	}
+
+	public void killFrozenBugs() {
+		for (OpenGLBug mOpenGLBug : mBugList) {
+			if (mOpenGLBug.freezing) {
+				mOpenGLBug.freezing = false;
+				mOpenGLBug.burning = true;
+				mOpenGLBug.shouldPause = true;
+				OpenGLBugManager.getOpenGLBugManager().addScore(1);
+			}
+		}
+	}
+
 	public int getOpenCvWidth() {
 		return mCameraActivityInstance.imageOpenCvWidth;
 	}
@@ -242,7 +267,7 @@ public class OpenGLBugManager implements Observer {
 		return mCameraActivityInstance.screenOpenGLWidth;
 	}
 
-	public  int getOpenGlHeight() {
+	public int getOpenGlHeight() {
 		return mCameraActivityInstance.screenOpenGLHeight;
 	}
 
@@ -253,6 +278,12 @@ public class OpenGLBugManager implements Observer {
 			Integer gameMode = (Integer) data;
 			setMode(gameMode);
 		}
+
+		if (observable instanceof LinearAccEventListener) {
+			Log.d(Global.APP_LOG_TAG, "I get the jumping notification");
+			killFrozenBugs();
+		}
+
 	}
 
 }

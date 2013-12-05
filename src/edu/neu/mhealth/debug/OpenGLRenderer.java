@@ -171,11 +171,14 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer {
 	/** This will be used to pass in fire model texture coordinate information. */
 	private int mFireTextureCoordinateHandle;
 
-	/** This is a handle to our bug's texture data. */
-	private int mBugTextureDataHandle;
+	/** This is a handle to our fire bug's texture data. It is binded to GLES20.GL_TEXTURE0*/
+	private int mBugFireTextureDataHandle;
 
-	/** This is a handle to our bug's texture data. */
-	private int mBugBouncingTextureDataHandle;
+	/** This is a handle to our bug's burning texture data. It is binded to GLES20.GL_TEXTURE6*/
+	private int mBugBurningTextureDataHandle;
+	
+	/** This is a handle to our bug's burning texture data. It is binded to GLES20.GL_TEXTURE7*/
+	private int mBugFreezingTextureDataHandle;
 
 	/** This is a handle to our fire's texture data 1. */
 	private int mFireTextureDataHandle1;
@@ -387,9 +390,10 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer {
 		mBugProgramHandle = ShaderHelper.createAndLinkProgram(bugVertexShaderHandle, bugFragmentShaderHandle, new String[] { "a_Position", "a_Color", "a_Normal", "a_TexCoordinate" });
 
 		// Load the bug's texture
-		mBugTextureDataHandle = TextureHelper.loadTexture(mActivityContext, R.drawable.ladybug, GLES20.GL_TEXTURE0);
-		mBugTextureDataHandle = TextureHelper.loadTexture(mActivityContext, R.drawable.burning, GLES20.GL_TEXTURE6);
-
+		mBugFireTextureDataHandle = TextureHelper.loadTexture(mActivityContext, R.drawable.ladybug_fire, GLES20.GL_TEXTURE0);
+		mBugBurningTextureDataHandle = TextureHelper.loadTexture(mActivityContext, R.drawable.burning, GLES20.GL_TEXTURE6);
+		mBugFreezingTextureDataHandle = TextureHelper.loadTexture(mActivityContext, R.drawable.ladybug_frozen, GLES20.GL_TEXTURE7);
+		
 		// Define a simple shader program for our point.
 		final String pointVertexShader = RawResourceReader.readTextFileFromRawResource(mActivityContext, R.raw.point_vertex_shader);
 		final String pointFragmentShader = RawResourceReader.readTextFileFromRawResource(mActivityContext, R.raw.point_fragment_shader);
@@ -532,6 +536,8 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer {
 			// shader by binding to texture unit 0.
 			if (mOpenGLBug.burning) {
 				GLES20.glUniform1i(mTextureUniformHandle, 6);
+			} if (mOpenGLBug.freezing) {
+				GLES20.glUniform1i(mTextureUniformHandle, 7);
 			} else {
 				GLES20.glUniform1i(mTextureUniformHandle, 0);
 			}

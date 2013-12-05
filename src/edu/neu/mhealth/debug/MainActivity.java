@@ -202,7 +202,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 	private SensorManager sensorManager;
 	private Sensor sensorLinearAcc;
 	private Sensor sensorAcc;
-	private LinearAccEventListener accEventListener;
+	private LinearAccEventListener linearAccEventListener;
 
 	// / For direction / motion detection
 	private MotionEventListener motionEventListener;
@@ -261,7 +261,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 		super.onPause();
 		if (mOpenCvCameraView != null)
 			mOpenCvCameraView.disableView();
-		sensorManager.unregisterListener(accEventListener);
+		sensorManager.unregisterListener(linearAccEventListener);
 	}
 
 	@Override
@@ -271,11 +271,12 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 		jumpBug = new JumpBug(getApplicationContext());
 
 		sensorLinearAcc = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
+		linearAccEventListener = new LinearAccEventListener(this);
+		sensorManager.registerListener(linearAccEventListener, sensorLinearAcc, SensorManager.SENSOR_DELAY_FASTEST);
+		linearAccEventListener.addObserver(OpenGLBugManager.getOpenGLBugManager());
+
 		sensorAcc = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-		accEventListener = new LinearAccEventListener(this);
-		sensorManager.registerListener(accEventListener, sensorLinearAcc, SensorManager.SENSOR_DELAY_FASTEST);
 		sensorManager.registerListener(this, sensorAcc, SensorManager.SENSOR_DELAY_FASTEST);
-		accEventListener.addObserver(jumpBug);
 
 		motionEventListener = new MotionEventListener();
 		motionEventListener.addObserver(jumpBug);
@@ -991,8 +992,9 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 			LayoutInflater layoutInflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
 			mJumpHelperLayout = (LinearLayout) layoutInflater.inflate(R.layout.jump_helper, null, false);
 			mFrameLayout.addView(mJumpHelperLayout);
+			fadeOutAnimation.setDuration(10000);
 			mJumpHelperLayout.startAnimation(fadeOutAnimation);
-			mHandler.postDelayed(mJumpHelperRemoverRunnable, 2000);
+			mHandler.postDelayed(mJumpHelperRemoverRunnable, 10000);
 		}
 	};
 	
@@ -1001,6 +1003,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 		public void run() {
 			mFrameLayout.removeView(mJumpHelperLayout);
 			ModeManager.AccEventModeManager.getAccEventModeManager().setCurrentMode(AccEventModeManager.MODE_DEFAULT);
+			OpenGLBugManager.getOpenGLBugManager().unfreezeBugs();
 		}
 	};
 	
@@ -1103,7 +1106,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 //						Log.d("shuffleboard", "shaked:" + speed + " x:" + x + " y:" + y + " z:" + z + " diffTime:" + diffTime);
 						if (speed > 100) {
 							Log.d(Global.APP_LOG_TAG, "one shake");
-							
+							OpenGLBugManager.getOpenGLBugManager().freezeBug();
 						}
 						lastX = x;
 						lastY = y;
