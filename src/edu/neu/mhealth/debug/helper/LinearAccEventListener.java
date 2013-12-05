@@ -78,7 +78,7 @@ public class LinearAccEventListener extends Observable implements SensorEventLis
 			if (currState == state_first) {
 				if ((event.timestamp - lastUpdateTime) > timeDifference) {
 					currState = state_invalid;
-				} else if (values[2] < 6 && values[2] > 4) {
+				} else if (values[2] < 5.5 && values[2] > 3.5) {
 					// Log.e(TAG, "time for first: " + (event.timestamp - lastUpdateTime));
 					currState = state_second;
 					lastUpdateTime = event.timestamp;
@@ -88,7 +88,7 @@ public class LinearAccEventListener extends Observable implements SensorEventLis
 			if (currState == state_second) {
 				if ((event.timestamp - lastUpdateTime) > timeDifference) {
 					currState = state_invalid;
-				} else if (values[2] < -7 && values[2] > -10) {
+				} else if (values[2] < -6 && values[2] > -10) {
 					// Log.e(TAG, "time for second: " + (event.timestamp - lastUpdateTime));
 					currState = state_third;
 					lastUpdateTime = event.timestamp;
@@ -98,7 +98,7 @@ public class LinearAccEventListener extends Observable implements SensorEventLis
 			if (currState == state_third) {
 				if ((event.timestamp - lastUpdateTime) > timeDifference) {
 					currState = state_invalid;
-				} else if (values[2] < 6 && values[2] > 4) {
+				} else if (values[2] < 6 && values[2] > 3) {
 					// Log.e(TAG, "time for third: " + (event.timestamp - lastUpdateTime));
 					currState = state_forth;
 					lastUpdateTime = event.timestamp;
