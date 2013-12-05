@@ -1079,7 +1079,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 					mColorPickHelpNotifTextView.setTextColor(Color.WHITE);
 					mColorPickHelpNotifTextView.setVisibility(View.VISIBLE);
 					ModeManager.AccEventModeManager.getAccEventModeManager().setCurrentMode(AccEventModeManager.MODE_COLOR_PICK_CROSSHAIR);
-					ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_COLOR_PICK_CROSSHAIR);
+					ModeManager.getModeManager().setCurrentMode(ModeManager.getModeManager().getPreviousMode());
 					mColorPickCameraButton.setEnabled(true);
 				}
 				

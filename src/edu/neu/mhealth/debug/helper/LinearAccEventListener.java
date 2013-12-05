@@ -109,7 +109,7 @@ public class LinearAccEventListener extends Observable implements SensorEventLis
 				if ((event.timestamp - lastUpdateTime) > timeDifference) {
 					currState = state_invalid;
 				} else if (values[2] < 2 && values[2] > -2) {
-					// Log.e(TAG, "time for forth: " + (event.timestamp - lastUpdateTime));
+					 Log.e(TAG, "time for forth: " + (event.timestamp - lastUpdateTime));
 					currState = state_fifth;
 					lastUpdateTime = event.timestamp;
 				}
@@ -127,7 +127,7 @@ public class LinearAccEventListener extends Observable implements SensorEventLis
 		default:
 			// do nothing
 		}
-
+		Log.d(TAG, "currstate:" + currState + " mode:"+ mode );
 		// Log.i(TAG, "current state: " + currState);
 	}
 

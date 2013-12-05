@@ -249,6 +249,7 @@ public class OpenGLBugManager implements Observer {
 			if (mOpenGLBug.freezing) {
 				mOpenGLBug.freezing = false;
 				mOpenGLBug.burning = true;
+				mOpenGLBug.burningStepCounter = 0;
 				mOpenGLBug.shouldPause = true;
 				OpenGLBugManager.getOpenGLBugManager().addScore(1);
 			}

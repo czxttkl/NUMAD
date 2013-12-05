@@ -44,6 +44,7 @@ public class ModeManager {
 	}
 
 	public void setCurrentMode(int currentMode) {
+		setPreviousMode(this.currentMode);
 		this.currentMode = currentMode;
 		Log.e(TAG, "mode manager set mode");
 		this.eventListener.notifyModeUpdate(currentMode);
