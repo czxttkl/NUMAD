@@ -694,6 +694,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 	public void updateScore(int diff) {
 		score = score + diff;
 		Log.d(TAG, "update score:" + score);
+		Log.d(TAG, "gamescorelayout height:" + mGameScoreLayout.getHeight());
 
 		updateScoreUI();
 		int gameMode = ModeManager.getModeManager().getCurrentMode();
@@ -903,6 +904,8 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 		// Inflates the game score layout
 		LayoutInflater layoutInflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
 		mGameScoreLayout = (RelativeLayout) layoutInflater.inflate(R.layout.game_score, null, false);
+//		FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+//		lp.setMargins(0, 500, 0, 0);
 		// Set background to semi-transparent black
 //		blackBackground.setAlpha(0);
 //		mGameScoreLayout.setBackground(blackBackground);
@@ -922,11 +925,11 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 		blackBackground.setAlpha(0);
 		mGameScoreLayout.setBackground(blackBackground);
 		mTutorial2InstructionLayout.setBackground(blackBackground);
-		Log.d(TAG, "mframelayout size before:" + mFrameLayout.getChildCount());
+
 		mFrameLayout.removeView(mTutorial2InstructionLayout);
 		mFrameLayout.removeView(mGameScoreLayout);
 		mFrameLayout.addView(mGameScoreLayout);
-		Log.d(TAG, "mframelayout size:" + mFrameLayout.getChildCount());
+//		Log.d(TAG, "mframelayout size:" + mFrameLayout.getChildCount());
 		ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_TUTORIAL_2);
 	}
 
