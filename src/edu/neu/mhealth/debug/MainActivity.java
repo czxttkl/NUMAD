@@ -35,6 +35,7 @@ import edu.neu.mhealth.debug.helper.JumpBug;
 import edu.neu.mhealth.debug.helper.ModeManager;
 import edu.neu.mhealth.debug.helper.MotionEventListener;
 import edu.neu.mhealth.debug.helper.MovingAverage;
+import edu.neu.mhealth.debug.helper.Prefs;
 import edu.neu.mhealth.debug.opengl.OpenGLBug;
 import edu.neu.mhealth.debug.opengl.OpenGLBugManager;
 import edu.neu.mhealth.debug.opengl.OpenGLFire;
@@ -70,6 +71,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -108,6 +110,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 	RelativeLayout mTutorial2InstructionLayout;
 	RelativeLayout mTutorial3InstructionLayout;
 	RelativeLayout mGameScoreLayout;
+	LinearLayout mShakeHelperLayout;
 
 	// / OpenGL
 	public MyGLSurfaceView mGLSurfaceView;
@@ -943,9 +946,31 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 	}
 
 	public void onClickUseSpray(View v) {
+//		if (!Prefs.getSprayTapped(this)) {
+			mHandler.postDelayed(mShakeHelperRunnable, 0);
+			Prefs.setSprayTapped(this, true);
+//		}
 		mSprayImageView.startAnimation(fadeOutAnimation);
 		mSprayImageView.setEnabled(false);
 	}
+	
+	protected Runnable mShakeHelperRunnable = new Runnable() {
+		@Override
+		public void run() {
+			LayoutInflater layoutInflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+			mShakeHelperLayout = (LinearLayout) layoutInflater.inflate(R.layout.shake_helper, null, false);
+			mFrameLayout.addView(mShakeHelperLayout);
+			mShakeHelperLayout.startAnimation(fadeOutAnimation);
+			mHandler.postDelayed(mShakeHelperRemoverRunnable, 4000);
+		}
+	};
+	
+	protected Runnable mShakeHelperRemoverRunnable = new Runnable() {
+		@Override
+		public void run() {
+			mFrameLayout.removeView(mShakeHelperLayout);
+		}
+	};
 	
 	protected Runnable mTutorial1InstructionUpdator = new Runnable() {
 		@Override

@@ -2,7 +2,8 @@
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:id="@+id/tutorial2_layout">
+        android:id="@+id/tutorial2_layout"
+         android:animateLayoutChanges="true">
 
           <Button
               android:id="@+id/tutorial2_startBtn"

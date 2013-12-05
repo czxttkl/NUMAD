@@ -7,7 +7,8 @@ import edu.neu.mhealth.debug.helper.Global;
 import android.util.Log;
 
 public class OpenGLFireBug extends OpenGLBug {
-
+	public boolean freezing = false;
+	
 	public OpenGLFireBug(int x, int y, int speedX, int speedY, float scaleRatio) {
 		super(x, y, speedX, speedY, scaleRatio);
 	}
@@ -18,6 +19,10 @@ public class OpenGLFireBug extends OpenGLBug {
 
 	@Override
 	public void refresh(ListIterator<OpenGLBug> mOpenGLBugIterator) {
+		// If freezing, keep the current state anyway
+		if (freezing)
+			return;
+		
 		int polarityX;
 		int polarityY;
 		int tmpX;
