@@ -276,10 +276,13 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 		linearAccEventListener = new LinearAccEventListener(this);
 		sensorManager.registerListener(linearAccEventListener, sensorLinearAcc, SensorManager.SENSOR_DELAY_FASTEST);
 		linearAccEventListener.addObserver(OpenGLBugManager.getOpenGLBugManager());
-
+		linearAccEventListener.addObserver(jumpBug);
+		ModeManager.AccEventModeManager.getAccEventModeManager().setCurrentMode(AccEventModeManager.MODE_SPRAY_JUMP);
+		
 		sensorAcc = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 		sensorManager.registerListener(this, sensorAcc, SensorManager.SENSOR_DELAY_FASTEST);
 
+		
 		motionEventListener = new MotionEventListener();
 		motionEventListener.addObserver(jumpBug);
 
