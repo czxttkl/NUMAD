@@ -60,7 +60,7 @@ public class LinearAccEventListener extends Observable implements SensorEventLis
 		switch (mode) {
 		case AccEventModeManager.MODE_SPRAY_JUMP:
 			float[] values = event.values.clone();
-			values = highPass(values[0], values[1], values[2]);
+//			values = highPass(values[0], values[1], values[2]);
 
 			if (currState == state_invalid) {
 				if (values[2] < 1 && values[2] > -1) {
