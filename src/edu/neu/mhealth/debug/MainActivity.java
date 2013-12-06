@@ -142,8 +142,6 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 	private Mat tempGray;
 	private Scalar mBlobColorRgba;
 	private Scalar mBlobColorHsv;
-	private ColorDetector mDetector;
-	private Mat mSpectrum;
 
 	private CameraView mOpenCvCameraView;
 	private ConfigureView configureView;
@@ -158,55 +156,22 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 	public double openCVGLRatioX;
 	public double openCVGLRatioY;
 
-	private Scalar colorGreen;
 	private Scalar colorRed;
 	private Scalar colorBlue;
-	private Scalar colorWhite;
 	private Scalar colorGray;
 
 	Rect colorPickAreaShoe;
 	Rect colorPickAreaFloor;
 	ColorDetector mColorBlobDetector;
+	OpticalFLowDetector mOpticalFLowDetector;
 	List<MatOfPoint> detectedShoesContours;
 	List<MatOfPoint> detectedFloorContours;
-
-	// / For optical flow
-	private List<MatOfPoint> contourFloor;
-	private List<MatOfPoint> contourShoe;
-
-	private Mat mOpFlowCurr;
-	private Mat mOpFlowPrev;
-	private MatOfPoint mMOPopFlowCurr;
-	private MatOfPoint mMOPopFlowPrev;
-	private MatOfPoint2f mMOP2PtsCurr;
-	private MatOfPoint2f mMOP2PtsPrev;
-	private MatOfPoint2f mMOP2PtsSafe;
-	private List<Point> cornersPrev;
-	private List<Point> cornersCurr;
-	private MatOfByte status;
-	private MatOfFloat err;
-	private List<Byte> byteStatus;
-	private MovingAverage filterX;
-	private MovingAverage filterY;
-
-	Mat optFlowMatRgba;
-	Mat optFlowMatGray;
-
-	private static final int rectWidth = 500;
-	private static final int rectHeight = 250;
-	private static final int squareMetric = 200;
-
-	private static final int motionThX = 100;
-	private static final int motionThY = 100;
 
 	// / For jumping detection and tilt detection
 	private SensorManager sensorManager;
 	private Sensor sensorLinearAcc;
 	private Sensor sensorAcc;
 	private LinearAccEventListener linearAccEventListener;
-
-	// / For direction / motion detection
-	private MotionEventListener motionEventListener;
 
 	private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
 		@Override
@@ -251,9 +216,6 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 
 		initResource();
 
-		filterX = new MovingAverage(5);
-		filterY = new MovingAverage(5);
-
 		sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 		
 	}
@@ -270,7 +232,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 	public void onResume() {
 		super.onResume();
 		
-		jumpBug = new JumpBug(this);
+//		jumpBug = new JumpBug(this);
 		
 		sensorLinearAcc = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
 		linearAccEventListener = new LinearAccEventListener(this);
@@ -279,12 +241,8 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 		
 		sensorAcc = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 		sensorManager.registerListener(this, sensorAcc, SensorManager.SENSOR_DELAY_FASTEST);
-
 		
-		motionEventListener = new MotionEventListener();
-		motionEventListener.addObserver(jumpBug);
-
-		ModeManager.getModeManager().addObserver(jumpBug);
+//		ModeManager.getModeManager().addObserver(jumpBug);
 		ModeManager.getModeManager().addObserver(OpenGLBugManager.getOpenGLBugManager());
 
 		OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_3, this, mLoaderCallback);
@@ -306,26 +264,11 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 
 		mRgba = new Mat(height, width, CvType.CV_8UC4);
 		mGray = new Mat(height, width, CvType.CV_8UC1);
-		mSpectrum = new Mat();
 		mBlobColorRgba = new Scalar(255);
 		mBlobColorHsv = new Scalar(255);
 
-		mOpFlowCurr = new Mat();
-		mOpFlowPrev = new Mat();
-		optFlowMatRgba = new Mat();
-		optFlowMatGray = new Mat();
-		mMOPopFlowPrev = new MatOfPoint();
-		mMOPopFlowCurr = new MatOfPoint();
-		mMOP2PtsCurr = new MatOfPoint2f();
-		mMOP2PtsPrev = new MatOfPoint2f();
-		mMOP2PtsSafe = new MatOfPoint2f();
-		status = new MatOfByte();
-		err = new MatOfFloat();
-
 		colorRed = new Scalar(255, 0, 0);
-		colorGreen = new Scalar(0, 255, 0);
 		colorBlue = new Scalar(51, 181, 229);
-		colorWhite = new Scalar(255, 255, 255);
 		colorGray = new Scalar(192, 192, 192);
 
 		colorPickAreaHsv = new Mat();
@@ -347,6 +290,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 		colorPickAreaFloor.height = 150;
 		
 		mColorBlobDetector = new ColorDetector(width, height);
+		mOpticalFLowDetector = new OpticalFLowDetector(width, height);
 	}
 
 	public void onCameraViewStopped() {
@@ -434,9 +378,11 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 
 			detectedFloorContours = mColorBlobDetector.getFloorContours();
 			detectedFloorContours.removeAll(Collections.singleton(null));
-//			Imgproc.drawContours(mRgba, detectedFloorContours, -1, colorRed, 4);
-//			if (destinationTarget != null)
-//				Core.circle(mRgba, destinationTarget, 10, colorRed, -1);
+			Imgproc.drawContours(mRgba, detectedFloorContours, -1, colorRed, 4);
+			if (destinationTarget != null)
+				Core.circle(mRgba, destinationTarget, 10, colorRed, -1);
+			
+			mOpticalFLowDetector.process(mRgba);
 
 			break;
 
@@ -452,79 +398,6 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 			break;
 		}
 //
-//		Rect optFlowRect = new Rect();
-//		optFlowRect.x = imageOpenCvWidth / 2 - squareMetric / 2;
-//		optFlowRect.y = imageOpenCvHeight / 2 - squareMetric / 2;
-//		optFlowRect.width = squareMetric;
-//		optFlowRect.height = squareMetric;
-//
-//		optFlowMatRgba = mRgba.submat(optFlowRect);
-//
-//		if (mMOP2PtsPrev.rows() == 0) {
-//			Imgproc.cvtColor(optFlowMatRgba, mOpFlowCurr, Imgproc.COLOR_RGBA2GRAY);
-//			mOpFlowCurr.copyTo(mOpFlowPrev);
-//
-//			Imgproc.goodFeaturesToTrack(mOpFlowPrev, mMOPopFlowPrev, 50, 0.01, 20);
-//			mMOP2PtsPrev.fromArray(mMOPopFlowPrev.toArray());
-//			mMOP2PtsPrev.copyTo(mMOP2PtsSafe);
-//		} else {
-//
-//			mOpFlowCurr.copyTo(mOpFlowPrev);
-//			Imgproc.cvtColor(optFlowMatRgba, mOpFlowCurr, Imgproc.COLOR_RGBA2GRAY);
-//
-//			Imgproc.goodFeaturesToTrack(mOpFlowCurr, mMOPopFlowCurr, 50, 0.01, 20);
-//			mMOP2PtsCurr.fromArray(mMOPopFlowCurr.toArray());
-//			mMOP2PtsSafe.copyTo(mMOP2PtsPrev);
-//			mMOP2PtsCurr.copyTo(mMOP2PtsSafe);
-//
-//			Video.calcOpticalFlowPyrLK(mOpFlowPrev, mOpFlowCurr, mMOP2PtsPrev, mMOP2PtsCurr, status, err);
-//
-//			cornersPrev = mMOP2PtsPrev.toList();
-//			cornersCurr = mMOP2PtsCurr.toList();
-//			byteStatus = status.toList();
-//
-//			double dis_X_uf = 0;
-//			double dis_Y_uf = 0;
-//
-//			for (int i = 0; i < byteStatus.size() - 1; i++) {
-//				if (byteStatus.get(i) == 1) {
-//					Point pt = cornersCurr.get(i);
-//					Point pt2 = cornersPrev.get(i);
-//
-//					pt.x += optFlowRect.x;
-//					pt.y += optFlowRect.y;
-//
-//					pt2.x += optFlowRect.x;
-//					pt2.y += optFlowRect.y;
-//
-//					Core.circle(mRgba, pt, 5, colorRed);
-//
-//					dis_X_uf += pt.x - pt2.x;
-//					dis_Y_uf += pt.y - pt2.y;
-//				}
-//			}
-//
-//			if (dis_X_uf > 0 && dis_X_uf < motionThX) {
-//				dis_X_uf = 0;
-//			}
-//			if (dis_X_uf < 0 && dis_X_uf > (-1 * motionThX)) {
-//				dis_X_uf = 0;
-//			}
-//			if (dis_Y_uf > 0 && dis_Y_uf < motionThY) {
-//				dis_Y_uf = 0;
-//			}
-//			if (dis_Y_uf < 0 && dis_Y_uf > (-1 * motionThY)) {
-//				dis_Y_uf = 0;
-//			}
-//
-//			filterX.pushValue((int) dis_X_uf);
-//			filterY.pushValue((int) dis_Y_uf);
-//
-//			float dis_X = filterX.getValue();
-//			float dis_Y = filterY.getValue();
-//
-//			motionEventListener.notifyMotion(dis_X, dis_Y);
-//		}
 
 		return mRgba;
 	}

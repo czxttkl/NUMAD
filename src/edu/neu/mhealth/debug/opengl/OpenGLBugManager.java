@@ -281,8 +281,12 @@ public class OpenGLBugManager implements Observer {
 		}
 
 		if (observable instanceof LinearAccEventListener) {
-			Log.d(Global.APP_LOG_TAG, "I get the jumping notification");
 			killFrozenBugs();
+		}
+		
+		if (observable instanceof MotionEventListener) {
+			MotionMetrics motion = (MotionMetrics)data;
+			Log.e(Global.APP_LOG_TAG, "motion info: " + motion.getMotionX() + " "  + motion.getMotionY());
 		}
 
 	}

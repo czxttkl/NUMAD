@@ -379,7 +379,7 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer {
 
 		// Load the bug's texture
 		mBugFireTextureDataHandle = TextureHelper.loadTexture(mActivityContext, R.drawable.ladybug_fire, GLES20.GL_TEXTURE0);
-		mBugBurningTextureDataHandle = TextureHelper.loadTexture(mActivityContext, R.drawable.burning, GLES20.GL_TEXTURE6);
+		mBugBurningTextureDataHandle = TextureHelper.loadTexture(mActivityContext, R.drawable.ladybug_dead, GLES20.GL_TEXTURE6);
 		mBugFreezingTextureDataHandle = TextureHelper.loadTexture(mActivityContext, R.drawable.ladybug_frozen, GLES20.GL_TEXTURE7);
 
 		// Define a simple shader program for our point.
