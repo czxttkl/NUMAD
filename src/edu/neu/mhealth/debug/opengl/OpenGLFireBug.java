@@ -53,7 +53,7 @@ public class OpenGLFireBug extends OpenGLBug {
 				return;
 			}
 		}
-		Log.d(Global.APP_LOG_TAG, "size:" + OpenGLBugManager.getOpenGLBugManager().getBugListSize() + " tmpXmtmpY:" + tmpX + "," + tmpY);
+//		Log.d(Global.APP_LOG_TAG, "size:" + OpenGLBugManager.getOpenGLBugManager().getBugListSize() + " tmpXmtmpY:" + tmpX + "," + tmpY);
 		// If the bug runs out of the screen, we generate a new one
 		if (OpenGLBugManager.getOpenGLBugManager().isBugOutOfScreen(x, y)) {
 			if (OpenGLBugManager.getOpenGLBugManager().getBugListSize() < 4) {

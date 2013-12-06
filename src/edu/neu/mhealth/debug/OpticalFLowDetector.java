@@ -114,7 +114,7 @@ public class OpticalFLowDetector {
 					pt2.x += optFlowRect.x;
 					pt2.y += optFlowRect.y;
 
-					Core.circle(mRgba, pt, 5, new Scalar(255,255,255));
+//					Core.circle(mRgba, pt, 5, new Scalar(255,255,255));
 
 					dis_X_uf += pt.x - pt2.x;
 					dis_Y_uf += pt.y - pt2.y;
