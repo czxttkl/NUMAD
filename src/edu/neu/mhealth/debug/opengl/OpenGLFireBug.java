@@ -7,7 +7,7 @@ import edu.neu.mhealth.debug.helper.Global;
 import android.util.Log;
 
 public class OpenGLFireBug extends OpenGLBug {
-	
+
 	public OpenGLFireBug(int x, int y, int speedX, int speedY, float scaleRatio) {
 		super(x, y, speedX, speedY, scaleRatio);
 	}
@@ -21,15 +21,18 @@ public class OpenGLFireBug extends OpenGLBug {
 		// If freezing, keep the current state anyway
 		if (freezing)
 			return;
-		
+
+		x = x + OpenGLBug.relativeSpeedX;
+		y = y + OpenGLBug.relativeSpeedY;
+
 		int polarityX;
 		int polarityY;
 		int tmpX;
 		int tmpY;
 		polarityX = speedX >= 0 ? 1 : -1;
 		polarityY = speedY >= 0 ? 1 : -1;
-		tmpX = x + speedX + OpenGLBug.relativeSpeedX;
-		tmpY = y + speedY + OpenGLBug.relativeSpeedY;
+		tmpX = x + speedX;
+		tmpY = y + speedY;
 
 		// If the bug runs out of the boundary. we remove it
 		if (OpenGLBugManager.isBugOutOfBoundary(tmpX, tmpY)) {
@@ -37,23 +40,23 @@ public class OpenGLFireBug extends OpenGLBug {
 			mOpenGLBugIterator.remove();
 			return;
 		}
-
+		
 		// If the bug is burning to the end, remove it and also add a new bug
 		if (burning) {
 			burningStepCounter++;
 			if (burningStepCounter == OpenGLBug.BURNING_STEP) {
 				mOpenGLBugIterator.remove();
-				if (OpenGLBugManager.getOpenGLBugManager().getBugListSize() < 2) {
+				if (OpenGLBugManager.getOpenGLBugManager().getBugListSize() < 4) {
 					OpenGLBug mTutorial1Bug = OpenGLBugManager.getOpenGLBugManager().generateFireBug();
 					mOpenGLBugIterator.add(mTutorial1Bug);
 				}
 				return;
 			}
 		}
-
+		Log.d(Global.APP_LOG_TAG, "size:" + OpenGLBugManager.getOpenGLBugManager().getBugListSize() + " tmpXmtmpY:" + tmpX + "," + tmpY);
 		// If the bug runs out of the screen, we generate a new one
 		if (OpenGLBugManager.getOpenGLBugManager().isBugOutOfScreen(x, y)) {
-			if (OpenGLBugManager.getOpenGLBugManager().getBugListSize() < 2) {
+			if (OpenGLBugManager.getOpenGLBugManager().getBugListSize() < 4) {
 				OpenGLFireBug mTutorial1Bug = OpenGLBugManager.getOpenGLBugManager().generateFireBug();
 				mOpenGLBugIterator.add(mTutorial1Bug);
 			}
@@ -68,11 +71,12 @@ public class OpenGLFireBug extends OpenGLBug {
 					// If the bug is not burned by the fire and not bouncing, we check if it is in the floor contour
 					if (!bouncing) {
 						int distanceToContour = OpenGLBugManager.getOpenGLBugManager().distToContour(x, y);
-//						Log.d(Global.APP_LOG_TAG, "fire hit:y=" + y + "," + x + " thresheight1,thresheigh2,threswidth1,threswidth2:" + thresHeight1 + "," + thresHeight2 + "," + thresWidth1 + "," + thresWidth2);
+						// Log.d(Global.APP_LOG_TAG, "fire hit:y=" + y + "," + x + " thresheight1,thresheigh2,threswidth1,threswidth2:" + thresHeight1 + "," + thresHeight2 + "," + thresWidth1 + "," +
+						// thresWidth2);
 
 						// The bug could get out of the screen
 						if (Math.abs(distanceToContour) < OpenGLBug.radius && (y > thresHeight1 || y < thresHeight2 || x > thresWidth1 || x < thresWidth2)) {
-							//Keep the tmpX tmpY
+							// Keep the tmpX tmpY
 						} else {
 							// If the bug is not in the floor, it should bounce
 							if (distanceToContour < 0) {
@@ -82,8 +86,8 @@ public class OpenGLFireBug extends OpenGLBug {
 								int[] speed = OpenGLBugManager.calculateSpeedTowardsDest(destination[0], destination[1], x, y);
 								speedX = speed[0];
 								speedY = speed[1];
-								tmpX = x + speedX + OpenGLBug.relativeSpeedX;
-								tmpY = y + speedY + OpenGLBug.relativeSpeedY;
+								tmpX = x + speedX;
+								tmpY = y + speedY;
 							}
 
 							// If the bug is in the floor, but it needs to return
@@ -92,16 +96,16 @@ public class OpenGLFireBug extends OpenGLBug {
 								int[] speed = OpenGLBugManager.calculateSpeedTowardsDest(destination[0], destination[1], x, y);
 								speedX = speed[0];
 								speedY = speed[1];
-								tmpX = x + speedX + OpenGLBug.relativeSpeedX;
-								tmpY = y + speedY + OpenGLBug.relativeSpeedY;
+								tmpX = x + speedX;
+								tmpY = y + speedY;
 							}
 
 							// If the bug is approaching to the edges.
 							if (distanceToContour < 2 * OpenGLBug.radius && distanceToContour >= OpenGLBug.radius) {
 								speedX = speedX / 2 + polarityX;
 								speedY = speedY / 2 + polarityY;
-								tmpX = x + speedX + OpenGLBug.relativeSpeedX;
-								tmpY = y + speedY + OpenGLBug.relativeSpeedY;
+								tmpX = x + speedX;
+								tmpY = y + speedY;
 							}
 						} // If the bug couldn;t get out of the screen.
 					}// If it is not burning and bouncing

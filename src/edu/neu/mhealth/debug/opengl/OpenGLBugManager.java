@@ -256,6 +256,13 @@ public class OpenGLBugManager implements Observer {
 		}
 	}
 
+	public void setOpenGLBugRelativeSpeed(float speedX, float speedY) {
+		int openGLSpeedX = (int) (speedX/50);
+		int openGLSpeedY = (int) (speedY/50);
+		OpenGLBug.relativeSpeedX = openGLSpeedX;
+		OpenGLBug.relativeSpeedY = -openGLSpeedY;
+	}
+	
 	public int getOpenCvWidth() {
 		return mCameraActivityInstance.imageOpenCvWidth;
 	}
@@ -287,6 +294,7 @@ public class OpenGLBugManager implements Observer {
 		if (observable instanceof MotionEventListener) {
 			MotionMetrics motion = (MotionMetrics)data;
 			Log.e(Global.APP_LOG_TAG, "motion info: " + motion.getMotionX() + " "  + motion.getMotionY());
+			setOpenGLBugRelativeSpeed(motion.getMotionX(), motion.getMotionY());
 		}
 
 	}

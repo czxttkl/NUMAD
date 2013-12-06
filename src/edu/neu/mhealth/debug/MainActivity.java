@@ -377,6 +377,8 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 			setRendererContourMassCenter();
 
 			detectedFloorContours = mColorBlobDetector.getFloorContours();
+			if (detectedFloorContours == null)
+				return mRgba;
 			detectedFloorContours.removeAll(Collections.singleton(null));
 			Imgproc.drawContours(mRgba, detectedFloorContours, -1, colorRed, 4);
 			if (destinationTarget != null)

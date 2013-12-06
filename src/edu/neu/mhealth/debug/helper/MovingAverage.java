@@ -23,7 +23,7 @@ public class MovingAverage {
 			stringBuilder.append(circularBuffer[i] + " ");
 		}
 		System.out.println("Value before average:  " + stringBuilder);
-		Log.e(TAG, "Value after average: " + avg);
+//		Log.e(TAG, "Value after average: " + avg);
 		return avg;
 	}
 

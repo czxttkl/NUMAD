@@ -10,6 +10,7 @@ import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.video.Video;
 
@@ -19,8 +20,8 @@ import edu.neu.mhealth.debug.opengl.OpenGLBugManager;
 
 public class OpticalFLowDetector {
 	private static final int squareMetric = 200;
-	private static final int motionThX = 100;
-	private static final int motionThY = 100;
+	private static final int motionThX = 200;
+	private static final int motionThY = 200;
 
 	public int imageOpenCvWidth;
 	public int imageOpenCvHeight;
@@ -113,25 +114,13 @@ public class OpticalFLowDetector {
 					pt2.x += optFlowRect.x;
 					pt2.y += optFlowRect.y;
 
-//					Core.circle(mRgba, pt, 5, colorRed);
+					Core.circle(mRgba, pt, 5, new Scalar(255,255,255));
 
 					dis_X_uf += pt.x - pt2.x;
 					dis_Y_uf += pt.y - pt2.y;
 				}
 			}
 
-			if (dis_X_uf > 0 && dis_X_uf < motionThX) {
-				dis_X_uf = 0;
-			}
-			if (dis_X_uf < 0 && dis_X_uf > (-1 * motionThX)) {
-				dis_X_uf = 0;
-			}
-			if (dis_Y_uf > 0 && dis_Y_uf < motionThY) {
-				dis_Y_uf = 0;
-			}
-			if (dis_Y_uf < 0 && dis_Y_uf > (-1 * motionThY)) {
-				dis_Y_uf = 0;
-			}
 
 			filterX.pushValue((int) dis_X_uf);
 			filterY.pushValue((int) dis_Y_uf);
@@ -139,7 +128,20 @@ public class OpticalFLowDetector {
 			float dis_X = filterX.getValue();
 			float dis_Y = filterY.getValue();
 
+			if (dis_X > 0 && dis_X < motionThX) {
+				dis_X = 0;
+			}
+			if (dis_X < 0 && dis_X > (-1 * motionThX)) {
+				dis_X = 0;
+			}
+			if (dis_Y > 0 && dis_Y < motionThY) {
+				dis_Y = 0;
+			}
+			if (dis_Y < 0 && dis_Y > (-1 * motionThY)) {
+				dis_Y = 0;
+			}
 			motionEventListener.notifyMotion(dis_X, dis_Y);
+//			motionEventListener.notifyMotion((float)dis_X_uf, (float)dis_Y_uf);
 		}
 
 	}
