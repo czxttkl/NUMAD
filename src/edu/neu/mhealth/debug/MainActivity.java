@@ -269,15 +269,13 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 	@Override
 	public void onResume() {
 		super.onResume();
-
-		jumpBug = new JumpBug(getApplicationContext());
-
+		
+		jumpBug = new JumpBug(this);
+		
 		sensorLinearAcc = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
 		linearAccEventListener = new LinearAccEventListener(this);
 		sensorManager.registerListener(linearAccEventListener, sensorLinearAcc, SensorManager.SENSOR_DELAY_FASTEST);
 		linearAccEventListener.addObserver(OpenGLBugManager.getOpenGLBugManager());
-		linearAccEventListener.addObserver(jumpBug);
-		ModeManager.AccEventModeManager.getAccEventModeManager().setCurrentMode(AccEventModeManager.MODE_SPRAY_JUMP);
 		
 		sensorAcc = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 		sensorManager.registerListener(this, sensorAcc, SensorManager.SENSOR_DELAY_FASTEST);
@@ -431,16 +429,14 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 		case ModeManager.MODE_TUTORIAL_2:
 			mColorBlobDetector.process(mRgba, true, true);
 			detectedShoesContours = mColorBlobDetector.getShoesContours();
-			// if (detectedShoesContours == null)
-			// return mRgba;
 			detectedShoesContours.removeAll(Collections.singleton(null));
 			setRendererContourMassCenter();
 
 			detectedFloorContours = mColorBlobDetector.getFloorContours();
 			detectedFloorContours.removeAll(Collections.singleton(null));
-			Imgproc.drawContours(mRgba, detectedFloorContours, -1, colorRed, 4);
-			if (destinationTarget != null)
-				Core.circle(mRgba, destinationTarget, 10, colorRed, -1);
+//			Imgproc.drawContours(mRgba, detectedFloorContours, -1, colorRed, 4);
+//			if (destinationTarget != null)
+//				Core.circle(mRgba, destinationTarget, 10, colorRed, -1);
 
 			break;
 
@@ -455,80 +451,80 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 		default:
 			break;
 		}
-
-		Rect optFlowRect = new Rect();
-		optFlowRect.x = imageOpenCvWidth / 2 - squareMetric / 2;
-		optFlowRect.y = imageOpenCvHeight / 2 - squareMetric / 2;
-		optFlowRect.width = squareMetric;
-		optFlowRect.height = squareMetric;
-
-		optFlowMatRgba = mRgba.submat(optFlowRect);
-
-		if (mMOP2PtsPrev.rows() == 0) {
-			Imgproc.cvtColor(optFlowMatRgba, mOpFlowCurr, Imgproc.COLOR_RGBA2GRAY);
-			mOpFlowCurr.copyTo(mOpFlowPrev);
-
-			Imgproc.goodFeaturesToTrack(mOpFlowPrev, mMOPopFlowPrev, 50, 0.01, 20);
-			mMOP2PtsPrev.fromArray(mMOPopFlowPrev.toArray());
-			mMOP2PtsPrev.copyTo(mMOP2PtsSafe);
-		} else {
-
-			mOpFlowCurr.copyTo(mOpFlowPrev);
-			Imgproc.cvtColor(optFlowMatRgba, mOpFlowCurr, Imgproc.COLOR_RGBA2GRAY);
-
-			Imgproc.goodFeaturesToTrack(mOpFlowCurr, mMOPopFlowCurr, 50, 0.01, 20);
-			mMOP2PtsCurr.fromArray(mMOPopFlowCurr.toArray());
-			mMOP2PtsSafe.copyTo(mMOP2PtsPrev);
-			mMOP2PtsCurr.copyTo(mMOP2PtsSafe);
-
-			Video.calcOpticalFlowPyrLK(mOpFlowPrev, mOpFlowCurr, mMOP2PtsPrev, mMOP2PtsCurr, status, err);
-
-			cornersPrev = mMOP2PtsPrev.toList();
-			cornersCurr = mMOP2PtsCurr.toList();
-			byteStatus = status.toList();
-
-			double dis_X_uf = 0;
-			double dis_Y_uf = 0;
-
-			for (int i = 0; i < byteStatus.size() - 1; i++) {
-				if (byteStatus.get(i) == 1) {
-					Point pt = cornersCurr.get(i);
-					Point pt2 = cornersPrev.get(i);
-
-					pt.x += optFlowRect.x;
-					pt.y += optFlowRect.y;
-
-					pt2.x += optFlowRect.x;
-					pt2.y += optFlowRect.y;
-
-					Core.circle(mRgba, pt, 5, colorRed);
-
-					dis_X_uf += pt.x - pt2.x;
-					dis_Y_uf += pt.y - pt2.y;
-				}
-			}
-
-			if (dis_X_uf > 0 && dis_X_uf < motionThX) {
-				dis_X_uf = 0;
-			}
-			if (dis_X_uf < 0 && dis_X_uf > (-1 * motionThX)) {
-				dis_X_uf = 0;
-			}
-			if (dis_Y_uf > 0 && dis_Y_uf < motionThY) {
-				dis_Y_uf = 0;
-			}
-			if (dis_Y_uf < 0 && dis_Y_uf > (-1 * motionThY)) {
-				dis_Y_uf = 0;
-			}
-
-			filterX.pushValue((int) dis_X_uf);
-			filterY.pushValue((int) dis_Y_uf);
-
-			float dis_X = filterX.getValue();
-			float dis_Y = filterY.getValue();
-
-			motionEventListener.notifyMotion(dis_X, dis_Y);
-		}
+//
+//		Rect optFlowRect = new Rect();
+//		optFlowRect.x = imageOpenCvWidth / 2 - squareMetric / 2;
+//		optFlowRect.y = imageOpenCvHeight / 2 - squareMetric / 2;
+//		optFlowRect.width = squareMetric;
+//		optFlowRect.height = squareMetric;
+//
+//		optFlowMatRgba = mRgba.submat(optFlowRect);
+//
+//		if (mMOP2PtsPrev.rows() == 0) {
+//			Imgproc.cvtColor(optFlowMatRgba, mOpFlowCurr, Imgproc.COLOR_RGBA2GRAY);
+//			mOpFlowCurr.copyTo(mOpFlowPrev);
+//
+//			Imgproc.goodFeaturesToTrack(mOpFlowPrev, mMOPopFlowPrev, 50, 0.01, 20);
+//			mMOP2PtsPrev.fromArray(mMOPopFlowPrev.toArray());
+//			mMOP2PtsPrev.copyTo(mMOP2PtsSafe);
+//		} else {
+//
+//			mOpFlowCurr.copyTo(mOpFlowPrev);
+//			Imgproc.cvtColor(optFlowMatRgba, mOpFlowCurr, Imgproc.COLOR_RGBA2GRAY);
+//
+//			Imgproc.goodFeaturesToTrack(mOpFlowCurr, mMOPopFlowCurr, 50, 0.01, 20);
+//			mMOP2PtsCurr.fromArray(mMOPopFlowCurr.toArray());
+//			mMOP2PtsSafe.copyTo(mMOP2PtsPrev);
+//			mMOP2PtsCurr.copyTo(mMOP2PtsSafe);
+//
+//			Video.calcOpticalFlowPyrLK(mOpFlowPrev, mOpFlowCurr, mMOP2PtsPrev, mMOP2PtsCurr, status, err);
+//
+//			cornersPrev = mMOP2PtsPrev.toList();
+//			cornersCurr = mMOP2PtsCurr.toList();
+//			byteStatus = status.toList();
+//
+//			double dis_X_uf = 0;
+//			double dis_Y_uf = 0;
+//
+//			for (int i = 0; i < byteStatus.size() - 1; i++) {
+//				if (byteStatus.get(i) == 1) {
+//					Point pt = cornersCurr.get(i);
+//					Point pt2 = cornersPrev.get(i);
+//
+//					pt.x += optFlowRect.x;
+//					pt.y += optFlowRect.y;
+//
+//					pt2.x += optFlowRect.x;
+//					pt2.y += optFlowRect.y;
+//
+//					Core.circle(mRgba, pt, 5, colorRed);
+//
+//					dis_X_uf += pt.x - pt2.x;
+//					dis_Y_uf += pt.y - pt2.y;
+//				}
+//			}
+//
+//			if (dis_X_uf > 0 && dis_X_uf < motionThX) {
+//				dis_X_uf = 0;
+//			}
+//			if (dis_X_uf < 0 && dis_X_uf > (-1 * motionThX)) {
+//				dis_X_uf = 0;
+//			}
+//			if (dis_Y_uf > 0 && dis_Y_uf < motionThY) {
+//				dis_Y_uf = 0;
+//			}
+//			if (dis_Y_uf < 0 && dis_Y_uf > (-1 * motionThY)) {
+//				dis_Y_uf = 0;
+//			}
+//
+//			filterX.pushValue((int) dis_X_uf);
+//			filterY.pushValue((int) dis_Y_uf);
+//
+//			float dis_X = filterX.getValue();
+//			float dis_Y = filterY.getValue();
+//
+//			motionEventListener.notifyMotion(dis_X, dis_Y);
+//		}
 
 		return mRgba;
 	}
@@ -623,7 +619,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 		// mOpenCvCameraView.setMaxFrameSize(500, 500);
 		mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
 		mOpenCvCameraView.setCvCameraViewListener(this);
-		mOpenCvCameraView.enableFpsMeter();
+//		mOpenCvCameraView.enableFpsMeter();
 		mFrameLayout.addView(mOpenCvCameraView);
 		mOpenCvCameraView.enableView();
 	}
