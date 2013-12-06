@@ -11,9 +11,9 @@
     <string name="color_pick_instructions_number_1">1.</string>
     <string name="color_pick_instructions_number_2">2.</string>
     <string name="color_pick_instructions_number_3">3.</string>
-    <string name="color_pick_instructions_point_1">Stick a high contrast color note on your shoes</string>
-    <string name="color_pick_instructions_point_2">Hold your phone hori-zontally, under a good light condition</string>
-    <string name="color_pick_instructions_point_3">Aim the crosshair to your note and finish picking its color</string>
+    <string name="color_pick_instructions_point_1">Stick notes on shoes</string>
+    <string name="color_pick_instructions_point_2">Hold the phone horizontally</string>
+    <string name="color_pick_instructions_point_3">Aim the notes and record their color</string>
     <string name="instruction_title">First, know where your shoes are.</string>
     <string name="color_pick_help_notif_horizon">Please hold your device horizontally.</string>
     <string name="color_pick_help_notif_confirm_shoe">Does our contour wrap and only wrap your sticky notes?</string>

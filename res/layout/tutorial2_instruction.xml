@@ -11,7 +11,7 @@
               android:layout_height="wrap_content"
               android:layout_alignParentBottom="true"
               android:layout_alignParentLeft="true"
-              android:layout_marginBottom="38dp"
+              android:layout_marginBottom="50dp"
               android:layout_marginLeft="59dp"
               android:background="@drawable/ok_button"
               android:onClick="onClickTutorial2InstructionOk"
@@ -30,5 +30,15 @@
               android:text="@string/tutorial2_instruction"
               android:textColor="#FFFFFF"
               android:textSize="18sp" />
+
+          <ImageView
+              android:id="@+id/imageView1"
+              android:layout_width="250dp"
+              android:layout_height="250dp"
+              android:layout_alignParentBottom="true"
+              android:layout_alignParentRight="true"
+              android:layout_marginBottom="30dp"
+              android:layout_marginRight="70dp"
+              android:src="@drawable/spray_normal" />
 
     </RelativeLayout>
