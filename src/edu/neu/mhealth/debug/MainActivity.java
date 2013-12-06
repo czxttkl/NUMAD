@@ -380,9 +380,9 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 			if (detectedFloorContours == null)
 				return mRgba;
 			detectedFloorContours.removeAll(Collections.singleton(null));
-			Imgproc.drawContours(mRgba, detectedFloorContours, -1, colorRed, 4);
-			if (destinationTarget != null)
-				Core.circle(mRgba, destinationTarget, 10, colorRed, -1);
+//			Imgproc.drawContours(mRgba, detectedFloorContours, -1, colorRed, 4);
+//			if (destinationTarget != null)
+//				Core.circle(mRgba, destinationTarget, 10, colorRed, -1);
 			
 			mOpticalFLowDetector.process(mRgba);
 
@@ -881,9 +881,9 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 			LayoutInflater layoutInflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
 			mJumpHelperLayout = (LinearLayout) layoutInflater.inflate(R.layout.jump_helper, null, false);
 			mFrameLayout.addView(mJumpHelperLayout);
-			fadeOutAnimation.setDuration(10000);
+			fadeOutAnimation.setDuration(3000);
 			mJumpHelperLayout.startAnimation(fadeOutAnimation);
-			mHandler.postDelayed(mJumpHelperRemoverRunnable, 10000);
+			mHandler.postDelayed(mJumpHelperRemoverRunnable, 3000);
 		}
 	};
 	
