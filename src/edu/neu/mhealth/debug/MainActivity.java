@@ -69,6 +69,7 @@ import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -124,7 +125,8 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 	// / For Game Flow Control
 	public boolean shoeColorPicked = false;
 	private boolean floorColorPicked = false;
-
+	public boolean rendererInited = false;
+	
 	Mat colorPickAreaHsv;
 	org.opencv.core.Point crosshairHeftmost;
 	org.opencv.core.Point crosshairRightmost;
@@ -477,6 +479,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 	 */
 	public void restoreOrCreateGLSurfaceView2() {
 		if (mGLSurfaceView != null) {
+			rendererInited = true;
 			ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_MAIN_MENU);
 			mFrameLayout.addView(mGLSurfaceView);
 			mGLSurfaceView.setZOrderMediaOverlay(true);
@@ -639,7 +642,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 	private void updateScoreUI() {
 		mScoreText.setText(String.valueOf(score));
 	}
-
+	
 	private void updateSpray() {
 		if (score - lastTimeUseSprayScore == 5) {
 			lastTimeUseSprayScore = score;
@@ -652,6 +655,8 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 	}
 	
  	public void onClickMainMenuStartGame(View v) {
+ 		if (!rendererInited)
+ 			return;
 		mFrameLayout.removeView(mMainMenuTitle);
 		mFrameLayout.removeView(mMainMenuButtonListView);
 		mFrameLayout.removeView(mMainMenuBackground);
