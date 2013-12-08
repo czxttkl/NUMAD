@@ -1,4 +1,4 @@
-package com.learnopengles.android.common;
+package edu.neu.mhealth.debug.helper;
 
 import java.io.BufferedReader;
 import java.io.IOException;

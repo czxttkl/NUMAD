@@ -1,4 +1,4 @@
-package com.learnopengles.android.common;
+package edu.neu.mhealth.debug.helper;
 
 import edu.neu.mhealth.debug.R;
 import android.content.Context;

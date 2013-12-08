@@ -26,10 +26,10 @@ import android.opengl.Matrix;
 import android.os.SystemClock;
 import android.util.Log;
 
-import com.learnopengles.android.common.RawResourceReader;
-import com.learnopengles.android.common.ShaderHelper;
-import com.learnopengles.android.common.TextureHelper;
 
+import edu.neu.mhealth.debug.helper.RawResourceReader;
+import edu.neu.mhealth.debug.helper.ShaderHelper;
+import edu.neu.mhealth.debug.helper.TextureHelper;
 import edu.neu.mhealth.debug.opengl.OpenGLBug;
 import edu.neu.mhealth.debug.opengl.OpenGLBugManager;
 import edu.neu.mhealth.debug.opengl.OpenGLFire;
