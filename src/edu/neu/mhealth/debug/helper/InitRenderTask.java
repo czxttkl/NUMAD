@@ -1,6 +1,5 @@
 package edu.neu.mhealth.debug.helper;
 
-import edu.neu.mhealth.debug.CameraActivity;
 import edu.neu.mhealth.debug.MainActivity;
 import edu.neu.mhealth.debug.MyGLSurfaceView;
 import android.os.AsyncTask;
