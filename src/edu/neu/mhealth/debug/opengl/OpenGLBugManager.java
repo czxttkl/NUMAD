@@ -16,6 +16,7 @@ import edu.neu.mhealth.debug.helper.Global;
 import edu.neu.mhealth.debug.helper.ModeManager;
 import edu.neu.mhealth.debug.helper.MotionEventListener;
 import edu.neu.mhealth.debug.helper.MotionMetrics;
+import edu.neu.mhealth.debug.helper.Prefs;
 
 public class OpenGLBugManager implements Observer {
 
@@ -40,6 +41,7 @@ public class OpenGLBugManager implements Observer {
 	public void setMode(int mode) {
 		switch (mode) {
 		case ModeManager.MODE_MAIN_MENU:
+			clearList();
 			generateMainMenuBug();
 			break;
 
@@ -57,7 +59,12 @@ public class OpenGLBugManager implements Observer {
 			mBugList.add(generateFireBug());
 			mBugList.add(generateFireBug());
 			break;
-
+			
+		case ModeManager.MODE_REAL_GAME:
+			mBugList.add(generateFireBug());
+			mBugList.add(generateFireBug());
+			break;
+			
 		default:
 			clearList();
 		}
@@ -158,7 +165,7 @@ public class OpenGLBugManager implements Observer {
 	 * Determine whether the bug is burned by return the max distance between the bug and two fire flames
 	 */
 	public boolean ifFireHitsBug(int tmpX, int tmpY) {
-		for (OpenGLFire mOpenGLFire : OpenGLRenderer.mFireList) {
+		for (OpenGLFire mOpenGLFire : mCameraActivityInstance.mOpenGLRenderer.mFireList) {
 			long xDiff = tmpX - (int) (mOpenGLFire.ratioX * getOpenGLBugManager().getOpenGlWidth());
 			long yDiff = tmpY - (int) (mOpenGLFire.ratioY * getOpenGLBugManager().getOpenGlHeight());
 			double distance = Math.sqrt(xDiff * xDiff + yDiff * yDiff);
@@ -231,6 +238,8 @@ public class OpenGLBugManager implements Observer {
 	}
 
 	public void freezeBug() {
+		if (mBugList.size() == 0)
+			return;
 		int randomNum = Global.rd.nextInt(mBugList.size());
 		OpenGLBug mOpenGLBug = mBugList.get(randomNum);
 		mOpenGLBug.freezing = true;
@@ -243,10 +252,14 @@ public class OpenGLBugManager implements Observer {
 			}
 		}
 	}
-
+	
 	public void killFrozenBugs() {
 		for (OpenGLBug mOpenGLBug : mBugList) {
 			if (mOpenGLBug.freezing) {
+				if (!Prefs.getTutorialed(mCameraActivityInstance)) {
+					mCameraActivityInstance.mHandler.postDelayed(mCameraActivityInstance.mStartRealGame, 0);
+				}
+				
 				mOpenGLBug.freezing = false;
 				mOpenGLBug.burning = true;
 				mOpenGLBug.burningStepCounter = 0;

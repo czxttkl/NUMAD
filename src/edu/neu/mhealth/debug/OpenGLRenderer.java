@@ -184,7 +184,7 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer {
 	private int mFireTextureDataHandle5;
 
 	/** Hold all the fire flames that should be rendered */
-	public static List<OpenGLFire> mFireList = new ArrayList<OpenGLFire>();
+	public List<OpenGLFire> mFireList = new ArrayList<OpenGLFire>();
 
 	/** Random instance */
 	public Random rd;

@@ -15,9 +15,10 @@ public class ModeManager {
 	public static final int MODE_COLOR_PICK_HOLD_WRONGLY = 125;
 	public static final int MODE_FLOOR_COLOR_PICKED = 126;
 	public static final int MODE_TUTORIAL_1 = 127;
-	public static final int MODE_BEFORE_TUTORIAL_1 = 130;
 	public static final int MODE_TUTORIAL_2 = 128;
 	public static final int MODE_TUTORIAL_3 = 129;
+	public static final int MODE_BEFORE_TUTORIAL_1 = 130;
+	public static final int MODE_REAL_GAME = 131;
 	
 	private static ModeManager modeManager;
 	private ModeEventListener eventListener;

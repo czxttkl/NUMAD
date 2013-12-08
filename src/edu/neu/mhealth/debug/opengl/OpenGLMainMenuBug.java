@@ -24,8 +24,8 @@ public class OpenGLMainMenuBug extends OpenGLBug{
 		int polarityY;
 		polarityX = speedX >= 0 ? 1 : -1;
 		polarityY = speedY >= 0 ? 1 : -1;
-		tmpX = x + speedX + OpenGLBug.relativeSpeedX;
-		tmpY = y + speedY + OpenGLBug.relativeSpeedY;
+		tmpX = x + speedX;
+		tmpY = y + speedY;
 
 		if (shouldPause) {
 			if (System.currentTimeMillis() - lastRefreshTime > 2000) {
@@ -36,11 +36,11 @@ public class OpenGLMainMenuBug extends OpenGLBug{
 			shouldPause = true;
 		}
 
-		if (tmpX + polarityX * OpenGLBug.radius > OpenGLRenderer.screenOpenGLWidth || tmpX + polarityX * OpenGLBug.radius < 0) {
+		if (tmpX + polarityX * OpenGLBug.radius > OpenGLBugManager.getOpenGLBugManager().getOpenGlWidth() || tmpX + polarityX * OpenGLBug.radius < 0) {
 			speedX = -speedX;
 			tmpX = x;
 		}
-		if (tmpY + polarityY * OpenGLBug.radius > OpenGLRenderer.screenOpenGLHeight || tmpY + polarityY * OpenGLBug.radius < 0) {
+		if (tmpY + polarityY * OpenGLBug.radius > OpenGLBugManager.getOpenGLBugManager().getOpenGlHeight() || tmpY + polarityY * OpenGLBug.radius < 0) {
 			speedY = -speedY;
 			tmpY = y;
 		}

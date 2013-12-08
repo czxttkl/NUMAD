@@ -71,8 +71,6 @@ public class OpenGLFireBug extends OpenGLBug {
 					// If the bug is not burned by the fire and not bouncing, we check if it is in the floor contour
 					if (!bouncing) {
 						int distanceToContour = OpenGLBugManager.getOpenGLBugManager().distToContour(x, y);
-						// Log.d(Global.APP_LOG_TAG, "fire hit:y=" + y + "," + x + " thresheight1,thresheigh2,threswidth1,threswidth2:" + thresHeight1 + "," + thresHeight2 + "," + thresWidth1 + "," +
-						// thresWidth2);
 
 						// The bug could get out of the screen
 						if (Math.abs(distanceToContour) < OpenGLBug.radius && (y > thresHeight1 || y < thresHeight2 || x > thresWidth1 || x < thresWidth2)) {

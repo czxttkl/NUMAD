@@ -24,4 +24,7 @@
                                          to show your power</string>
     <string name="tutorial2_instruction">You got a freeze spray by killing five bugs.\nTap it and shake hard to freeze bugs.\n
                                          </string>
+    <string name="real_game_instruction">You have learned all the skills\n
+                                         Start the war to bugs now! \n
+										</string>
 </resources>
