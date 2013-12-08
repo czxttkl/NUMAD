@@ -255,7 +255,14 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 		// ModeManager.getModeManager().addObserver(jumpBug);
 		ModeManager.getModeManager().addObserver(OpenGLBugManager.getOpenGLBugManager());
 
-		OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_3, this, mLoaderCallback);
+//		OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_3, this, mLoaderCallback);
+		if (OpenCVLoader.initDebug()) {
+			Log.i(TAG, "OpenCV loaded successfully");
+
+			restoreOrCreateJavaCameraView();
+			restoreOrCreateGLSurfaceView();
+			restoreOrCreateAboutScreen();
+		}
 	}
 
 	public void onDestroy() {
