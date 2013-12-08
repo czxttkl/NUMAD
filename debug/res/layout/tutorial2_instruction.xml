@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/tutorial2_layout"
+         android:animateLayoutChanges="true">
+
+          <Button
+              android:id="@+id/tutorial2_startBtn"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_alignParentBottom="true"
+              android:layout_alignParentLeft="true"
+              android:layout_marginBottom="50dp"
+              android:layout_marginLeft="59dp"
+              android:background="@drawable/ok_button"
+              android:onClick="onClickTutorial2InstructionOk"
+              android:text="@string/tutorial_instruction_ok"
+              android:textColor="#fff"
+              android:textSize="18sp" />
+
+          <TextView
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_alignLeft="@+id/tutorial2_startBtn"
+              android:layout_alignParentTop="true"
+              android:layout_marginTop="47dp"
+              android:gravity="left"
+              android:lineSpacingExtra="10sp"
+              android:text="@string/tutorial2_instruction"
+              android:textColor="#FFFFFF"
+              android:textSize="18sp" />
+
+          <ImageView
+              android:id="@+id/imageView1"
+              android:layout_width="250dp"
+              android:layout_height="250dp"
+              android:layout_alignParentBottom="true"
+              android:layout_alignParentRight="true"
+              android:layout_marginBottom="30dp"
+              android:layout_marginRight="70dp"
+              android:src="@drawable/spray_normal" />
+
+    </RelativeLayout>

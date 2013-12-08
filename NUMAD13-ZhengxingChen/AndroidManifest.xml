@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="io.github.czxttkl.madcourse"
-    android:versionCode="21"
-    android:versionName="5.01" >
+    android:versionCode="22"
+    android:versionName="6.01" >
 
-     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_PHONE_DATA" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -12,10 +12,17 @@
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
 	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
-
+	<uses-permission android:name="android.permission.CAMERA"/>
+	
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.front" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.front.autofocus" android:required="false" />
+ 	<uses-feature android:glEsVersion="0x00020000" android:required="true" />
+ 	
     <uses-sdk
-        android:minSdkVersion="7"
-        android:targetSdkVersion="7" />
+        android:minSdkVersion="15"
+        android:targetSdkVersion="18" />
 
     <application
         android:allowBackup="true"
@@ -49,7 +56,7 @@
             android:label="@string/game_title" />
         <activity
             android:name="edu.neu.zhengxingchen.madcourse.sudoku.About"
-            android:label="@string/about_title"
+            android:label="@string/about_title_debug"
             android:theme="@android:style/Theme.Dialog" >
         </activity>
         <activity
@@ -177,16 +184,18 @@
 			</intent-filter>
 		</receiver>
         
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+		
+         <activity
+            android:name="edu.neu.mhealth.debug.MainActivity"
+            android:screenOrientation="landscape"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+            android:icon="@drawable/bug_icon"
+             android:label="@string/debug_app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         
         
     </application>

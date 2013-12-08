@@ -1,11 +1,14 @@
 package io.github.czxttkl.madcourse;
 
 
+import java.security.PublicKey;
+
 import edu.neu.mhealth.api.KeyValueAPI;
 import edu.neu.mobileClass.PhoneCheckAPI;
 import android.os.Bundle;
 import android.os.Handler;
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.graphics.Color;
 import android.support.v4.view.ViewPager.LayoutParams;
@@ -38,9 +41,23 @@ public class MainActivity extends Activity {
 		setCommunicationButton();
 		setDabbleButton();
 		setTwoPlayerDabbleButton();
+		setFinalProjectButton();
 		setQuitButton();
 	}
 
+	private void setFinalProjectButton() {
+		final TextView finalTv = (TextView) findViewById(R.id.final_tv);
+		finalTv.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Intent debugIntent = new Intent(MainActivity.this, edu.neu.mhealth.debug.MainActivity.class);
+				startActivity(debugIntent);
+				finish();
+			}
+		});
+	}
+	
 	private void setQuitButton() {
 		final TextView quitTv = (TextView) findViewById(R.id.quit_tv);
 		quitTv.setOnClickListener(new View.OnClickListener() {
