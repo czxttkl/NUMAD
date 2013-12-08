@@ -10,7 +10,7 @@
         android:layout_marginLeft="15dip"
         android:padding="10dip"
         android:layout_marginTop="5dip"
-        android:text="@string/about_title"
+        android:text="@string/about_title_debug"
         android:textColor="@color/holo_light_blue"
         android:textSize="@dimen/about_title" />
 
