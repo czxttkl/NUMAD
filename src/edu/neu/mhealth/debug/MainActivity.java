@@ -26,15 +26,10 @@ import org.opencv.imgproc.Imgproc;
 import org.opencv.imgproc.Moments;
 import org.opencv.video.Video;
 
-import edu.neu.mhealth.debug.helper.LinearAccEventListener;
-import edu.neu.mhealth.debug.helper.Bug;
-import edu.neu.mhealth.debug.helper.BugManager;
 import edu.neu.mhealth.debug.helper.Global;
 import edu.neu.mhealth.debug.helper.InitRenderTask;
 import edu.neu.mhealth.debug.helper.JumpBug;
 import edu.neu.mhealth.debug.helper.ModeManager;
-import edu.neu.mhealth.debug.helper.MotionEventListener;
-import edu.neu.mhealth.debug.helper.MovingAverage;
 import edu.neu.mhealth.debug.helper.Prefs;
 import edu.neu.mhealth.debug.helper.ModeManager.AccEventModeManager;
 import edu.neu.mhealth.debug.opencv.ColorDetector;
@@ -43,6 +38,9 @@ import edu.neu.mhealth.debug.opengl.OpenGLBug;
 import edu.neu.mhealth.debug.opengl.OpenGLBugManager;
 import edu.neu.mhealth.debug.opengl.OpenGLFire;
 import edu.neu.mhealth.debug.opengl.OpenGLRenderer;
+import edu.neu.mhealth.debug.sensor.LinearAccEventListener;
+import edu.neu.mhealth.debug.sensor.MotionEventListener;
+import edu.neu.mhealth.debug.sensor.MovingAverage;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;

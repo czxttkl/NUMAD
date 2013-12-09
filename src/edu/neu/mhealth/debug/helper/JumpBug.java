@@ -3,16 +3,20 @@ package edu.neu.mhealth.debug.helper;
 import java.util.Observable;
 import java.util.Observer;
 
+import edu.neu.mhealth.debug.sensor.LinearAccEventListener;
+import edu.neu.mhealth.debug.sensor.MotionEventListener;
+import edu.neu.mhealth.debug.sensor.MotionMetrics;
+
 import android.R.integer;
 import android.content.Context;
 import android.util.Log;
 
-public class JumpBug extends Bug implements Observer{
+public class JumpBug implements Observer{
 	
 	private static final String TAG = "JumpBug"; 
 
 	public JumpBug(Context context) {
-		super(context);
+		
 	}
 
 	@Override

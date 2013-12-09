@@ -23,13 +23,13 @@ import android.os.Environment;
 import android.os.SystemClock;
 import android.util.Log;
 
-import com.learnopengles.android.common.MemoryMapReader;
 import com.learnopengles.android.common.RawResourceReader;
 import com.learnopengles.android.common.ShaderHelper;
 import com.learnopengles.android.common.TextureHelper;
 
 import edu.neu.mhealth.debug.MainActivity;
 import edu.neu.mhealth.debug.R;
+import edu.neu.mhealth.debug.file.MemoryMapReader;
 import edu.neu.mhealth.debug.helper.Global;
 import edu.neu.mhealth.debug.helper.Prefs;
 

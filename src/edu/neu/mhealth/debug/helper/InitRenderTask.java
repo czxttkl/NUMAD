@@ -20,21 +20,21 @@ public class InitRenderTask extends AsyncTask<Object, Integer, Boolean>{
 	@Override
 	protected Boolean doInBackground(Object... params) {
 //		mCameraActivity.mGLSurfaceView = new MyGLSurfaceView(mCameraActivity);
-		if (!Prefs.getObjFileSaved(mMainActivity)) {
-			File sdCard= Environment.getExternalStorageDirectory();
-			File dir = new File(sdCard.getAbsolutePath() + "/debug/");
-			dir.mkdirs();
-			
-			try {
-				FileHelper.moveAssetsToSdCard(mMainActivity.getAssets().open("memorymap_vertices"), dir.getAbsolutePath() + "/memorymap_vertices");
-				FileHelper.moveAssetsToSdCard(mMainActivity.getAssets().open("memorymap_texture"), dir.getAbsolutePath() + "/memorymap_texture");
-				FileHelper.moveAssetsToSdCard(mMainActivity.getAssets().open("memorymap_normal"), dir.getAbsolutePath() + "/memorymap_normal");
-				
-				Prefs.setObjFileSaved(mMainActivity, true);
-			} catch (IOException e) {
-				
-			}
-		}
+//		if (!Prefs.getObjFileSaved(mMainActivity)) {
+//			File sdCard= Environment.getExternalStorageDirectory();
+//			File dir = new File(sdCard.getAbsolutePath() + "/debug/");
+//			dir.mkdirs();
+//			
+//			try {
+//				FileHelper.moveAssetsToSdCard(mMainActivity.getAssets().open("memorymap_vertices"), dir.getAbsolutePath() + "/memorymap_vertices");
+//				FileHelper.moveAssetsToSdCard(mMainActivity.getAssets().open("memorymap_texture"), dir.getAbsolutePath() + "/memorymap_texture");
+//				FileHelper.moveAssetsToSdCard(mMainActivity.getAssets().open("memorymap_normal"), dir.getAbsolutePath() + "/memorymap_normal");
+//				
+//				Prefs.setObjFileSaved(mMainActivity, true);
+//			} catch (IOException e) {
+//				
+//			}
+//		}
 		
 		mMainActivity.mGLSurfaceView.setMyRenderer();
 		return true;

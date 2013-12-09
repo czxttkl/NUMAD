@@ -10,12 +10,12 @@ import android.R.integer;
 import android.util.Log;
 import edu.neu.mhealth.debug.CameraActivity;
 import edu.neu.mhealth.debug.MainActivity;
-import edu.neu.mhealth.debug.helper.LinearAccEventListener;
 import edu.neu.mhealth.debug.helper.Global;
 import edu.neu.mhealth.debug.helper.ModeManager;
-import edu.neu.mhealth.debug.helper.MotionEventListener;
-import edu.neu.mhealth.debug.helper.MotionMetrics;
 import edu.neu.mhealth.debug.helper.Prefs;
+import edu.neu.mhealth.debug.sensor.LinearAccEventListener;
+import edu.neu.mhealth.debug.sensor.MotionEventListener;
+import edu.neu.mhealth.debug.sensor.MotionMetrics;
 
 public class OpenGLBugManager implements Observer {
 

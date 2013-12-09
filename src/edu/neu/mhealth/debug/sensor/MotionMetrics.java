@@ -1,4 +1,4 @@
-package edu.neu.mhealth.debug.helper;
+package edu.neu.mhealth.debug.sensor;
 
 public class MotionMetrics {
 	private float motionX;

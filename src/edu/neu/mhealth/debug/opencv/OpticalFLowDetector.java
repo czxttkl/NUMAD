@@ -14,9 +14,9 @@ import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.video.Video;
 
-import edu.neu.mhealth.debug.helper.MotionEventListener;
-import edu.neu.mhealth.debug.helper.MovingAverage;
 import edu.neu.mhealth.debug.opengl.OpenGLBugManager;
+import edu.neu.mhealth.debug.sensor.MotionEventListener;
+import edu.neu.mhealth.debug.sensor.MovingAverage;
 
 public class OpticalFLowDetector {
 	private static final int squareMetric = 200;

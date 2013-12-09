@@ -1,4 +1,4 @@
-package com.learnopengles.android.common;
+package edu.neu.mhealth.debug.file;
 
 import java.io.File;
 import java.io.FileInputStream;
