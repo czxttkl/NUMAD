@@ -234,7 +234,11 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 		sensorManager.unregisterListener(linearAccEventListener);
 		ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_INITIAL);
 		ModeManager.AccEventModeManager.getAccEventModeManager().setCurrentMode(AccEventModeManager.MODE_DEFAULT);
-		mOpenGLRenderer.mFireList.clear();
+		if (mOpenGLRenderer != null) {
+			if (mOpenGLRenderer.mFireList != null) {
+				mOpenGLRenderer.mFireList.clear();
+			}
+		}
 //		finish();
 	}
 
@@ -472,7 +476,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 
 		// Set background to transparent
 		blackBackground.setAlpha(0);
-		mColorPickLayout.setBackground(blackBackground);
+		mColorPickLayout.setBackgroundDrawable(blackBackground);
 
 		// Set opencvmode to crosshair mode, so opencv will draw a crosshair in
 		// the center of image
@@ -525,7 +529,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 	private void restoreOrCreateMainMenu() {
 		mMainMenuBackground = new ImageView(this);
 		mMainMenuBackground.setImageResource(R.drawable.black_bg);
-		mMainMenuBackground.setAlpha(0f);
+		mMainMenuBackground.setAlpha(0);
 		mMainMenuBackground.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 		mMainMenuBackground.setScaleType(ImageView.ScaleType.FIT_XY);
 		mFrameLayout.addView(mMainMenuBackground);
@@ -554,7 +558,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 		Resources res = getResources();
 		Drawable background = res.getDrawable(R.drawable.black_bg);
 		background.setAlpha(200);
-		mAboutView.setBackground(background);
+		mAboutView.setBackgroundDrawable(background);
 		mFrameLayout.addView(mAboutView);
 
 		mAboutText = (TextView) findViewById(R.id.about_text);
@@ -665,8 +669,8 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 			mSprayImageView.setAnimation(fadeInAnimation);
 			mSprayImageView.setEnabled(true);
 
-			mSprayImageView.setAlpha(1f);
-			Log.d(TAG, "update spray:" + mSprayImageView.getAlpha() + ":" + lastTimeUseSprayScore);
+			mSprayImageView.setAlpha(1);
+//			Log.d(TAG, "update spray:" + mSprayImageView.getAlpha() + ":" + lastTimeUseSprayScore);
 		}
 	}
 
@@ -686,7 +690,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 
 		// Set background to semi-transparent black
 		blackBackground.setAlpha(200);
-		mColorPickLayout.setBackground(blackBackground);
+		mColorPickLayout.setBackgroundDrawable(blackBackground);
 
 		mFrameLayout.addView(mColorPickLayout);
 		// Gets a reference to the bottom navigation bar
@@ -755,7 +759,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 	public void onClickColorPickCameraClose(View v) {
 		// Set background to semi-transparent black
 		blackBackground.setAlpha(200);
-		mColorPickLayout.setBackground(blackBackground);
+		mColorPickLayout.setBackgroundDrawable(blackBackground);
 
 		// Goes back to the Color Pick Add rMode
 		initializeInstructionMode();
@@ -849,16 +853,16 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 
 	public void onClickTutorial1InstructionOk(View v) {
 		blackBackground.setAlpha(0);
-		mGameScoreLayout.setBackground(blackBackground);
-		mTutorial1InstructionLayout.setBackground(blackBackground);
+		mGameScoreLayout.setBackgroundDrawable(blackBackground);
+		mTutorial1InstructionLayout.setBackgroundDrawable(blackBackground);
 		mFrameLayout.removeView(mTutorial1InstructionLayout);
 		ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_TUTORIAL_1);
 	}
 
 	public void onClickTutorial2InstructionOk(View v) {
 		blackBackground.setAlpha(0);
-		mGameScoreLayout.setBackground(blackBackground);
-		mTutorial2InstructionLayout.setBackground(blackBackground);
+		mGameScoreLayout.setBackgroundDrawable(blackBackground);
+		mTutorial2InstructionLayout.setBackgroundDrawable(blackBackground);
 
 		mFrameLayout.removeView(mTutorial2InstructionLayout);
 		mFrameLayout.removeView(mGameScoreLayout);
@@ -929,7 +933,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 
 			// Set background to semi-transparent black
 			blackBackground.setAlpha(200);
-			mTutorial1InstructionLayout.setBackground(blackBackground);
+			mTutorial1InstructionLayout.setBackgroundDrawable(blackBackground);
 
 			mFrameLayout.addView(mTutorial1InstructionLayout);
 
@@ -949,7 +953,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 
 			// Set background to semi-transparent black
 			blackBackground.setAlpha(200);
-			mTutorial2InstructionLayout.setBackground(blackBackground);
+			mTutorial2InstructionLayout.setBackgroundDrawable(blackBackground);
 
 			mFrameLayout.addView(mTutorial2InstructionLayout);
 
