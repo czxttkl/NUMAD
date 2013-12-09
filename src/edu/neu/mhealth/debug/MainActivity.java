@@ -235,8 +235,6 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 				mOpenGLRenderer.mFireList.clear();
 			}
 		}
-
-		// finish();
 	}
 
 	@Override
@@ -526,7 +524,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 	private void restoreOrCreateMainMenu() {
 		mMainMenuBackground = new ImageView(this);
 		mMainMenuBackground.setImageResource(R.drawable.black_bg);
-		mMainMenuBackground.setAlpha(0f);
+		mMainMenuBackground.setAlpha(0);
 		mMainMenuBackground.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 		mMainMenuBackground.setScaleType(ImageView.ScaleType.FIT_XY);
 		mFrameLayout.addView(mMainMenuBackground);
@@ -666,8 +664,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 			mSprayImageView.setAnimation(fadeInAnimation);
 			mSprayImageView.setEnabled(true);
 
-			mSprayImageView.setAlpha(1f);
-			Log.d(Global.APP_LOG_TAG, "update spray:" + mSprayImageView.getAlpha() + ":" + lastTimeUseSprayScore);
+			mSprayImageView.setAlpha(1);
 		}
 	}
 
