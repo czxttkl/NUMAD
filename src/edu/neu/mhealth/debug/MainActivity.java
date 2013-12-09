@@ -662,7 +662,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 			mSprayImageView.setAnimation(fadeInAnimation);
 			mSprayImageView.setEnabled(true);
 
-			mSprayImageView.setAlpha(1);
+			mSprayImageView.setAlpha(1f);
 		}
 	}
 
