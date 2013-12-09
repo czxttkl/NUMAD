@@ -193,11 +193,11 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer {
 	private void loadBugObjInfo() {
 		long now = System.currentTimeMillis();
 
-		// Both initialize cubeColorData in this way
-		float[] cubeColorData = new float[4 * 5580];
-		Arrays.fill(cubeColorData, 1.0f);
-		mBugColorsFloatBuffer = ByteBuffer.allocateDirect(cubeColorData.length * mBytesPerFloat).order(ByteOrder.nativeOrder()).asFloatBuffer();
-		mBugColorsFloatBuffer.put(cubeColorData).position(0);
+		// Both initialize bugColorData in this way
+		float[] bugColorData = new float[4 * 5580];
+		Arrays.fill(bugColorData, 1.0f);
+		mBugColorsFloatBuffer = ByteBuffer.allocateDirect(bugColorData.length * mBytesPerFloat).order(ByteOrder.nativeOrder()).asFloatBuffer();
+		mBugColorsFloatBuffer.put(bugColorData).position(0);
 
 		if (!Prefs.getObjFileSaved(mCameraActivityInstance)) {
 			// Initialize the buffers.
