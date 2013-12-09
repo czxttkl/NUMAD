@@ -1,5 +1,6 @@
 package edu.neu.mhealth.debug;
 
+import edu.neu.mhealth.debug.opengl.OpenGLRenderer;
 import android.content.Context;
 import android.graphics.PixelFormat;
 import android.opengl.GLSurfaceView;

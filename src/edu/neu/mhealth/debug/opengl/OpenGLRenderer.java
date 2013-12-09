@@ -1,4 +1,4 @@
-package edu.neu.mhealth.debug;
+package edu.neu.mhealth.debug.opengl;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -30,9 +30,10 @@ import com.learnopengles.android.common.RawResourceReader;
 import com.learnopengles.android.common.ShaderHelper;
 import com.learnopengles.android.common.TextureHelper;
 
-import edu.neu.mhealth.debug.opengl.OpenGLBug;
-import edu.neu.mhealth.debug.opengl.OpenGLBugManager;
-import edu.neu.mhealth.debug.opengl.OpenGLFire;
+import edu.neu.mhealth.debug.MainActivity;
+import edu.neu.mhealth.debug.R;
+import edu.neu.mhealth.debug.R.drawable;
+import edu.neu.mhealth.debug.R.raw;
 
 /**
  * This class implements our custom renderer. Note that the GL10 parameter passed in is unused for OpenGL ES 2.0 renderers -- the static class GLES20 is used instead.

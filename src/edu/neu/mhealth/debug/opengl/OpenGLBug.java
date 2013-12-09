@@ -3,7 +3,6 @@ package edu.neu.mhealth.debug.opengl;
 import java.util.ListIterator;
 import java.util.Random;
 
-import edu.neu.mhealth.debug.OpenGLRenderer;
 
 public abstract class OpenGLBug {
 	

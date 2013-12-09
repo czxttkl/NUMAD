@@ -40,6 +40,7 @@ import edu.neu.mhealth.debug.helper.ModeManager.AccEventModeManager;
 import edu.neu.mhealth.debug.opengl.OpenGLBug;
 import edu.neu.mhealth.debug.opengl.OpenGLBugManager;
 import edu.neu.mhealth.debug.opengl.OpenGLFire;
+import edu.neu.mhealth.debug.opengl.OpenGLRenderer;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
