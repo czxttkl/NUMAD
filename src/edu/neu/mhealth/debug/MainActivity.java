@@ -37,6 +37,8 @@ import edu.neu.mhealth.debug.helper.MotionEventListener;
 import edu.neu.mhealth.debug.helper.MovingAverage;
 import edu.neu.mhealth.debug.helper.Prefs;
 import edu.neu.mhealth.debug.helper.ModeManager.AccEventModeManager;
+import edu.neu.mhealth.debug.opencv.ColorDetector;
+import edu.neu.mhealth.debug.opencv.OpticalFLowDetector;
 import edu.neu.mhealth.debug.opengl.OpenGLBug;
 import edu.neu.mhealth.debug.opengl.OpenGLBugManager;
 import edu.neu.mhealth.debug.opengl.OpenGLFire;
@@ -79,8 +81,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class MainActivity extends Activity implements OnTouchListener, CvCameraViewListener2, SensorEventListener {
-
-	private static final String TAG = "MainActivity";
 
 	// / Layout
 	private FrameLayout mFrameLayout;
@@ -149,7 +149,6 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 	private Scalar mBlobColorHsv;
 
 	private CameraView mOpenCvCameraView;
-	private ConfigureView configureView;
 	private JumpBug jumpBug;
 
 	public int screenOpenGLWidth;
@@ -183,7 +182,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 		public void onManagerConnected(int status) {
 			switch (status) {
 			case LoaderCallbackInterface.SUCCESS: {
-				Log.i(TAG, "OpenCV loaded successfully");
+				Log.i(Global.APP_LOG_TAG, "OpenCV loaded successfully");
 
 				restoreOrCreateJavaCameraView();
 				restoreOrCreateGLSurfaceView();
@@ -198,14 +197,11 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 		}
 	};
 
-	public MainActivity() {
-		Log.i(TAG, "Instantiated new " + this.getClass());
-	}
 
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		Log.i(TAG, "called onCreate");
+		Log.i(Global.APP_LOG_TAG, "called onCreate");
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -258,7 +254,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 
 //		OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_3, this, mLoaderCallback);
 		if (OpenCVLoader.initDebug()) {
-			Log.i(TAG, "OpenCV loaded successfully");
+			Log.i(Global.APP_LOG_TAG, "OpenCV loaded successfully");
 
 			restoreOrCreateJavaCameraView();
 			restoreOrCreateGLSurfaceView();
@@ -318,10 +314,10 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 
 	public boolean onTouch(View v, MotionEvent event) {
 
-		Log.e(TAG, "touch coordinate: " + event.getX() + "  " + event.getY());
+		Log.e(Global.APP_LOG_TAG, "touch coordinate: " + event.getX() + "  " + event.getY());
 
-		int x = configureView.getFloorPosition().x;
-		int y = configureView.getFloorPosition().y;
+//		int x = configureView.getFloorPosition().x;
+//		int y = configureView.getFloorPosition().y;
 
 		return false;
 	}
@@ -609,8 +605,8 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 
 	public void addScore(int diff) {
 		score = score + diff;
-		Log.d(TAG, "update score:" + score);
-		Log.d(TAG, "gamescorelayout height:" + mGameScoreLayout.getHeight());
+//		Log.d(Global.APP_LOG_TAG, "update score:" + score);
+//		Log.d(Global.APP_LOG_TAG, "gamescorelayout height:" + mGameScoreLayout.getHeight());
 
 		updateScoreUI();
 		updateSpray();
@@ -667,7 +663,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 			mSprayImageView.setEnabled(true);
 
 			mSprayImageView.setAlpha(1f);
-			Log.d(TAG, "update spray:" + mSprayImageView.getAlpha() + ":" + lastTimeUseSprayScore);
+			Log.d(Global.APP_LOG_TAG, "update spray:" + mSprayImageView.getAlpha() + ":" + lastTimeUseSprayScore);
 		}
 	}
 
