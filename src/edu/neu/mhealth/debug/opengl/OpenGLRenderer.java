@@ -248,7 +248,6 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer {
 			}
 			mBugNormalsFloatBuffer = ByteBuffer.allocateDirect(cubeNormalData.length * mBytesPerFloat).order(ByteOrder.nativeOrder()).asFloatBuffer();
 			mBugNormalsFloatBuffer.put(cubeNormalData).position(0);
-			Log.d(Global.APP_LOG_TAG, "test buffereader:" + mBugNormalsFloatBuffer.get(999));
 			
 			float[] cubeTextureCoordinateData = new float[2 * 5580];
 			try {
@@ -277,13 +276,13 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer {
 			
 			String savePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/debug/";
 			try {
-				mBugTextureFloatBuffer = MemoryMapReader.mapToFloatBuffer(savePath + "memorymap_texture");
+				mBugTextureFloatBuffer = MemoryMapReader.mapToFloatBuffer(savePath + "memorymap_texture_little_endian");
 				mBugTextureFloatBuffer.position(0);
 				
-				mBugVerticesFloatBuffer = MemoryMapReader.mapToFloatBuffer(savePath + "memorymap_vertices");
+				mBugVerticesFloatBuffer = MemoryMapReader.mapToFloatBuffer(savePath + "memorymap_vertices_little_endian");
 				mBugVerticesFloatBuffer.position(0);
 				
-				mBugNormalsFloatBuffer = MemoryMapReader.mapToFloatBuffer(savePath + "memorymap_normal");
+				mBugNormalsFloatBuffer = MemoryMapReader.mapToFloatBuffer(savePath + "memorymap_normal_little_endian");
 				mBugNormalsFloatBuffer.position(0);
 
 			} catch (IOException e) {

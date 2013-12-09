@@ -21,7 +21,7 @@ public class MemoryMapReader {
 		FileInputStream fis = new FileInputStream(fileName);
 		FileChannel fileChannel = fis.getChannel();
 		long length = fileChannel.size();
-		FloatBuffer mFloatBuffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, 0, length).order(ByteOrder.BIG_ENDIAN).asFloatBuffer();  
+		FloatBuffer mFloatBuffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, 0, length).order(ByteOrder.nativeOrder()).asFloatBuffer();  
 		Log.d(Global.APP_LOG_TAG, "test right:" + fileName + ":" + mFloatBuffer.get(999));
 		return mFloatBuffer;
 	}
