@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Debug</string>
+    <string name="action_settings">Settings</string>
+	<string name="about_title">About</string>
+    <string name="about_text">Debug is a reality-augmented game which encourages people exercise in a fun way. You will get enough sweat while using your feet to \"burn\" and \"squash\" bugs on the screen. &lt;br />&lt;br />All games have limitation. We have minimized the requirements of playing the game. Things you need to make sure before playing are:&lt;br />1. A good light condition while playing&lt;br />2. Sticky notes/markers of high contrast color with the floor.&lt;br />&lt;br />We are keen on having your feedback via email: &lt;a href="https://mail.google.com/mail/?view=cm&amp;fs=1&amp;tf=1&amp;to=czxttkl@gmail.com" target="_blank">czxttkl@gmail.com&lt;/a>&lt;. &lt;br />&lt;br />&lt;br />Happy debugging!</string>
+    <string name="button_start">Start</string>
+    <string name="color_pick_help_notif_shoe">Aim your marker &amp; touch the camera button.</string>
+    <string name="color_pick_help_notif_floor">Put any floor area in the crosshair then touch the camera button.</string>
+    <string name="color_pick_instructions_number_1">1.</string>
+    <string name="color_pick_instructions_number_2">2.</string>
+    <string name="color_pick_instructions_number_3">3.</string>
+    <string name="color_pick_instructions_point_1">Stick notes on shoes</string>
+    <string name="color_pick_instructions_point_2">Hold the phone horizontally</string>
+    <string name="color_pick_instructions_point_3">Aim the notes and record their color</string>
+    <string name="instruction_title">First, know where your shoes are.</string>
+    <string name="color_pick_help_notif_horizon">Please hold your device horizontally.</string>
+    <string name="color_pick_help_notif_confirm_shoe">Does our contour wrap and only wrap your sticky notes?</string>
+    <string name="color_pick_help_notif_confirm_floor">Does our contour wrap and only wrap the floor?</string>
+    <string name="tutorial_instruction_ok">\u0020\u0020OK, Start\u0020\u0020</string>
+    <string name="tutorial1_instruction">You are endowed with killing flames\n
+                                         Burn five bugs consecutively \n
+                                         to show your power</string>
+    <string name="tutorial2_instruction">You got a freeze spray by killing five bugs.\nTap it and shake hard to freeze bugs.\n
+                                         </string>
+    <string name="real_game_instruction">You have learned all the skills\n
+                                         Start the war to bugs now! \n
+										</string>
+</resources>

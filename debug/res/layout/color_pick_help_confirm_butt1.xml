@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/color_pick_help_confirm_butt1"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_alignParentBottom="true"
+    android:layout_gravity="center_vertical|center_horizontal"
+    android:orientation="horizontal" 
+    android:animateLayoutChanges="true">
+
+    <Button
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.5"
+        android:background="@color/instructions_buttom_background"
+        android:onClick="onClickShoeColorPickConfirmCancel"
+        android:padding="@dimen/instructions_ok_cancel_padding"
+        android:text="No, re-target!"
+        android:textColor="@color/white"
+        android:textSize="@dimen/instructions_buttons" />
+
+    <View
+        android:layout_width="1dp"
+        android:layout_height="match_parent"
+        android:background="@color/instructions_bottom_separators" />
+
+    <Button
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.5"
+        android:background="@color/instructions_buttom_background"
+        android:onClick="onClickShoeColorPickConfirmOk"
+        android:padding="@dimen/instructions_ok_cancel_padding"
+        android:text="Yes, continue!"
+        android:textColor="@color/white"
+        android:textSize="@dimen/instructions_buttons" />
+
+</LinearLayout>
