@@ -1,7 +1,6 @@
 package edu.neu.mhealth.debug.opengl;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -10,11 +9,8 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Random;
-import java.util.Scanner;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -23,17 +19,19 @@ import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
+import android.os.Environment;
 import android.os.SystemClock;
 import android.util.Log;
 
+import com.learnopengles.android.common.MemoryMapReader;
 import com.learnopengles.android.common.RawResourceReader;
 import com.learnopengles.android.common.ShaderHelper;
 import com.learnopengles.android.common.TextureHelper;
 
 import edu.neu.mhealth.debug.MainActivity;
 import edu.neu.mhealth.debug.R;
-import edu.neu.mhealth.debug.R.drawable;
-import edu.neu.mhealth.debug.R.raw;
+import edu.neu.mhealth.debug.helper.Global;
+import edu.neu.mhealth.debug.helper.Prefs;
 
 /**
  * This class implements our custom renderer. Note that the GL10 parameter passed in is unused for OpenGL ES 2.0 renderers -- the static class GLES20 is used instead.
@@ -68,16 +66,11 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer {
 	 */
 	private float[] mMVPMatrix = new float[16];
 
-	/**
-	 * Stores a copy of the model matrix specifically for the light position.
-	 */
-	private float[] mLightModelMatrix = new float[16];
-
 	/** Store our bug model data in a float buffer. */
-	private final FloatBuffer mBugPositions;
-	private final FloatBuffer mBugColors;
-	private final FloatBuffer mBugNormals;
-	private final FloatBuffer mBugTextureCoordinates;
+	private FloatBuffer mBugVerticesFloatBuffer;
+	private FloatBuffer mBugColorsFloatBuffer;
+	private FloatBuffer mBugNormalsFloatBuffer;
+	private FloatBuffer mBugTextureFloatBuffer;
 
 	/** Store our bug model data in a float buffer. */
 	private final FloatBuffer mFirePositions;
@@ -125,25 +118,12 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer {
 	private final int mTextureCoordinateDataSize = 2;
 
 	/**
-	 * Used to hold a light centered on the origin in model space. We need a 4th coordinate so we can get translations to work when we multiply this by our transformation matrices.
-	 */
-	private final float[] mLightPosInModelSpace = new float[] { 0.0f, 0.0f, 0.0f, 1.0f };
-
-	/**
-	 * Used to hold the current position of the light in world space (after transformation via model matrix).
-	 */
-	private final float[] mLightPosInWorldSpace = new float[4];
-
-	/**
 	 * Used to hold the transformed position of the light in eye space (after transformation via modelview matrix)
 	 */
 	private final float[] mLightPosInEyeSpace = new float[4];
 
 	/** This is a handle to our bug shading program. */
 	private int mBugProgramHandle;
-
-	/** This is a handle to our light point program. */
-	private int mLightProgramHandle;
 
 	/** This is a handle to our bug shading program. */
 	private int mFireProgramHandle;
@@ -160,35 +140,9 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer {
 	/** This will be used to pass in fire model texture coordinate information. */
 	private int mFireTextureCoordinateHandle;
 
-	/** This is a handle to our fire bug's texture data. It is binded to GLES20.GL_TEXTURE0 */
-	private int mBugFireTextureDataHandle;
-
-	/** This is a handle to our bug's burning texture data. It is binded to GLES20.GL_TEXTURE6 */
-	private int mBugBurningTextureDataHandle;
-
-	/** This is a handle to our bug's burning texture data. It is binded to GLES20.GL_TEXTURE7 */
-	private int mBugFreezingTextureDataHandle;
-
-	/** This is a handle to our fire's texture data 1. */
-	private int mFireTextureDataHandle1;
-
-	/** This is a handle to our fire's texture data 2. */
-	private int mFireTextureDataHandle2;
-
-	/** This is a handle to our fire's texture data 3. */
-	private int mFireTextureDataHandle3;
-
-	/** This is a handle to our fire's texture data 4. */
-	private int mFireTextureDataHandle4;
-
-	/** This is a handle to our fire's texture data 5. */
-	private int mFireTextureDataHandle5;
 
 	/** Hold all the fire flames that should be rendered */
 	public List<OpenGLFire> mFireList = new ArrayList<OpenGLFire>();
-
-	/** Random instance */
-	public Random rd;
 
 	/** The width of screen, in pixels */
 	public static int screenOpenGLWidth;
@@ -196,99 +150,13 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer {
 	/** The height of screen, in pixels */
 	public static int screenOpenGLHeight;
 
-	// /** Record the last time we update the speed/position of the bug in
-	// opengl */
-	// private long lastRefreshBugTime = -1;
-
-	// /** To simulate the reality, bug should halt sometimes */
-	// private boolean bugShouldPause = false;
-	//
-	// /** Hold the lines that bugs should be avoided from */
-	// public ArrayList<BorderLine> borderLineList;
-
 	/** Initialize the model data */
 	public OpenGLRenderer(final Context activityContext) {
 		this.mActivityContext = activityContext;
 		this.mCameraActivityInstance = (MainActivity) mActivityContext;
 		OpenGLBugManager.getOpenGLBugManager().setCameraActivityInstance(mCameraActivityInstance);
-		// Initialize the buffers.
-		int i = 0;
-		BufferedReader buff;
-		long now = System.currentTimeMillis();
-		float[] cubePositionData = new float[3 * 5580];
-		try {
-			buff = new BufferedReader(new InputStreamReader(mActivityContext.getAssets().open("vertices")));
-			i = 0;
-			String tmp = buff.readLine();
-			while (tmp != null) {
-				if (tmp.equals("")) {
-					tmp = buff.readLine();
-					continue;
-				}
-				cubePositionData[i++] = Float.parseFloat(tmp);
-				tmp = buff.readLine();
-			}
-			buff.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		mBugPositions = ByteBuffer.allocateDirect(cubePositionData.length * mBytesPerFloat).order(ByteOrder.nativeOrder()).asFloatBuffer();
-		mBugPositions.put(cubePositionData).position(0);
 
-		float[] cubeColorData = new float[4 * 5580];
-		Arrays.fill(cubeColorData, 1.0f);
-		mBugColors = ByteBuffer.allocateDirect(cubeColorData.length * mBytesPerFloat).order(ByteOrder.nativeOrder()).asFloatBuffer();
-		mBugColors.put(cubeColorData).position(0);
-
-		float[] cubeNormalData = new float[3 * 5580];
-		try {
-			buff = new BufferedReader(new InputStreamReader(mActivityContext.getAssets().open("normal")));
-			i = 0;
-			String tmp = buff.readLine();
-			while (tmp != null) {
-				if (tmp.equals("")) {
-					tmp = buff.readLine();
-					continue;
-				}
-				cubeNormalData[i++] = Float.parseFloat(tmp);
-				tmp = buff.readLine();
-			}
-			buff.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		mBugNormals = ByteBuffer.allocateDirect(cubeNormalData.length * mBytesPerFloat).order(ByteOrder.nativeOrder()).asFloatBuffer();
-		mBugNormals.put(cubeNormalData).position(0);
-
-		float[] cubeTextureCoordinateData = new float[2 * 5580];
-		try {
-			buff = new BufferedReader(new InputStreamReader(mActivityContext.getAssets().open("texture")));
-			i = 0;
-			String tmp = buff.readLine();
-			while (tmp != null) {
-				if (tmp.equals("")) {
-					tmp = buff.readLine();
-					continue;
-				}
-				cubeTextureCoordinateData[i++] = Float.parseFloat(tmp);
-				tmp = buff.readLine();
-			}
-			buff.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		mBugTextureCoordinates = ByteBuffer.allocateDirect(cubeTextureCoordinateData.length * mBytesPerFloat).order(ByteOrder.nativeOrder()).asFloatBuffer();
-		mBugTextureCoordinates.put(cubeTextureCoordinateData).position(0);
-		long cost = System.currentTimeMillis() - now;
-		Log.d(TAG, "loading time:" + cost);
-
-		rd = new Random();
+		loadBugObjInfo();
 
 		// Load fire data
 		final float[] firePositionData = {
@@ -319,6 +187,112 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer {
 
 		mFireTextureCoordinates = ByteBuffer.allocateDirect(fireTextureCoordinateData.length * mBytesPerFloat).order(ByteOrder.nativeOrder()).asFloatBuffer();
 		mFireTextureCoordinates.put(fireTextureCoordinateData).position(0);
+
+	}
+
+	private void loadBugObjInfo() {
+		long now = System.currentTimeMillis();
+
+		// Both initialize cubeColorData in this way
+		float[] cubeColorData = new float[4 * 5580];
+		Arrays.fill(cubeColorData, 1.0f);
+		mBugColorsFloatBuffer = ByteBuffer.allocateDirect(cubeColorData.length * mBytesPerFloat).order(ByteOrder.nativeOrder()).asFloatBuffer();
+		mBugColorsFloatBuffer.put(cubeColorData).position(0);
+
+		if (!Prefs.getObjFileSaved(mCameraActivityInstance)) {
+			// Initialize the buffers.
+			int i = 0;
+			BufferedReader buff;
+			float[] cubePositionData = new float[3 * 5580];
+			try {
+				buff = new BufferedReader(new InputStreamReader(mActivityContext.getAssets().open("vertices")));
+				i = 0;
+				String tmp = buff.readLine();
+				while (tmp != null) {
+					if (tmp.equals("")) {
+						tmp = buff.readLine();
+						continue;
+					}
+					cubePositionData[i++] = Float.parseFloat(tmp);
+					tmp = buff.readLine();
+				}
+				buff.close();
+				buff = null;
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			mBugVerticesFloatBuffer = ByteBuffer.allocateDirect(cubePositionData.length * mBytesPerFloat).order(ByteOrder.nativeOrder()).asFloatBuffer();
+			mBugVerticesFloatBuffer.put(cubePositionData).position(0);
+
+			float[] cubeNormalData = new float[3 * 5580];
+			try {
+				buff = new BufferedReader(new InputStreamReader(mActivityContext.getAssets().open("normal")));
+				i = 0;
+				String tmp = buff.readLine();
+				while (tmp != null) {
+					if (tmp.equals("")) {
+						tmp = buff.readLine();
+						continue;
+					}
+					cubeNormalData[i++] = Float.parseFloat(tmp);
+					tmp = buff.readLine();
+				}
+				buff.close();
+				buff = null;
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			mBugNormalsFloatBuffer = ByteBuffer.allocateDirect(cubeNormalData.length * mBytesPerFloat).order(ByteOrder.nativeOrder()).asFloatBuffer();
+			mBugNormalsFloatBuffer.put(cubeNormalData).position(0);
+			Log.d(Global.APP_LOG_TAG, "test buffereader:" + mBugNormalsFloatBuffer.get(999));
+			
+			float[] cubeTextureCoordinateData = new float[2 * 5580];
+			try {
+				buff = new BufferedReader(new InputStreamReader(mActivityContext.getAssets().open("texture")));
+				i = 0;
+				String tmp = buff.readLine();
+				while (tmp != null) {
+					if (tmp.equals("")) {
+						tmp = buff.readLine();
+						continue;
+					}
+					cubeTextureCoordinateData[i++] = Float.parseFloat(tmp);
+					tmp = buff.readLine();
+				}
+				buff.close();
+				buff = null;
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			mBugTextureFloatBuffer = ByteBuffer.allocateDirect(cubeTextureCoordinateData.length * mBytesPerFloat).order(ByteOrder.nativeOrder()).asFloatBuffer();
+			mBugTextureFloatBuffer.put(cubeTextureCoordinateData).position(0);
+		} else {
+			// We use memory map from files
+			
+			String savePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/debug/";
+			try {
+				mBugTextureFloatBuffer = MemoryMapReader.mapToFloatBuffer(savePath + "memorymap_texture");
+				mBugTextureFloatBuffer.position(0);
+				
+				mBugVerticesFloatBuffer = MemoryMapReader.mapToFloatBuffer(savePath + "memorymap_vertices");
+				mBugVerticesFloatBuffer.position(0);
+				
+				mBugNormalsFloatBuffer = MemoryMapReader.mapToFloatBuffer(savePath + "memorymap_normal");
+				mBugNormalsFloatBuffer.position(0);
+
+			} catch (IOException e) {
+
+			}
+		}
+
+		long cost = System.currentTimeMillis() - now;
+		Log.d(Global.APP_LOG_TAG, "loading time:" + cost);
 
 	}
 
@@ -379,17 +353,9 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer {
 		mBugProgramHandle = ShaderHelper.createAndLinkProgram(bugVertexShaderHandle, bugFragmentShaderHandle, new String[] { "a_Position", "a_Color", "a_Normal", "a_TexCoordinate" });
 
 		// Load the bug's texture
-		mBugFireTextureDataHandle = TextureHelper.loadTexture(mActivityContext, R.drawable.ladybug_fire, GLES20.GL_TEXTURE0);
-		mBugBurningTextureDataHandle = TextureHelper.loadTexture(mActivityContext, R.drawable.ladybug_dead, GLES20.GL_TEXTURE6);
-		mBugFreezingTextureDataHandle = TextureHelper.loadTexture(mActivityContext, R.drawable.ladybug_frozen, GLES20.GL_TEXTURE7);
-
-		// Define a simple shader program for our point.
-		final String pointVertexShader = RawResourceReader.readTextFileFromRawResource(mActivityContext, R.raw.point_vertex_shader);
-		final String pointFragmentShader = RawResourceReader.readTextFileFromRawResource(mActivityContext, R.raw.point_fragment_shader);
-
-		final int pointVertexShaderHandle = ShaderHelper.compileShader(GLES20.GL_VERTEX_SHADER, pointVertexShader);
-		final int pointFragmentShaderHandle = ShaderHelper.compileShader(GLES20.GL_FRAGMENT_SHADER, pointFragmentShader);
-		mLightProgramHandle = ShaderHelper.createAndLinkProgram(pointVertexShaderHandle, pointFragmentShaderHandle, new String[] { "a_Position" });
+		TextureHelper.loadTexture(mActivityContext, R.drawable.ladybug_fire, GLES20.GL_TEXTURE0);
+		TextureHelper.loadTexture(mActivityContext, R.drawable.ladybug_dead, GLES20.GL_TEXTURE6);
+		TextureHelper.loadTexture(mActivityContext, R.drawable.ladybug_frozen, GLES20.GL_TEXTURE7);
 
 		// Define fire program
 		final String fireVertexShader = getVertexShader(R.raw.per_pixel_vertex_shader);
@@ -403,14 +369,8 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer {
 		// Load the fire's texture
 		int[] fireResourcesIds = new int[] { R.drawable.fire_1, R.drawable.fire_2, R.drawable.fire_3, R.drawable.fire_4, R.drawable.fire_5 };
 		int[] activeTextureNums = new int[] { GLES20.GL_TEXTURE1, GLES20.GL_TEXTURE2, GLES20.GL_TEXTURE3, GLES20.GL_TEXTURE4, GLES20.GL_TEXTURE5 };
-		int[] fireTextureHandlesArr = new int[5];
-		fireTextureHandlesArr = TextureHelper.loadTextures(mActivityContext, fireResourcesIds, activeTextureNums);
+		TextureHelper.loadTextures(mActivityContext, fireResourcesIds, activeTextureNums);
 
-		mFireTextureDataHandle1 = fireTextureHandlesArr[0];
-		mFireTextureDataHandle2 = fireTextureHandlesArr[1];
-		mFireTextureDataHandle3 = fireTextureHandlesArr[2];
-		mFireTextureDataHandle4 = fireTextureHandlesArr[3];
-		mFireTextureDataHandle5 = fireTextureHandlesArr[4];
 	}
 
 	@Override
@@ -556,28 +516,28 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer {
 			Matrix.scaleM(mModelMatrix, 0, screenOpenGLWidth / mOpenGLBug.scaleRatio, screenOpenGLWidth / mOpenGLBug.scaleRatio, 100f);
 
 			// Pass in the position information
-			mBugPositions.position(0);
-			GLES20.glVertexAttribPointer(mBugPositionHandle, mPositionDataSize, GLES20.GL_FLOAT, false, 0, mBugPositions);
+			mBugVerticesFloatBuffer.position(0);
+			GLES20.glVertexAttribPointer(mBugPositionHandle, mPositionDataSize, GLES20.GL_FLOAT, false, 0, mBugVerticesFloatBuffer);
 
 			GLES20.glEnableVertexAttribArray(mBugPositionHandle);
 
 			// Pass in the color information
-			mBugColors.position(0);
-			GLES20.glVertexAttribPointer(mBugColorHandle, mColorDataSize, GLES20.GL_FLOAT, false, 0, mBugColors);
+			mBugColorsFloatBuffer.position(0);
+			GLES20.glVertexAttribPointer(mBugColorHandle, mColorDataSize, GLES20.GL_FLOAT, false, 0, mBugColorsFloatBuffer);
 
 			GLES20.glEnableVertexAttribArray(mBugColorHandle);
 
 			// Pass in the normal information
-			mBugNormals.position(0);
-			GLES20.glVertexAttribPointer(mBugNormalHandle, mNormalDataSize, GLES20.GL_FLOAT, false, 0, mBugNormals);
+			mBugNormalsFloatBuffer.position(0);
+			GLES20.glVertexAttribPointer(mBugNormalHandle, mNormalDataSize, GLES20.GL_FLOAT, false, 0, mBugNormalsFloatBuffer);
 
 			GLES20.glEnableVertexAttribArray(mBugNormalHandle);
 
 			// If bug is burning, make it black!
 			if (!mOpenGLBug.burning) {
 				// Pass in the texture coordinate information
-				mBugTextureCoordinates.position(0);
-				GLES20.glVertexAttribPointer(mBugTextureCoordinateHandle, mTextureCoordinateDataSize, GLES20.GL_FLOAT, false, 0, mBugTextureCoordinates);
+				mBugTextureFloatBuffer.position(0);
+				GLES20.glVertexAttribPointer(mBugTextureCoordinateHandle, mTextureCoordinateDataSize, GLES20.GL_FLOAT, false, 0, mBugTextureFloatBuffer);
 				GLES20.glEnableVertexAttribArray(mBugTextureCoordinateHandle);
 			}
 

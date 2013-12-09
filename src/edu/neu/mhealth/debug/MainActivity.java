@@ -197,7 +197,6 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 		}
 	};
 
-
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -226,13 +225,18 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 		super.onPause();
 		if (mOpenCvCameraView != null)
 			mOpenCvCameraView.disableView();
-//		mGLSurfaceView.onPause();
-//		mGLSurfaceView = null;
+		// mGLSurfaceView.onPause();
+		// mGLSurfaceView = null;
 		sensorManager.unregisterListener(linearAccEventListener);
 		ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_INITIAL);
 		ModeManager.AccEventModeManager.getAccEventModeManager().setCurrentMode(AccEventModeManager.MODE_DEFAULT);
-		mOpenGLRenderer.mFireList.clear();
-//		finish();
+		if (mOpenGLRenderer != null) {
+			if (mOpenGLRenderer.mFireList != null) {
+				mOpenGLRenderer.mFireList.clear();
+			}
+		}
+
+		// finish();
 	}
 
 	@Override
@@ -240,7 +244,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 		super.onResume();
 
 		// jumpBug = new JumpBug(this);
-		
+
 		sensorLinearAcc = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
 		linearAccEventListener = new LinearAccEventListener(this);
 		sensorManager.registerListener(linearAccEventListener, sensorLinearAcc, SensorManager.SENSOR_DELAY_FASTEST);
@@ -252,7 +256,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 		// ModeManager.getModeManager().addObserver(jumpBug);
 		ModeManager.getModeManager().addObserver(OpenGLBugManager.getOpenGLBugManager());
 
-//		OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_3, this, mLoaderCallback);
+		// OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_3, this, mLoaderCallback);
 		if (OpenCVLoader.initDebug()) {
 			Log.i(Global.APP_LOG_TAG, "OpenCV loaded successfully");
 
@@ -316,8 +320,8 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 
 		Log.e(Global.APP_LOG_TAG, "touch coordinate: " + event.getX() + "  " + event.getY());
 
-//		int x = configureView.getFloorPosition().x;
-//		int y = configureView.getFloorPosition().y;
+		// int x = configureView.getFloorPosition().x;
+		// int y = configureView.getFloorPosition().y;
 
 		return false;
 	}
@@ -469,7 +473,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 
 		// Set background to transparent
 		blackBackground.setAlpha(0);
-		mColorPickLayout.setBackground(blackBackground);
+		mColorPickLayout.setBackgroundDrawable(blackBackground);
 
 		// Set opencvmode to crosshair mode, so opencv will draw a crosshair in
 		// the center of image
@@ -482,8 +486,8 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 	 * would not overlap GLSurfaceView.
 	 */
 	private void restoreOrCreateGLSurfaceView() {
-			mGLSurfaceView = new MyGLSurfaceView(this);
-			new InitRenderTask(this).execute();
+		mGLSurfaceView = new MyGLSurfaceView(this);
+		new InitRenderTask(this).execute();
 	}
 
 	/**
@@ -551,7 +555,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 		Resources res = getResources();
 		Drawable background = res.getDrawable(R.drawable.black_bg);
 		background.setAlpha(200);
-		mAboutView.setBackground(background);
+		mAboutView.setBackgroundDrawable(background);
 		mFrameLayout.addView(mAboutView);
 
 		mAboutText = (TextView) findViewById(R.id.about_text);
@@ -605,8 +609,8 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 
 	public void addScore(int diff) {
 		score = score + diff;
-//		Log.d(Global.APP_LOG_TAG, "update score:" + score);
-//		Log.d(Global.APP_LOG_TAG, "gamescorelayout height:" + mGameScoreLayout.getHeight());
+		// Log.d(Global.APP_LOG_TAG, "update score:" + score);
+		// Log.d(Global.APP_LOG_TAG, "gamescorelayout height:" + mGameScoreLayout.getHeight());
 
 		updateScoreUI();
 		updateSpray();
@@ -683,7 +687,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 
 		// Set background to semi-transparent black
 		blackBackground.setAlpha(200);
-		mColorPickLayout.setBackground(blackBackground);
+		mColorPickLayout.setBackgroundDrawable(blackBackground);
 
 		mFrameLayout.addView(mColorPickLayout);
 		// Gets a reference to the bottom navigation bar
@@ -752,7 +756,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 	public void onClickColorPickCameraClose(View v) {
 		// Set background to semi-transparent black
 		blackBackground.setAlpha(200);
-		mColorPickLayout.setBackground(blackBackground);
+		mColorPickLayout.setBackgroundDrawable(blackBackground);
 
 		// Goes back to the Color Pick Add rMode
 		initializeInstructionMode();
@@ -846,23 +850,23 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 
 	public void onClickTutorial1InstructionOk(View v) {
 		blackBackground.setAlpha(0);
-		mGameScoreLayout.setBackground(blackBackground);
-		mTutorial1InstructionLayout.setBackground(blackBackground);
+		mGameScoreLayout.setBackgroundDrawable(blackBackground);
+		mTutorial1InstructionLayout.setBackgroundDrawable(blackBackground);
 		mFrameLayout.removeView(mTutorial1InstructionLayout);
 		ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_TUTORIAL_1);
 	}
 
 	public void onClickTutorial2InstructionOk(View v) {
 		blackBackground.setAlpha(0);
-		mGameScoreLayout.setBackground(blackBackground);
-		mTutorial2InstructionLayout.setBackground(blackBackground);
+		mGameScoreLayout.setBackgroundDrawable(blackBackground);
+		mTutorial2InstructionLayout.setBackgroundDrawable(blackBackground);
 
 		mFrameLayout.removeView(mTutorial2InstructionLayout);
 		mFrameLayout.removeView(mGameScoreLayout);
 		mFrameLayout.addView(mGameScoreLayout);
 		ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_TUTORIAL_2);
 	}
-	
+
 	public void onClickUseSpray(View v) {
 		mHandler.postDelayed(mShakeHelperRunnable, 0);
 		fadeOutAnimation.setDuration(6000);
@@ -926,7 +930,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 
 			// Set background to semi-transparent black
 			blackBackground.setAlpha(200);
-			mTutorial1InstructionLayout.setBackground(blackBackground);
+			mTutorial1InstructionLayout.setBackgroundDrawable(blackBackground);
 
 			mFrameLayout.addView(mTutorial1InstructionLayout);
 
@@ -946,7 +950,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 
 			// Set background to semi-transparent black
 			blackBackground.setAlpha(200);
-			mTutorial2InstructionLayout.setBackground(blackBackground);
+			mTutorial2InstructionLayout.setBackgroundDrawable(blackBackground);
 
 			mFrameLayout.addView(mTutorial2InstructionLayout);
 
@@ -962,24 +966,24 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 		@Override
 		public void run() {
 			Prefs.setTutorialed(getApplicationContext(), true);
-//			LayoutInflater layoutInflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
-//			mRealGameInstructionLayout = (LinearLayout) layoutInflater.inflate(R.layout.real_game_instruction, null, false);
-//		
-//			mFrameLayout.addView(mRealGameInstructionLayout);
-//			fadeOutAnimation.setDuration(3000);
-//			mRealGameInstructionLayout.startAnimation(fadeOutAnimation);
-//			mHandler.postDelayed(mRealGameRemoverRunnable, 3000);
+			// LayoutInflater layoutInflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+			// mRealGameInstructionLayout = (LinearLayout) layoutInflater.inflate(R.layout.real_game_instruction, null, false);
+			//
+			// mFrameLayout.addView(mRealGameInstructionLayout);
+			// fadeOutAnimation.setDuration(3000);
+			// mRealGameInstructionLayout.startAnimation(fadeOutAnimation);
+			// mHandler.postDelayed(mRealGameRemoverRunnable, 3000);
 
 		}
 
 	};
-	
+
 	public Runnable mRealGameRemoverRunnable = new Runnable() {
 
 		@Override
 		public void run() {
-//			mFrameLayout.removeView(mRealGameInstructionLayout);
-//			mRealGameInstructionLayout = null; 
+			// mFrameLayout.removeView(mRealGameInstructionLayout);
+			// mRealGameInstructionLayout = null;
 		}
 
 	};
