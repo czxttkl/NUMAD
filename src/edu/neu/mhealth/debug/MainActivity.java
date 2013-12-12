@@ -605,7 +605,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 			mFrameLayout.addView(mAboutView);
 
 			mAboutText = (TextView) findViewById(R.id.about_text);
-			mAboutText.setText(Html.fromHtml(getString(R.string.about_text)));
+			mAboutText.setText(Html.fromHtml(getString(R.string.about_text_debug)));
 			mAboutText.setMovementMethod(LinkMovementMethod.getInstance());
 			mAboutText.setLinkTextColor(getResources().getColor(R.color.holo_light_blue));
 
