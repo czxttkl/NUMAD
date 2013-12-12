@@ -27,4 +27,6 @@
     <string name="real_game_instruction">You have learned all the skills\n
                                          Start the war to bugs now! \n
 										</string>
+	<string name="jump_help_text">Jump to squash frozen bugs</string>
+	<string name="shake_help_text">Shake to freeze bugs!</string>
 </resources>

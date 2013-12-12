@@ -11,7 +11,7 @@ public class Prefs {
 	
 	public static final boolean KEY_SPRAY_TAPPED_DEF = false;
 	public static final boolean KEY_TUTORIALED_DEF = false;
-	public static final boolean KEY_FIRST_TIME_PLAY_DEF = false;
+	public static final boolean KEY_FIRST_TIME_PLAY_DEF = true;
 	public static final boolean KEY_OBJ_FILE_SAVED_DEF = false;
 
 	public static boolean getSprayTapped(Context context) {

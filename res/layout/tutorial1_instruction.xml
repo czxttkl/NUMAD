@@ -3,7 +3,8 @@
     android:id="@+id/tutorial1_layout"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:animateLayoutChanges="true" >
+    android:animateLayoutChanges="true" 
+    android:background="@color/pointeight_black">
 
     <Button
         android:id="@+id/startBtn"

@@ -82,6 +82,9 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 
 	// / Layout
 	private FrameLayout mFrameLayout;
+
+	// Color pick layout related
+	RelativeLayout mColorPickLayout;
 	View mColorPickBottomBar;
 	View mColorPickInstructionsView;
 	View mColorPickHelpNotif;
@@ -91,17 +94,22 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 	public View mColorPickCameraButton;
 	public TextView mColorPickHelpNotifTextView;
 
-	RelativeLayout mColorPickLayout;
-	ImageView mMainMenuBackground;
+	// Main menu related
 	ImageView mMainMenuTitle;
 	View mMainMenuButtonListView;
+
+	// About screen
 	View mAboutView;
 	TextView mAboutText;
+
+	// In game layout
 	TextView mScoreText;
 	ImageView mSprayImageView;
-	Drawable blackBackground;
+	TextView mHelperTextView;
+	ImageView mHelperImageView;
 
-	Animation fadeOutAnimation;
+	Animation fadeOutAnimation6s;
+	Animation fadeOutAnimation3s;
 	Animation fadeInAnimation;
 
 	public int score = 0;
@@ -111,9 +119,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 	RelativeLayout mTutorial2InstructionLayout;
 	RelativeLayout mTutorial3InstructionLayout;
 	LinearLayout mRealGameInstructionLayout;
-	RelativeLayout mGameScoreLayout;
-	LinearLayout mShakeHelperLayout;
-	LinearLayout mJumpHelperLayout;
+	RelativeLayout mInGameLayout;
 
 	// / OpenGL
 	public MyGLSurfaceView mGLSurfaceView;
@@ -206,26 +212,30 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 		setContentView(mFrameLayout);
 
 		sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-		
+
 		OpenGLBugManager.getOpenGLBugManager().setCameraActivityInstance(this);
 	}
 
 	@Override
 	public void onPause() {
 		super.onPause();
+		mFrameLayout.removeAllViews();
+		rendererInited = false;
+
 		if (mOpenCvCameraView != null)
 			mOpenCvCameraView.disableView();
-		// mGLSurfaceView.onPause();
-		// mGLSurfaceView = null;
+
 		sensorManager.unregisterListener(linearAccEventListener);
 		ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_INITIAL);
 		ModeManager.AccEventModeManager.getAccEventModeManager().setCurrentMode(AccEventModeManager.MODE_DEFAULT);
+
 		if (mOpenGLRenderer != null) {
 			if (mOpenGLRenderer.mFireList != null) {
 				mOpenGLRenderer.mFireList.clear();
 			}
 		}
-		myFinish();
+
+		cleanResource();
 	}
 
 	@Override
@@ -264,10 +274,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 		mOpenGLRenderer = null;
 	}
 
-	private void myFinish() {
-		mFrameLayout.removeAllViews();
-//		mOpenCvCameraView = null;
-		
+	private void cleanResource() {
 		mColorPickBottomBar = null;
 		mColorPickInstructionsView = null;
 		mColorPickHelpNotif = null;
@@ -277,29 +284,24 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 		mColorPickCameraButton = null;
 		mColorPickHelpNotifTextView = null;
 		mColorPickLayout = null;
-		mMainMenuBackground = null;
 		mMainMenuTitle = null;
 		mMainMenuButtonListView = null;
 		mAboutView = null;
 		mAboutText = null;
 		mScoreText = null;
 		mSprayImageView = null;
-		blackBackground = null;
 
-		fadeOutAnimation = null;
+		fadeOutAnimation6s = null;
+		fadeOutAnimation3s = null;
 		fadeInAnimation = null;
 
 		mTutorial1InstructionLayout = null;
 		mTutorial2InstructionLayout = null;
 		mTutorial3InstructionLayout = null;
 		mRealGameInstructionLayout = null;
-		mGameScoreLayout = null;
-		mShakeHelperLayout = null;
-		mJumpHelperLayout = null;
+		mInGameLayout = null;
 
 		mHandler = null;
-		
-		Log.d(Global.APP_LOG_TAG, "mframelayout:" + mFrameLayout.getChildCount());
 	}
 
 	public void onCameraViewStarted(int width, int height) {
@@ -340,10 +342,10 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 	}
 
 	public void onCameraViewStopped() {
-		Log.d(Global.APP_LOG_TAG, "camera stop czx");
 		mRgba.release();
 		mGray.release();
 		colorPickAreaHsv.release();
+
 		mColorBlobDetector = null;
 		mOpticalFLowDetector = null;
 		colorRed = null;
@@ -355,7 +357,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 		colorPickAreaFloor = null;
 		crosshairHeftmost = null;
 		crosshairRightmost = null;
-		crosshairUpmost  = null;
+		crosshairUpmost = null;
 		crosshairDownmost = null;
 		destinationTarget = null;
 	}
@@ -477,10 +479,10 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 
 	/** Initialize blackbackground drawable resource */
 	private void initResource() {
-		Resources res = getResources();
-		blackBackground = res.getDrawable(R.drawable.black_bg);
-		fadeOutAnimation = AnimationUtils.loadAnimation(this, R.anim.fade_out);
-		fadeOutAnimation.setFillAfter(true);
+		fadeOutAnimation6s = AnimationUtils.loadAnimation(this, R.anim.fade_out_6);
+		fadeOutAnimation6s.setFillAfter(true);
+		fadeOutAnimation3s = AnimationUtils.loadAnimation(this, R.anim.fade_out_3);
+		fadeOutAnimation3s.setFillAfter(true);
 		fadeInAnimation = AnimationUtils.loadAnimation(this, R.anim.fade_in);
 		fadeInAnimation.setFillAfter(true);
 	}
@@ -515,9 +517,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 			mColorPickHelpNotifTextView.setText(R.string.color_pick_help_notif_floor);
 		}
 
-		// Set background to transparent
-		blackBackground.setAlpha(0);
-		mColorPickLayout.setBackgroundDrawable(blackBackground);
+		mColorPickLayout.setBackgroundColor(getResources().getColor(R.color.transparent));
 
 		// Set opencvmode to crosshair mode, so opencv will draw a crosshair in
 		// the center of image
@@ -538,6 +538,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 			ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_MAIN_MENU);
 			mGLSurfaceView.setZOrderMediaOverlay(true);
 			mGLSurfaceView.setZOrderOnTop(true);
+			rendererInited = true;
 		}
 	}
 
@@ -578,15 +579,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 	/**
 	 * Restore or create Main Menu button/title view. This method is called after clicking start button in about screen.
 	 */
-	@SuppressLint("NewApi")
 	private void restoreOrCreateMainMenu() {
-		mMainMenuBackground = new ImageView(this);
-		mMainMenuBackground.setImageResource(R.drawable.black_bg);
-		mMainMenuBackground.setAlpha(0);
-		mMainMenuBackground.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-		mMainMenuBackground.setScaleType(ImageView.ScaleType.FIT_XY);
-		mFrameLayout.addView(mMainMenuBackground);
-
 		mMainMenuTitle = new ImageView(this);
 		mMainMenuTitle.setImageResource(R.drawable.main_menu_title2);
 		FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(screenOpenGLWidth / 3, screenOpenGLWidth / 8);
@@ -606,19 +599,20 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 	 * Restore or create about screen. (including adding text from strings.xml)
 	 */
 	private void restoreOrCreateAboutScreen() {
-		LayoutInflater layoutInflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
-		mAboutView = layoutInflater.inflate(R.layout.about_screen, null);
-		Resources res = getResources();
-		Drawable background = res.getDrawable(R.drawable.black_bg);
-		background.setAlpha(200);
-		mAboutView.setBackgroundDrawable(background);
-		mFrameLayout.addView(mAboutView);
+		if (Prefs.getFirstTimePlay(getApplicationContext())) {
+			LayoutInflater layoutInflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+			mAboutView = layoutInflater.inflate(R.layout.about_screen, null);
+			mFrameLayout.addView(mAboutView);
 
-		mAboutText = (TextView) findViewById(R.id.about_text);
-		mAboutText.setText(Html.fromHtml(getString(R.string.about_text)));
-		mAboutText.setMovementMethod(LinkMovementMethod.getInstance());
-		// Setups the link color
-		mAboutText.setLinkTextColor(getResources().getColor(R.color.holo_light_blue));
+			mAboutText = (TextView) findViewById(R.id.about_text);
+			mAboutText.setText(Html.fromHtml(getString(R.string.about_text)));
+			mAboutText.setMovementMethod(LinkMovementMethod.getInstance());
+			mAboutText.setLinkTextColor(getResources().getColor(R.color.holo_light_blue));
+
+			Prefs.setFirstTimePlay(getApplicationContext(), false);
+		} else {
+			restoreOrCreateMainMenu();
+		}
 	}
 
 	public double[] findBugNextDest() {
@@ -731,7 +725,6 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 			return;
 		mFrameLayout.removeView(mMainMenuTitle);
 		mFrameLayout.removeView(mMainMenuButtonListView);
-		mFrameLayout.removeView(mMainMenuBackground);
 
 		// OpenGL shouldn't render anything right after clicking start game.
 		ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_INITIAL);
@@ -739,10 +732,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 		// Inflates the Overlay Layout to be displayed above the Camera View
 		LayoutInflater layoutInflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
 		mColorPickLayout = (RelativeLayout) layoutInflater.inflate(R.layout.color_pick_overlay, null, false);
-
-		// Set background to semi-transparent black
-		blackBackground.setAlpha(200);
-		mColorPickLayout.setBackgroundDrawable(blackBackground);
+		mColorPickLayout.setBackgroundColor(getResources().getColor(R.color.pointeight_black));
 
 		mFrameLayout.addView(mColorPickLayout);
 		// Gets a reference to the bottom navigation bar
@@ -809,9 +799,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 
 	/** Button Close/Cancel clicked in the process of color picking */
 	public void onClickColorPickCameraClose(View v) {
-		// Set background to semi-transparent black
-		blackBackground.setAlpha(200);
-		mColorPickLayout.setBackgroundDrawable(blackBackground);
+		mColorPickLayout.setBackgroundColor(getResources().getColor(R.color.pointeight_black));
 
 		// Goes back to the Color Pick Add rMode
 		initializeInstructionMode();
@@ -889,10 +877,12 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 		ModeManager.AccEventModeManager.getAccEventModeManager().setCurrentMode(AccEventModeManager.MODE_DEFAULT);
 		// Inflates the game score layout
 		LayoutInflater layoutInflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
-		mGameScoreLayout = (RelativeLayout) layoutInflater.inflate(R.layout.game_score, null, false);
-		mFrameLayout.addView(mGameScoreLayout);
+		mInGameLayout = (RelativeLayout) layoutInflater.inflate(R.layout.in_game, null, false);
+		mFrameLayout.addView(mInGameLayout);
 		mScoreText = (TextView) findViewById(R.id.score_text);
 		mSprayImageView = (ImageView) findViewById(R.id.spray);
+		mHelperImageView = (ImageView) findViewById(R.id.helper_image);
+		mHelperTextView = (TextView) findViewById(R.id.helper_text);
 
 		if (Prefs.getTutorialed(getApplicationContext())) {
 			ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_REAL_GAME);
@@ -904,51 +894,33 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 	}
 
 	public void onClickTutorial1InstructionOk(View v) {
-		blackBackground.setAlpha(0);
-		mGameScoreLayout.setBackgroundDrawable(blackBackground);
-		mTutorial1InstructionLayout.setBackgroundDrawable(blackBackground);
 		mFrameLayout.removeView(mTutorial1InstructionLayout);
 		ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_TUTORIAL_1);
+		mTutorial1InstructionLayout = null;
 	}
 
 	public void onClickTutorial2InstructionOk(View v) {
-		blackBackground.setAlpha(0);
-		mGameScoreLayout.setBackgroundDrawable(blackBackground);
-		mTutorial2InstructionLayout.setBackgroundDrawable(blackBackground);
-
 		mFrameLayout.removeView(mTutorial2InstructionLayout);
-		mFrameLayout.removeView(mGameScoreLayout);
-		mFrameLayout.addView(mGameScoreLayout);
 		ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_TUTORIAL_2);
+		mTutorial2InstructionLayout = null;
 	}
 
-	public void onClickUseSpray(View v) {
-		mHandler.postDelayed(mShakeHelperRunnable, 0);
-		fadeOutAnimation.setDuration(6000);
-		mSprayImageView.startAnimation(fadeOutAnimation);
+	public void onClickSpray(View v) {
+		mSprayImageView.startAnimation(fadeOutAnimation6s);
 		mSprayImageView.setEnabled(false);
 		ModeManager.AccEventModeManager.getAccEventModeManager().setCurrentMode(AccEventModeManager.MODE_SPRAY_SHAKE);
+		mHelperImageView.setImageResource(R.drawable.shake_helper);
+		mHelperTextView.setText(R.string.shake_help_text);
+		mHelperImageView.setAlpha(1f);
+		mHelperTextView.setAlpha(1f);
+		mHelperTextView.startAnimation(fadeOutAnimation3s);
+		mHelperImageView.startAnimation(fadeOutAnimation3s);
+		mHandler.postDelayed(mShakeHelperRemoverRunnable, 3000);
 	}
-
-	protected Runnable mShakeHelperRunnable = new Runnable() {
-		@Override
-		public void run() {
-			LayoutInflater layoutInflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
-			mShakeHelperLayout = (LinearLayout) layoutInflater.inflate(R.layout.shake_helper, null, false);
-			mFrameLayout.addView(mShakeHelperLayout);
-			ModeManager.AccEventModeManager.getAccEventModeManager().setCurrentMode(AccEventModeManager.MODE_SPRAY_SHAKE);
-
-			fadeOutAnimation.setDuration(3000);
-			mShakeHelperLayout.startAnimation(fadeOutAnimation);
-			mHandler.postDelayed(mShakeHelperRemoverRunnable, 3000);
-		}
-	};
 
 	protected Runnable mShakeHelperRemoverRunnable = new Runnable() {
 		@Override
 		public void run() {
-			mFrameLayout.removeView(mShakeHelperLayout);
-			mShakeHelperLayout = null;
 			mHandler.postDelayed(mJumpHelperRunnable, 300);
 		}
 	};
@@ -957,11 +929,10 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 		@Override
 		public void run() {
 			ModeManager.AccEventModeManager.getAccEventModeManager().setCurrentMode(AccEventModeManager.MODE_SPRAY_JUMP);
-			LayoutInflater layoutInflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
-			mJumpHelperLayout = (LinearLayout) layoutInflater.inflate(R.layout.jump_helper, null, false);
-			mFrameLayout.addView(mJumpHelperLayout);
-			fadeOutAnimation.setDuration(3000);
-			mJumpHelperLayout.startAnimation(fadeOutAnimation);
+			mHelperImageView.setImageResource(R.drawable.jump_helper);
+			mHelperTextView.setText(R.string.jump_help_text);
+			mHelperTextView.startAnimation(fadeOutAnimation3s);
+			mHelperImageView.startAnimation(fadeOutAnimation3s);
 			mHandler.postDelayed(mJumpHelperRemoverRunnable, 3000);
 		}
 	};
@@ -969,8 +940,6 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 	protected Runnable mJumpHelperRemoverRunnable = new Runnable() {
 		@Override
 		public void run() {
-			mFrameLayout.removeView(mJumpHelperLayout);
-			mJumpHelperLayout = null;
 			ModeManager.AccEventModeManager.getAccEventModeManager().setCurrentMode(AccEventModeManager.MODE_DEFAULT);
 			OpenGLBugManager.getOpenGLBugManager().unfreezeBugs();
 		}
@@ -982,10 +951,6 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 			// Inflates the Overlay Layout to be displayed above the Camera View
 			LayoutInflater layoutInflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
 			mTutorial1InstructionLayout = (RelativeLayout) layoutInflater.inflate(R.layout.tutorial1_instruction, null, false);
-
-			// Set background to semi-transparent black
-			blackBackground.setAlpha(200);
-			mTutorial1InstructionLayout.setBackgroundDrawable(blackBackground);
 
 			mFrameLayout.addView(mTutorial1InstructionLayout);
 
@@ -1002,10 +967,6 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 			// Inflates the Overlay Layout to be displayed above the Camera View
 			LayoutInflater layoutInflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
 			mTutorial2InstructionLayout = (RelativeLayout) layoutInflater.inflate(R.layout.tutorial2_instruction, null, false);
-
-			// Set background to semi-transparent black
-			blackBackground.setAlpha(200);
-			mTutorial2InstructionLayout.setBackgroundDrawable(blackBackground);
 
 			mFrameLayout.addView(mTutorial2InstructionLayout);
 
