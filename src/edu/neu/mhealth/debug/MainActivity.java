@@ -118,17 +118,13 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 	// / OpenGL
 	public MyGLSurfaceView mGLSurfaceView;
 	public OpenGLRenderer mOpenGLRenderer;
-	public final Handler mHandler = new Handler();
-
-	// / OpenCV basic
-	private List<android.hardware.Camera.Size> resolutions;
+	public Handler mHandler = new Handler();
 
 	// / For Game Flow Control
 	public boolean shoeColorPicked = false;
 	private boolean floorColorPicked = false;
 	public boolean rendererInited = false;
 
-	Mat colorPickAreaHsv;
 	org.opencv.core.Point crosshairHeftmost;
 	org.opencv.core.Point crosshairRightmost;
 	org.opencv.core.Point crosshairUpmost;
@@ -140,11 +136,9 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 	private Scalar mFloorColorPickHsv;
 
 	// / For color detection
+	Mat colorPickAreaHsv;
 	private Mat mRgba;
 	private Mat mGray;
-	private Mat tempGray;
-	private Scalar mBlobColorRgba;
-	private Scalar mBlobColorHsv;
 
 	private CameraView mOpenCvCameraView;
 	private JumpBug jumpBug;
@@ -181,7 +175,6 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 			switch (status) {
 			case LoaderCallbackInterface.SUCCESS: {
 				Log.i(Global.APP_LOG_TAG, "OpenCV loaded successfully");
-
 				restoreOrCreateJavaCameraView();
 				restoreOrCreateGLSurfaceView();
 				restoreOrCreateAboutScreen();
@@ -212,10 +205,9 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 		mFrameLayout = new FrameLayout(this);
 		setContentView(mFrameLayout);
 
-		initResource();
-
 		sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-
+		
+		OpenGLBugManager.getOpenGLBugManager().setCameraActivityInstance(this);
 	}
 
 	@Override
@@ -233,14 +225,14 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 				mOpenGLRenderer.mFireList.clear();
 			}
 		}
+		myFinish();
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
-
+		initResource();
 		// jumpBug = new JumpBug(this);
-
 		sensorLinearAcc = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
 		linearAccEventListener = new LinearAccEventListener(this);
 		sensorManager.registerListener(linearAccEventListener, sensorLinearAcc, SensorManager.SENSOR_DELAY_FASTEST);
@@ -255,7 +247,6 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 		// OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_3, this, mLoaderCallback);
 		if (OpenCVLoader.initDebug()) {
 			Log.i(Global.APP_LOG_TAG, "OpenCV loaded successfully");
-
 			restoreOrCreateJavaCameraView();
 			restoreOrCreateGLSurfaceView();
 			restoreOrCreateAboutScreen();
@@ -264,8 +255,51 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 
 	public void onDestroy() {
 		super.onDestroy();
-		if (mOpenCvCameraView != null)
+		if (mOpenCvCameraView != null) {
 			mOpenCvCameraView.disableView();
+			mOpenCvCameraView = null;
+		}
+		OpenGLBugManager.finish();
+		mGLSurfaceView = null;
+		mOpenGLRenderer = null;
+	}
+
+	private void myFinish() {
+		mFrameLayout.removeAllViews();
+//		mOpenCvCameraView = null;
+		
+		mColorPickBottomBar = null;
+		mColorPickInstructionsView = null;
+		mColorPickHelpNotif = null;
+		mColorPickHelpConfirmButt1 = null;
+		mColorPickHelpConfirmButt2 = null;
+		mColorPickCloseButton = null;
+		mColorPickCameraButton = null;
+		mColorPickHelpNotifTextView = null;
+		mColorPickLayout = null;
+		mMainMenuBackground = null;
+		mMainMenuTitle = null;
+		mMainMenuButtonListView = null;
+		mAboutView = null;
+		mAboutText = null;
+		mScoreText = null;
+		mSprayImageView = null;
+		blackBackground = null;
+
+		fadeOutAnimation = null;
+		fadeInAnimation = null;
+
+		mTutorial1InstructionLayout = null;
+		mTutorial2InstructionLayout = null;
+		mTutorial3InstructionLayout = null;
+		mRealGameInstructionLayout = null;
+		mGameScoreLayout = null;
+		mShakeHelperLayout = null;
+		mJumpHelperLayout = null;
+
+		mHandler = null;
+		
+		Log.d(Global.APP_LOG_TAG, "mframelayout:" + mFrameLayout.getChildCount());
 	}
 
 	public void onCameraViewStarted(int width, int height) {
@@ -278,8 +312,6 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 
 		mRgba = new Mat(height, width, CvType.CV_8UC4);
 		mGray = new Mat(height, width, CvType.CV_8UC1);
-		mBlobColorRgba = new Scalar(255);
-		mBlobColorHsv = new Scalar(255);
 
 		colorRed = new Scalar(255, 0, 0);
 		colorBlue = new Scalar(51, 181, 229);
@@ -308,8 +340,24 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 	}
 
 	public void onCameraViewStopped() {
+		Log.d(Global.APP_LOG_TAG, "camera stop czx");
 		mRgba.release();
 		mGray.release();
+		colorPickAreaHsv.release();
+		mColorBlobDetector = null;
+		mOpticalFLowDetector = null;
+		colorRed = null;
+		colorBlue = null;
+		colorGray = null;
+		detectedShoesContours = null;
+		detectedFloorContours = null;
+		colorPickAreaShoe = null;
+		colorPickAreaFloor = null;
+		crosshairHeftmost = null;
+		crosshairRightmost = null;
+		crosshairUpmost  = null;
+		crosshairDownmost = null;
+		destinationTarget = null;
 	}
 
 	public boolean onTouch(View v, MotionEvent event) {
@@ -482,8 +530,15 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 	 * would not overlap GLSurfaceView.
 	 */
 	private void restoreOrCreateGLSurfaceView() {
-		mGLSurfaceView = new MyGLSurfaceView(this);
-		new InitRenderTask(this).execute();
+		if (mGLSurfaceView == null) {
+			mGLSurfaceView = new MyGLSurfaceView(getApplicationContext());
+			new InitRenderTask(this).execute();
+		} else {
+			mFrameLayout.addView(mGLSurfaceView);
+			ModeManager.getModeManager().setCurrentMode(ModeManager.MODE_MAIN_MENU);
+			mGLSurfaceView.setZOrderMediaOverlay(true);
+			mGLSurfaceView.setZOrderOnTop(true);
+		}
 	}
 
 	/**
@@ -505,14 +560,19 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 	 * CameraView would not overlap GLSurfaceView.
 	 */
 	private void restoreOrCreateJavaCameraView() {
-		mOpenCvCameraView = new CameraView(this);
-		mOpenCvCameraView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
-		// mOpenCvCameraView.setMaxFrameSize(500, 500);
-		mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
-		mOpenCvCameraView.setCvCameraViewListener(this);
-		// mOpenCvCameraView.enableFpsMeter();
-		mFrameLayout.addView(mOpenCvCameraView);
-		mOpenCvCameraView.enableView();
+		if (mOpenCvCameraView == null) {
+			mOpenCvCameraView = new CameraView(getApplicationContext());
+			mOpenCvCameraView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+			// mOpenCvCameraView.setMaxFrameSize(500, 500);
+			mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
+			mOpenCvCameraView.setCvCameraViewListener(this);
+			// mOpenCvCameraView.enableFpsMeter();
+			mFrameLayout.addView(mOpenCvCameraView);
+			mOpenCvCameraView.enableView();
+		} else {
+			mFrameLayout.addView(mOpenCvCameraView);
+			mOpenCvCameraView.enableView();
+		}
 	}
 
 	/**

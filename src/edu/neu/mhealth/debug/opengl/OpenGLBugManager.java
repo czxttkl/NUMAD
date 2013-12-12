@@ -33,6 +33,10 @@ public class OpenGLBugManager implements Observer {
 		return mOpenGLBugManager;
 	}
 
+	public static void finish() {
+		mOpenGLBugManager = null;
+	}
+	
 	public void setCameraActivityInstance(MainActivity mCameraActivity) {
 		mCameraActivityInstance = mCameraActivity;
 	}

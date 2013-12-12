@@ -41,7 +41,6 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer {
 	private static final String TAG = "mDebug";
 
 	private final Context mActivityContext;
-	private final MainActivity mCameraActivityInstance;
 
 	/** The default scale ratio for 3d model */
 	public final static float SCALE_RATIO = 12.0f;
@@ -153,8 +152,6 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer {
 	/** Initialize the model data */
 	public OpenGLRenderer(final Context activityContext) {
 		this.mActivityContext = activityContext;
-		this.mCameraActivityInstance = (MainActivity) mActivityContext;
-		OpenGLBugManager.getOpenGLBugManager().setCameraActivityInstance(mCameraActivityInstance);
 
 		loadBugObjInfo();
 
@@ -199,7 +196,7 @@ public class OpenGLRenderer implements GLSurfaceView.Renderer {
 		mBugColorsFloatBuffer = ByteBuffer.allocateDirect(bugColorData.length * mBytesPerFloat).order(ByteOrder.nativeOrder()).asFloatBuffer();
 		mBugColorsFloatBuffer.put(bugColorData).position(0);
 
-		if (!Prefs.getObjFileSaved(mCameraActivityInstance)) {
+		if (!Prefs.getObjFileSaved(mActivityContext)) {
 			// Initialize the buffers.
 			int i = 0;
 			BufferedReader buff;
