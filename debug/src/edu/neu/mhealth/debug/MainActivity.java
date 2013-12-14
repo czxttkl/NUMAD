@@ -124,7 +124,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 	// / OpenGL
 	public MyGLSurfaceView mGLSurfaceView;
 	public OpenGLRenderer mOpenGLRenderer;
-	public Handler mHandler = new Handler();
+	public final Handler mHandler = new Handler();
 
 	// / For Game Flow Control
 	public boolean shoeColorPicked = false;
@@ -301,7 +301,16 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 		mRealGameInstructionLayout = null;
 		mInGameLayout = null;
 
-		mHandler = null;
+		mHandler.removeCallbacks(mJumpHelperRemoverRunnable);
+		mHandler.removeCallbacks(mJumpHelperRunnable);
+		mHandler.removeCallbacks(mRealGameRemoverRunnable);
+		mHandler.removeCallbacks(mShakeHelperRemoverRunnable);
+		mHandler.removeCallbacks(mStartRealGame);
+		mHandler.removeCallbacks(mTutorial1InstructionUpdator);
+		mHandler.removeCallbacks(mTutorial2InstructionUpdator);
+		
+		shoeColorPicked = false;
+		floorColorPicked = false;
 	}
 
 	public void onCameraViewStarted(int width, int height) {
@@ -599,6 +608,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 	 * Restore or create about screen. (including adding text from strings.xml)
 	 */
 	private void restoreOrCreateAboutScreen() {
+//		if (Prefs.getFirstTimePlay(getApplicationContext())) {
 			LayoutInflater layoutInflater = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
 			mAboutView = layoutInflater.inflate(R.layout.about_screen, null);
 			mFrameLayout.addView(mAboutView);
@@ -607,7 +617,11 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 			mAboutText.setText(Html.fromHtml(getString(R.string.about_text_debug)));
 			mAboutText.setMovementMethod(LinkMovementMethod.getInstance());
 			mAboutText.setLinkTextColor(getResources().getColor(R.color.holo_light_blue));
-
+//
+//			Prefs.setFirstTimePlay(getApplicationContext(), false);
+//		} else {
+//			restoreOrCreateMainMenu();
+//		}
 	}
 
 	public double[] findBugNextDest() {
@@ -647,9 +661,17 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 	public int isPointInFloor(int openCvWidth, int openCvHeight, boolean calculateDist) {
 		org.opencv.core.Point pt = new org.opencv.core.Point(openCvWidth, openCvHeight);
 		MatOfPoint2f detectedFloorContour2f = new MatOfPoint2f();
-		detectedFloorContours.get(0).convertTo(detectedFloorContour2f, CvType.CV_32FC2);
-		int result = (int) Imgproc.pointPolygonTest(detectedFloorContour2f, pt, calculateDist);
-		return result;
+		if ((detectedFloorContours!= null) && (detectedFloorContours.size() > 0)) {
+			detectedFloorContours.get(0).convertTo(detectedFloorContour2f, CvType.CV_32FC2);
+			int result = (int) Imgproc.pointPolygonTest(detectedFloorContour2f, pt, calculateDist);
+			return result;
+		}
+		
+		if (calculateDist) {
+			return -99;
+		} else {
+			return -1;
+		}
 	}
 
 	public void addScore(int diff) {
@@ -932,7 +954,7 @@ public class MainActivity extends Activity implements OnTouchListener, CvCameraV
 		}
 	};
 
-	protected Runnable mJumpHelperRemoverRunnable = new Runnable() {
+	protected  Runnable mJumpHelperRemoverRunnable = new Runnable() {
 		@Override
 		public void run() {
 			ModeManager.AccEventModeManager.getAccEventModeManager().setCurrentMode(AccEventModeManager.MODE_DEFAULT);
