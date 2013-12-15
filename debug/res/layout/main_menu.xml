@@ -25,6 +25,7 @@
             android:layout_height="wrap_content"
             android:background="@null"
             android:src="@drawable/settings" 
+            android:visibility="invisible"
             android:onClick="onClickMainMenuSettings"/>
 
         <ImageButton
